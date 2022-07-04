@@ -1,8 +1,103 @@
-import std/[strutils, nre, strformat, options, sequtils, macros]
+import std/[strutils, strformat, nre, options, sequtils, macros]
 
 type
-  ParserState = enum
+  ParserStates = enum
     psModule, psSchematic, psIcon
+
+  SueCommands = enum
+    scMake = "make"
+    scMakeWire = "make_wire"
+    scMakeText = "make_text"
+    scIconSetup = "icon_setup"
+    scIconTerm = "icon_term"
+    scIconProperty = "icon_property"
+    scIconLine = "icon_line"
+    scIconArc = "icon_arc"
+
+  SueFile = object
+    schematic: int
+    icon: int
+
+  SuePoint = tuple[x, y: int]
+
+  SueOptions = enum
+    soLabel = "label"
+    soText = "text"
+    soName = "name"
+    soOrigin = "origin"
+    soOrient = "orient"
+    soRotate = "rotate"
+    soSize = "size"
+    soType = "type"
+    soAnchor = "anchor"
+    soStart = "start"
+    soExtent = "extent"
+
+  SuePorts = enum
+    spInput = "input"
+    spOutput = "output"
+    spInOut = "inout"
+    spUser = "user"
+
+  SueSize = enum
+    ssSmall, ssLarge
+
+  SueOption = object
+    case flag: SueOptions
+    of soText:
+      text: string
+
+    of soOrigin:
+      position: SuePoint
+
+    of soName:
+      name: string
+
+    of soType:
+      portType: SuePorts
+
+    of soSize:
+      size: SueSize
+
+    of soLabel:
+      label: string
+
+    of soOrient:
+      # orient: seq[Orientation]
+      discard # TODO
+
+    of soAnchor:
+      anchor: string
+
+    of soRotate:
+      rotation: int
+
+    of soStart, soExtent:
+      degree: int
+
+  SueExperssion = object
+    case command: SueCommands
+    of scMake:
+      ident: string
+
+    of scMakeWire, scIconArc:
+      head, tail: SuePoint
+
+    of scMakeText:
+      text: string
+
+    of scIconSetup:
+      discard # TODO
+
+    of scIconTerm, scIconProperty:
+      discard
+
+    of scIconLine:
+      points: seq[SuePoint]
+
+    options: seq[SueOption]
+
+
 
 template err(msg: string): untyped =
   raise newException(ValueError, msg)
@@ -12,11 +107,12 @@ func hasLetter(s: string): bool =
     if ch in Letters:
       return true
 
+
 template findGoImpl(s, pat, i): untyped {.dirty.} =
-  let m = s.find(pat, i)
+  let m = s.match(pat, i)
   assert issome m, "cannot match"
 
-  i = m.get.matchBounds.b
+  i = m.get.matchBounds.b + 1
 
 func findGo(s: string, pat: Regex, i: var int): string =
   findGoImpl s, pat, i
@@ -26,6 +122,7 @@ func findGoMulti(s: string, pat: Regex, i: var int): seq[string] =
   findGoImpl s, pat, i
   for s in m.get.captures:
     result.add s.get
+
 
 macro toTuple(list: untyped, n: static[int]): untyped =
   let tempId = ident "temp"
@@ -39,76 +136,67 @@ macro toTuple(list: untyped, n: static[int]): untyped =
       let `tempId` = `list`
       `tupleDef`
 
+
 # loc: line of code
 proc matchProcLine(loc: string) =
   var i = 0
   let command = loc.findGo(re"(\w+) ", i)
 
-  # --- parse params
+  # --- parse params ---
 
-  case command:
-  of "make":
-    let moduleName = loc.findGo(re"(\w+) ", i)
+  case parseEnum[SueCommands](command):
+    of scMake:
+      let moduleName = loc.findGo(re"(\w+) ", i)
 
-  of "make_wire":
-    let (x1, y1, x2, y2) = loc
-      .findGoMulti(re"(-?\d+) (-?\d+) (-?\d+) (-?\d+)", i)
-      .mapit(parseInt it)
-      .toTuple(4)
+    of scMakeWire, scIconArc:
+      let (x1, y1, x2, y2) = loc
+        .findGoMulti(re"(-?\d+) (-?\d+) (-?\d+) (-?\d+)", i)
+        .mapit(parseInt it)
+        .toTuple(4)
 
-  of "make_text":
-    discard
+    of scMakeText:
+      discard
 
-  # of "icon_setup":
-  #   discard
+    of scIconSetup:
+      discard
 
-  # of "icon_term":
-  #   discard
+    of scIconTerm:
+      discard
 
-  # of "icon_property":
-  #   discard
+    of scIconProperty:
+      discard
 
-  of "icon_line":
-    let args = loc.substr(i+1).split.mapit(parseInt it)
-    echo args
-    i = loc.high
+    of scIconLine:
+      let args = loc.substr(i+1).split.mapit(parseInt it)
+      i = loc.high
 
-  # of "icon_arc":
-  #   discard
+  # --- parse options ---
 
-  else:
-    discard
-    # err fmt"undefined command: {command}"
-
-  # parse options
+  var tempOption: SueOption
 
   while i < loc.high:
     let flag =
       try: loc.findgo(re"-(\w+) ", i)
       except: break
 
-    # echo flag
+    # echo "<< ", flag
 
-    case flag:
-    of "origin":
-      let (x, y) = loc
-        .findGoMulti(re"\{(-?\d+) (-?\d+)\}", i)
-        .mapit(parseInt it)
-        .toTuple(2)
+    case parseEnum[SueOptions](flag):
+      of soOrigin:
+        let (x, y) = loc
+          .findGoMulti(re"\{(-?\d+) (-?\d+)\}", i)
+          .mapit(parseInt it)
+          .toTuple(2)
 
-      echo (x, y)
+      of soOrient, soName, soType, soSize, soAnchor, soLabel, soRotate:
+        discard loc.findGo(re"(\w+|\{.*\}) ?", i)
 
-    of "orient":
-      discard
+      of soText:
+        discard loc.findGo(re"(\{.*\}|[^ ]+) ?", i)
 
-    of "name", "type", "size", "anchor", "label", "rotate":
-      echo loc.findGo(re"(\w+)", i)
+      of soStart, soExtent:
+        let degree = loc.findGo(re"(-?\d+) ?", i)
 
-    of "text":
-      echo loc.findGo(re"(\{.*\}|[^ ]+)", i)
-
-    else:
-      err fmt"invalid flag: {flag}"
 
 when isMainModule:
   var pstate = psModule
