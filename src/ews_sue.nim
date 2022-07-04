@@ -4,6 +4,7 @@ type
   ParserStates = enum
     psModule, psSchematic, psIcon
 
+
   SueCommands = enum
     scMake = "make"
     scMakeWire = "make_wire"
@@ -14,13 +15,7 @@ type
     scIconLine = "icon_line"
     scIconArc = "icon_arc"
 
-  SueFile = object
-    schematic: int
-    icon: int
-
-  SuePoint = tuple[x, y: int]
-
-  SueOptions = enum
+  SueFlags = enum
     soLabel = "label"
     soText = "text"
     soName = "name"
@@ -40,10 +35,14 @@ type
     spUser = "user"
 
   SueSize = enum
-    ssSmall, ssLarge
+    ssSmall = "small"
+    ssLarge = "large"
+
+
+  SuePoint = tuple[x, y: int]
 
   SueOption = object
-    case flag: SueOptions
+    case flag: SueFlags
     of soText:
       text: string
 
@@ -97,10 +96,19 @@ type
 
     options: seq[SueOption]
 
+  SueFile = object
+    schematic, icon: seq[SueExperssion]
 
 
 template err(msg: string): untyped =
   raise newException(ValueError, msg)
+
+func `[]`(s: SueExperssion, flag: SueFlags): SueOption =
+  for o in s.options:
+    if o.flag == flag:
+      return o
+
+  err fmt"-{flag} option not found"
 
 func hasLetter(s: string): bool =
   for ch in s:
@@ -181,7 +189,7 @@ proc matchProcLine(loc: string) =
 
     # echo "<< ", flag
 
-    case parseEnum[SueOptions](flag):
+    case parseEnum[SueFlags](flag):
       of soOrigin:
         let (x, y) = loc
           .findGoMulti(re"\{(-?\d+) (-?\d+)\}", i)
