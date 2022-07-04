@@ -1,0 +1,18 @@
+# SUE version MMI_SUE3.5
+
+proc SCHEMATIC_chip {} {
+  make io_pad_ami_c5n -name pad1 -origin {560 -1440}
+  make io_pad_ami_c5n -orient R90Y -name pad14 -origin {-1680 -2480}
+  make global -orient RXY -name vdd -origin {380 -510}
+  make name_net -name {memdataout_s1[15]} -origin {-1860 -2100}
+  make name_net -name {memdatain_v1[15]} -origin {-1790 -2220}
+  make top -origin {-720 -1200}
+  make inout -orient RXY -name {mempad_v1[15]} -origin {-2130 -2160}
+  make name_net -name {[3]} -origin {-1760 -180}
+  make output -orient RXY -name {memaddr_v1[3]} -origin {-2110 -240}
+  make_wire -1690 -110 -1800 -110
+  make_wire -1800 -950 -1880 -950
+  make_wire 150 -1280 320 -1280
+  make_text -origin {-1740 -2690} -text {This is the schematic for AMI-C5N 0.5um technology}
+  make_text -origin {-1740 -2660} -text Lambda=0.35um
+}
