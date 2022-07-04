@@ -1,6 +1,7 @@
 # SUE version MMI_SUE3.5
 
 proc SCHEMATIC_chip {} {
+  make_wire -1800 -950 -1880 -950
   make io_pad_ami_c5n -name pad1 -origin {560 -1440}
   make io_pad_ami_c5n -orient R90Y -name pad14 -origin {-1680 -2480}
   make global -orient RXY -name vdd -origin {380 -510}
@@ -11,8 +12,69 @@ proc SCHEMATIC_chip {} {
   make name_net -name {[3]} -origin {-1760 -180}
   make output -orient RXY -name {memaddr_v1[3]} -origin {-2110 -240}
   make_wire -1690 -110 -1800 -110
-  make_wire -1800 -950 -1880 -950
   make_wire 150 -1280 320 -1280
   make_text -origin {-1740 -2690} -text {This is the schematic for AMI-C5N 0.5um technology}
   make_text -origin {-1740 -2660} -text Lambda=0.35um
+}
+
+proc ICON_chip args {
+  icon_setup $args {{origin {0 0}} {orient R0} {name {}} {M {}}}
+  icon_term -type output -origin {-280 80} -orient R90 -name {r1addr_s2[3:0]}
+  icon_term -type output -origin {-240 80} -orient R90 -name {waddr_s2[2:0]}
+  icon_term -type output -origin {-260 80} -orient R90 -name {r0addr_s2[3:0]}
+  icon_term -type output -origin {260 80} -orient R90 -name {pcmux_v1[1:0]}
+  icon_term -type output -origin {220 80} -orient R90 -name sltsel_s1
+  icon_term -type output -origin {200 80} -orient R90 -name shiftsel_s1
+  icon_term -type output -origin {180 80} -orient R90 -name loadsel_s1
+  icon_term -type output -origin {120 80} -orient R90 -name shiftin_s1
+  icon_term -type output -origin {100 80} -orient R90 -name upshift_s1
+  icon_term -type output -origin {80 80} -orient R90 -name logicsel_s1
+  icon_term -type output -origin {60 80} -orient R90 -name orsel_s1
+  icon_term -type output -origin {40 80} -orient R90 -name subsel_s1
+  icon_term -type output -origin {280 80} -orient R90 -name noopsel_s1
+  icon_term -type output -origin {-40 80} -orient R90 -name r1forward_s2
+  icon_term -type output -origin {-60 80} -orient R90 -name r0forward_s2
+  icon_term -type output -origin {-220 80} -orient R90 -name wsel_odd_s2
+  icon_term -type output -origin {-200 80} -orient R90 -name wsel_even_s2
+  icon_term -type input -origin {20 80} -orient R270 -name zdetected_v1
+  icon_term -type input -origin {140 80} -orient R270 -name shiftout_msb_s1
+  icon_term -type input -origin {160 80} -orient R270 -name shiftout_lsb_s1
+  icon_term -type input -origin {240 80} -orient R270 -name reset_s1
+  icon_term -type output -origin {290 -70} -name mem_write_enable_s1
+  icon_term -type input -origin {290 -50} -orient RXY -name {memdatain_v1[15:0]}
+  icon_term -type input -origin {-80 80} -orient R270 -name phi2
+  icon_term -type input -origin {-120 80} -orient R270 -name phi1
+  icon_term -type output -origin {-20 80} -orient R90X -name {imm_s1[11:0]}
+  icon_term -type output -origin {0 80} -orient R90X -name immsel_s1
+  icon_property -origin {-70 -120} -type user -name name
+  icon_property -origin {-70 -100} -type user -name M
+  icon_line -290 80 -290 -80 290 -80 290 80 -290 80
+  icon_property -origin {-280 70} -size small -anchor e -rotate 1 -label {r1addr_s2[3:0]}
+  icon_property -origin {-240 70} -size small -anchor e -rotate 1 -label {waddr_s2[2:0]}
+  icon_property -origin {-260 70} -size small -anchor e -rotate 1 -label {r0addr_s2[3:0]}
+  icon_property -origin {260 70} -size small -anchor e -rotate 1 -label {pcmux_v1[1:0]}
+  icon_property -origin {-20 70} -size small -anchor e -rotate 1 -label {imm_s1[11:0]}
+  icon_property -origin {220 70} -size small -anchor e -rotate 1 -label sltsel_s1
+  icon_property -origin {200 70} -size small -anchor e -rotate 1 -label shiftsel_s1
+  icon_property -origin {180 70} -size small -anchor e -rotate 1 -label loadsel_s1
+  icon_property -origin {120 70} -size small -anchor e -rotate 1 -label shiftin_s1
+  icon_property -origin {100 70} -size small -anchor e -rotate 1 -label upshift_s1
+  icon_property -origin {80 70} -size small -anchor e -rotate 1 -label logicsel_s1
+  icon_property -origin {60 70} -size small -anchor e -rotate 1 -label orsel_s1
+  icon_property -origin {40 70} -size small -anchor e -rotate 1 -label subsel_s1
+  icon_property -origin {0 70} -size small -anchor e -rotate 1 -label immsel_s1
+  icon_property -origin {280 70} -size small -anchor e -rotate 1 -label noopsel_s1
+  icon_property -origin {-40 70} -size small -anchor e -rotate 1 -label r1forward_s2
+  icon_property -origin {-60 70} -size small -anchor e -rotate 1 -label r0forward_s2
+  icon_property -origin {-220 70} -size small -anchor e -rotate 1 -label wsel_odd_s2
+  icon_property -origin {-200 70} -size small -anchor e -rotate 1 -label wsel_even_s2
+  icon_property -origin {20 70} -size small -anchor e -rotate 1 -label zdetected_v1
+  icon_property -origin {140 70} -size small -anchor e -rotate 1 -label shiftout_msb_s1
+  icon_property -origin {160 70} -size small -anchor e -rotate 1 -label shiftout_lsb_s1
+  icon_property -origin {240 70} -size small -anchor e -rotate 1 -label reset_s1
+  icon_property -origin {-80 70} -size small -anchor e -rotate 1 -label phi2
+  icon_property -origin {-120 70} -size small -anchor e -rotate 1 -label phi1
+  icon_property -origin {280 -70} -size small -anchor e -label mem_write_enable_s1
+  icon_property -origin {280 -50} -size small -anchor e -label {memdatain_v1[15:0]}
+  icon_property -origin {0 -20} -size large -anchor center -label control
 }
