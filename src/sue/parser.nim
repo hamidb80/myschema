@@ -6,9 +6,10 @@ type
     psModule, psSchematic, psIcon
 
 
-  SueCommands = enum
+  SueCommands* = enum
     scMake = "make"
     scMakeWire = "make_wire"
+    scMakeLine = "make_line"
     scMakeText = "make_text"
     scIconSetup = "icon_setup"
     scIconTerm = "icon_term"
@@ -16,66 +17,66 @@ type
     scIconLine = "icon_line"
     scIconArc = "icon_arc"
 
-  SueFlags = enum
-    soLabel = "label"
-    soText = "text"
-    soName = "name"
-    soOrigin = "origin"
-    soOrient = "orient"
-    soRotate = "rotate"
-    soSize = "size"
-    soType = "type"
-    soAnchor = "anchor"
-    soStart = "start"
-    soExtent = "extent"
+  SueFlags* = enum
+    sfLabel = "label"
+    sfText = "text"
+    sfName = "name"
+    sfOrigin = "origin"
+    sfOrient = "orient"
+    sfRotate = "rotate"
+    sfSize = "size"
+    sfType = "type"
+    sfAnchor = "anchor"
+    sfStart = "start"
+    sfExtent = "extent"
+    sfCustom
 
-  SuePorts = enum
+  SuePorts* = enum
     spInput = "input"
     spOutput = "output"
     spInOut = "inout"
     spUser = "user"
 
-  SueSize = enum
+  SueSize* = enum
     ssSmall = "small"
     ssLarge = "large"
 
 
-  SuePoint = tuple[x, y: int]
+  SuePoint* = tuple[x, y: int]
 
-  SueOption = object # TODO merge commom fields by types
-    case flag: SueFlags
-    of soText, soName, soLabel:
-      strval: string
+  SueOption* = object # TODO merge commom fields by types
+    case flag*: SueFlags
+    of sfText, sfName, sfLabel, sfOrient:
+      strval*: string
 
-    of soOrigin:
-      position: SuePoint
+    of sfOrigin:
+      position*: SuePoint
 
-    of soType:
-      portType: SuePorts
+    of sfType:
+      portType*: SuePorts
 
-    of soSize:
-      size: SueSize
+    of sfSize:
+      size*: SueSize
 
-    of soAnchor:
-      anchor: string
+    of sfAnchor:
+      anchor*: string
 
-    of soRotate:
-      rotation: int
+    of sfRotate:
+      rotation*: int
 
-    of soStart, soExtent:
-      degree: int
+    of sfStart, sfExtent:
+      degree*: int
 
-    of soOrient:
-      # orient: seq[Orientation]
-      discard        # TODO
+    of sfCustom:
+      field*, value*: string
 
-  SueExperssion = object
-    case command: SueCommands
+  SueExpression* = object
+    case command*: SueCommands
     of scMake:
-      ident: string
+      ident*: string
 
-    of scMakeWire, scIconArc:
-      head, tail: SuePoint
+    of scMakeWire, scMakeLine, scIconArc:
+      head*, tail*: SuePoint
 
     of scIconSetup:
       discard # TODO
@@ -84,13 +85,13 @@ type
       discard
 
     of scIconLine:
-      points: seq[SuePoint]
+      points*: seq[SuePoint]
 
-    options: seq[SueOption]
+    options*: seq[SueOption]
 
-  SueFile = object
-    name: string
-    schematic, icon: seq[SueExperssion]
+  SueFile* = object
+    name*: string
+    schematic*, icon*: seq[SueExpression]
 
 
 func hasLetter(s: string): bool {.inline.} =
@@ -189,7 +190,7 @@ macro initSueOption(f: untyped, args: varargs[untyped]): untyped =
 
 macro initSueExpr(c: untyped, args: varargs[untyped]): untyped =
   let t = ident"command"
-  initObjConstrConventionImpl bindsym"SueExperssion", t, c, args
+  initObjConstrConventionImpl bindsym"SueExpression", t, c, args
 
 
 func foldPoints(nums: seq[int]): seq[SuePoint] =
@@ -213,7 +214,12 @@ func wrap(s: string): string =
 
 # loc: line of code
 
-func matchProcLine(loc: string): SueExperssion =
+# FIXME can go to next line inside { } 
+# ّFIXME we have strings too [in single quotation '
+
+func matchProcLine(loc: string): SueExpression =
+  # debugecho loc, " ::::::"
+
   var i = 0
   let cmd = loc.findGo(re"(\w+)", i).parseEnum[:SueCommands]
 
@@ -222,7 +228,7 @@ func matchProcLine(loc: string): SueExperssion =
       let moduleName = loc.findGo(re"(\w+)", i)
       cmd.initSueExpr(ident, moduleName)
 
-    of scMakeWire, scIconArc:
+    of scMakeWire, scMakeLine, scIconArc:
       let (x1, y1, x2, y2) = loc
         .findGoMulti(re"(-?\d+) (-?\d+) (-?\d+) (-?\d+)", i)
         .mapit(parseInt it)
@@ -238,17 +244,21 @@ func matchProcLine(loc: string): SueExperssion =
       cmd.initSueExpr()
 
     of scIconLine:
-      let args = loc.substr(i+1).split.mapit(parseInt it)
+      let args = loc.substr(i).split.mapit(parseInt it)
       i = loc.high
 
       cmd.initSueExpr(points, foldPoints(args))
 
   while i < loc.high: # parse options
-    let flag = loc.findgo(re"-(\w+)", i).parseEnum[:SueFlags]
+    let 
+      op = loc.findgo(re"-(\w+)", i)
+      flag = 
+        try: op.parseEnum[:SueFlags]
+        except: sfCustom
 
     result.options.add:
       case flag:
-      of soOrigin:
+      of sfOrigin:
         let p = loc
           .findGoMulti(re"\{(-?\d+) (-?\d+)\}", i)
           .mapit(parseInt it)
@@ -256,21 +266,25 @@ func matchProcLine(loc: string): SueExperssion =
 
         flag.initSueOption(position, p)
 
-      of soStart, soExtent:
+      of sfStart, sfExtent:
         let n = loc.findGo(re"(-?\d+)", i).parseInt
         flag.initSueOption(degree, n)
 
-      of soText, soName, soLabel, soOrient, soType, soSize, soAnchor, soRotate:
+      of sfText, sfName, sfLabel, sfOrient, sfType, sfSize, sfAnchor, sfRotate:
         let s = loc.matchStrGo(i)
 
         case flag:
-        of soName, soLabel, soText: flag.initSueOption(strval, s)
-        of soOrient: flag.initSueOption()
-        of soType: flag.initSueOption(portType, parseEnum[SuePorts](s))
-        of soSize: flag.initSueOption(size, parseEnum[SueSize](s))
-        of soAnchor: flag.initSueOption(anchor, s)
-        of soRotate: flag.initSueOption()
+        of sfName, sfLabel, sfText, sfOrient: flag.initSueOption(strval, s)
+        of sfType: flag.initSueOption(portType, parseEnum[SuePorts](s))
+        of sfSize: flag.initSueOption(size, parseEnum[SueSize](s))
+        of sfAnchor: flag.initSueOption(anchor, s)
+        of sfRotate: flag.initSueOption()
         else: impossible
+
+      of sfCustom:
+        let n = loc.matchIdentGo(i)
+        flag.initSueOption(field, op, value, n)
+
 
 func parseSue*(code: string): SueFile =
   var pstate = psModule
@@ -293,7 +307,7 @@ func parseSue*(code: string): SueFile =
         else: err "invalid proc name"
 
     else:
-      template expr: untyped = matchProcLine loc.substr 2
+      template expr: untyped = matchProcLine loc.strip
 
       case pstate:
       of psIcon: result.icon.add expr
@@ -302,32 +316,38 @@ func parseSue*(code: string): SueFile =
 
 const SueVersion = "MMI_SUE4.4"
 
-func dump*(expr: SueExperssion): string =
+func dumpValue*(o: SueOption): string = 
+  case o.flag:
+  of sfLabel, sfText, sfName, sfOrient: wrap o.strval
+  of sfOrigin: ["{", $o.position.x, " ", $o.position.y, "}"].join
+  of sfRotate: $o.rotation
+  of sfSize: $o.size
+  of sfType: $o.portType
+  of sfAnchor: o.anchor
+  of sfStart, sfExtent: $o.degree
+  of sfCustom: o.value
+
+func dumpFlag*(o: SueOption): string = 
+  case o.flag:
+  of sfcustom: o.field
+  else: $o.flag
+
+func dumpArgs(expr: SueExpression): string = 
+  case expr.command:
+  of scMake: expr.ident
+  of scMakeText, scIconTerm, scIconProperty: ""
+  of scIconSetup: ""
+  of scIconLine: expr.points.expand.join " "
+  of scMakeWire, scMakeLine, scIconArc:
+    @[expr.head.x, expr.head.y, expr.tail.x, expr.tail.y].join " "
+
+func dump*(expr: SueExpression): string =
   result = fmt"  {expr.command} "
-
-  result.add:
-    case expr.command:
-    of scMake: expr.ident
-    of scMakeText, scIconTerm, scIconProperty: ""
-    of scIconSetup: ""
-    of scIconLine: expr.points.expand.join " "
-    of scMakeWire, scIconArc:
-      @[expr.head.x, expr.head.y, expr.tail.x, expr.tail.y].join " "
-
+  result.add dumpArgs expr
   result = result.strip(leading = false)
 
   for op in expr.options:
-    let value = case op.flag:
-      of soLabel, soText, soName: wrap op.strval
-      of soOrigin: ["{", $op.position.x, " ", $op.position.y, "}"].join
-      of soOrient: "" # TODO
-      of soRotate: $op.rotation
-      of soSize: $op.size
-      of soType: $op.portType
-      of soAnchor: op.anchor
-      of soStart, soExtent: $op.degree
-
-    result.add fmt" -{op.flag} {value}"
+    result.add fmt" -{op.dumpFlag} {dumpValue op}"
 
 func dump*(sf: SueFile): string =
   var lines = @[fmt "# SUE version {SueVersion}\n"]
