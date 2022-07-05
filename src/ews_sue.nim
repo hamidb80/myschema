@@ -41,29 +41,19 @@ type
 
   SuePoint = tuple[x, y: int]
 
-  SueOption = object
+  SueOption = object # TODO merge commom fields by types
     case flag: SueFlags
-    of soText:
-      text: string
+    of soText, soName, soLabel:
+      strval: string
 
     of soOrigin:
       position: SuePoint
-
-    of soName:
-      name: string
 
     of soType:
       portType: SuePorts
 
     of soSize:
       size: SueSize
-
-    of soLabel:
-      label: string
-
-    of soOrient:
-      # orient: seq[Orientation]
-      discard # TODO
 
     of soAnchor:
       anchor: string
@@ -73,6 +63,10 @@ type
 
     of soStart, soExtent:
       degree: int
+
+    of soOrient:
+      # orient: seq[Orientation]
+      discard        # TODO
 
   SueExperssion = object
     case command: SueCommands
@@ -105,27 +99,67 @@ template impossible: untyped =
   err "impossible"
 
 
-func hasLetter(s: string): bool =
+func hasLetter(s: string): bool {.inline.} =
   for ch in s:
     if ch in Letters:
       return true
 
 
-template findGoImpl(s, pat, i, after): untyped {.dirty.} =
+template findGoImpl(s, pat, i): untyped {.dirty.} =
   let m = s.match(pat, i)
   assert issome m, "cannot match"
 
-  i = m.get.matchBounds.b + 1 + after
+  i = m.get.matchBounds.b + 2
 
-func findGo(s: string, pat: Regex, i: var int, after = 1): string =
-  findGoImpl s, pat, i, after
+func findGo(s: string, pat: Regex, i: var int): string =
+  findGoImpl s, pat, i
   m.get.captures[0]
 
-func findGoMulti(s: string, pat: Regex, i: var int, after = 1): seq[string] =
-  findGoImpl s, pat, i, after
+func findGoMulti(s: string, pat: Regex, i: var int): seq[string] =
+  findGoImpl s, pat, i
   for s in m.get.captures:
     result.add s.get
 
+func matchCurlyBraceGo(s: string, i: var int): string =
+  assert s[i] == '{'
+  inc i
+
+  var
+    depth = 1
+    marker = i
+
+  while i <= s.high:
+    case s[i]:
+      of '{': inc depth
+      of '}':
+        dec depth
+        if depth == 0:
+          result = s[marker ..< i]
+          inc i, 2
+          break
+      else: discard
+
+    inc i
+
+  assert depth == 0
+
+func matchIdentGo(s: string, i: var int): string =
+  let marker = i
+
+  while i <= s.high:
+    if s[i] in Whitespace:
+      break
+
+    inc i
+
+  result = s[marker ..< i]
+  inc i
+
+func matchStrGo(s: string, i: var int): string =
+  case s[i]:
+  of '{': matchCurlyBraceGo s, i
+  of IdentChars: matchIdentGo s, i
+  else: err fmt"invalid char: {s[i]}"
 
 macro toTuple(list: untyped, n: static[int]): untyped =
   let tempId = ident "temp"
@@ -168,11 +202,23 @@ func foldPoints(nums: seq[int]): seq[SuePoint] =
   for i in countup(0, nums.high, 2):
     result.add (nums[i], nums[i+1])
 
-func removebraces(s: string): string {.inline.} =
-  s.strip(chars = {'{', '}'})
+func expand(points: seq[SuePoint]): seq[int] =
+  for p in points:
+    result.add [p.x, p.y]
 
+func isPure(s: string): bool =
+  for ch in s:
+    if ch notin IdentChars:
+      return false
+
+  true
+
+func wrap(s: string): string =
+  if isPure s: s
+  else: '{' & s & '}'
 
 # loc: line of code
+
 func matchProcLine(loc: string): SueExperssion =
   var i = 0
   let cmd = loc.findGo(re"(\w+)", i).parseEnum[:SueCommands]
@@ -216,27 +262,21 @@ func matchProcLine(loc: string): SueExperssion =
 
         flag.initSueOption(position, p)
 
-      of soText:
-        let t = loc.findGo(re"(\{.*?\}|[^ ]+)", i).removebraces
-        flag.initSueOption(text, t)
-
       of soStart, soExtent:
         let n = loc.findGo(re"(-?\d+)", i).parseInt
         flag.initSueOption(degree, n)
 
-      of soOrient, soName, soType, soSize, soAnchor, soLabel, soRotate:
-        let s = loc.findGo(re"(\w+|\{.*?\})", i).removebraces
+      of soText, soName, soLabel, soOrient, soType, soSize, soAnchor, soRotate:
+        let s = loc.matchStrGo(i)
 
         case flag:
+        of soName, soLabel, soText: flag.initSueOption(strval, s)
         of soOrient: flag.initSueOption()
-        of soName: flag.initSueOption(name, s)
         of soType: flag.initSueOption(portType, parseEnum[SuePorts](s))
         of soSize: flag.initSueOption(size, parseEnum[SueSize](s))
         of soAnchor: flag.initSueOption(anchor, s)
-        of soLabel: flag.initSueOption(label, s)
         of soRotate: flag.initSueOption()
         else: impossible
-
 
 func parseSue(code: string): SueFile =
   var pstate = psModule
@@ -276,17 +316,15 @@ func `$`(expr: SueExperssion): string =
     of scMake: expr.ident
     of scMakeText, scIconTerm, scIconProperty: ""
     of scIconSetup: ""
-    of scIconLine: expr.points.join " "
+    of scIconLine: expr.points.expand.join " "
     of scMakeWire, scIconArc:
       @[expr.head.x, expr.head.y, expr.tail.x, expr.tail.y].join " "
-    
+
   result = result.strip(leading = false)
 
   for op in expr.options:
     let value = case op.flag:
-      of soLabel: op.label # FIXME curly braces for label, name, text
-      of soText: op.text
-      of soName: op.name
+      of soLabel, soText, soName: wrap op.strval
       of soOrigin: ["{", $op.position.x, " ", $op.position.y, "}"].join
       of soOrient: "" # TODO
       of soRotate: $op.rotation
@@ -298,7 +336,7 @@ func `$`(expr: SueExperssion): string =
     result.add fmt" -{op.flag} {value}"
 
 func `$`(sf: SueFile): string =
-  var lines = @[fmt "SUE version {SueVersion}\n"]
+  var lines = @[fmt "# SUE version {SueVersion}\n"]
 
   template addLinesFor(exprWrapper): untyped =
     for expr in exprWrapper:
@@ -315,6 +353,6 @@ func `$`(sf: SueFile): string =
 
   lines.join "\n"
 
+
 when isMainModule:
-  # import print
   echo parseSue readFile "./examples/eg1.sue"
