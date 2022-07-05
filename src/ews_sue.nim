@@ -82,13 +82,10 @@ type
     of scMakeWire, scIconArc:
       head, tail: SuePoint
 
-    of scMakeText:
-      text: string
-
     of scIconSetup:
       discard # TODO
 
-    of scIconTerm, scIconProperty:
+    of scIconTerm, scIconProperty, scMakeText:
       discard
 
     of scIconLine:
@@ -103,12 +100,9 @@ type
 template err(msg: string): untyped =
   raise newException(ValueError, msg)
 
-func `[]`(s: SueExperssion, flag: SueFlags): SueOption =
-  for o in s.options:
-    if o.flag == flag:
-      return o
+template impossible: untyped =
+  err "impossible"
 
-  err fmt"-{flag} option not found"
 
 func hasLetter(s: string): bool =
   for ch in s:
@@ -116,18 +110,18 @@ func hasLetter(s: string): bool =
       return true
 
 
-template findGoImpl(s, pat, i): untyped {.dirty.} =
+template findGoImpl(s, pat, i, after): untyped {.dirty.} =
   let m = s.match(pat, i)
   assert issome m, "cannot match"
 
-  i = m.get.matchBounds.b + 1
+  i = m.get.matchBounds.b + 1 + after
 
-func findGo(s: string, pat: Regex, i: var int): string =
-  findGoImpl s, pat, i
+func findGo(s: string, pat: Regex, i: var int, after = 1): string =
+  findGoImpl s, pat, i, after
   m.get.captures[0]
 
-func findGoMulti(s: string, pat: Regex, i: var int): seq[string] =
-  findGoImpl s, pat, i
+func findGoMulti(s: string, pat: Regex, i: var int, after = 1): seq[string] =
+  findGoImpl s, pat, i, after
   for s in m.get.captures:
     result.add s.get
 
@@ -144,17 +138,48 @@ macro toTuple(list: untyped, n: static[int]): untyped =
       let `tempId` = `list`
       `tupleDef`
 
+func exprcc(field, value: NimNode): NimNode =
+  newtree nnkExprColonExpr, field, value
+
+template initObjConstrConventionImpl(objName,
+  field, value, args): untyped {.dirty.} =
+
+  result = newTree(nnkObjConstr, objName, exprcc(field, value))
+
+  for i in countup(0, args.len - 1, 2):
+    let
+      field = args[i]
+      value = args[i+1]
+
+    result.add exprcc(field, value)
+
+
+macro initSueOption(f: untyped, args: varargs[untyped]): untyped =
+  let t = ident"flag"
+  initObjConstrConventionImpl bindsym"SueOption", t, f, args
+
+macro initSueExpr(c: untyped, args: varargs[untyped]): untyped =
+  let t = ident"command"
+  initObjConstrConventionImpl bindsym"SueExperssion", t, c, args
+
+
+func foldPoints(nums: seq[int]): seq[SuePoint] =
+  for i in countup(0, nums.high, 2):
+    result.add (nums[i], nums[i+1])
+
+func removebraces(s: string): string {.inline.} =
+  s.strip(chars = {'{', '}'})
+
 
 # loc: line of code
-proc matchProcLine(loc: string) =
+proc matchProcLine(loc: string): SueExperssion =
   var i = 0
-  let command = loc.findGo(re"(\w+) ", i)
+  let cmd = loc.findGo(re"(\w+)", i).parseEnum[:SueCommands]
 
-  # --- parse params ---
-
-  case parseEnum[SueCommands](command):
+  result = case cmd: # parse params
     of scMake:
-      let moduleName = loc.findGo(re"(\w+) ", i)
+      let moduleName = loc.findGo(re"(\w+)", i)
+      cmd.initSueExpr(ident, moduleName)
 
     of scMakeWire, scIconArc:
       let (x1, y1, x2, y2) = loc
@@ -162,49 +187,57 @@ proc matchProcLine(loc: string) =
         .mapit(parseInt it)
         .toTuple(4)
 
-    of scMakeText:
-      discard
+      cmd.initSueExpr(head, (x1, y1), tail, (x2, y2))
 
     of scIconSetup:
-      discard
+      i = loc.high
+      cmd.initSueExpr() # TODO
 
-    of scIconTerm:
-      discard
-
-    of scIconProperty:
-      discard
+    of scIconTerm, scIconProperty, scMakeText:
+      cmd.initSueExpr()
 
     of scIconLine:
       let args = loc.substr(i+1).split.mapit(parseInt it)
       i = loc.high
 
-  # --- parse options ---
+      cmd.initSueExpr(points, foldPoints(args))
 
-  var tempOption: SueOption
+  while i < loc.high: # parse options
+    let flag = loc.findgo(re"-(\w+)", i).parseEnum[:SueFlags]
 
-  while i < loc.high:
-    let flag =
-      try: loc.findgo(re"-(\w+) ", i)
-      except: break
-
-    # echo "<< ", flag
-
-    case parseEnum[SueFlags](flag):
+    result.options.add:
+      case flag:
       of soOrigin:
-        let (x, y) = loc
+        let p = loc
           .findGoMulti(re"\{(-?\d+) (-?\d+)\}", i)
           .mapit(parseInt it)
           .toTuple(2)
 
-      of soOrient, soName, soType, soSize, soAnchor, soLabel, soRotate:
-        discard loc.findGo(re"(\w+|\{.*\}) ?", i)
+        flag.initSueOption(position, p)
 
       of soText:
-        discard loc.findGo(re"(\{.*\}|[^ ]+) ?", i)
+        let t = loc.findGo(re"(\{.*?\}|[^ ]+)", i).removebraces
+        flag.initSueOption(text, t)
 
       of soStart, soExtent:
-        let degree = loc.findGo(re"(-?\d+) ?", i)
+        let n = loc.findGo(re"(-?\d+)", i).parseInt
+        flag.initSueOption(degree, n)
 
+      of soOrient, soName, soType, soSize, soAnchor, soLabel, soRotate:
+        let s = loc.findGo(re"(\w+|\{.*?\})", i).removebraces
+
+        case flag:
+        of soOrient: flag.initSueOption()
+        of soName: flag.initSueOption(name, s)
+        of soType: flag.initSueOption(portType, parseEnum[SuePorts](s))
+        of soSize: flag.initSueOption(size, parseEnum[SueSize](s))
+        of soAnchor: flag.initSueOption(anchor, s)
+        of soLabel: flag.initSueOption(label, s)
+        of soRotate: flag.initSueOption()
+        else: impossible
+
+
+import print
 
 when isMainModule:
   var pstate = psModule
@@ -228,7 +261,8 @@ when isMainModule:
         else: err "invalid proc name"
 
     elif pstate != psModule:
-      matchProcLine loc.substr 2
+      let expr = matchProcLine loc.substr 2
+      print expr
 
     else:
       err fmt"cannot happen: {loc}"
