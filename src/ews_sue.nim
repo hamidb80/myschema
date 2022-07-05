@@ -94,6 +94,7 @@ type
     options: seq[SueOption]
 
   SueFile = object
+    name: string
     schematic, icon: seq[SueExperssion]
 
 
@@ -172,7 +173,7 @@ func removebraces(s: string): string {.inline.} =
 
 
 # loc: line of code
-proc matchProcLine(loc: string): SueExperssion =
+func matchProcLine(loc: string): SueExperssion =
   var i = 0
   let cmd = loc.findGo(re"(\w+)", i).parseEnum[:SueCommands]
 
@@ -237,13 +238,10 @@ proc matchProcLine(loc: string): SueExperssion =
         else: impossible
 
 
-import print
-
-when isMainModule:
+func parseSue(code: string): SueFile =
   var pstate = psModule
 
-  for loc in lines "./examples/eg1.sue":
-
+  for loc in splitLines code:
     if (not hasLetter loc) or (loc.startsWith '#'): # empty line or comment
       discard
 
@@ -251,18 +249,72 @@ when isMainModule:
       pstate = psModule
 
     elif loc.startsWith "proc": # proc def
-      let
-        res = loc.find(re"([a-zA-Z]+)_", "proc ".len).get
-        prefix = res.captures[0]
+      let (prefix, name) = loc.match(re"proc ([a-zA-Z]+)_(\w+)").get.captures.toTuple(2)
+
+      result.name = name
 
       pstate = case prefix:
         of "SCHEMATIC": psSchematic
         of "ICON": psIcon
         else: err "invalid proc name"
 
-    elif pstate != psModule:
-      let expr = matchProcLine loc.substr 2
-      print expr
-
     else:
-      err fmt"cannot happen: {loc}"
+      template expr: untyped = matchProcLine loc.substr 2
+
+      case pstate:
+      of psIcon: result.icon.add expr
+      of psSchematic: result.schematic.add expr
+      of psModule: err fmt"cannot happen: {loc}"
+
+const SueVersion = "MMI_SUE4.4"
+
+func `$`(expr: SueExperssion): string =
+  result = fmt"  {expr.command} "
+
+  result.add:
+    case expr.command:
+    of scMake: expr.ident
+    of scMakeText, scIconTerm, scIconProperty: ""
+    of scIconSetup: ""
+    of scIconLine: expr.points.join " "
+    of scMakeWire, scIconArc:
+      @[expr.head.x, expr.head.y, expr.tail.x, expr.tail.y].join " "
+    
+  result = result.strip(leading = false)
+
+  for op in expr.options:
+    let value = case op.flag:
+      of soLabel: op.label # FIXME curly braces for label, name, text
+      of soText: op.text
+      of soName: op.name
+      of soOrigin: ["{", $op.position.x, " ", $op.position.y, "}"].join
+      of soOrient: "" # TODO
+      of soRotate: $op.rotation
+      of soSize: $op.size
+      of soType: $op.portType
+      of soAnchor: op.anchor
+      of soStart, soExtent: $op.degree
+
+    result.add fmt" -{op.flag} {value}"
+
+func `$`(sf: SueFile): string =
+  var lines = @[fmt "SUE version {SueVersion}\n"]
+
+  template addLinesFor(exprWrapper): untyped =
+    for expr in exprWrapper:
+      lines.add $expr
+
+  lines.add "proc SCHEMATIC_" & sf.name & " {} {"
+  addLinesFor sf.schematic
+  lines.add "}\n"
+
+  if sf.icon.len != 0:
+    lines.add "proc ICON_" & sf.name & " args {"
+    addLinesFor sf.icon
+    lines.add "}"
+
+  lines.join "\n"
+
+when isMainModule:
+  # import print
+  echo parseSue readFile "./examples/eg1.sue"
