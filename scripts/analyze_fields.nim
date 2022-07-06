@@ -21,7 +21,7 @@ var
 
 for path in walkDirRec dir:
   if path.endsWith ".sue":
-    # echo "\n\n>> ", path, "\n\n"
+    # echo ">> ", path
     let s = parseSue readfile path
 
     for expr in expressions s:
