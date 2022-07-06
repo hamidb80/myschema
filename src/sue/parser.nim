@@ -1,5 +1,5 @@
 import std/[strutils, strformat, nre, options, sequtils, macros]
-import parser_common
+import sue
 import ../common
 
 
@@ -113,7 +113,7 @@ func matchProcLine(loc: string): SueExpression =
   # debugecho loc, " ::::::"
 
   var i = 0
-  let cmd = loc.findGo(re"(\w+)", i).parseEnum[:SueCommands]
+  let cmd = loc.findGo(re"(\w+)", i).parseEnum[:SueCommand]
 
   result = case cmd: # parse params
     of scMake:
@@ -145,7 +145,7 @@ func matchProcLine(loc: string): SueExpression =
     let
       op = loc.findgo(re"-(\w+)", i)
       flag =
-        try: op.parseEnum[:SueFlags]
+        try: op.parseEnum[:SueFlag]
         except: sfCustom
 
     result.options.add:
@@ -167,10 +167,10 @@ func matchProcLine(loc: string): SueExpression =
 
         case flag:
         of sfName, sfLabel, sfText, sfOrient: flag.initSueOption(strval, s)
-        of sfType: flag.initSueOption(portType, parseEnum[SuePorts](s))
+        of sfType: flag.initSueOption(portType, parseEnum[SueType](s))
         of sfSize: flag.initSueOption(size, parseEnum[SueSize](s))
         of sfAnchor: flag.initSueOption(anchor, s)
-        of sfRotate: flag.initSueOption()
+        of sfRotate: flag.initSueOption(rotation, s.parseint)
         else: impossible
 
       of sfCustom:

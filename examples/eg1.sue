@@ -25,10 +25,10 @@ proc ICON_chip args {
   icon_arc -80 -110 -40 -30 -start 89 -extent -179
   icon_term -type input -origin {-120 80} -orient R270 -name phi1
   icon_term -type output -origin {-20 80} -orient R90X -name {imm_s1[11:0]}
-  icon_property -origin {60 -210} -rotate 1 -label phi1_bb
   icon_property -origin {-70 -120} -type user -name name
   icon_property -origin {-70 -100} -type user -name M
   icon_line -290 80 -290 -80 290 -80 290 80 -290 80
   icon_property -origin {280 -50} -size small -anchor e -label {memdatain_v1[15:0]}
   icon_property -origin {0 -20} -size large -anchor center -label control
+  icon_property -origin {60 -210} -rotate 1 -label phi1_bb
 }

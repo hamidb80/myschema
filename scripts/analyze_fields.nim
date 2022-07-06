@@ -1,4 +1,5 @@
 import std/[os, strutils, sets, tables]
+import ../src/sue/sue
 import ../src/sue/parser
 import print
 
@@ -15,16 +16,22 @@ const dir = r"C:\Users\HamidB80\Desktop\set4"
 # ----------------------------------
 
 var
-  uniqValuesForFields: array[SueFlags, HashSet[string]]
   customMakeFields: Table[string, HashSet[string]]
-  fieldsForCommands: array[SueCommands, HashSet[SueFlags]]
+
+  uniqValuesForFields: array[SueFlag, HashSet[string]]
+  uniqValuesForFieldsPerCommands: array[SueCommand, array[SueFlag, HashSet[string]]]
+
+  fieldsForCommands: array[SueCommand, set[SueFlag]]
+  uniqFieldsForCommands: array[SueFlag, set[SueCommand]]
 
 for path in walkDirRec dir:
   if path.endsWith ".sue":
-    # echo ">> ", path
+    echo ">> ", path
     let s = parseSue readfile path
 
     for expr in expressions s:
+      let c = expr.command
+
       for o in expr.options:
         let f = o.flag
 
@@ -36,11 +43,22 @@ for path in walkDirRec dir:
 
         elif f notin {sfText, sfName, sfLabel, sfOrigin}:
           uniqValuesForFields[f].incl dumpValue o
+          uniqValuesForFieldsPerCommands[c][f].incl o.dumpValue
 
-        fieldsForCommands[expr.command].incl f
+        uniqFieldsForCommands[f].incl c
+        fieldsForCommands[c].incl f
 
 
-print uniqValuesForFields
+template double(something): untyped =
+  for c, fs in something:
+    echo c, ": ", fs
+  
 print customMakeFields
-for c, fs in fieldsForCommands:
-  echo c, ": ", fs
+print "----------"
+double uniqFieldsForCommands
+print "----------"
+double uniqValuesForFieldsPerCommands
+print "----------"
+double fieldsForCommands
+print "----------"
+double uniqValuesForFields

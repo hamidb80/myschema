@@ -1,5 +1,5 @@
 import std/[strformat, strutils]
-import parser_common
+import sue
 
 const EOF = '\0'
 

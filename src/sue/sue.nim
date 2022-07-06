@@ -1,7 +1,7 @@
 import std/[strutils, strformat]
 
 type
-  SueCommands* = enum
+  SueCommand* = enum
     scMake = "make"
     scMakeWire = "make_wire"
     scMakeLine = "make_line"
@@ -12,7 +12,7 @@ type
     scIconLine = "icon_line"
     scIconArc = "icon_arc"
 
-  SueFlags* = enum
+  SueFlag* = enum
     sfLabel = "label"
     sfText = "text"
     sfName = "name"
@@ -24,9 +24,9 @@ type
     sfAnchor = "anchor"
     sfStart = "start"
     sfExtent = "extent"
-    sfCustom
+    sfCustom = "<CUSTOM_FIELD>"
 
-  SuePorts* = enum
+  SueType* = enum
     spInput = "input"
     spOutput = "output"
     spInOut = "inout"
@@ -40,7 +40,7 @@ type
   SuePoint* = tuple[x, y: int]
 
   SueOption* = object # TODO merge commom fields by types
-    case flag*: SueFlags
+    case flag*: SueFlag
     of sfText, sfName, sfLabel, sfOrient:
       strval*: string
 
@@ -48,7 +48,7 @@ type
       position*: SuePoint
 
     of sfType:
-      portType*: SuePorts
+      portType*: SueType
 
     of sfSize:
       size*: SueSize
@@ -66,7 +66,7 @@ type
       field*, value*: string
 
   SueExpression* = object
-    case command*: SueCommands
+    case command*: SueCommand
     of scMake:
       ident*: string
 
