@@ -12,6 +12,8 @@ proc SCHEMATIC_chip {} {
   make name_net -name {[3]} -origin {-1760 -180}
   make output -orient RXY -name {memaddr_v1[3]} -origin {-2110 -240}
   make_wire -1690 -110 -1800 -110
+  make srcV -name Vref -voltage 'Ref' -origin {400 350}
+  make capacitor -capacitance 50fF -origin {750 220}
   make_wire 150 -1280 320 -1280
   make_text -origin {-1740 -2690} -text {This is the schematic for AMI-C5N 0.5um technology}
   make_text -origin {-1740 -2660} -text Lambda=0.35um

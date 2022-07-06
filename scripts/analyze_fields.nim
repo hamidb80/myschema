@@ -3,11 +3,6 @@ import ../src/sue/parser
 import print
 
 
-var 
-  uniqValuesForFields: array[SueFlags, HashSet[string]]
-  customs: Table[string, HashSet[string]]
-  fieldsForCommands: array[SueCommands, HashSet[SueFlags]]
-
 iterator expressions(sf: SueFile): SueExpression =
   for expr in sf.icon:
     yield expr
@@ -15,11 +10,16 @@ iterator expressions(sf: SueFile): SueExpression =
   for expr in sf.schematic:
     yield expr
 
-const
-  me = r"C:\Users\HamidB80\Desktop\set4\2-cpu\file\sue\"
-  full = r"C:\Users\HamidB80\Desktop\set4"
+const dir = r"C:\Users\HamidB80\Desktop\set4"
 
-for path in walkDirRec full:
+# ----------------------------------
+
+var
+  uniqValuesForFields: array[SueFlags, HashSet[string]]
+  customMakeFields: Table[string, HashSet[string]]
+  fieldsForCommands: array[SueCommands, HashSet[SueFlags]]
+
+for path in walkDirRec dir:
   if path.endsWith ".sue":
     # echo "\n\n>> ", path, "\n\n"
     let s = parseSue readfile path
@@ -29,10 +29,10 @@ for path in walkDirRec full:
         let f = o.flag
 
         if f == sfCustom:
-          if o.field notin customs:
-            customs[o.field] = initHashSet[string]()
+          if o.field notin customMakeFields:
+            customMakeFields[o.field] = initHashSet[string]()
 
-          customs[o.field].incl o.value
+          customMakeFields[o.field].incl o.value
 
         elif f notin {sfText, sfName, sfLabel, sfOrigin}:
           uniqValuesForFields[f].incl dumpValue o
@@ -40,10 +40,7 @@ for path in walkDirRec full:
         fieldsForCommands[expr.command].incl f
 
 
-# ----------------------------------
-
 print uniqValuesForFields
-print customs
-
+print customMakeFields
 for c, fs in fieldsForCommands:
   echo c, ": ", fs
