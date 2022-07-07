@@ -1,4 +1,5 @@
-import std/[strutils, strformat]
+import std/[strutils, strformat, sequtils]
+import ../common
 
 type
   SueCommand* = enum
@@ -13,17 +14,17 @@ type
     scIconArc = "icon_arc"
 
   SueFlag* = enum
-    sfLabel = "label"
-    sfText = "text"
-    sfName = "name"
-    sfOrigin = "origin"
-    sfOrient = "orient"
-    sfRotate = "rotate"
-    sfSize = "size"
-    sfType = "type"
-    sfAnchor = "anchor"
-    sfStart = "start"
-    sfExtent = "extent"
+    sfLabel = "-label"
+    sfText = "-text"
+    sfName = "-name"
+    sfOrigin = "-origin"
+    sfOrient = "-orient"
+    sfRotate = "-rotate"
+    sfSize = "-size"
+    sfType = "-type"
+    sfAnchor = "-anchor"
+    sfStart = "-start"
+    sfExtent = "-extent"
     sfCustom = "<CUSTOM_FIELD>"
 
   SueType* = enum
@@ -36,57 +37,90 @@ type
     ssSmall = "small"
     ssLarge = "large"
 
+  SueTokenType* = enum
+    sttComment
+
+    sttCommand
+    sttNumber 
+    sttString
+    sttLiteral
+
+    sttCurlyOpen
+    sttCurlyClose
+    sttNewLine
+
+  SueToken* = object
+    case kind*: SueTokenType
+    of sttNumber:
+      intval*: int
+
+    of sttString, sttLiteral, sttCommand, sttComment:
+      strval*: string
+
+    of sttCurlyOpen, sttCurlyClose, sttNewLine:
+      discard
+
 
   SuePoint* = tuple[x, y: int]
 
   SueOption* = object # TODO merge commom fields by types
-    case flag*: SueFlag
-    of sfText, sfName, sfLabel, sfOrient:
-      strval*: string
-
-    of sfOrigin:
-      position*: SuePoint
-
-    of sfType:
-      portType*: SueType
-
-    of sfSize:
-      size*: SueSize
-
-    of sfAnchor:
-      anchor*: string
-
-    of sfRotate:
-      rotation*: int
-
-    of sfStart, sfExtent:
-      degree*: int
-
-    of sfCustom:
-      field*, value*: string
-
+    flag*: SueFlag
+    field*: string
+    values*: seq[SueToken]
+    
   SueExpression* = object
-    case command*: SueCommand
-    of scMake:
-      ident*: string
-
-    of scMakeWire, scMakeLine, scIconArc:
-      head*, tail*: SuePoint
-
-    of scIconSetup:
-      discard # TODO
-
-    of scIconTerm, scIconProperty, scMakeText:
-      discard
-
-    of scIconLine:
-      points*: seq[SuePoint]
-
+    command*: SueCommand
+    args*: seq[SueToken]
     options*: seq[SueOption]
 
   SueFile* = object
     name*: string
     schematic*, icon*: seq[SueExpression]
+
+
+func isNumbic(s: string): bool =
+  let startIndex =
+    if s[0] == '-': 1
+    else: 0
+
+  for i in startIndex .. s.high:
+    if s[i] notin Digits:
+      return false
+
+  true
+
+func toToken*(s: string): SueToken =
+  if isNumbic s:
+    SueToken(kind: sttNumber, intval: s.parseInt)
+
+  else:
+    template gen(k): untyped =
+      SueToken(kind: k, strval: s)
+
+    case s[0]:
+    of '#': gen sttComment
+    of '-': # -50f vs -command
+      if s[1] in Digits: gen sttLiteral
+      else: gen sttCommand
+    of '\'', '{': gen sttString
+    else: gen sttLiteral
+
+func toToken*(ch: char): SueToken =
+  let k = case ch:
+    of '{': sttCurlyOpen
+    of '}': sttCurlyClose
+    of '\n': sttNewLine
+    else: err fmt"invalid conversion to token, char `{ch}`"
+
+  SueToken(kind: k)
+
+func `==`*(t: SueToken, s: string): bool =
+  case t.kind:
+  of sttString, sttLiteral, sttCommand: t.strval == s
+  else: false
+
+func `==`*(t: SueToken, ch: char): bool =
+  t.kind == (toToken ch).kind
 
 
 func expand*(points: seq[SuePoint]): seq[int] =
@@ -106,38 +140,30 @@ func wrap*(s: string): string =
 
 const SueVersion = "MMI_SUE4.4"
 
+
+func dump*(t: SueToken): string = 
+  case t.kind:
+  of sttNumber: $t.intval
+  of sttString, sttLiteral, sttCommand, sttComment:t.strval
+  else: err fmt"illigal token to string conversion: {t.kind}"
+
 func dumpValue*(o: SueOption): string = 
   case o.flag:
-  of sfLabel, sfText, sfName, sfOrient: wrap o.strval
-  of sfOrigin: ["{", $o.position.x, " ", $o.position.y, "}"].join
-  of sfRotate: $o.rotation
-  of sfSize: $o.size
-  of sfType: $o.portType
-  of sfAnchor: o.anchor
-  of sfStart, sfExtent: $o.degree
-  of sfCustom: o.value
+  of sfOrigin: "{" & dump(o.values[0]) & " " & dump(o.values[1]) &  "}"
+  else: dump o.values[0]
 
 func dumpFlag*(o: SueOption): string = 
   case o.flag:
   of sfcustom: o.field
   else: $o.flag
 
-func dumpArgs(expr: SueExpression): string = 
-  case expr.command:
-  of scMake: expr.ident
-  of scMakeText, scIconTerm, scIconProperty: ""
-  of scIconSetup: ""
-  of scIconLine: expr.points.expand.join " "
-  of scMakeWire, scMakeLine, scIconArc:
-    @[expr.head.x, expr.head.y, expr.tail.x, expr.tail.y].join " "
-
 func dump*(expr: SueExpression): string =
   result = fmt"  {expr.command} "
-  result.add dumpArgs expr
+  result.add expr.args.map(dump).join" "
   result = result.strip(leading = false)
 
   for op in expr.options:
-    result.add fmt" -{op.dumpFlag} {dumpValue op}"
+    result.add fmt" {op.dumpFlag} {dumpValue op}"
 
 func dump*(sf: SueFile): string =
   var lines = @[fmt "# SUE version {SueVersion}\n"]
