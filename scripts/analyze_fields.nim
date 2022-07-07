@@ -1,5 +1,5 @@
 import std/[os, strutils, sets, tables]
-import ../src/sue/sue
+import ../src/sue/defs
 import ../src/sue/parser
 import print
 
@@ -52,12 +52,21 @@ for path in walkDirRec dir:
 template double(something): untyped =
   for c, fs in something:
     echo c, ": ", fs
-  
+
 print customMakeFields
 print "----------"
 double uniqFieldsForCommands
 print "----------"
-double uniqValuesForFieldsPerCommands
+
+for field, cmdVals in uniqValuesForFieldsPerCommands:
+  stdout.write field, ": "
+ 
+  for cmd, vals in cmdvals:
+    if vals.len != 0:
+      stdout.write (cmd, vals), " "
+
+  stdout.write "\n"
+
 print "----------"
 double fieldsForCommands
 print "----------"

@@ -1,6 +1,6 @@
 import std/[strutils, strformat]
 import ../utils
-import sue
+import defs
 
 
 type

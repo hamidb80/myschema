@@ -1,4 +1,4 @@
-import sue/[parser, sue], print
+import sue/[parser, defs], print
 
 
 print parseSue readFile "./examples/eg1.sue"
