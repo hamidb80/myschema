@@ -1,7 +1,31 @@
 import std/[strutils, strformat, sequtils]
-import ../common
+import ../utils
 
 type
+  SueTokenType* = enum
+    sttComment
+
+    sttCommand
+    sttNumber
+    sttString
+    sttLiteral
+
+    sttCurlyOpen
+    sttCurlyClose
+    sttNewLine
+
+  SueToken* = object
+    case kind*: SueTokenType
+    of sttNumber:
+      intval*: int
+
+    of sttString, sttLiteral, sttCommand, sttComment:
+      strval*: string
+
+    of sttCurlyOpen, sttCurlyClose, sttNewLine:
+      discard
+
+
   SueCommand* = enum
     scMake = "make"
     scMakeWire = "make_wire"
@@ -37,37 +61,11 @@ type
     ssSmall = "small"
     ssLarge = "large"
 
-  SueTokenType* = enum
-    sttComment
-
-    sttCommand
-    sttNumber 
-    sttString
-    sttLiteral
-
-    sttCurlyOpen
-    sttCurlyClose
-    sttNewLine
-
-  SueToken* = object
-    case kind*: SueTokenType
-    of sttNumber:
-      intval*: int
-
-    of sttString, sttLiteral, sttCommand, sttComment:
-      strval*: string
-
-    of sttCurlyOpen, sttCurlyClose, sttNewLine:
-      discard
-
-
-  SuePoint* = tuple[x, y: int]
-
-  SueOption* = object # TODO merge commom fields by types
+  SueOption* = object
     flag*: SueFlag
     field*: string
     values*: seq[SueToken]
-    
+
   SueExpression* = object
     command*: SueCommand
     args*: seq[SueToken]
@@ -76,6 +74,8 @@ type
   SueFile* = object
     name*: string
     schematic*, icon*: seq[SueExpression]
+
+const SueVersion = "MMI_SUE4.4"
 
 
 func isNumbic(s: string): bool =
@@ -123,36 +123,20 @@ func `==`*(t: SueToken, ch: char): bool =
   t.kind == (toToken ch).kind
 
 
-func expand*(points: seq[SuePoint]): seq[int] =
-  for p in points:
-    result.add [p.x, p.y]
-
-func isPure*(s: string): bool =
-  for ch in s:
-    if ch notin IdentChars:
-      return false
-
-  true
-
-func wrap*(s: string): string =
-  if isPure s: s
-  else: '{' & s & '}'
-
-const SueVersion = "MMI_SUE4.4"
-
-
-func dump*(t: SueToken): string = 
+func dump*(t: SueToken): string =
   case t.kind:
   of sttNumber: $t.intval
-  of sttString, sttLiteral, sttCommand, sttComment:t.strval
-  else: err fmt"illigal token to string conversion: {t.kind}"
+  of sttString, sttLiteral, sttCommand, sttComment: t.strval
+  of sttCurlyOpen: "{"
+  of sttCurlyClose: "}"
+  else: err "not a valid token to string conversion: {t.kind}"
 
-func dumpValue*(o: SueOption): string = 
+func dumpValue*(o: SueOption): string =
   case o.flag:
-  of sfOrigin: "{" & dump(o.values[0]) & " " & dump(o.values[1]) &  "}"
+  of sfOrigin: "{" & dump(o.values[0]) & " " & dump(o.values[1]) & "}"
   else: dump o.values[0]
 
-func dumpFlag*(o: SueOption): string = 
+func dumpFlag*(o: SueOption): string =
   case o.flag:
   of sfcustom: o.field
   else: $o.flag
@@ -168,17 +152,14 @@ func dump*(expr: SueExpression): string =
 func dump*(sf: SueFile): string =
   var lines = @[fmt "# SUE version {SueVersion}\n"]
 
-  template addLinesFor(exprWrapper): untyped =
+  template addLinesFor(exprWrapper, args): untyped =
+    lines.add "proc ICON_" & sf.name & " {args} {"
     for expr in exprWrapper:
       lines.add dump expr
+    lines.add "}\n"
 
-  lines.add "proc SCHEMATIC_" & sf.name & " {} {"
-  addLinesFor sf.schematic
-  lines.add "}\n"
-
+  addLinesFor sf.schematic, "{}"
   if sf.icon.len != 0:
-    lines.add "proc ICON_" & sf.name & " args {"
-    addLinesFor sf.icon
-    lines.add "}"
+    addLinesFor sf.icon, "args"
 
   lines.join "\n"

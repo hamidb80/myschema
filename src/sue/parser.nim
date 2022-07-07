@@ -1,5 +1,5 @@
-import std/[strutils, strformat, macros]
-import ../common
+import std/[strutils, strformat]
+import ../utils
 import sue
 
 
@@ -19,26 +19,13 @@ type
 
   ProcKinds = enum
     pkSchematic, pkIcon
-
+  
 using
   code: ptr string
   bounds: HSlice[int, int]
 
 
 const eos = '\0' ## end of string
-
-macro toTuple(list: untyped, n: static[int]): untyped =
-  let tempId = gensym()
-  var tupleDef = newTree nnkTupleConstr
-
-  for i in 0..(n-1):
-    tupleDef.add newTree(nnkBracketExpr, tempid, newlit i)
-
-  quote:
-    block:
-      let `tempId` = `list`
-      `tupleDef`
-
 
 func nextToken(code; bounds; limit: LexForce): tuple[token: SueToken; index: int] =
   let offside = bounds.b + 1
@@ -101,7 +88,7 @@ func nextToken(code; bounds; limit: LexForce): tuple[token: SueToken; index: int
 
     inc i
 
-  raise newException(ValueError, "out of scope")
+  err "not matched"
 
 func parseSue(code, bounds; result: var SueFile) =
   var
