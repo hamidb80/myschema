@@ -4,13 +4,13 @@ import defs
 
 
 type
-  LexForce = enum
+  LexExpect = enum
     lfAny
     lfText
 
   LexerState = enum
-    lsBefore
-    lsActive
+    lsBeforeMatch
+    lsActiveMatch
 
   ParserState = enum
     psModule
@@ -19,7 +19,7 @@ type
 
   ProcKinds = enum
     pkSchematic, pkIcon
-  
+
 using
   code: ptr string
   bounds: HSlice[int, int]
@@ -27,12 +27,12 @@ using
 
 const eos = '\0' ## end of string
 
-func nextToken(code; bounds; limit: LexForce): tuple[token: SueToken; index: int] =
+func nextToken(code; bounds; limit: LexExpect): tuple[token: SueToken; index: int] =
   let offside = bounds.b + 1
   var
     i = bounds.a
     marker = i
-    state = lsBefore
+    state = lsBeforeMatch
     bracketText = false
     isComment = false
 
@@ -44,10 +44,10 @@ func nextToken(code; bounds; limit: LexForce): tuple[token: SueToken; index: int
     case ch:
     of Whitespace, eos:
       case state:
-      of lsBefore:
+      of lsBeforeMatch:
         if ch == '\n':
           return (toToken ch, i+1)
-      of lsActive:
+      of lsActiveMatch:
         case limit:
         of lfText:
           if not bracketText:
@@ -58,19 +58,19 @@ func nextToken(code; bounds; limit: LexForce): tuple[token: SueToken; index: int
 
     of '}':
       case state:
-      of lsBefore:
+      of lsBeforeMatch:
         if code[i-1] != '\\':
           return (toToken code[i], i+1)
 
-      of lsActive:
+      of lsActiveMatch:
         return case limit:
         of lfAny: (toToken code[marker ..< i], i)
         of lfText: (toToken code[marker .. i], i+1)
 
     else:
       case state:
-      of lsActive: discard
-      of lsBefore:
+      of lsActiveMatch: discard
+      of lsBeforeMatch:
         case limit:
         of lfAny:
           case ch:
@@ -78,19 +78,19 @@ func nextToken(code; bounds; limit: LexForce): tuple[token: SueToken; index: int
             return (toToken code[i], i+1)
           else:
             marker = i
-            state = lsActive
+            state = lsActiveMatch
             isComment = ch == '#'
 
         of lfText:
           marker = i
-          state = lsActive
+          state = lsActiveMatch
           bracketText = ch == '{'
 
     inc i
 
   err "not matched"
 
-func parseSue(code, bounds; result: var SueFile) =
+func parseSue(code; bounds; result: var SueFile) =
   var
     i = bounds.a
     limit = lfAny
@@ -203,7 +203,7 @@ when isMainModule:
     const texts = [
       "make_wire -1800 -950 -1880 -950 -origin {10 20}",
       "  make_wire -1800 -950 -1880 -950",
-      "make io_pad_ami_c5n -name pad1 -origin {560 -1440}",
+      "make io_pad_ami_c5n -name 'pad1' -origin {560 -1440}",
       "make io_pad_ami_c5n -orient R90Y -name pad14 -origin {-1680 -2480}",
       "make global -orient RXY -name vdd -origin {380 -510}",
       "make name_net -name {memdataout_s1[15]} -origin {-1860 -2100}",

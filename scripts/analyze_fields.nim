@@ -53,20 +53,17 @@ template double(something): untyped =
   for c, fs in something:
     echo c, ": ", fs
 
+func filterKV[Idx; T](s: array[Idx, T]): seq[(Idx, T)] =
+  for k, values in s:
+    if values.len != 0:
+      result.add (k, values)
+
 print customMakeFields
 print "----------"
 double uniqFieldsForCommands
 print "----------"
-
 for field, cmdVals in uniqValuesForFieldsPerCommands:
-  stdout.write field, ": "
- 
-  for cmd, vals in cmdvals:
-    if vals.len != 0:
-      stdout.write (cmd, vals), " "
-
-  stdout.write "\n"
-
+  echo field, ": ", cmdvals.filterKV
 print "----------"
 double fieldsForCommands
 print "----------"

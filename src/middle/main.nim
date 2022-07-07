@@ -29,12 +29,12 @@ type
     position: MPoint
 
   MSegment* = HSlice[MPoint, MPoint]
-  
+
   MWire* = ref object
     segments: seq[MSegment]
     isBus: bool
 
 
 
-func toSvg*(sch: MSchema): XmlNode = 
+func toSvg*(sch: MSchema): XmlNode =
   discard
