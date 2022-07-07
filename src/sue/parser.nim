@@ -1,72 +1,34 @@
-import std/[strutils, strformat, nre, options, sequtils, macros]
-import sue
+import std/[strutils, strformat, macros]
 import ../common
+import sue
 
 
-func hasLetter(s: string): bool {.inline.} =
-  for ch in s:
-    if ch in Letters:
-      return true
+type
+  LexForce = enum
+    lfAny
+    lfText
+
+  LexerState = enum
+    lsBefore
+    lsActive
+
+  ParserState = enum
+    psModule
+    psProcName, psProcArg
+    psExprCmd, psExprArgs, psExprFlag, psExprValue
+
+  ProcKinds = enum
+    pkSchematic, pkIcon
+
+using
+  code: ptr string
+  bounds: HSlice[int, int]
 
 
-template findGoImpl(s, pat, i): untyped {.dirty.} =
-  let m = s.match(pat, i)
-  assert issome m, "cannot match"
-
-  i = m.get.matchBounds.b + 2
-
-func findGo(s: string, pat: Regex, i: var int): string =
-  findGoImpl s, pat, i
-  m.get.captures[0]
-
-func findGoMulti(s: string, pat: Regex, i: var int): seq[string] =
-  findGoImpl s, pat, i
-  for s in m.get.captures:
-    result.add s.get
-
-func matchCurlyBraceGo(s: string, i: var int): string =
-  assert s[i] == '{'
-  inc i
-
-  var
-    depth = 1
-    marker = i
-
-  while i <= s.high:
-    case s[i]:
-      of '{': inc depth
-      of '}':
-        dec depth
-        if depth == 0:
-          result = s[marker ..< i]
-          inc i, 2
-          break
-      else: discard
-
-    inc i
-
-  assert depth == 0
-
-func matchIdentGo(s: string, i: var int): string =
-  let marker = i
-
-  while i <= s.high:
-    if s[i] in Whitespace:
-      break
-
-    inc i
-
-  result = s[marker ..< i]
-  inc i
-
-func matchStrGo(s: string, i: var int): string =
-  case s[i]:
-  of '{': matchCurlyBraceGo s, i
-  of IdentChars: matchIdentGo s, i
-  else: err fmt"invalid char: {s[i]}"
+const eos = '\0' ## end of string
 
 macro toTuple(list: untyped, n: static[int]): untyped =
-  let tempId = ident "temp"
+  let tempId = gensym()
   var tupleDef = newTree nnkTupleConstr
 
   for i in 0..(n-1):
@@ -77,135 +39,198 @@ macro toTuple(list: untyped, n: static[int]): untyped =
       let `tempId` = `list`
       `tupleDef`
 
-func exprcc(field, value: NimNode): NimNode =
-  newtree nnkExprColonExpr, field, value
 
-template initObjConstrConventionImpl(objName,
-  field, value, args): untyped {.dirty.} =
+func nextToken(code; bounds; limit: LexForce): tuple[token: SueToken; index: int] =
+  let offside = bounds.b + 1
+  var
+    i = bounds.a
+    marker = i
+    state = lsBefore
+    bracketText = false
+    isComment = false
 
-  result = newTree(nnkObjConstr, objName, exprcc(field, value))
+  while i <= offside:
+    let ch =
+      if i == offside: eos
+      else: code[i]
 
-  for i in countup(0, args.len - 1, 2):
-    let
-      field = args[i]
-      value = args[i+1]
+    case ch:
+    of Whitespace, eos:
+      case state:
+      of lsBefore:
+        if ch == '\n':
+          return (toToken ch, i+1)
+      of lsActive:
+        case limit:
+        of lfText:
+          if not bracketText:
+            return (toToken code[marker ..< i], i)
+        of lfAny:
+          if (isComment and ch in {'\n', eos}) or (not isComment):
+            return (toToken code[marker ..< i], i)
 
-    result.add exprcc(field, value)
+    of '}':
+      case state:
+      of lsBefore:
+        if code[i-1] != '\\':
+          return (toToken code[i], i+1)
 
-
-macro initSueOption(f: untyped, args: varargs[untyped]): untyped =
-  let t = ident"flag"
-  initObjConstrConventionImpl bindsym"SueOption", t, f, args
-
-macro initSueExpr(c: untyped, args: varargs[untyped]): untyped =
-  let t = ident"command"
-  initObjConstrConventionImpl bindsym"SueExpression", t, c, args
-
-
-func foldPoints(nums: seq[int]): seq[SuePoint] =
-  for i in countup(0, nums.high, 2):
-    result.add (nums[i], nums[i+1])
-
-# FIXME can go to next line inside { }
-# ّFIXME we have strings too [in single quotation '
-
-func matchProcLine(loc: string): SueExpression =
-  # debugecho loc, " ::::::"
-
-  var i = 0
-  let cmd = loc.findGo(re"(\w+)", i).parseEnum[:SueCommand]
-
-  result = case cmd: # parse params
-    of scMake:
-      let moduleName = loc.findGo(re"(\w+)", i)
-      cmd.initSueExpr(ident, moduleName)
-
-    of scMakeWire, scMakeLine, scIconArc:
-      let (x1, y1, x2, y2) = loc
-        .findGoMulti(re"(-?\d+) (-?\d+) (-?\d+) (-?\d+)", i)
-        .mapit(parseInt it)
-        .toTuple(4)
-
-      cmd.initSueExpr(head, (x1, y1), tail, (x2, y2))
-
-    of scIconSetup:
-      i = loc.high
-      cmd.initSueExpr() # TODO
-
-    of scIconTerm, scIconProperty, scMakeText:
-      cmd.initSueExpr()
-
-    of scIconLine:
-      let args = loc.substr(i).split.mapit(parseInt it)
-      i = loc.high
-
-      cmd.initSueExpr(points, foldPoints(args))
-
-  while i < loc.high: # parse options
-    let
-      op = loc.findgo(re"-(\w+)", i)
-      flag =
-        try: op.parseEnum[:SueFlag]
-        except: sfCustom
-
-    result.options.add:
-      case flag:
-      of sfOrigin:
-        let p = loc
-          .findGoMulti(re"\{(-?\d+) (-?\d+)\}", i)
-          .mapit(parseInt it)
-          .toTuple(2)
-
-        flag.initSueOption(position, p)
-
-      of sfStart, sfExtent:
-        let n = loc.findGo(re"(-?\d+)", i).parseInt
-        flag.initSueOption(degree, n)
-
-      of sfText, sfName, sfLabel, sfOrient, sfType, sfSize, sfAnchor, sfRotate:
-        let s = loc.matchStrGo(i)
-
-        case flag:
-        of sfName, sfLabel, sfText, sfOrient: flag.initSueOption(strval, s)
-        of sfType: flag.initSueOption(portType, parseEnum[SueType](s))
-        of sfSize: flag.initSueOption(size, parseEnum[SueSize](s))
-        of sfAnchor: flag.initSueOption(anchor, s)
-        of sfRotate: flag.initSueOption(rotation, s.parseint)
-        else: impossible
-
-      of sfCustom:
-        let n = loc.matchIdentGo(i)
-        flag.initSueOption(field, op, value, n)
-
-
-type ParserStates = enum
-  psModule, psSchematic, psIcon
-
-func parseSue*(code: string): SueFile =
-  var pstate = psModule
-
-  for loc in splitLines code:
-    if (not hasLetter loc) or (loc.startsWith '#'): # empty line or comment
-      discard
-
-    elif loc.startsWith '}': # end of proc body
-      pstate = psModule
-
-    elif loc.startsWith "proc": # proc def
-      let (prefix, name) = loc.match(re"proc ([a-zA-Z]+)_(\w+)").get.captures.toTuple(2)
-
-      result.name = name
-
-      pstate = case prefix:
-        of "SCHEMATIC": psSchematic
-        of "ICON": psIcon
-        else: err "invalid proc name"
+      of lsActive:
+        return case limit:
+        of lfAny: (toToken code[marker ..< i], i)
+        of lfText: (toToken code[marker .. i], i+1)
 
     else:
-      template expr: untyped = matchProcLine loc.strip
+      case state:
+      of lsActive: discard
+      of lsBefore:
+        case limit:
+        of lfAny:
+          case ch:
+          of '{':
+            return (toToken code[i], i+1)
+          else:
+            marker = i
+            state = lsActive
+            isComment = ch == '#'
 
-      case pstate:
-      of psIcon: result.icon.add expr
-      of psSchematic: result.schematic.add expr
-      of psModule: err fmt"cannot happen: {loc}"
+        of lfText:
+          marker = i
+          state = lsActive
+          bracketText = ch == '{'
 
+    inc i
+
+  raise newException(ValueError, "out of scope")
+
+func parseSue(code, bounds; result: var SueFile) =
+  var
+    i = bounds.a
+    limit = lfAny
+    pstate = psModule
+    whichProc: ProcKinds
+    expressionsAcc: seq[SueExpression]
+
+  while i <= bounds.b:
+    var goNext = true
+    let (t, newi) =
+      try: nextToken(code, i .. bounds.b, limit)
+      except ValueError: break
+
+    case pstate:
+    of psModule:
+      if t == "proc":
+        pstate = psProcName
+
+    of psProcName:
+      assert (t.kind == sttLiteral) and ('_' in t.strval), "invalid proc pattern"
+      let (prefix, pname) = t.strval.split('_', 1).toTuple(2)
+
+      result.name = pname
+      whichProc = case prefix:
+        of "ICON": pkIcon
+        of "SCHEMATIC": pkSchematic
+        else: err fmt"invalid proc name: {t.strval}"
+
+      pstate = psProcArg
+
+    of psProcArg:
+      if t == '\n':
+        pstate = psExprCmd
+
+    of psExprCmd:
+      if t == '}':
+        pstate = psModule
+        case whichProc:
+        of pkIcon: result.icon = expressionsAcc
+        of pkSchematic: result.schematic = expressionsAcc
+
+        expressionsAcc = @[]
+
+      else:
+        let cmd = t.strval.parseEnum[:SueCommand]
+        expressionsAcc.add SueExpression(command: cmd)
+        pstate = psExprArgs
+
+
+    elif t == '\n':
+      pstate = psExprCmd
+
+    else:
+      case pstate
+      of psExprArgs:
+        case t.kind:
+        of sttCommand:
+          pstate = psExprFlag
+          goNext = false
+
+        else:
+          expressionsAcc[^1].args.add t
+
+      of psExprFlag:
+        let (flag, field) =
+          try: (t.strval.parseEnum[:SueFlag], "")
+          except: (sfCustom, t.strval)
+
+        expressionsAcc[^1].options.add:
+          SueOption(flag: flag, field: field)
+
+        pstate = psExprValue
+
+      of psExprValue:
+        template addTo: untyped =
+          expressionsAcc[^1].options[^1].values.add t
+
+        case expressionsAcc[^1].options[^1].flag:
+        of sfOrigin:
+          case t.kind:
+          of sttCurlyOpen: discard
+          of sttCurlyClose: pstate = psExprFlag
+          else: addTo
+
+        else:
+          addTo
+          pstate = psExprFlag
+
+
+      else: impossible
+
+    # debugEcho t
+    if goNext:
+      i = newi
+      limit =
+        if (t.kind == sttCommand) and (t.strval in ["-text", "-name", "-label"]):
+          lfText
+        else:
+          lfAny
+
+
+func parseSue*(code: string): SueFile =
+  parseSue(addr code, 0 .. code.high, result)
+
+
+import print
+when isMainModule:
+
+  block commands:
+    const texts = [
+      "make_wire -1800 -950 -1880 -950 -origin {10 20}",
+      "  make_wire -1800 -950 -1880 -950",
+      "make io_pad_ami_c5n -name pad1 -origin {560 -1440}",
+      "make io_pad_ami_c5n -orient R90Y -name pad14 -origin {-1680 -2480}",
+      "make global -orient RXY -name vdd -origin {380 -510}",
+      "make name_net -name {memdataout_s1[15]} -origin {-1860 -2100}",
+      "make name_net -name {memdatain_v1[15]} -origin {-1790 -2220}",
+      """
+      make_text -origin {-1740 -2690} -text {This is the 
+        schematic for AMI-C5N 0.5um technology}
+      make_text -origin {-1740 -2660} -text Lambda=0.35um
+      """
+    ]
+
+    for i, t in texts:
+      echo "--- >> ", i+1
+      # discard parseSue t
+
+  block file:
+    print parseSue readfile "./examples/eg1.sue"

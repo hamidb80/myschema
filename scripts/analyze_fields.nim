@@ -39,7 +39,7 @@ for path in walkDirRec dir:
           if o.field notin customMakeFields:
             customMakeFields[o.field] = initHashSet[string]()
 
-          customMakeFields[o.field].incl o.value
+          customMakeFields[o.field].incl dumpValue o
 
         elif f notin {sfText, sfName, sfLabel, sfOrigin}:
           uniqValuesForFields[f].incl dumpValue o
