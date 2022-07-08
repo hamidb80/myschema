@@ -1,223 +1,27 @@
-import std/[strutils, strformat]
+import std/[strutils, strformat, sequtils]
 import ../utils
-import defs
-
 
 type
-  LexExpect = enum
-    lfAny
-    lfText
+  SuePoint = tuple[x, y: int]
 
-  LexerState = enum
-    lsBeforeMatch
-    lsActiveMatch
+  SueSegemnt = HSlice[SuePoint, SuePoint]
 
-  ParserState = enum
-    psModule
-    psProcName, psProcArg
-    psExprCmd, psExprArgs, psExprFlag, psExprValue
+  SueLabel = ref object
+    content: string
+    location: SuePoint
 
-  ProcKinds = enum
-    pkSchematic, pkIcon
+  SueSchematic = ref object
+    instances: seq[SueInstance]
+    wires: seq[SueSegemnt]
+    labels: seq[SueLabel]
 
-using
-  code: ptr string
-  bounds: HSlice[int, int]
+  SueIcon = ref object
 
+  SueComponent* = ref object
+    name: string
+    schematic: SueSchematic
+    icon: SueIcon
 
-const eos = '\0' ## end of string
-
-func nextToken(code; bounds; limit: LexExpect): tuple[token: SueToken; index: int] =
-  let offside = bounds.b + 1
-  var
-    i = bounds.a
-    marker = i
-    state = lsBeforeMatch
-    bracketText = false
-    isComment = false
-
-  while i <= offside:
-    let ch =
-      if i == offside: eos
-      else: code[i]
-
-    case ch:
-    of Whitespace, eos:
-      case state:
-      of lsBeforeMatch:
-        if ch == '\n':
-          return (toToken ch, i+1)
-      of lsActiveMatch:
-        case limit:
-        of lfText:
-          if not bracketText:
-            return (toToken code[marker ..< i], i)
-        of lfAny:
-          if (isComment and ch in {'\n', eos}) or (not isComment):
-            return (toToken code[marker ..< i], i)
-
-    of '}':
-      case state:
-      of lsBeforeMatch:
-        if code[i-1] != '\\':
-          return (toToken code[i], i+1)
-
-      of lsActiveMatch:
-        return case limit:
-        of lfAny: (toToken code[marker ..< i], i)
-        of lfText: (toToken code[marker .. i], i+1)
-
-    else:
-      case state:
-      of lsActiveMatch: discard
-      of lsBeforeMatch:
-        case limit:
-        of lfAny:
-          case ch:
-          of '{':
-            return (toToken code[i], i+1)
-          else:
-            marker = i
-            state = lsActiveMatch
-            isComment = ch == '#'
-
-        of lfText:
-          marker = i
-          state = lsActiveMatch
-          bracketText = ch == '{'
-
-    inc i
-
-  err "not matched"
-
-func parseSue(code; bounds; result: var SueFile) =
-  var
-    i = bounds.a
-    limit = lfAny
-    pstate = psModule
-    whichProc: ProcKinds
-    expressionsAcc: seq[SueExpression]
-
-  while i <= bounds.b:
-    var goNext = true
-    let (t, newi) =
-      try: nextToken(code, i .. bounds.b, limit)
-      except ValueError: break
-
-    case pstate:
-    of psModule:
-      if t == "proc":
-        pstate = psProcName
-
-    of psProcName:
-      assert (t.kind == sttLiteral) and ('_' in t.strval), "invalid proc pattern"
-      let (prefix, pname) = t.strval.split('_', 1).toTuple(2)
-
-      result.name = pname
-      whichProc = case prefix:
-        of "ICON": pkIcon
-        of "SCHEMATIC": pkSchematic
-        else: err fmt"invalid proc name: {t.strval}"
-
-      pstate = psProcArg
-
-    of psProcArg:
-      if t == '\n':
-        pstate = psExprCmd
-
-    of psExprCmd:
-      if t == '}':
-        pstate = psModule
-        case whichProc:
-        of pkIcon: result.icon = expressionsAcc
-        of pkSchematic: result.schematic = expressionsAcc
-
-        expressionsAcc = @[]
-
-      else:
-        let cmd = t.strval.parseEnum[:SueCommand]
-        expressionsAcc.add SueExpression(command: cmd)
-        pstate = psExprArgs
-
-
-    elif t == '\n':
-      pstate = psExprCmd
-
-    else:
-      case pstate
-      of psExprArgs:
-        case t.kind:
-        of sttCommand:
-          pstate = psExprFlag
-          goNext = false
-
-        else:
-          expressionsAcc[^1].args.add t
-
-      of psExprFlag:
-        let (flag, field) =
-          try: (t.strval.parseEnum[:SueFlag], "")
-          except: (sfCustom, t.strval)
-
-        expressionsAcc[^1].options.add:
-          SueOption(flag: flag, field: field)
-
-        pstate = psExprValue
-
-      of psExprValue:
-        template addTo: untyped =
-          expressionsAcc[^1].options[^1].values.add t
-
-        case expressionsAcc[^1].options[^1].flag:
-        of sfOrigin:
-          case t.kind:
-          of sttCurlyOpen: discard
-          of sttCurlyClose: pstate = psExprFlag
-          else: addTo
-
-        else:
-          addTo
-          pstate = psExprFlag
-
-
-      else: impossible
-
-    # debugEcho t
-    if goNext:
-      i = newi
-      limit =
-        if (t.kind == sttCommand) and (t.strval in ["-text", "-name", "-label"]):
-          lfText
-        else:
-          lfAny
-
-
-func parseSue*(code: string): SueFile =
-  parseSue(addr code, 0 .. code.high, result)
-
-
-import print
-when isMainModule:
-
-  block commands:
-    const texts = [
-      "make_wire -1800 -950 -1880 -950 -origin {10 20}",
-      "  make_wire -1800 -950 -1880 -950",
-      "make io_pad_ami_c5n -name 'pad1' -origin {560 -1440}",
-      "make io_pad_ami_c5n -orient R90Y -name pad14 -origin {-1680 -2480}",
-      "make global -orient RXY -name vdd -origin {380 -510}",
-      "make name_net -name {memdataout_s1[15]} -origin {-1860 -2100}",
-      "make name_net -name {memdatain_v1[15]} -origin {-1790 -2220}",
-      """
-      make_text -origin {-1740 -2690} -text {This is the 
-        schematic for AMI-C5N 0.5um technology}
-      make_text -origin {-1740 -2660} -text Lambda=0.35um
-      """
-    ]
-
-    for i, t in texts:
-      echo "--- >> ", i+1
-      # discard parseSue t
-
-  block file:
-    print parseSue readfile "./examples/eg1.sue"
+  SueInstance = ref object
+    name: string
+    parent {.cursor.}: SueComponent

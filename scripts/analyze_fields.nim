@@ -1,6 +1,5 @@
 import std/[os, strutils, sets, tables]
-import ../src/sue/defs
-import ../src/sue/parser
+import ../src/sue/[lexer]
 import print
 
 
@@ -27,7 +26,7 @@ var
 for path in walkDirRec dir:
   if path.endsWith ".sue":
     echo ">> ", path
-    let s = parseSue readfile path
+    let s = lexSue readfile path
 
     for expr in expressions s:
       let c = expr.command
