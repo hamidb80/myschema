@@ -24,7 +24,7 @@ var
   uniqFieldsForCommands: array[SueFlag, set[SueCommand]]
 
 for path in walkDirRec dir:
-  if path.endsWith ".sue":
+  if path.endsWith(".sue") and ("SCCS" notin path):
     echo ">> ", path
     let s = lexSue readfile path
 

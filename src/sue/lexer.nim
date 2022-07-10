@@ -29,6 +29,7 @@ type
 
   SueCommand* = enum
     scMake = "make"
+    scGenerate = "generate"
     scMakeWire = "make_wire"
     scMakeLine = "make_line"
     scMakeText = "make_text"
@@ -47,10 +48,12 @@ type
     sfRotate = "-rotate"
     sfSize = "-size"
     sfType = "-type"
+    sfDefault = "-default"
     sfAnchor = "-anchor"
+    sfNInputs = "-ninputs"
     sfStart = "-start"
     sfExtent = "-extent"
-    sfCustom = "<CUSTOM_FIELD>"
+    sfCustom = "-<CUSTOM_FIELD>"
 
   SueType* = enum
     spInput = "input"
@@ -99,7 +102,7 @@ using
   bounds: HSlice[int, int]
 
 
-const 
+const
   SueVersion = "MMI_SUE4.4"
   eos = '\0' ## end of string
 
@@ -159,6 +162,7 @@ func nextToken(code; bounds; limit: LexExpect): tuple[token: SueToken; index: in
     state = lsBeforeMatch
     bracketText = false
     isComment = false
+    depth = 0
 
   while i <= offside:
     let ch =
@@ -187,13 +191,29 @@ func nextToken(code; bounds; limit: LexExpect): tuple[token: SueToken; index: in
           return (toToken code[i], i+1)
 
       of lsActiveMatch:
-        return case limit:
-        of leAny: (toToken code[marker ..< i], i)
-        of leText: (toToken code[marker .. i], i+1)
+        case limit:
+        of leAny: 
+          return (toToken code[marker ..< i], i)
+        of leText:
+          if code[i-1] != '\\':
+            dec depth 
+          
+          if depth == 0:
+            return (toToken code[marker .. i], i+1)
 
     else:
       case state:
-      of lsActiveMatch: discard
+      of lsActiveMatch:
+        case ch:
+        of '{':
+          case limit:
+          of leText:
+            if code[i-1] != '\\':
+              inc depth
+
+          else: discard
+        else: discard
+
       of lsBeforeMatch:
         case limit:
         of leAny:
@@ -209,6 +229,7 @@ func nextToken(code; bounds; limit: LexExpect): tuple[token: SueToken; index: in
           marker = i
           state = lsActiveMatch
           bracketText = ch == '{'
+          depth = 1
 
     inc i
 
@@ -250,7 +271,10 @@ func lexSue(code; bounds; result: var SueFile) =
         pstate = psExprCmd
 
     of psExprCmd:
-      if t == '}':
+      if t == '\n':
+        discard
+      
+      elif t == '}':
         pstate = psModule
         case whichProc:
         of pkIcon: result.icon = expressionsAcc
@@ -262,7 +286,6 @@ func lexSue(code; bounds; result: var SueFile) =
         let cmd = t.strval.parseEnum[:SueCommand]
         expressionsAcc.add SueExpression(command: cmd)
         pstate = psExprArgs
-
 
     elif t == '\n':
       pstate = psExprCmd
@@ -310,7 +333,7 @@ func lexSue(code; bounds; result: var SueFile) =
     if goNext:
       i = newi
       limit =
-        if (t.kind == sttCommand) and (t.strval in ["-text", "-name", "-label"]):
+        if (t.kind == sttCommand) and (t.strval in ["-text", "-name", "-label", "-Name", "-User", "-Date", "-Comment1", "-Comment2"]):
           leText
         else:
           leAny

@@ -18,9 +18,14 @@ proc SCHEMATIC_chip {} {
   make_text -origin {-1740 -2690} -text {This is the schematic 
     for AMI-C5N 0.5um technology}
   make_text -origin {-1740 -2660} -text Lambda=0.35um
+  make SheetMed -Comment1 {feedback bias has PMOS current sources} -origin {150 360}
+  make SheetSmall -Name CLB -User {Ruel Parent} -Date {Jan 25, 2000} -Comment1 {This is the basic logic block of the chip} -Comment2 {The LUT & CMC modules are memory arrays} -origin {540 590}
+  generate nand_N nand_N3 -ninputs 3
 }
 
 proc ICON_chip args {
+  
+  
   icon_setup $args {{origin {0 0}} {orient R0} {name {}} {M {}}}
   icon_term -type output -origin {-280 80} -orient R90 -name {r1addr_s2[3:0]}
   icon_arc -80 -110 -40 -30 -start 89 -extent -179
@@ -32,4 +37,6 @@ proc ICON_chip args {
   icon_property -origin {280 -50} -size small -anchor e -label {memdatain_v1[15:0]}
   icon_property -origin {0 -20} -size large -anchor center -label control
   icon_property -origin {60 -210} -rotate 1 -label phi1_bb
+
+
 }
