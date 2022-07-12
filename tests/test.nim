@@ -1,5 +1,6 @@
-import sue/[parser, defs], print
+import sue/[lexer], print
 
 
-print parseSue readFile "./examples/eg1.sue"
-echo dump parseSue readFile "./examples/eg1.sue"
+let l = lexSue readFile "./examples/eg1.sue"
+print l
+echo dump l

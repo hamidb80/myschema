@@ -68,7 +68,7 @@ type
   SueOption* = object
     flag*: SueFlag
     field*: string
-    values*: seq[SueToken]
+    value*: SueToken
 
   SueExpression* = object
     command*: SueCommand
@@ -80,18 +80,14 @@ type
     schematic*, icon*: seq[SueExpression]
 
 
-  LexExpect = enum
-    leAny
-    leText
+  TokenCaptureState = enum
+    tcsBeforeMatch
+    tcsActiveMatch
 
   LexerState = enum
-    lsBeforeMatch
-    lsActiveMatch
-
-  ParserState = enum
-    psModule
-    psProcName, psProcArg
-    psExprCmd, psExprArgs, psExprFlag, psExprValue
+    lsModule
+    lsProcName, lsProcArg, lsProcBody
+    lsExprCmd, lsExprArgs, lsExprFlag, lsExprValue
 
   ProcKinds = enum
     pkSchematic, pkIcon
@@ -124,22 +120,22 @@ func toToken*(s: string): SueToken =
     SueToken(kind: sttNumber, intval: s.parseInt)
 
   else:
-    template gen(k): untyped =
-      SueToken(kind: k, strval: s)
+    template gen(k, val): untyped =
+      SueToken(kind: k, strval: val)
 
     case s[0]:
-    of '#': gen sttComment
+    of '#': gen sttComment, s.substr(1).strip
+    of '{': gen sttString, s[1 ..< ^1]
     of '-': # -50f vs -command
-      if s[1] in Digits: gen sttLiteral
-      else: gen sttCommand
-    of '\'', '{': gen sttString
-    else: gen sttLiteral
+      if s[1] in Digits: gen sttLiteral, s
+      else: gen sttCommand, s
+    else: gen sttLiteral, s
 
 func toToken*(ch: char): SueToken =
   let k = case ch:
+    of '\n': sttNewLine
     of '{': sttCurlyOpen
     of '}': sttCurlyClose
-    of '\n': sttNewLine
     else: err fmt"invalid conversion to token, char `{ch}`"
 
   SueToken(kind: k)
@@ -154,82 +150,74 @@ func `==`*(t: SueToken, ch: char): bool =
 
 # --- lexer
 
-func nextToken(code; bounds; limit: LexExpect): tuple[token: SueToken; index: int] =
+func nextToken(code; bounds; lstate: LexerState): tuple[token: SueToken; index: int] =
   let offside = bounds.b + 1
   var
     i = bounds.a
     marker = i
-    state = lsBeforeMatch
+    state = tcsBeforeMatch
     bracketText = false
     isComment = false
     depth = 0
 
+  template oneChar(): untyped =
+    (toToken ch, i+1)
+
   while i <= offside:
-    let ch =
-      if i == offside: eos
-      else: code[i]
+    let
+      ch = 
+        if i == offside: eos
+        else: code[i]
+      isScaped =
+        (i > 0) and (code[i-1] == '\\')
 
     case ch:
     of Whitespace, eos:
       case state:
-      of lsBeforeMatch:
+      of tcsBeforeMatch:
         if ch == '\n':
-          return (toToken ch, i+1)
-      of lsActiveMatch:
-        case limit:
-        of leText:
-          if not bracketText:
-            return (toToken code[marker ..< i], i)
-        of leAny:
-          if (isComment and ch in {'\n', eos}) or (not isComment):
-            return (toToken code[marker ..< i], i)
+          return oneChar()
+
+      of tcsActiveMatch:
+        if not bracketText or
+          (isComment and ch == '\n'):
+
+          return (toToken code[marker ..< i], i)
+
+    of '{':
+      if lstate == lsProcBody:
+        return oneChar
+      
+      if not isScaped:
+        inc depth
+
+        if state == tcsBeforeMatch:
+          marker = i
+          state = tcsActiveMatch
+          bracketText = true
 
     of '}':
       case state:
-      of lsBeforeMatch:
-        if code[i-1] != '\\':
-          return (toToken code[i], i+1)
+      of tcsBeforeMatch:
+        if lstate == lsExprCmd:
+          return oneChar
 
-      of lsActiveMatch:
-        case limit:
-        of leAny: 
-          return (toToken code[marker ..< i], i)
-        of leText:
-          if code[i-1] != '\\':
-            dec depth 
-          
-          if depth == 0:
-            return (toToken code[marker .. i], i+1)
+      of tcsActiveMatch:
+        if not isScaped:
+          dec depth
+
+        if depth == 0:
+          return (toToken code[marker .. i], i+1)
 
     else:
       case state:
-      of lsActiveMatch:
-        case ch:
-        of '{':
-          case limit:
-          of leText:
-            if code[i-1] != '\\':
-              inc depth
+      of tcsActiveMatch: discard
+      of tcsBeforeMatch:
+        if ch == '#':
+          isComment = true
 
-          else: discard
-        else: discard
-
-      of lsBeforeMatch:
-        case limit:
-        of leAny:
-          case ch:
-          of '{':
-            return (toToken code[i], i+1)
-          else:
-            marker = i
-            state = lsActiveMatch
-            isComment = ch == '#'
-
-        of leText:
-          marker = i
-          state = lsActiveMatch
-          bracketText = ch == '{'
-          depth = 1
+        marker = i
+        state = tcsActiveMatch
 
     inc i
 
@@ -238,23 +226,21 @@ func nextToken(code; bounds; limit: LexExpect): tuple[token: SueToken; index: in
 func lexSue(code; bounds; result: var SueFile) =
   var
     i = bounds.a
-    limit = leAny
-    pstate = psModule
+    lstate = lsModule
     whichProc: ProcKinds
     expressionsAcc: seq[SueExpression]
 
   while i <= bounds.b:
-    var goNext = true
     let (t, newi) =
-      try: nextToken(code, i .. bounds.b, limit)
+      try: nextToken(code, i .. bounds.b, lstate)
       except ValueError: break
 
-    case pstate:
-    of psModule:
+    case lstate:
+    of lsModule:
       if t == "proc":
-        pstate = psProcName
+        lstate = lsProcName
 
-    of psProcName:
+    of lsProcName:
       assert (t.kind == sttLiteral) and ('_' in t.strval), "invalid proc pattern"
       let (prefix, pname) = t.strval.split('_', 1).toTuple(2)
 
@@ -262,20 +248,24 @@ func lexSue(code; bounds; result: var SueFile) =
       whichProc = case prefix:
         of "ICON": pkIcon
         of "SCHEMATIC": pkSchematic
-        else: err fmt"invalid proc name: {t.strval}"
+        else: err fmt"invalid proc prefix: {t.strval}"
 
-      pstate = psProcArg
+      lstate = lsProcArg
 
-    of psProcArg:
-      if t == '\n':
-        pstate = psExprCmd
+    of lsProcArg:
+      assert t.kind in {sttString, sttLiteral}
+      lstate = lsProcBody
 
-    of psExprCmd:
+    of lsProcBody:
+      assert t.kind == sttCurlyOpen
+      lstate = lsExprCmd
+
+    of lsExprCmd:
       if t == '\n':
         discard
-      
+
       elif t == '}':
-        pstate = psModule
+        lstate = lsModule
         case whichProc:
         of pkIcon: result.icon = expressionsAcc
         of pkSchematic: result.schematic = expressionsAcc
@@ -285,58 +275,36 @@ func lexSue(code; bounds; result: var SueFile) =
       else:
         let cmd = t.strval.parseEnum[:SueCommand]
         expressionsAcc.add SueExpression(command: cmd)
-        pstate = psExprArgs
+        lstate = lsExprArgs
 
-    elif t == '\n':
-      pstate = psExprCmd
+    of lsExprArgs:
+      case t.kind:
+      of sttCommand:
+        lstate = lsExprFlag
+        continue
 
-    else:
-      case pstate
-      of psExprArgs:
-        case t.kind:
-        of sttCommand:
-          pstate = psExprFlag
-          goNext = false
+      of sttNewLine:
+        lstate = lsExprCmd
 
+      else:
+        expressionsAcc[^1].args.add t
+
+    of lsExprFlag:
+      lstate =
+        if t == '\n': lsExprCmd
         else:
-          expressionsAcc[^1].args.add t
+          let (flag, field) =
+            try: (t.strval.parseEnum[:SueFlag], "")
+            except: (sfCustom, t.strval)
 
-      of psExprFlag:
-        let (flag, field) =
-          try: (t.strval.parseEnum[:SueFlag], "")
-          except: (sfCustom, t.strval)
+          expressionsAcc[^1].options.add SueOption(flag: flag, field: field)
+          lsExprValue
 
-        expressionsAcc[^1].options.add:
-          SueOption(flag: flag, field: field)
+    of lsExprValue:
+      expressionsAcc[^1].options[^1].value = t
+      lstate = lsExprFlag
 
-        pstate = psExprValue
-
-      of psExprValue:
-        template addTo: untyped =
-          expressionsAcc[^1].options[^1].values.add t
-
-        case expressionsAcc[^1].options[^1].flag:
-        of sfOrigin:
-          case t.kind:
-          of sttCurlyOpen: discard
-          of sttCurlyClose: pstate = psExprFlag
-          else: addTo
-
-        else:
-          addTo
-          pstate = psExprFlag
-
-
-      else: impossible
-
-    # debugEcho t
-    if goNext:
-      i = newi
-      limit =
-        if (t.kind == sttCommand) and (t.strval in ["-text", "-name", "-label", "-Name", "-User", "-Date", "-Comment1", "-Comment2"]):
-          leText
-        else:
-          leAny
+    i = newi
 
 func lexSue*(code: string): SueFile =
   lexSue(addr code, 0 .. code.high, result)
@@ -346,15 +314,13 @@ func lexSue*(code: string): SueFile =
 func dump*(t: SueToken): string =
   case t.kind:
   of sttNumber: $t.intval
-  of sttString, sttLiteral, sttCommand, sttComment: t.strval
-  of sttCurlyOpen: "{"
-  of sttCurlyClose: "}"
+  of sttLiteral, sttCommand: t.strval
+  of sttString: '{' & t.strval & '}'
+  of sttComment: fmt"# {t.strval}"
   else: err "not a valid token to string conversion: {t.kind}"
 
 func dumpValue*(o: SueOption): string =
-  case o.flag:
-  of sfOrigin: "{" & dump(o.values[0]) & " " & dump(o.values[1]) & "}"
-  else: dump o.values[0]
+  dump o.value
 
 func dumpFlag*(o: SueOption): string =
   case o.flag:
@@ -372,14 +338,14 @@ func dump*(expr: SueExpression): string =
 func dump*(sf: SueFile): string =
   var lines = @[fmt "# SUE version {SueVersion}\n"]
 
-  template addLinesFor(exprWrapper, args): untyped =
+  template addProc(exprWrapper, args): untyped =
     lines.add "proc ICON_" & sf.name & " {args} {"
     for expr in exprWrapper:
       lines.add dump expr
     lines.add "}\n"
 
-  addLinesFor sf.schematic, "{}"
+  addProc sf.schematic, "{}"
   if sf.icon.len != 0:
-    addLinesFor sf.icon, "args"
+    addProc sf.icon, "args"
 
   lines.join "\n"
