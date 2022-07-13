@@ -1,7 +1,6 @@
-import std/[xmltree]
+import ../common/defs
 
 type
-  MPoint* = tuple[x, y: int]
 
   MSchema* = ref object
     instances: seq[MInstance]
@@ -14,7 +13,7 @@ type
   MPort = tuple
     name: string
     dir: MPortDir
-    position: MPoint
+    position: Point
 
   MComponent* = ref object
     ports: seq[MPort]
@@ -26,9 +25,9 @@ type
 
   MLabel* = ref object
     text: string
-    position: MPoint
+    position: Point
 
-  MSegment* = HSlice[MPoint, MPoint]
+  MSegment* = HSlice[Point, Point]
 
   MWire* = ref object
     segments: seq[MSegment]

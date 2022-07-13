@@ -1,22 +1,21 @@
 import std/[strutils, strformat, sequtils]
 import ../utils
+import ../common/defs
 
 type
-  SuePoint = tuple[x, y: int]
-
-  SueSegemnt = HSlice[SuePoint, SuePoint]
+  SueSegemnt = Range[Point]
 
   SueLabel = ref object
     content: string
-    location: SuePoint
+    location: Point
 
   SueSchematic = ref object
     instances: seq[SueInstance]
     wires: seq[SueSegemnt]
     labels: seq[SueLabel]
 
-  SueIcon = ref object
-
+  SueIcon = ref 
+  
   SueComponent* = ref object
     name: string
     schematic: SueSchematic

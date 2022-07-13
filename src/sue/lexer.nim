@@ -50,7 +50,6 @@ type
     sfType = "-type"
     sfDefault = "-default"
     sfAnchor = "-anchor"
-    sfNInputs = "-ninputs"
     sfStart = "-start"
     sfExtent = "-extent"
     sfCustom = "-<CUSTOM_FIELD>"
@@ -165,7 +164,7 @@ func nextToken(code; bounds; lstate: LexerState): tuple[token: SueToken; index: 
 
   while i <= offside:
     let
-      ch = 
+      ch =
         if i == offside: eos
         else: code[i]
       isScaped =
@@ -187,7 +186,7 @@ func nextToken(code; bounds; lstate: LexerState): tuple[token: SueToken; index: 
     of '{':
       if lstate == lsProcBody:
         return oneChar
-      
+
       if not isScaped:
         inc depth
 
@@ -333,7 +332,7 @@ func dump*(expr: SueExpression): string =
   result = result.strip(leading = false)
 
   for op in expr.options:
-    result.add fmt" {op.dumpFlag} {dumpValue op}"
+    result.add fmt" {dumpFlag op} {dumpValue op}"
 
 func dump*(sf: SueFile): string =
   var lines = @[fmt "# SUE version {SueVersion}\n"]
