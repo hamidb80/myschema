@@ -34,6 +34,5 @@ type
     isBus: bool
 
 
-
-func toSvg*(sch: MSchema): XmlNode =
-  discard
+# func toSvg*(sch: MSchema): XmlNode =
+#   discard
