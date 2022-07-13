@@ -23,29 +23,37 @@ var
   fieldsForCommands: array[SueCommand, set[SueFlag]]
   uniqFieldsForCommands: array[SueFlag, set[SueCommand]]
 
+  availableModules: HashSet[string]
+  usedModeles: HashSet[string]
+
 for path in walkDirRec dir:
   if path.endsWith(".sue") and ("SCCS" notin path):
     echo ">> ", path
     let s = lexSue readfile path
 
+    availableModules.incl s.name
+
     for expr in expressions s:
       let c = expr.command
 
-      for o in expr.options:
-        let f = o.flag
+      if c == scMake and ("homework" in path):
+        usedModeles.incl expr.args[0].strval
 
-        if f == sfCustom:
-          if o.field notin customMakeFields:
-            customMakeFields[o.field] = initHashSet[string]()
+      # for o in expr.options:
+      #   let f = o.flag
 
-          customMakeFields[o.field].incl dumpValue o
+      #   if f == sfCustom:
+      #     if o.field notin customMakeFields:
+      #       customMakeFields[o.field] = initHashSet[string]()
 
-        elif f notin {sfText, sfName, sfLabel, sfOrigin}:
-          uniqValuesForFields[f].incl dumpValue o
-          uniqValuesForFieldsPerCommands[c][f].incl o.dumpValue
+      #     customMakeFields[o.field].incl dumpValue o
 
-        uniqFieldsForCommands[f].incl c
-        fieldsForCommands[c].incl f
+      #   elif f notin {sfText, sfName, sfLabel, sfOrigin}:
+      #     uniqValuesForFields[f].incl dumpValue o
+      #     uniqValuesForFieldsPerCommands[c][f].incl o.dumpValue
+
+      #   uniqFieldsForCommands[f].incl c
+      #   fieldsForCommands[c].incl f
 
 
 template double(something): untyped =
@@ -57,13 +65,17 @@ func filterKV[Idx; T](s: array[Idx, T]): seq[(Idx, T)] =
     if values.len != 0:
       result.add (k, values)
 
-print customMakeFields
-print "----------"
-double uniqFieldsForCommands
-print "----------"
-for field, cmdVals in uniqValuesForFieldsPerCommands:
-  echo field, ": ", cmdvals.filterKV
-print "----------"
-double fieldsForCommands
-print "----------"
-double uniqValuesForFields
+# print customMakeFields
+# print "----------"
+# double uniqFieldsForCommands
+# print "----------"
+# for field, cmdVals in uniqValuesForFieldsPerCommands:
+#   echo field, ": ", cmdvals.filterKV
+# print "----------"
+# double fieldsForCommands
+# print "----------"
+# double uniqValuesForFields
+
+print usedModeles - availableModules
+
+# -------------------
