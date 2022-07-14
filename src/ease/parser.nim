@@ -222,53 +222,75 @@ func toLispNode(l: Entity, mode: LibraryEncodeMode): LispNode = discard
   ]#
 
 
+(TABLE
+  (OBID)
+  (PROPERTIES)
+  (HEADER) ...
+  (ROW) ...
+)
+
+(HEADER
+  (OBID)
+  (LABEL)
+)
+
+(ROW
+  (OBID)
+  (CELL) ...
+)
+
+(CELL
+  (OBID)
+  (LABEL)
+)
+
+
 # -----------------------------------
 #[
 
-IDS:
-  proj => project
-  ent => entity
-  lib => library
+OBID:
+  proj => project (PROJECT_FILE)
+  pack => package (PROJECT_FILE->PACKAGE | PACKAGE_FILE)
+  lib => library (DESIGN_FILE)
+  ent => entity (ENTITY_FILE->ENTITY)
+  Arch => architecture (ARCH_DEFINITION)
 
-  eprt => entity port
-  cprt => connection port
-  aprt => architecture port
-  nprt => net port
-  pprt => process port
+  eprt => entity port (ENTITY->PORT)
+  cprt => component port (COMPONENT->PORT)
+  aprt => architecture port (ARCH_DEFINITION->PORT)
+  nprt => net port (NET->PART->PORT)
+  pprt => process port (PROCESS->PORT)
 
-  proc => process
+  proc => process (PROCESS)
 
-  thdr => t header
-  trow => t row
-  ttab => t table
-  cell => cell
+  ttab => truth table (TABLE)
+  thdr => truth header (HEADER)
+  trow => truth row (ROW)
+  cell => cell (CELL)
 
-  ncon => node connection
+  ncon => node connection (CONNECTION)
+  
+  Comp => component (COMPONENT)
 
-  diag => diagram
+  igen => instance generic (GENERIC)
+  egen => entity generic (GENERIC)
 
-  Comp => component
+  file => file content (VHDL_FILE)
+  lab => ??? (ACTION | CONDITION)
+  itxt => included text (FSM_DIAGRAM->INCLUDED_TEXT)
 
-  pack => package
+  fsm => (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
+  diag => diagram (SCHEMATIC | FSM_DIAGRAM)
+  tran => transition (TRANS_LINE | TRANS_SPLINE)
+  stat => state (STATE)
+  lab => (ACTION | CONDITION)
 
-  igen => ??? generic
-  egen => ???
+  act => action (ACTION)
 
-  Arch => ???
-  file => ???
-  fsm => ???
-  lab => ???
-  itxt => ???
+  net => net (NET)
 
-  tran => ???
-  stat => state
+  hook => bus ripper (BUS_RIPPER)
 
-  act => action
-
-  net => net
-
-  hook => bus ripper
-
-  cbn => ?
+  cbn => ??? (CBN)
 
 ]#
