@@ -235,73 +235,73 @@ func lexSue(code; bounds; result: var SueFile) =
       except ValueError: break
 
     case lstate:
-    of lsModule:
-      if t == "proc":
-        lstate = lsProcName
+      of lsModule:
+        if t == "proc":
+          lstate = lsProcName
 
-    of lsProcName:
-      assert (t.kind == sttLiteral) and ('_' in t.strval), "invalid proc pattern"
-      let (prefix, pname) = t.strval.split('_', 1).toTuple(2)
+      of lsProcName:
+        assert (t.kind == sttLiteral) and ('_' in t.strval), "invalid proc pattern"
+        let (prefix, pname) = t.strval.split('_', 1).toTuple(2)
 
-      result.name = pname
-      whichProc = case prefix:
-        of "ICON": pkIcon
-        of "SCHEMATIC": pkSchematic
-        else: err fmt"invalid proc prefix: {t.strval}"
+        result.name = pname
+        whichProc = case prefix:
+          of "ICON": pkIcon
+          of "SCHEMATIC": pkSchematic
+          else: err fmt"invalid proc prefix: {t.strval}"
 
-      lstate = lsProcArg
+        lstate = lsProcArg
 
-    of lsProcArg:
-      assert t.kind in {sttString, sttLiteral}
-      lstate = lsProcBody
+      of lsProcArg:
+        assert t.kind in {sttString, sttLiteral}
+        lstate = lsProcBody
 
-    of lsProcBody:
-      assert t.kind == sttCurlyOpen
-      lstate = lsExprCmd
-
-    of lsExprCmd:
-      if t == '\n':
-        discard
-
-      elif t == '}':
-        lstate = lsModule
-        case whichProc:
-        of pkIcon: result.icon = expressionsAcc
-        of pkSchematic: result.schematic = expressionsAcc
-
-        expressionsAcc = @[]
-
-      else:
-        let cmd = t.strval.parseEnum[:SueCommand]
-        expressionsAcc.add SueExpression(command: cmd)
-        lstate = lsExprArgs
-
-    of lsExprArgs:
-      case t.kind:
-      of sttCommand:
-        lstate = lsExprFlag
-        continue
-
-      of sttNewLine:
+      of lsProcBody:
+        assert t.kind == sttCurlyOpen
         lstate = lsExprCmd
 
-      else:
-        expressionsAcc[^1].args.add t
+      of lsExprCmd:
+        if t == '\n':
+          discard
 
-    of lsExprFlag:
-      lstate =
-        if t == '\n': lsExprCmd
+        elif t == '}':
+          lstate = lsModule
+          case whichProc:
+          of pkIcon: result.icon = expressionsAcc
+          of pkSchematic: result.schematic = expressionsAcc
+
+          expressionsAcc = @[]
+
         else:
-          let (flag, field) =
-            try: (t.strval.parseEnum[:SueFlag], "")
-            except: (sfCustom, t.strval)
+          let cmd = t.strval.parseEnum[:SueCommand]
+          expressionsAcc.add SueExpression(command: cmd)
+          lstate = lsExprArgs
 
-          expressionsAcc[^1].options.add SueOption(flag: flag, field: field)
-          lsExprValue
+      of lsExprArgs:
+        case t.kind:
+        of sttCommand:
+          lstate = lsExprFlag
+          continue
 
-    of lsExprValue:
-      expressionsAcc[^1].options[^1].value = t
-      lstate = lsExprFlag
+        of sttNewLine:
+          lstate = lsExprCmd
+
+        else:
+          expressionsAcc[^1].args.add t
+
+      of lsExprFlag:
+        lstate =
+          if t == '\n': lsExprCmd
+          else:
+            let (flag, field) =
+              try: (t.strval.parseEnum[:SueFlag], "")
+              except: (sfCustom, t.strval)
+
+            expressionsAcc[^1].options.add SueOption(flag: flag, field: field)
+            lsExprValue
+
+      of lsExprValue:
+        expressionsAcc[^1].options[^1].value = t
+        lstate = lsExprFlag
 
     i = newi
 
@@ -316,7 +316,7 @@ func dump*(t: SueToken): string =
   of sttLiteral, sttCommand: t.strval
   of sttString: '{' & t.strval & '}'
   of sttComment: fmt"# {t.strval}"
-  else: err "not a valid token to string conversion: {t.kind}"
+  else: err fmt"not a valid token to string conversion: {t.kind}"
 
 func dumpValue*(o: SueOption): string =
   dump o.value

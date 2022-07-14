@@ -35,8 +35,6 @@ usedModeles - availableModules=[
   "alu_driver",
   "name_net",
   "endriver",
-  "srcPulse",
-  "pcmux_driver",
   "NMOS",
   "lfsr14",
   "ci_min",

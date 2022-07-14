@@ -566,10 +566,7 @@ proc toEas(e: Entity): string =
     archId = $genOid()
     archTag = "structure"
     schemaId = $genOid()
-
     portsDef = e.ports.map(toEas).joinLines
-
-  let
     nets = e.structure.nets.map(toEas).joinLines
     objects = joinLines collect do:
       for _, o in e.structure.objects:
@@ -592,6 +589,7 @@ proc toEas(e: Entity): string =
       
       (GEOMETRY 0 0 {e.componentSize.width} {e.componentSize.height})
       (HDL 1)
+      (SIDE 0)
       (EXTERNAL 0)
       (OBJSTAMP
         (DESIGNER "hamidb80")
@@ -607,7 +605,6 @@ proc toEas(e: Entity): string =
       (OBID "{archId}")
       {genIdent archTag}
 
-      (TYPE 1)
       (SCHEMATIC
         (OBID "{schemaId}")
         (PROPERTIES

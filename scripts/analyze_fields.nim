@@ -1,18 +1,11 @@
 import std/[os, strutils, sets, tables]
 import ../src/sue/[lexer]
+import ./utils
 import print
 
-
-iterator expressions(sf: SueFile): SueExpression =
-  for expr in sf.icon:
-    yield expr
-
-  for expr in sf.schematic:
-    yield expr
+# ----------------------------------
 
 const dir = r"C:\Users\HamidB80\Desktop\set4"
-
-# ----------------------------------
 
 var
   customMakeFields: Table[string, HashSet[string]]
@@ -23,38 +16,31 @@ var
   fieldsForCommands: array[SueCommand, set[SueFlag]]
   uniqFieldsForCommands: array[SueFlag, set[SueCommand]]
 
-  availableModules: HashSet[string]
-  usedModeles: HashSet[string]
 
-for path in walkDirRec dir:
-  if path.endsWith(".sue") and ("SCCS" notin path):
-    echo ">> ", path
-    let s = lexSue readfile path
+searchSueFiles dir:
+  echo ">> ", path
+do:
+  discard
+do:
+  let c = expr.command
 
-    availableModules.incl s.name
+  for o in expr.options:
+    let f = o.flag
 
-    for expr in expressions s:
-      let c = expr.command
+    if f == sfCustom:
+      if o.field notin customMakeFields:
+        customMakeFields[o.field] = initHashSet[string]()
 
-      if c == scMake and ("homework" in path):
-        usedModeles.incl expr.args[0].strval
+      customMakeFields[o.field].incl dumpValue o
 
-      # for o in expr.options:
-      #   let f = o.flag
+    elif f notin {sfText, sfName, sfLabel, sfOrigin}:
+      uniqValuesForFields[f].incl dumpValue o
+      uniqValuesForFieldsPerCommands[c][f].incl o.dumpValue
 
-      #   if f == sfCustom:
-      #     if o.field notin customMakeFields:
-      #       customMakeFields[o.field] = initHashSet[string]()
+    uniqFieldsForCommands[f].incl c
+    fieldsForCommands[c].incl f
 
-      #     customMakeFields[o.field].incl dumpValue o
-
-      #   elif f notin {sfText, sfName, sfLabel, sfOrigin}:
-      #     uniqValuesForFields[f].incl dumpValue o
-      #     uniqValuesForFieldsPerCommands[c][f].incl o.dumpValue
-
-      #   uniqFieldsForCommands[f].incl c
-      #   fieldsForCommands[c].incl f
-
+# ---------------------------
 
 template double(something): untyped =
   for c, fs in something:
@@ -65,17 +51,13 @@ func filterKV[Idx; T](s: array[Idx, T]): seq[(Idx, T)] =
     if values.len != 0:
       result.add (k, values)
 
-# print customMakeFields
-# print "----------"
-# double uniqFieldsForCommands
-# print "----------"
-# for field, cmdVals in uniqValuesForFieldsPerCommands:
-#   echo field, ": ", cmdvals.filterKV
-# print "----------"
-# double fieldsForCommands
-# print "----------"
-# double uniqValuesForFields
-
-print usedModeles - availableModules
-
-# -------------------
+print customMakeFields
+print "----------"
+double uniqFieldsForCommands
+print "----------"
+for field, cmdVals in uniqValuesForFieldsPerCommands:
+  echo field, ": ", cmdvals.filterKV
+print "----------"
+double fieldsForCommands
+print "----------"
+double uniqValuesForFields
