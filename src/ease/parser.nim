@@ -10,19 +10,9 @@ type
     username: int
     # atrributes:
 
-# Ease HDL 8.0
+  # Ease HDL 8.0
 
 type
-  ProcessTypes* = enum
-    ptProcess = 1
-    ptStateDiagram = 2
-    ptConcurrentStatement = 3
-    ptTruthTable = 5
-
-  GenerateBlockType* = enum
-    gbtForGenerate = 1
-    gbtIfGenerate = 2
-
   EntityType* = enum
     etBlockDiagram = 1
     etHDLFile
@@ -30,11 +20,26 @@ type
     etTableDiagram
     etExternalHDLFIle
 
+  ProcessType* = enum
+    ptProcess = 1
+    ptStateDiagram = 2
+    ptConcurrentStatement = 3
+    ptTruthTable = 5
+
+  GenerateBlockType* = enum
+    gbtForGenerate = 1
+    gbtIfGenerate
+
   PortMode* = enum
     pmInput = 1
     pmOutput
     pmInout
     pmBuffer
+
+  FlipMode* = enum
+    vertical = 1
+    horizontal
+    both
 
 
   Alignment* = enum
@@ -123,11 +128,11 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
   (PROPERTIES)
 
   (COMPONENT_LIB 0)
-  (NAME "Lib_name">)
+  (NAME "Lib_name")
 
   (ENTITY "entity_name" "id") ...
   (PACKAGE "pkg_name" "id") ...
-  (PACKAGE_USE ...) ...
+  (PACKAGE_USE) ...
 )
 ]#
 
@@ -140,7 +145,7 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
     (PROPERTIES ...)
     (HDL_IDENT)
 
-    (GEOMETRY 0 0 <ComponentWidth> <ComponentHeight>)
+    (GEOMETRY)
     (SIDE 0)
     (HDL 1)
     (EXTERNAL 0)
@@ -191,6 +196,7 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
   (SIDE)
   (LABEL)
   (ENTITY "<lib_id>" "<entity_id>")
+  (PORT) ...
 )
 
 (LABEL
@@ -202,12 +208,6 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
   (FORMAT 1)
   (TEXT "Instruction Decoder")
 )
-
-(ALIGNMENT 0..8)
-(SIDE 0..3)
-(COLOR_LINE N)
-(SCALE N)
-(POSITION X Y)
 
 (HDL_IDENT
   (NAME "halt")
@@ -235,7 +235,7 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
   (OBID)
   (PROPERTIES)
   (HDL_IDENT)
-  (GEOMETRY -40 344 40 424)
+  (GEOMETRY)
   (SIDE 3)
   (LABEL ...)
 
@@ -244,7 +244,18 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
 
   # ARCH_DEF:
     (CONNECTION)
+  )
+
+  (CONNECTION) ...
 )
+
+(CONNECTION
+  (OBID)
+  (GEOMETRY)
+  (SIDE 0)
+  (LABEL)
+)
+
 
 (NET
   (OBID)
@@ -267,12 +278,14 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
   )
 )
 
-(CONNECTION
-  (OBID)
-  (GEOMETRY X1 Y1 X1 Y1)
-  (SIDE 0)
-  (LABEL)
-)
+
+(GEOMETRY startX startY endX endY)
+(ALIGNMENT 0..8)
+(COLOR_LINE N)
+(SCALE N)
+(POSITION X Y)
+(SIDE 0..3) -- FOR TEXTS 0, 2 And 1, 3 looks similar
+
 
 (WIRE X1 Y1 X2 Y2)
 
@@ -337,8 +350,36 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
   )
 )
 
-# -----------------------------------
+(CBN
+  (OBID "cbna02000203cfb1d26caa3b4d28d47da31")
+  (HDL_IDENT
+    (NAME "in1")
+    (USERNAME 1)
+  )
+  (GEOMETRY)
+  (SIDE 1)
+  (LABEL
+    (POSITION 1462 694)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 5)
+    (FORMAT 1)
+  )
+  (TYPE 0)
+)
 
+  # -----------------------------------
+
+fliping a component:
+  (COMPONENT
+    ...
+    (PROPERTIES
+      ...
+      (PROPERTY "Flip" "1")
+    )
+    ...
+  )
 
 OBID:
   proj => project (PROJECT_FILE)
@@ -367,7 +408,7 @@ OBID:
   net => net (NET)
 
   hook => bus ripper (BUS_RIPPER)
-  cbn => ??? (CBN)
+  cbn => connect by name (CBN)
 
   igen => instance generic (GENERIC)
   egen => entity generic (GENERIC)
