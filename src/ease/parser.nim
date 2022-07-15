@@ -53,24 +53,24 @@ type
     ncPurple2, ncPink5, ncPink6, ncPink7, ncPink8, ncPink9, ncPink10, ncPurple3
 
   Alignment* = enum
-    BottomRight = 0
-    Bottom = 1
-    BottomLeft = 2
-    Right = 3
-    Center = 4
-    Left = 5
-    TopRight = 6
-    Top = 7
-    TopLeft = 8
+    aBottomRight = 0
+    aBottom = 1
+    aBottomLeft = 2
+    aRight = 3
+    aCenter = 4
+    aLeft = 5
+    aTopRight = 6
+    aTop = 7
+    aTopLeft = 8
     # 8 7 6
     # 5 4 3
     # 2 1 0
 
   Side* = enum
-    TopToBottom
-    RightToLeft
-    BottomToTop
-    LeftToRight
+    sTopToBottom
+    sRightToLeft
+    sBottomToTop
+    sLeftToRight
     #   0
     # 3   1
     #   2
