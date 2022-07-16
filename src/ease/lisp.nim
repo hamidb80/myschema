@@ -31,7 +31,6 @@ type
       children*: seq[LispNode]
 
 
-
 func toLispNode*(s: string): LispNode =
   LispNode(kind: lnkString, vstr: s)
 
@@ -173,8 +172,25 @@ func len*(n: LispNode): Natural =
   if n.kind == lnkList: n.children.len
   else: 0
 
+func `[]`*(n: LispNode, i: int): LispNode =
+  assert n.kind == lnkList
+  n.children[i]
+
 func matchCaller*(n: LispNode, c: string): bool =
   (n.kind == lnkList) and (n.len > 0) and (n.ident.name == c)
+
+
+iterator items*(n: LispNode): LispNode =
+  if n.kind == lnkList:
+    for ch in n.children:
+      yield ch
+
+iterator args*(n: LispNode): LispNode =
+  assert n.kind == lnkList
+  for i in 1 .. n.len-1:
+    yield n[i]
+
+# ----------------------------------------------------------
 
 let
   toLispNodeIdent {.compileTime.} = ident "toLispNode"
@@ -212,18 +228,3 @@ macro toLisp*(body): untyped =
 
   else:
     raise newException(ValueError, "expected tupleConstr or stmtList. got: " & $body.kind)
-
-iterator items*(n: LispNode): LispNode =
-  if n.kind == lnkList:
-    for ch in n.children:
-      yield ch
-
-
-func `[]`*(n: LispNode, i: int): LispNode =
-  assert n.kind == lnkList
-  n.children[i]
-
-iterator args*(n: LispNode): LispNode =
-  assert n.kind == lnkList
-  for i in 1 .. n.len-1:
-    yield n[i]
