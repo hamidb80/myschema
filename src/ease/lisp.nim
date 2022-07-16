@@ -25,14 +25,14 @@ type
       vfloat*: float
 
     of lnkString:
-      vstr*: string
+      str*: string
 
     of lnkList:
       children*: seq[LispNode]
 
 
 func toLispNode*(s: string): LispNode =
-  LispNode(kind: lnkString, vstr: s)
+  LispNode(kind: lnkString, str: s)
 
 func toLispNode*(f: float): LispNode =
   LispNode(kind: lnkFloat, vfloat: f)
@@ -134,7 +134,7 @@ func `$`*(n: LispNode): string =
   case n.kind:
   of lnkInt: $n.vint
   of lnkFloat: $n.vfloat
-  of lnkString: '"' & n.vstr & '"'
+  of lnkString: '"' & n.str & '"'
   of lnkSymbol: n.name
   of lnkList: '(' & n.children.join(" ") & ')'
 
@@ -153,18 +153,18 @@ func pretty*(n: LispNode, indentSize = 2): string =
   else: $n
 
 
-func ident*(n: LispNode): LispNode =
+func ident*(n: LispNode): string =
   assert n.kind == lnkList
   assert n.children.len > 0
   assert n.children[0].kind == lnkSymbol
-  n.children[0]
+  n.children[0].name
 
 func args*(n: LispNode): seq[LispNode] =
   assert n.kind == lnkList
   assert n.children.len > 0
   n.children[1..^1]
 
-func args*(n: LispNode, i: int): LispNode =
+func arg*(n: LispNode, i: int): LispNode =
   assert n.kind == lnkList
   n.children[i+1]
 

@@ -44,7 +44,7 @@ proc traverse1(node: LispNode, path: Path) =
 
 
   elif node.kind == lnkList:
-    traverse1 node.args, path & node.ident.name
+    traverse1 node.args, path & node.ident
 
 proc traverse1(s: seq[LispNode], path: Path) =
   for node in s:
@@ -56,11 +56,11 @@ proc traverse2(s: seq[LispNode], path: Path)
 proc traverse2(node: LispNode, path: Path) =
   if path.endsWith(@["SCHEMATIC"]):
     uniqElements.incl:
-      if node.kind == lnkList: node.ident.name
+      if node.kind == lnkList: node.ident
       else: $node
 
   elif node.kind == lnkList:
-    traverse2 node.args, path & node.ident.name
+    traverse2 node.args, path & node.ident
 
 proc traverse2(s: seq[LispNode], path: Path) =
   for node in s:
@@ -72,7 +72,7 @@ proc traverse3(s: seq[LispNode])
 proc traverse3(node: LispNode) =
   case node.kind:
   of lnkList:
-    uniqIdents.incl node.ident.name
+    uniqIdents.incl node.ident
     traverse3 node.args
 
   else: discard

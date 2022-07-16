@@ -1,5 +1,6 @@
-import std/[tables]
+import std/[tables, strformat, os]
 import lisp
+import ../utils
 
 
 type
@@ -76,28 +77,31 @@ type
 type
   Properties = Table[string, string]
 
-
-  # HDL_Ident* = object
-  #   name: string
-  #   username: int
-
   Package* = ref object
     obid, library, name: string
 
-  WorkSpace* = ref object
+  Project* = ref object
     obid: string
     properties: Properties
     designs: seq[Library]
-    # packages: seq[Package]
+    packages: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
 
+  Entity = object
+    obid, name: string
+    isResolved: bool
+    architectures: seq[Architecture]
+
   Library* = ref object
-    obid: string
-    name: string
+    obid, name: string
+    isResolved: bool
     properties: Properties
+    entities: seq[Entity]
 
-  Entity* = ref object
+  Architecture = ref object
 
+  WorkSpace* = ref object
+    project: Project
 
 
 type
@@ -111,6 +115,57 @@ type
 
 
 func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
+
+# pattern parse<OBID prefix>
+
+func select(sl: seq[LispNode]): LispNode {.inline.} =
+  assert sl.len == 3
+  sl[1]
+
+func parseProperties(propertiesNode: LispNode): Properties =
+  for property in propertiesNode:
+    assert property.ident == "PROPERTY"
+    result[property.arg(0).str] = property.arg(1).str
+
+func parseProj(projectFileNode: LispNode): Project =
+  for n in projectFileNode:
+    case n.ident:
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    of "DESIGN":
+      result.designs.add Library(obid: n.arg(0).str, name: n.arg(1).str)
+
+    of "PACKAGE":
+      result.packages.add Package(
+        obid: n.arg(0).str,
+        library: n.arg(1).str,
+        name: n.arg(2).str)
+
+    else: # PACKAGE_USE OBID
+      discard
+
+func parseLib(designFileNode: LispNode): Library =
+  for n in designFileNode:
+    case n.ident:
+    of "OBID":
+      result.obid = n.arg(0).str
+
+    of "NAME":
+      result.name = n.arg(0).str
+
+    of "ENTITY":
+      result.entities.add Entity(obid: n.arg(1).str, name: n.arg(0).str)
+
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    else:
+      err fmt"undefined"
+
+
+proc parseWorkSpace*(dir: string): WorkSpace =
+  result.project = parseProj select parseLisp readfile dir / "project.ews"
 
 
 
@@ -462,6 +517,7 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
     fsm => (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
     diag => diagram (SCHEMATIC | FSM_DIAGRAM)
     tran => transition (TRANS_LINE | TRANS_SPLINE)
+    decl => (FSM_DIAGRAM->DECLARATION)
     lab => ??? (ACTION | CONDITION)
     stat => state (STATE)
     lab => (ACTION | CONDITION)
