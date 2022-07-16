@@ -59,6 +59,7 @@ func parseLisp(s: ptr string, startI: int, acc: var seq[LispNode]): int =
     state: ParserState = psInitial
     i = startI
     temp = 0
+    isScaped = false
 
   template reset: untyped =
     state = psInitial
@@ -75,12 +76,13 @@ func parseLisp(s: ptr string, startI: int, acc: var seq[LispNode]): int =
 
     case state:
     of psString:
-      if c == '"' and (
-        (s[i-1] != '\\') or
-        (s[i-2 .. i-1] == "\\\\")
-      ):
+      if c == '"' and not isScaped:
         acc.add toLispNode(s[temp ..< i])
         reset()
+
+      isScaped =
+        if c == '\\': not isScaped
+        else: false
 
     of psSymbol:
       if c in Whitespace or c == ')':
