@@ -16,7 +16,7 @@ searchSueFiles dir:
 do:
   availableModules.incl s.name
 do:
-  if expr.command == scMake and ("homework" in path):
+  if expr.command == scMake:
     usedModeles.incl expr.args[0].strval
 
 print usedModeles - availableModules

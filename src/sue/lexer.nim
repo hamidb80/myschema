@@ -178,9 +178,8 @@ func nextToken(code; bounds; lstate: LexerState): tuple[token: SueToken; index: 
           return oneChar()
 
       of tcsActiveMatch:
-        if not bracketText or
+        if (not isComment and not bracketText) or
           (isComment and ch == '\n'):
-
           return (toToken code[marker ..< i], i)
 
     of '{':
@@ -260,7 +259,7 @@ func lexSue(code; bounds; result: var SueFile) =
         lstate = lsExprCmd
 
       of lsExprCmd:
-        if t == '\n':
+        if t.kind == sttComment or t == '\n':
           discard
 
         elif t == '}':
