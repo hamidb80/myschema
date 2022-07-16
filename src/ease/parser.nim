@@ -1,14 +1,6 @@
 import std/[tables]
 import lisp
 
-type
-  Properties = Table[string, string]
-  # Attributes =
-
-  HDL_Ident* = object
-    name: string
-    username: int
-    # atrributes:
 
 type
   EntityType* = enum
@@ -81,8 +73,14 @@ type
     # 0 1
     # 3 2
 
-
 type
+  Properties = Table[string, string]
+
+
+  # HDL_Ident* = object
+  #   name: string
+  #   username: int
+
   Package* = ref object
     obid, library, name: string
 
