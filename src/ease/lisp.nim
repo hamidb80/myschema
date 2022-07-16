@@ -2,24 +2,34 @@ import std/[strutils, macros, sugar, sequtils]
 
 
 type
-  LispNodeKinds* = enum
+  LispNodeKind* = enum
     lnkSymbol
     lnkInt
     lnkFloat
     lnkString
     lnkList
 
-  ParserStates = enum
+  ParserState = enum
     psInitial
     psSymbol, psNumber, psString
 
   LispNode* = ref object
-    case kind*: LispNodeKinds:
-    of lnkSymbol: name*: string
-    of lnkInt: vint*: int
-    of lnkFloat: vfloat*: float
-    of lnkString: vstr*: string
-    of lnkList: children*: seq[LispNode]
+    case kind*: LispNodeKind:
+    of lnkSymbol:
+      name*: string
+
+    of lnkInt:
+      vint*: int
+
+    of lnkFloat:
+      vfloat*: float
+
+    of lnkString:
+      vstr*: string
+
+    of lnkList:
+      children*: seq[LispNode]
+
 
 
 func toLispNode*(s: string): LispNode =
@@ -46,7 +56,7 @@ func newLispList*(s: varargs[LispNode]): LispNode =
 func parseLisp(s: ptr string, startI: int, acc: var seq[LispNode]): int =
   ## return the last index that was there
   var
-    state: ParserStates = psInitial
+    state: ParserState = psInitial
     i = startI
     temp = 0
 
@@ -65,7 +75,10 @@ func parseLisp(s: ptr string, startI: int, acc: var seq[LispNode]): int =
 
     case state:
     of psString:
-      if c == '"' and s[i-1] != '\\':
+      if c == '"' and (
+        (s[i-1] != '\\') or
+        (s[i-2 .. i-1] == "\\\\")
+      ):
         acc.add toLispNode(s[temp ..< i])
         reset()
 
@@ -139,18 +152,27 @@ func pretty*(n: LispNode, indentSize = 2): string =
   else: $n
 
 
-func ident*(n: LispNode): string =
+func ident*(n: LispNode): LispNode =
   assert n.kind == lnkList
   assert n.children.len > 0
   assert n.children[0].kind == lnkSymbol
-  n.children[0].name
+  n.children[0]
 
 func args*(n: LispNode): seq[LispNode] =
   assert n.kind == lnkList
   assert n.children.len > 0
   n.children[1..^1]
 
+func args*(n: LispNode, i: int): LispNode =
+  assert n.kind == lnkList
+  n.children[i+1]
 
+func len*(n: LispNode): Natural =
+  if n.kind == lnkList: n.children.len
+  else: 0
+
+func matchCaller*(n: LispNode, c: string): bool =
+  (n.kind == lnkList) and (n.len > 0) and (n.ident.name == c)
 
 let
   toLispNodeIdent {.compileTime.} = ident "toLispNode"
@@ -188,3 +210,18 @@ macro toLisp*(body): untyped =
 
   else:
     raise newException(ValueError, "expected tupleConstr or stmtList. got: " & $body.kind)
+
+iterator items*(n: LispNode): LispNode =
+  if n.kind == lnkList:
+    for ch in n.children:
+      yield ch
+
+
+func `[]`*(n: LispNode, i: int): LispNode =
+  assert n.kind == lnkList
+  n.children[i]
+
+iterator args*(n: LispNode): LispNode =
+  assert n.kind == lnkList
+  for i in 1 .. n.len-1:
+    yield n[i]

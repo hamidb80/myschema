@@ -1,5 +1,5 @@
 import std/[os, strutils, sets, tables]
-import ../src/sue/[lexer]
+import ../../src/sue/[lexer]
 import ./utils
 import print
 
