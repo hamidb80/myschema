@@ -1,7 +1,9 @@
+based on `Ease 8.0 rev4` and `SUE MMI 4.4.0`
+
+
 note that some `.sue` files have some problems like invalid white-space
 
 TODO: list broken files with fixes
-
 
 we first convert both to SVG as middle format
 

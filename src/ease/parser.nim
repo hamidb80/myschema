@@ -10,8 +10,6 @@ type
     username: int
     # atrributes:
 
-  # Ease HDL 8.0
-
 type
   EntityType* = enum
     etBlockDiagram = 1
@@ -74,6 +72,14 @@ type
     #   0
     # 3   1
     #   2
+
+  BusRipperSide* = enum
+    brsTopLeft
+    brsTopRight
+    brsBottomRight
+    brsBottomLeft
+    # 0 1
+    # 3 2
 
 
 type
@@ -285,154 +291,182 @@ func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
       (OBID "<Port_Instance_Id>")
       (NAME "<Port_Name>")
     ) ... (2+)
-  )
-)
 
+    (BUS_RIPPER
+      (OBID)
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (CONSTRAINT
+            if is single:
+              (INDEX "0")
+            if is bus:
+              (DIRECTION 1)
+              (RANGE 0 1)
+            )
+          )
+        ) ...
 
-(GEOMETRY startX startY endX endY)
-(ALIGNMENT 0..8)
-(COLOR_LINE N)
-(SCALE N)
-(POSITION X Y)
-(SIDE 0..3) -- FOR TEXTS 0, 2 And 1, 3 looks similar
-
-
-(WIRE X1 Y1 X2 Y2)
-
-(GENERATE
-  (OBID)
-  (PROPERTIES
-    (PROPERTY "IF_CONDITION" "my_cond")
-    (PROPERTY "FOR_LOOP_VAR" "ident")
-  )
-  (HDL_IDENT)
-  (GEOMETRY)
-  (SIDE)
-  (LABEL)
-
-  (TYPE 2)
-
-  if for:
-    (CONSTRAINT
-      (DIRECTION 1)
-      (RANGE "max" "min")
+        (GEOMETRY)
+        (SIDE 3)
+        (LABEL
+          (POSITION 1280 768)
+          (SCALE 80)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 3)
+          (TEXT "iii(0)")
+        )
+      )
     )
+  )
 
-  (SCHEMATIC
+
+  (GEOMETRY startX startY endX endY)
+  (ALIGNMENT 0..8)
+  (COLOR_LINE N)
+  (SCALE N)
+  (POSITION X Y)
+  (SIDE 0..3) -- FOR TEXTS 0, 2 And 1, 3 looks similar
+
+
+  (WIRE X1 Y1 X2 Y2)
+
+  (GENERATE
     (OBID)
-    (SHEETSIZE)
-  )
-)
-
-(EXTERNAL_FILE
-  (OBID "extff700001022bc0d264002b4d2a9a05a77")
-  (HDL_IDENT)
-  (FILE <Path>)
-)
-
-(TABLE
-  (OBID)
-  (PROPERTIES)
-  (HEADER) ...
-  (ROW) ...
-)
-
-(HEADER
-  (OBID)
-  (LABEL)
-)
-
-(ROW
-  (OBID)
-  (CELL) ...
-)
-
-(CELL
-  (OBID)
-  (LABEL)
-)
-
-(HDL_FILE
-  (VHDL_FILE
-    (OBID)
-    (NAME "pr0.vhd")
-    (VALUE "lines of the file" ...)
-  )
-)
-
-(CBN
-  (OBID "cbna02000203cfb1d26caa3b4d28d47da31")
-  (HDL_IDENT
-    (NAME "in1")
-    (USERNAME 1)
-  )
-  (GEOMETRY)
-  (SIDE 1)
-  (LABEL
-    (POSITION 1462 694)
-    (SCALE 96)
-    (COLOR_LINE 0)
-    (SIDE 3)
-    (ALIGNMENT 5)
-    (FORMAT 1)
-  )
-  (TYPE 0)
-)
-
-  # -----------------------------------
-
-fliping a component:
-  (COMPONENT
-    ...
     (PROPERTIES
-      ...
-      (PROPERTY "Flip" "1")
+      (PROPERTY "IF_CONDITION" "my_cond")
+      (PROPERTY "FOR_LOOP_VAR" "ident")
     )
-    ...
+    (HDL_IDENT)
+    (GEOMETRY)
+    (SIDE)
+    (LABEL)
+
+    (TYPE 2)
+
+    if for:
+      (CONSTRAINT
+        (DIRECTION 1)
+        (RANGE "max" "min")
+      )
+
+    (SCHEMATIC
+      (OBID)
+      (SHEETSIZE)
+    )
   )
 
-OBID:
-  proj => project (PROJECT_FILE)
-  pack => package (PROJECT_FILE->PACKAGE | PACKAGE_FILE)
-  lib => library (DESIGN_FILE)
-  ent => entity (ENTITY_FILE->ENTITY)
-  Arch/arch => architecture (ARCH_DEFINITION)
+  (EXTERNAL_FILE
+    (OBID "extff700001022bc0d264002b4d2a9a05a77")
+    (HDL_IDENT)
+    (FILE <Path>)
+  )
 
-  eprt => entity port (ENTITY->PORT)
-  cprt => component port (COMPONENT->PORT)
-  aprt => architecture port (ARCH_DEFINITION->PORT)
-  nprt => net port (NET->PART->PORT)
-  pprt => process port (PROCESS->PORT)
-  gprt => generate port (GENERATE->PORT)
+  (TABLE
+    (OBID)
+    (PROPERTIES)
+    (HEADER) ...
+    (ROW) ...
+  )
 
-  proc => process (PROCESS)
-  genb => generate block
+  (HEADER
+    (OBID)
+    (LABEL)
+  )
 
-  ttab => truth table (TABLE)
-  thdr => table header (HEADER)
-  trow => table row (ROW)
-  cell => cell (CELL)
+  (ROW
+    (OBID)
+    (CELL) ...
+  )
 
-  Comp/comp => component [instance of a block] (COMPONENT)
-  ncon => node connection (CONNECTION)
-  net => net (NET)
+  (CELL
+    (OBID)
+    (LABEL)
+  )
 
-  hook => bus ripper (BUS_RIPPER)
-  cbn => connect by name (CBN)
+  (HDL_FILE
+    (VHDL_FILE
+      (OBID)
+      (NAME "pr0.vhd")
+      (VALUE "lines of the file" ...)
+    )
+  )
 
-  igen => instance generic (GENERIC)
-  egen => entity generic (GENERIC)
+  (CBN
+    (OBID "cbna02000203cfb1d26caa3b4d28d47da31")
+    (HDL_IDENT
+      (NAME "in1")
+      (USERNAME 1)
+    )
+    (GEOMETRY)
+    (SIDE 1)
+    (LABEL
+      (POSITION 1462 694)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 5)
+      (FORMAT 1)
+    )
+    (TYPE 0)
+  )
 
-  file => file content (VHDL_FILE)
-  itxt => included text (FSM_DIAGRAM->INCLUDED_TEXT)
-  extf => external file
+    # -----------------------------------
 
-  fsm => (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
-  diag => diagram (SCHEMATIC | FSM_DIAGRAM)
-  tran => transition (TRANS_LINE | TRANS_SPLINE)
-  lab => ??? (ACTION | CONDITION)
-  stat => state (STATE)
-  lab => (ACTION | CONDITION)
-  act => action (ACTION)
+  fliping a component:
+    (COMPONENT
+      ...
+      (PROPERTIES
+        ...
+        (PROPERTY "Flip" "1")
+      )
+      ...
+    )
 
-]#
+  OBID:
+    proj => project (PROJECT_FILE)
+    pack => package (PROJECT_FILE->PACKAGE | PACKAGE_FILE)
+    lib => library (DESIGN_FILE)
+    ent => entity (ENTITY_FILE->ENTITY)
+    Arch/arch => architecture (ARCH_DEFINITION)
+
+    eprt => entity port (ENTITY->PORT)
+    cprt => component port (COMPONENT->PORT)
+    aprt => architecture port (ARCH_DEFINITION->PORT)
+    nprt => net port (NET->PART->PORT)
+    pprt => process port (PROCESS->PORT)
+    gprt => generate port (GENERATE->PORT)
+
+    proc => process (PROCESS)
+    genb => generate block
+
+    ttab => truth table (TABLE)
+    thdr => table header (HEADER)
+    trow => table row (ROW)
+    cell => cell (CELL)
+
+    Comp/comp => component [instance of a block] (COMPONENT)
+    ncon => node connection (CONNECTION)
+    net => net (NET)
+
+    hook => bus ripper (BUS_RIPPER)
+    cbn => connect by name (CBN)
+
+    igen => instance generic (GENERIC)
+    egen => entity generic (GENERIC)
+
+    file => file content (VHDL_FILE)
+    itxt => included text (FSM_DIAGRAM->INCLUDED_TEXT)
+    extf => external file
+
+    fsm => (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
+    diag => diagram (SCHEMATIC | FSM_DIAGRAM)
+    tran => transition (TRANS_LINE | TRANS_SPLINE)
+    lab => ??? (ACTION | CONDITION)
+    stat => state (STATE)
+    lab => (ACTION | CONDITION)
+    act => action (ACTION)
+
+  ]#
