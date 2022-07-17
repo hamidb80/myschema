@@ -1,184 +1,9 @@
 import std/[tables, strformat, strutils, os, sequtils, options]
-import lisp
-import ../utils, ../common/defs
+import lisp, defs
+import ../utils, ../common/defs as cdef
 
 
-type
-  ProcessType* = enum
-    ptProcess = 1
-    ptStateDiagram = 2
-    ptConcurrentStatement = 3
-    ptTruthTable = 5
-
-  GenerateBlockType* = enum
-    gbtForGenerate = 1
-    gbtIfGenerate
-
-  PortMode* = enum
-    pmInput = 1
-    pmOutput
-    pmInout
-    pmBuffer
-
-  ArchitectureMode* = enum
-    etBlockDiagram = 1 # Schema
-    etHDLFile          # HDL code
-    etStateDiagram     # FSM
-    etTableDiagram     # truth table
-    etExternalHDLFIle  # HDL code
-
-  FlipMode* = enum
-    vertical = 1
-    horizontal
-    both
-
-  EaseColor* = enum
-    ncBlack1, ncBlack2, ncBlack3, ncBlack4, ncBlack5, ncBlack6, ncBlack7, ncBlack8
-    ncGray1, ncGray2, ncGray3, ncGray4, ncSmokeWhite, ncWhite, ncYellow, ncOrange1
-    ncLemon, ncSkin, ncKhaki, ncBrown1, ncOrange2, ncOrange3, ncPeach, ncRed1
-    ncRed2, ncRed3, ncRed4, ncRed5, ncBrown2, ncPink1, ncPink2, ncPink3
-    ncPink4, ncGreen1, ncGreen2, ncGreen3, ncGreen4, ncGreen5, ncGreen6, ncGreen7
-    ncGreen8, ncGreen9, ncGreen10, ncGreen11, ncGreen12, ncGreen13, ncTeal1, ncTeal2
-    ncTeal3, ncTeal4, ncTeal5, ncCyan, ncBlue1, ncBlue2, ncPurplishBlue, ncBlue3
-    ncBlue4, ncBlue5, ncBlue6, ncBlue7, ncBlue8, ncBlue9, ncBlue10, ncPurple1
-    ncPurple2, ncPink5, ncPink6, ncPink7, ncPink8, ncPink9, ncPink10, ncPurple3
-
-  Alignment* = enum
-    aBottomRight = 0
-    aBottom = 1
-    aBottomLeft = 2
-    aRight = 3
-    aCenter = 4
-    aLeft = 5
-    aTopRight = 6
-    aTop = 7
-    aTopLeft = 8
-    # 8 7 6
-    # 5 4 3
-    # 2 1 0
-
-  Side* = enum
-    sTopToBottom
-    sRightToLeft
-    sBottomToTop
-    sLeftToRight
-    #   0
-    # 3   1
-    #   2
-
-  BusRipperSide* = enum
-    brsTopLeft
-    brsTopRight
-    brsBottomRight
-    brsBottomLeft
-    # 0 1
-    # 3 2
-
-type
-  Properties = Table[string, string]
-
-  Package* = ref object
-    obid, library, name: string
-
-  Project* = ref object
-    obid: string
-    properties: Properties
-    designs: seq[Library]
-    packages: seq[Package]
-    # usedPackages: seq[tuple[suffix: string, pkg: Package]]
-
-  Library* = ref object
-    obid, name: string
-    isResolved: bool
-    properties: Properties
-    entities: seq[Entity]
-
-  Size = tuple[w, h: int]
-
-  BusRipper = ref object
-
-  Schematic = ref object
-    obid: string
-    sheetSize: Size
-
-  Architecture = ref object
-    obid, name: string
-    kind: ArchitectureMode
-    schematic: Schematic
-    properties: Properties
-
-  Component = ref object
-
-  EntityGeneric = ref object
-  InstanceGeneric = ref object
-
-  PortInfo = tuple
-    name: string
-    mode: PortMode
-    `type`: string
-    busIndex: Option[Range[int]]
-
-  EntityPort = ref object
-    info: PortInfo
-  
-  ArchitecturePort = ref object
-    info: PortInfo
-   
-  GeneratePort = ref object
-    info: PortInfo
-
-  ComponentPort = ref object
-    info: PortInfo
-    
-  ProcessPort = ref object
-    info: PortInfo
-    
-  NetPort = ref object
-    info: PortInfo
-
-  CBN = ref object
-  
-  Connection = ref object
-  
-  # TruthTable = ref object
-  # ExtternalFile = ref object
-  # HdlFile = ref object
-
-  Net = ref object
-  
-  Generate = ref object
-
-  FreePlacedText = object
-
-  Geometry = tuple
-    x1, y1, x2, y2: int
-
-  Wire = Range[Point]
-
-  Label = object
-    position: Point
-  
-  ObjStamp = object
-    designer: string
-    created, modified: int
-
-  Entity = object
-    obid, name: string
-    isResolved: bool
-    properties: Properties
-    architectures: seq[Architecture]
-    ports: seq[EPort]
-    componentSize: Size
-
-type
-  LibraryEncodeMode* = enum
-    lemRef
-    lemDef
-
-  EntityEncodeMode* = enum
-    eemRef
-    eemDef
-
+# FIXME do not ignore other fields, eather raise error of ingonre them explicitly
 
 func select(sl: seq[LispNode]): LispNode {.inline.} =
   ## all .eas file styles:
@@ -230,10 +55,11 @@ func parsePosition(positionNode: LispNode): Point =
   (positionNode.arg(0).vint, positionNode.arg(1).vint)
 
 func parseScale(scaleNode: LispNode): Positive = 
-  # (SCALE N)
+  ## (SCALE N)
   scaleNode.arg(0).vint
 
 func parseName(nameNode: LispNode): string {.inline.} = 
+  ## (NAME "...")
   nameNode.arg(0).str
 
 func parseLabel(labelNode: LispNode): Label =
@@ -246,7 +72,18 @@ func parseLabel(labelNode: LispNode): Label =
   ##   (FORMAT 1)
   ##   (TEXT "Instruction Decoder")
   ## )
-  discard
+  
+  for n in labelNode:
+    case n.ident:
+    of "POSITION": discard
+    of "SCALE": discard
+    of "COLOR_LINE": discard
+    of "SIDE": discard
+    of "ALIGNMENT": discard
+    of "FORMAT": discard
+    of "TEXT": discard
+    else:
+      err "invalid field"
 
 func parseObjStamp(objStampNode: LispNode): ObjStamp = 
   ## (OBJSTAMP
@@ -254,8 +91,17 @@ func parseObjStamp(objStampNode: LispNode): ObjStamp =
   ##   (CREATED 939908873 "Thu Oct 14 17:17:53 1999")
   ##   (MODIFIED 1340886716 "Thu Jun 28 17:01:56 2012")
   ## )
+  
+  ObjStamp(
+    designer: objStampNode.arg(0).arg(0).str,
+    created: objStampNode.arg(1).arg(0).vint,
+    modified: objStampNode.arg(2).arg(0).vint)
 
 func parseProperties(propertiesNode: LispNode): Properties =
+  ## (PROPERTIES
+  ##   (PROPERTY "Key" "Value") ...
+  ## )
+
   for property in propertiesNode:
     result[property.arg(0).str] = property.arg(1).str
 
@@ -272,25 +118,6 @@ func parseColor(colorNode: LispNode): EaseColor {.inline.} =
   ## (COLOR_LINE 0..71)
   EaseColor colorNode.arg(0).vint
 
-func parseNet(netNode: LispNode): Net = 
-  ## (NET
-  ##   (OBID)
-  ##   (HDL_IDENT)
-  ##   (PART
-  ##     (OBID "nprt<UNIQ_ID>")
-  ##     (CBN 1)
-  ##   )
-  ##   (PART
-  ##     (OBID "nprt<UNIQ_ID>")
-  ##     (LABEL)
-  ##     (WIRE) ...
-  ##     (PORT
-  ##       (OBID "<Port_Instance_Id>")
-  ##       (NAME "<Port_Name>")
-  ##     ) ... (2+)
-  ##   )
-  ## )
-
 func parseWire(wireNode: LispNode): Wire {.inline.} = 
   ## (WIRE X1 Y1 X2 Y2)
   template s(n): untyped =  wireNode.arg(n).vint 
@@ -303,6 +130,7 @@ func parseMode(modeNode: LispNode): int =
 func parseType(typeNode: LispNode): string = 
   ## (TYPE "...")
   typeNode.arg(0).str
+
 
 func extractPortInfoAttrImpl(attributesNode: LispNode, result: var PortInfo) =
   ## (ATTRIBUTES
@@ -351,7 +179,7 @@ func extractPortInfo(hdlIdentNode: LispNode): PortInfo =
     else:
       err fmt"invalid node: {n.ident}"
 
-func parseEprt(portNode: LispNode): EPort =
+func parseEprt(portNode: LispNode): EntityPort =
   ## (PORT
   ##   (OBID)
   ##   (PROPERTIES)
@@ -383,6 +211,33 @@ func parseEprt(portNode: LispNode): EPort =
     else:
       err "what?"
 
+func parseNet(netNode: LispNode): Net = 
+  ## (NET
+  ##   (OBID)
+  ##   (HDL_IDENT)
+  ##   (PART
+  ##     (OBID)
+  ##     (CBN 1)
+  ##   )
+  ##   (PART
+  ##     (OBID)
+  ##     (LABEL)
+  ##     (WIRE) ...
+  ##     (PORT
+  ##       (OBID "<Port_Instance_Id>")
+  ##       (NAME "<Port_Name>")
+  ##     ) ... (2+)
+  ##   )
+  ## )
+
+  for n in netNode:
+    case n.ident:
+    of "OBID": discard
+    of "HDL_IDENT": discard
+    of "PART": discard
+    else:
+      err "invalid field"
+
 func parseIgen(): InstanceGeneric =
   discard
 
@@ -413,6 +268,7 @@ func parseFreePlacedText(textNode: LispNode): FreePlacedText =
   ## (FREE_PLACED_TEXT
   ##   (LABEL)
   ## )
+  FreePlacedText(label: parseLabel textNode.arg(0))
 
 func parseHook(busRipperNode: LispNode): BusRipper = 
   ## (BUS_RIPPER
@@ -433,6 +289,16 @@ func parseHook(busRipperNode: LispNode): BusRipper =
   ##   (SIDE)
   ##   (LABEL)
   ## )
+  
+  for n in busRipperNode:
+    case n.ident:
+    of "OBID": discard
+    of "HDL_IDENT": discard
+    of "GEOMETRY": discard
+    of "SIDE": discard
+    of "LABEL": discard
+    else: 
+      err "invalid field"
 
 func parseNCon(connectionNode: LispNode): Connection = 
   ## (CONNECTION
@@ -441,8 +307,17 @@ func parseNCon(connectionNode: LispNode): Connection =
   ##   (SIDE 0)
   ##   (LABEL)
   ## )
+  
+  for n in connectionNode:
+    case n.ident:
+    of "OBID": discard
+    of "GEOMETRY": discard
+    of "SIDE": discard
+    of "LABEL": discard
+    else:
+      err "invalid field"
 
-func parseCbn(cbnNode: LispNode): CBN = 
+func parseCbn(cbnNode: LispNode): ConnectByName = 
   ## (CBN
   ##   (OBID)
   ##   (HDL_IDENT
@@ -458,6 +333,17 @@ func parseCbn(cbnNode: LispNode): CBN =
   ##   )
   ##   (TYPE 0)
   ## )
+  
+  for n in cbnNode:
+    case n.ident:
+    of "OBID": discard
+    of "HDL_IDENT": discard
+    of "GEOMETRY": discard
+    of "SIDE": discard
+    of "LABEL": discard
+    of "TYPE": discard
+    else:
+      err "invalid field"
 
 func parseComp(componentNode: LispNode): Component = 
   ## (COMPONENT
@@ -469,6 +355,23 @@ func parseComp(componentNode: LispNode): Component =
   ##   (ENTITY "<lib_id>" "<entity_id>")
   ##   (PORT) ...
   ## )
+  
+  for n in componentNode:
+    case n.ident:
+    of "OBID": discard
+
+    of "HDL_IDENT": discard
+
+    of "GEOMETRY": discard
+
+    of "SIDE": discard
+
+    of "LABEL": discard
+
+    of "ENTITY": discard
+
+    else:
+      err "invalid node"
 
 func parseDiag(schematicNode: LispNode): Schematic = 
   ## (SCHEMATIC
@@ -662,9 +565,6 @@ proc parseEws*(dir: string): Project =
     for e in mitems d.entities:
       e = parseEnt select parseLisp readfile libdir / e.obid & ".eas"
 
-
-# FIXME add eprt gprt ....
-# FIXME do not ignore other fields, eather raise error of ingonre them explicitly
 
 
 # --- fliping a component:
