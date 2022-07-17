@@ -1,5 +1,4 @@
 import std/[strutils, macros, sugar, sequtils, options]
-import ../utils
 
 type
   LispNodeKind* = enum
@@ -177,8 +176,10 @@ func `[]`*(n: LispNode, i: int): LispNode =
   n.children[i]
 
 func matchCaller*(n: LispNode, c: string): bool =
-  (n.kind == lnkList) and (n.len > 0) and (n.ident.name == c)
+  (n.kind == lnkList) and (n.len > 0) and (n.ident == c)
 
+func `|<`*(n: LispNode, c: string): bool {.inline.} =
+  n.matchCaller c
 
 iterator items*(n: LispNode): LispNode =
   if n.kind == lnkList:
@@ -191,13 +192,16 @@ iterator args*(n: LispNode): LispNode =
     yield n[i]
 
 
-func findNode*(node: LispNode, fn: proc(l: LispNode): bool): Option[LispNode] =
-  for ch in node:
-    if fn ch:
-      return some ch
+template findNode*(node: LispNode, cond): untyped =
+  var result: Option[LispNode]
+  for it {.inject.} in node:
+    if cond:
+      result = some it
+      break
+  result
 
 template assertIdent*(call: LispNode, name: string): untyped =
-  assert call.ident == name
+  doAssert call.ident == name
   call
 
 # ----------------------------------------------------------

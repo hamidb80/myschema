@@ -108,12 +108,44 @@ type
     properties: Properties
 
   Component = ref object
+
+  EntityGeneric = ref object
+  InstanceGeneric = ref object
+
+  PortInfo = tuple
+    name: string
+    mode: PortMode
+    `type`: string
+    busIndex: Option[Range[int]]
+
+  EntityPort = ref object
+    info: PortInfo
+  
+  ArchitecturePort = ref object
+    info: PortInfo
+   
+  GeneratePort = ref object
+    info: PortInfo
+
+  ComponentPort = ref object
+    info: PortInfo
+    
+  ProcessPort = ref object
+    info: PortInfo
+    
+  NetPort = ref object
+    info: PortInfo
+
   CBN = ref object
+  
   Connection = ref object
-  TruthTable = ref object
-  ExtternalFile = ref object
+  
+  # TruthTable = ref object
+  # ExtternalFile = ref object
+  # HdlFile = ref object
+
   Net = ref object
-  HdlFile = ref object
+  
   Generate = ref object
 
   FreePlacedText = object
@@ -124,11 +156,11 @@ type
   Wire = Range[Point]
 
   Label = object
+    position: Point
+  
   ObjStamp = object
     designer: string
     created, modified: int
-
-  EPort = ref object
 
   Entity = object
     obid, name: string
@@ -160,9 +192,8 @@ func select(sl: seq[LispNode]): LispNode {.inline.} =
   sl[1]
 
 
-func extractObid(obidNode: LispNode): string {.inline.}=
+func extractObid(obidNode: LispNode): string {.inline.} =
   obidNode.arg(0).str
-
 
 func extractMode(hdlIdentNode: LispNode): int =
   ## (HDL_IDENT
@@ -177,26 +208,33 @@ func extractMode(hdlIdentNode: LispNode): int =
   try:
     hdlIdentNode
       .arg(2).assertIdent("ATTRIBUTES")
-      .arg(1).assertIdent("MODE")
+      .findNode(it |< "MODE").get
       .arg(0).vint
 
-  except UnpackDefect:
+  except UnpackDefect, AssertionDefect:
     err "{ATTRIBUTES/MODE} not found"
 
-func extractName(hdlIdentNode: LispNode): string =
+func extractName(hdlIdentNode: LispNode): string {.inline.} =
   ## (HDL_IDENT
   ##   (NAME "...")
   ## )
 
   hdlIdentNode.arg(0).assertIdent("NAME").str
 
+func parseGeometry(geometryNode: LispNode): Geometry = 
+  ## (GEOMETRY startX startY endX endY)
+  (geometryNode.args.mapIt it.vint).toTuple 4
 
-func parseExtf(externalFileNode: LispNode): ExtternalFile = 
-  ## (EXTERNAL_FILE
-  ##   (OBID "extff700001022bc0d264002b4d2a9a05a77")
-  ##   (HDL_IDENT)
-  ##   (FILE <Path>)
-  ## )
+func parsePosition(positionNode: LispNode): Point = 
+  ## (POSITION X Y)
+  (positionNode.arg(0).vint, positionNode.arg(1).vint)
+
+func parseScale(scaleNode: LispNode): Positive = 
+  # (SCALE N)
+  scaleNode.arg(0).vint
+
+func parseName(nameNode: LispNode): string {.inline.} = 
+  nameNode.arg(0).str
 
 func parseLabel(labelNode: LispNode): Label =
   ## (LABEL
@@ -221,41 +259,18 @@ func parseProperties(propertiesNode: LispNode): Properties =
   for property in propertiesNode:
     result[property.arg(0).str] = property.arg(1).str
 
-func parseGeometry(geometryNode: LispNode): Geometry = 
-  ## (GEOMETRY startX startY endX endY)
-  (geometryNode.args.mapIt it.vint).toTuple 4
+func parseAligment(alignmentNode: LispNode): Alignment {.inline.} = 
+  ## (ALIGNMENT 0..8)
+  alignmentNode.arg(0).vint.Alignment
 
-func parsePosition(positionNode: LispNode): Point = 
-  ## (POSITION X Y)
-  (positionNode.arg(0), positionNode.arg(1))
+func parseSide(sideNode: LispNode): Side {.inline.} = 
+  ## (SIDE 0..3) 
+  ## -- FOR TEXTS 0, 2 And 1, 3 looks similar
+  Side sideNode.arg(0).vint
 
-func parseScale(scaleNode: LispNode): Positive = 
-  # (SCALE N)
-  scaleNode.arg(0).vint
-
-
-func parseTtab(tableNode: LispNode): TruthTable = 
-  ## (TABLE
-  ##   (OBID)
-  ##   (PROPERTIES)
-  ##   (HEADER) ...
-  ##   (ROW) ...
-  ## )
-  ## 
-  ## (HEADER
-  ##   (OBID)
-  ##   (LABEL)
-  ## )
-  ## 
-  ## (ROW
-  ##   (OBID)
-  ##   (CELL) ...
-  ## )
-  ## 
-  ## (CELL
-  ##   (OBID)
-  ##   (LABEL)
-  ## )
+func parseColor(colorNode: LispNode): EaseColor {.inline.} = 
+  ## (COLOR_LINE 0..71)
+  EaseColor colorNode.arg(0).vint
 
 func parseNet(netNode: LispNode): Net = 
   ## (NET
@@ -276,35 +291,102 @@ func parseNet(netNode: LispNode): Net =
   ##   )
   ## )
 
-func parseWire(wireNode: LispNode): Wire = 
+func parseWire(wireNode: LispNode): Wire {.inline.} = 
   ## (WIRE X1 Y1 X2 Y2)
   template s(n): untyped =  wireNode.arg(n).vint 
   (s 0, s 1) .. (s 2, s 3)
 
-func parseAligment(alignmentNode: LispNode): Alignment = 
-  ## (ALIGNMENT 0..8)
-  alignmentNode.arg(0).vint.Alignment
+func parseMode(modeNode: LispNode): int = 
+  ## (MODE N)
+  modeNode.arg(0).vint
 
-func parseSide(sideNode: LispNode): Side = 
-  ## (SIDE 0..3) 
-  ## -- FOR TEXTS 0, 2 And 1, 3 looks similar
-  Side sideNode.arg(0).vint
+func parseType(typeNode: LispNode): string = 
+  ## (TYPE "...")
+  typeNode.arg(0).str
 
-func parseColor(colorNode: LispNode): EaseColor = 
-  ## (COLOR_LINE 0..71)
-  EaseColor colorNode.arg(0).vint
-
-func parseHdlFile(hdlFileNode: LispNode): HdlFile =
-  ## (HDL_FILE
-  ##   (VHDL_FILE
-  ##     (OBID)
-  ##     (NAME "pr0.vhd")
-  ##     (VALUE "lines of the file" ...)
+func extractPortInfoAttrImpl(attributesNode: LispNode, result: var PortInfo) =
+  ## (ATTRIBUTES
+  ##   (MODE 1)
+  ##   (TYPE "TYPE NAME") ?
+  ##   (DEF_VALUE "VALUE") ?
+  ##   (CONSTRAINT ;; for BUS
+  ##     (DIRECTION 1)
+  ##     (RANGE "HIGH" "LOW")
   ##   )
   ## )
+  
+  for n in attributesNode:
+    case n.ident:
+    of "MODE":
+      result.mode = PortMode parseMode n
+    
+    of "TYPE":
+      result.`type` = parseType n
 
+    of "CONSTRAINT":
+      result.busIndex = some:
+        n.arg(1).assertIdent("RANGE")
+        .args.mapit(it.str.parseInt)
+        .toRange()
 
-func parseiGen(): Generate =
+    of "DEF_VALUE": discard
+    else:
+      err fmt"invalid node: {n.ident}"
+
+func extractPortInfo(hdlIdentNode: LispNode): PortInfo =
+  ## (HDL_IDENT
+  ##   (NAME "Port Name")
+  ##   (USERNAME 1)
+  ##   (ATTRIBUTES)
+  ## )
+  
+  for n in hdlIdentNode:
+    case n.ident:
+    of "NAME": 
+      result.name = parseName n
+    
+    of "ATTRIBUTES":
+      extractPortInfoAttrImpl n, result
+
+    else:
+      err fmt"invalid node: {n.ident}"
+
+func parseEprt(portNode: LispNode): EPort =
+  ## (PORT
+  ##   (OBID)
+  ##   (PROPERTIES)
+  ##   (HDL_IDENT)
+  ##   (GEOMETRY)
+  ##   (SIDE)
+  ##   (LABEL)
+  ##   (GENERATE "port ref") ;; generate
+  ##   (CONNECTION) ...
+  ## )
+  
+  for n in portNode:
+    case n.ident:
+    of "HDL_IDENT":
+      discard extractPortInfo(n)
+
+    of "GEOMETRY":
+      discard
+
+    of "SIDE":
+      discard
+
+    of "LABEL":
+      discard
+
+    of "PROPERTIES":
+      discard
+
+    else:
+      err "what?"
+
+func parseIgen(): InstanceGeneric =
+  discard
+
+func parseGenB(): Generate =
   ## (GENERATE
   ##   (OBID)
   ##   (PROPERTIES
@@ -327,7 +409,6 @@ func parseiGen(): Generate =
   ##   )
   ## )
 
-
 func parseFreePlacedText(textNode: LispNode): FreePlacedText = 
   ## (FREE_PLACED_TEXT
   ##   (LABEL)
@@ -335,19 +416,19 @@ func parseFreePlacedText(textNode: LispNode): FreePlacedText =
 
 func parseHook(busRipperNode: LispNode): BusRipper = 
   ## (BUS_RIPPER
-  ## (OBID)
-  ## (HDL_IDENT
-  ##   (USERNAME 1)
-  ##   (ATTRIBUTES
-  ##     (CONSTRAINT
-  ##       if is single:
-  ##         (INDEX "0")
-  ##       if is bus:
-  ##         (DIRECTION 1)
-  ##         (RANGE 0 1)
+  ##   (OBID)
+  ##   (HDL_IDENT
+  ##     (USERNAME 1)
+  ##     (ATTRIBUTES
+  ##       (CONSTRAINT
+  ##         ;; single:
+  ##           (INDEX "0")
+  ##         ;; bus:
+  ##           (DIRECTION 1)
+  ##           (RANGE 0 1)
   ##       )
-  ##     )
-  ##   ) ...
+  ##     ) 
+  ##   )
   ##   (GEOMETRY)
   ##   (SIDE)
   ##   (LABEL)
@@ -431,9 +512,6 @@ func parseDiag(schematicNode: LispNode): Schematic =
     else: 
       discard
 
-func parseEprt(entityNode: LispNode): EPort =
-  discard
-
 func parseEnt(entityNode: LispNode, result: var Entity) {.inline.} =
   ## (ENTITY
   ##   (OBID)
@@ -461,7 +539,7 @@ func parseEnt(entityNode: LispNode, result: var Entity) {.inline.} =
       result.name = extractName n
 
     of "GEOMETRY":
-      result.size = (n.arg(2).vint, n.arg(3).vint)
+      result.componentSize = parseGeometry(n).pickTuple([2, 3])
 
     of "PORT":
       result.ports.add parseEprt n
@@ -517,7 +595,6 @@ func parseEnt(entityFileNode: LispNode): Entity =
 
     else: discard
 
-
 func parseLib(designFileNode: LispNode): Library =
   ## (DESIGN_FILE
   ##   (OBID)
@@ -537,7 +614,7 @@ func parseLib(designFileNode: LispNode): Library =
       result.obid = extractObid n
 
     of "NAME":
-      result.name = n.arg(0).str
+      result.name = parseName n
 
     of "ENTITY":
       result.entities.add Entity(obid: n.arg(1).str, name: n.arg(0).str)
@@ -587,29 +664,60 @@ proc parseEws*(dir: string): Project =
 
 
 # FIXME add eprt gprt ....
+# FIXME do not ignore other fields, eather raise error of ingonre them explicitly
 
+
+# --- fliping a component:
 #[
-(PORT
-  (OBID)
-  (PROPERTIES)
-  (HDL_IDENT)
-  (GEOMETRY)
-  (SIDE 3)
-  (LABEL ...)
-
-  if GENERATE:
-    (GENERATE "port ref ")
-
-  (CONNECTION) ...
-)
-
-# fliping a component:
-(COMPONENT
-  ...
-  (PROPERTIES
+  (COMPONENT
     ...
-    (PROPERTY "Flip" "1")
+    (PROPERTIES
+      ...
+      (PROPERTY "Flip" "1")
+    )
+    ...
   )
-  ...
-)
+]#
+
+# --- draft 
+#[
+
+  func parseExtf(externalFileNode: LispNode): ExtternalFile = 
+    ## (EXTERNAL_FILE
+    ##   (OBID "extff700001022bc0d264002b4d2a9a05a77")
+    ##   (HDL_IDENT)
+    ##   (FILE <Path>)
+    ## )
+
+  func parseHdlFile(hdlFileNode: LispNode): HdlFile =
+    ## (HDL_FILE
+    ##   (VHDL_FILE
+    ##     (OBID)
+    ##     (NAME "pr0.vhd")
+    ##     (VALUE "lines of the file" ...)
+    ##   )
+    ## )
+
+  func parseTtab(tableNode: LispNode): TruthTable = 
+    ## (TABLE
+    ##   (OBID)
+    ##   (PROPERTIES)
+    ##   (HEADER) ...
+    ##   (ROW) ...
+    ## )
+    ## 
+    ## (HEADER
+    ##   (OBID)
+    ##   (LABEL)
+    ## )
+    ## 
+    ## (ROW
+    ##   (OBID)
+    ##   (CELL) ...
+    ## )
+    ## 
+    ## (CELL
+    ##   (OBID)
+    ##   (LABEL)
+    ## )
 ]#
