@@ -1,5 +1,5 @@
-import std/[strutils, macros, sugar, sequtils]
-
+import std/[strutils, macros, sugar, sequtils, options]
+import ../utils
 
 type
   LispNodeKind* = enum
@@ -189,6 +189,16 @@ iterator args*(n: LispNode): LispNode =
   assert n.kind == lnkList
   for i in 1 .. n.len-1:
     yield n[i]
+
+
+func findNode*(node: LispNode, fn: proc(l: LispNode): bool): Option[LispNode] =
+  for ch in node:
+    if fn ch:
+      return some ch
+
+template assertIdent*(call: LispNode, name: string): untyped =
+  assert call.ident == name
+  call
 
 # ----------------------------------------------------------
 

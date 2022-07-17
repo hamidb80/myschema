@@ -1,4 +1,4 @@
-import std/[tables, strformat, strutils, os, sequtils]
+import std/[tables, strformat, strutils, os, sequtils, options]
 import lisp
 import ../utils, ../common/defs
 
@@ -99,7 +99,7 @@ type
 
   Schematic = ref object
     obid: string
-    size: Size
+    sheetSize: Size
 
   Architecture = ref object
     obid, name: string
@@ -113,9 +113,10 @@ type
   TruthTable = ref object
   ExtternalFile = ref object
   Net = ref object
-  BusRipper = ref object
   HdlFile = ref object
   Generate = ref object
+
+  FreePlacedText = object
 
   Geometry = tuple
     x1, y1, x2, y2: int
@@ -135,7 +136,7 @@ type
     properties: Properties
     architectures: seq[Architecture]
     ports: seq[EPort]
-    size: Size
+    componentSize: Size
 
 type
   LibraryEncodeMode* = enum
@@ -162,25 +163,33 @@ func select(sl: seq[LispNode]): LispNode {.inline.} =
 func extractObid(obidNode: LispNode): string {.inline.}=
   obidNode.arg(0).str
 
-## (HDL_IDENT
-##   (NAME "halt")
-##   (USERNAME 1)
-##   (ATTRIBUTES 
-##      (MODE <NUM>)
-##      (CONSTRAINT
-##      )
-##   )
-## )
-
-func extractName(hdlIdentNode: LispNode): string =
-  hdlIdentNode.arg(0).arg(0).str
 
 func extractMode(hdlIdentNode: LispNode): int =
-  for n in hdlIdentNode:
-    if n.ident == "ATTRIBUTES":
-      return n.arg(0).arg(0).vint
+  ## (HDL_IDENT
+  ##   (NAME)
+  ##   (USERNAME)
+  ##   (ATTRIBUTES 
+  ##      (MODE <NUM>)
+  ##      ...
+  ##   )
+  ## )
+  
+  try:
+    hdlIdentNode
+      .arg(2).assertIdent("ATTRIBUTES")
+      .arg(1).assertIdent("MODE")
+      .arg(0).vint
 
-  err "ATTRIBUTES not found"
+  except UnpackDefect:
+    err "{ATTRIBUTES/MODE} not found"
+
+func extractName(hdlIdentNode: LispNode): string =
+  ## (HDL_IDENT
+  ##   (NAME "...")
+  ## )
+
+  hdlIdentNode.arg(0).assertIdent("NAME").str
+
 
 func parseExtf(externalFileNode: LispNode): ExtternalFile = 
   ## (EXTERNAL_FILE
@@ -281,7 +290,6 @@ func parseSide(sideNode: LispNode): Side =
   ## -- FOR TEXTS 0, 2 And 1, 3 looks similar
   Side sideNode.arg(0).vint
 
-
 func parseColor(colorNode: LispNode): EaseColor = 
   ## (COLOR_LINE 0..71)
   EaseColor colorNode.arg(0).vint
@@ -294,6 +302,7 @@ func parseHdlFile(hdlFileNode: LispNode): HdlFile =
   ##     (VALUE "lines of the file" ...)
   ##   )
   ## )
+
 
 func parseiGen(): Generate =
   ## (GENERATE
@@ -318,12 +327,13 @@ func parseiGen(): Generate =
   ##   )
   ## )
 
-func parseText(textNode: LispNode): Text = 
+
+func parseFreePlacedText(textNode: LispNode): FreePlacedText = 
   ## (FREE_PLACED_TEXT
   ##   (LABEL)
   ## )
 
-func parseBusRipper(busRipperNode: LispNode): BusRipper = 
+func parseHook(busRipperNode: LispNode): BusRipper = 
   ## (BUS_RIPPER
   ## (OBID)
   ## (HDL_IDENT
@@ -576,6 +586,8 @@ proc parseEws*(dir: string): Project =
       e = parseEnt select parseLisp readfile libdir / e.obid & ".eas"
 
 
+# FIXME add eprt gprt ....
+
 #[
 (PORT
   (OBID)
@@ -587,10 +599,6 @@ proc parseEws*(dir: string): Project =
 
   if GENERATE:
     (GENERATE "port ref ")
-
-  # ARCH_DEF:
-    (CONNECTION)
-  )
 
   (CONNECTION) ...
 )
