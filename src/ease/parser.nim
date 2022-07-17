@@ -1,16 +1,9 @@
-import std/[tables, strformat, os]
+import std/[tables, strformat, strutils, os, sequtils]
 import lisp
-import ../utils
+import ../utils, ../common/defs
 
 
 type
-  EntityType* = enum
-    etBlockDiagram = 1
-    etHDLFile
-    etStateDiagram
-    etTableDiagram
-    etExternalHDLFIle
-
   ProcessType* = enum
     ptProcess = 1
     ptStateDiagram = 2
@@ -27,12 +20,19 @@ type
     pmInout
     pmBuffer
 
+  ArchitectureMode* = enum
+    etBlockDiagram = 1 # Schema
+    etHDLFile          # HDL code
+    etStateDiagram     # FSM
+    etTableDiagram     # truth table
+    etExternalHDLFIle  # HDL code
+
   FlipMode* = enum
     vertical = 1
     horizontal
     both
 
-  NamedColor* = enum
+  EaseColor* = enum
     ncBlack1, ncBlack2, ncBlack3, ncBlack4, ncBlack5, ncBlack6, ncBlack7, ncBlack8
     ncGray1, ncGray2, ncGray3, ncGray4, ncSmokeWhite, ncWhite, ncYellow, ncOrange1
     ncLemon, ncSkin, ncKhaki, ncBrown1, ncOrange2, ncOrange3, ncPeach, ncRed1
@@ -87,22 +87,55 @@ type
     packages: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
 
-  Entity = object
-    obid, name: string
-    isResolved: bool
-    architectures: seq[Architecture]
-
   Library* = ref object
     obid, name: string
     isResolved: bool
     properties: Properties
     entities: seq[Entity]
 
+  Size = tuple[w, h: int]
+
+  BusRipper = ref object
+
+  Schematic = ref object
+    obid: string
+    size: Size
+
   Architecture = ref object
+    obid, name: string
+    kind: ArchitectureMode
+    schematic: Schematic
+    properties: Properties
 
-  WorkSpace* = ref object
-    project: Project
+  Component = ref object
+  CBN = ref object
+  Connection = ref object
+  TruthTable = ref object
+  ExtternalFile = ref object
+  Net = ref object
+  BusRipper = ref object
+  HdlFile = ref object
+  Generate = ref object
 
+  Geometry = tuple
+    x1, y1, x2, y2: int
+
+  Wire = Range[Point]
+
+  Label = object
+  ObjStamp = object
+    designer: string
+    created, modified: int
+
+  EPort = ref object
+
+  Entity = object
+    obid, name: string
+    isResolved: bool
+    properties: Properties
+    architectures: seq[Architecture]
+    ports: seq[EPort]
+    size: Size
 
 type
   LibraryEncodeMode* = enum
@@ -114,20 +147,406 @@ type
     eemDef
 
 
-func toLispNode(l: Library, mode: LibraryEncodeMode): LispNode = discard
-
-# pattern parse<OBID prefix>
-
 func select(sl: seq[LispNode]): LispNode {.inline.} =
+  ## all .eas file styles:
+  ## (DATABASE_VERSION 17)
+  ## (...)
+  ## (END_OF_FILE)
+  ##
+  ## this function selects the important one (second node)
+
   assert sl.len == 3
   sl[1]
 
+
+func extractObid(obidNode: LispNode): string {.inline.}=
+  obidNode.arg(0).str
+
+## (HDL_IDENT
+##   (NAME "halt")
+##   (USERNAME 1)
+##   (ATTRIBUTES 
+##      (MODE <NUM>)
+##      (CONSTRAINT
+##      )
+##   )
+## )
+
+func extractName(hdlIdentNode: LispNode): string =
+  hdlIdentNode.arg(0).arg(0).str
+
+func extractMode(hdlIdentNode: LispNode): int =
+  for n in hdlIdentNode:
+    if n.ident == "ATTRIBUTES":
+      return n.arg(0).arg(0).vint
+
+  err "ATTRIBUTES not found"
+
+func parseExtf(externalFileNode: LispNode): ExtternalFile = 
+  ## (EXTERNAL_FILE
+  ##   (OBID "extff700001022bc0d264002b4d2a9a05a77")
+  ##   (HDL_IDENT)
+  ##   (FILE <Path>)
+  ## )
+
+func parseLabel(labelNode: LispNode): Label =
+  ## (LABEL
+  ##   (POSITION)
+  ##   (SCALE)
+  ##   (COLOR_LINE)
+  ##   (SIDE)
+  ##   (ALIGNMENT)
+  ##   (FORMAT 1)
+  ##   (TEXT "Instruction Decoder")
+  ## )
+  discard
+
+func parseObjStamp(objStampNode: LispNode): ObjStamp = 
+  ## (OBJSTAMP
+  ##   (DESIGNER "HamidB80")
+  ##   (CREATED 939908873 "Thu Oct 14 17:17:53 1999")
+  ##   (MODIFIED 1340886716 "Thu Jun 28 17:01:56 2012")
+  ## )
+
 func parseProperties(propertiesNode: LispNode): Properties =
   for property in propertiesNode:
-    assert property.ident == "PROPERTY"
     result[property.arg(0).str] = property.arg(1).str
 
+func parseGeometry(geometryNode: LispNode): Geometry = 
+  ## (GEOMETRY startX startY endX endY)
+  (geometryNode.args.mapIt it.vint).toTuple 4
+
+func parsePosition(positionNode: LispNode): Point = 
+  ## (POSITION X Y)
+  (positionNode.arg(0), positionNode.arg(1))
+
+func parseScale(scaleNode: LispNode): Positive = 
+  # (SCALE N)
+  scaleNode.arg(0).vint
+
+
+func parseTtab(tableNode: LispNode): TruthTable = 
+  ## (TABLE
+  ##   (OBID)
+  ##   (PROPERTIES)
+  ##   (HEADER) ...
+  ##   (ROW) ...
+  ## )
+  ## 
+  ## (HEADER
+  ##   (OBID)
+  ##   (LABEL)
+  ## )
+  ## 
+  ## (ROW
+  ##   (OBID)
+  ##   (CELL) ...
+  ## )
+  ## 
+  ## (CELL
+  ##   (OBID)
+  ##   (LABEL)
+  ## )
+
+func parseNet(netNode: LispNode): Net = 
+  ## (NET
+  ##   (OBID)
+  ##   (HDL_IDENT)
+  ##   (PART
+  ##     (OBID "nprt<UNIQ_ID>")
+  ##     (CBN 1)
+  ##   )
+  ##   (PART
+  ##     (OBID "nprt<UNIQ_ID>")
+  ##     (LABEL)
+  ##     (WIRE) ...
+  ##     (PORT
+  ##       (OBID "<Port_Instance_Id>")
+  ##       (NAME "<Port_Name>")
+  ##     ) ... (2+)
+  ##   )
+  ## )
+
+func parseWire(wireNode: LispNode): Wire = 
+  ## (WIRE X1 Y1 X2 Y2)
+  template s(n): untyped =  wireNode.arg(n).vint 
+  (s 0, s 1) .. (s 2, s 3)
+
+func parseAligment(alignmentNode: LispNode): Alignment = 
+  ## (ALIGNMENT 0..8)
+  alignmentNode.arg(0).vint.Alignment
+
+func parseSide(sideNode: LispNode): Side = 
+  ## (SIDE 0..3) 
+  ## -- FOR TEXTS 0, 2 And 1, 3 looks similar
+  Side sideNode.arg(0).vint
+
+
+func parseColor(colorNode: LispNode): EaseColor = 
+  ## (COLOR_LINE 0..71)
+  EaseColor colorNode.arg(0).vint
+
+func parseHdlFile(hdlFileNode: LispNode): HdlFile =
+  ## (HDL_FILE
+  ##   (VHDL_FILE
+  ##     (OBID)
+  ##     (NAME "pr0.vhd")
+  ##     (VALUE "lines of the file" ...)
+  ##   )
+  ## )
+
+func parseiGen(): Generate =
+  ## (GENERATE
+  ##   (OBID)
+  ##   (PROPERTIES
+  ##     (PROPERTY "IF_CONDITION" "my_cond")
+  ##     (PROPERTY "FOR_LOOP_VAR" "ident")
+  ##   )
+  ##   (HDL_IDENT)
+  ##   (GEOMETRY)
+  ##   (SIDE)
+  ##   (LABEL)
+  ##   (TYPE 2)
+  ##   if for:
+  ##     (CONSTRAINT
+  ##       (DIRECTION 1)
+  ##       (RANGE "max" "min")
+  ##     )
+  ##   (SCHEMATIC
+  ##     (OBID)
+  ##     (SHEETSIZE)
+  ##   )
+  ## )
+
+func parseText(textNode: LispNode): Text = 
+  ## (FREE_PLACED_TEXT
+  ##   (LABEL)
+  ## )
+
+func parseBusRipper(busRipperNode: LispNode): BusRipper = 
+  ## (BUS_RIPPER
+  ## (OBID)
+  ## (HDL_IDENT
+  ##   (USERNAME 1)
+  ##   (ATTRIBUTES
+  ##     (CONSTRAINT
+  ##       if is single:
+  ##         (INDEX "0")
+  ##       if is bus:
+  ##         (DIRECTION 1)
+  ##         (RANGE 0 1)
+  ##       )
+  ##     )
+  ##   ) ...
+  ##   (GEOMETRY)
+  ##   (SIDE)
+  ##   (LABEL)
+  ## )
+
+func parseNCon(connectionNode: LispNode): Connection = 
+  ## (CONNECTION
+  ##   (OBID)
+  ##   (GEOMETRY)
+  ##   (SIDE 0)
+  ##   (LABEL)
+  ## )
+
+func parseCbn(cbnNode: LispNode): CBN = 
+  ## (CBN
+  ##   (OBID)
+  ##   (HDL_IDENT
+  ##   (GEOMETRY)
+  ##   (SIDE 1)
+  ##   (LABEL
+  ##     (POSITION 1462 694)
+  ##     (SCALE 96)
+  ##     (COLOR_LINE 0)
+  ##     (SIDE 3)
+  ##     (ALIGNMENT 5)
+  ##     (FORMAT 1)
+  ##   )
+  ##   (TYPE 0)
+  ## )
+
+func parseComp(componentNode: LispNode): Component = 
+  ## (COMPONENT
+  ##   (OBID)
+  ##   (HDL_IDENT)
+  ##   (GEOMETRY)
+  ##   (SIDE)
+  ##   (LABEL)
+  ##   (ENTITY "<lib_id>" "<entity_id>")
+  ##   (PORT) ...
+  ## )
+
+func parseDiag(schematicNode: LispNode): Schematic = 
+  ## (SCHEMATIC
+  ##   (OBID)
+  ##   (SHEETSIZE 0 0 <Width> <Height>)
+  ##   (FREE_PLACED_TEXT) ...
+  ##   (GENERIC) ...
+  ##   (GENERATE) ...
+  ##   (COMPONENT) ...
+  ##   (PROCESS) ...
+  ##   (PORT) ...
+  ##   (NET) ...
+  ## )
+  
+  for n in schematicNode:
+    case n.ident:
+    of "OBID": 
+      result.obid = extractObid n
+    
+    of "FREE_PLACED_TEXT":
+      discard
+
+    of "GENERIC":
+      discard
+
+    of "GENERATE":
+      discard
+
+    of "COMPONENT":
+      discard
+
+    of "PROCESS":
+      discard
+
+    of "PORT":
+      discard
+
+    of "NET":
+      discard
+
+    else: 
+      discard
+
+func parseEprt(entityNode: LispNode): EPort =
+  discard
+
+func parseEnt(entityNode: LispNode, result: var Entity) {.inline.} =
+  ## (ENTITY
+  ##   (OBID)
+  ##   (PROPERTIES ...)
+  ##   (HDL_IDENT)
+  ##   (GEOMETRY)
+  ##   (SIDE 0)
+  ##   (HDL 1)
+  ##   (EXTERNAL 0)
+  ##   (OBJSTAMP)
+  ##   (GENERIC) ...
+  ##   (PORT) ...
+  ##   (ARCH_DECLARATION <TYPE_NO> "<id>" "<name>") ...
+  ## )
+
+  for n in entityNode:
+    case n.ident:
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    of "OBID":
+      result.obid = extractObid n
+
+    of "HDL_IDENT":
+      result.name = extractName n
+
+    of "GEOMETRY":
+      result.size = (n.arg(2).vint, n.arg(3).vint)
+
+    of "PORT":
+      result.ports.add parseEprt n
+
+    of "ARCH_DECLARATION":
+      result.obid = n.arg(0).str
+
+    else: discard
+
+func parseArch(archDefNode: LispNode): Architecture {.inline.} =
+  ## (ARCH_DEFINITION
+  ##   (OBID)
+  ##   (HDL_IDENT)
+  ##   (PROPERTIES ...)
+  ##   (TYPE <TYPE_NO>)
+  ##   (SCHEMATIC ...)
+  ## )
+
+  for n in archDefNode:
+    case n.ident:
+    of "OBID":
+      result.obid = extractObid n
+
+    of "TYPE":
+      result.kind = ArchitectureMode n.arg(0).vint
+
+    of "HDL_IDENT":
+      result.name = extractName n
+    
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    of "SCHEMATIC":
+      result.schematic = parseDiag n
+
+    else: discard
+
+func parseEnt(entityFileNode: LispNode): Entity =
+  ## (ENTITY_FILE
+  ##   (ENTITY)
+  ##   (ARCH_DEFINITION) ...
+  ## )
+
+  result.isResolved = true
+
+  for n in entityFileNode:
+    case n.ident:
+    of "ENTITY":
+      parseEnt(n, result)
+
+    of "ARCH_DEFINITION":
+      result.architectures.add parseArch n
+
+    else: discard
+
+
+func parseLib(designFileNode: LispNode): Library =
+  ## (DESIGN_FILE
+  ##   (OBID)
+  ##   (PROPERTIES)
+  ##   (COMPONENT_LIB 0)
+  ##   (NAME "Lib_name")
+  ##   (ENTITY "entity_name" "id") ...
+  ##   (PACKAGE "pkg_name" "id") ...
+  ##   (PACKAGE_USE) ...
+  ## )
+
+  result.isResolved = true
+
+  for n in designFileNode:
+    case n.ident:
+    of "OBID":
+      result.obid = extractObid n
+
+    of "NAME":
+      result.name = n.arg(0).str
+
+    of "ENTITY":
+      result.entities.add Entity(obid: n.arg(1).str, name: n.arg(0).str)
+
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    else: discard
+
 func parseProj(projectFileNode: LispNode): Project =
+  ## (PROJECT_FILE
+  ##   (OBID)
+  ##   (PROPERTIES ...)
+  ##   (DESIGN "libname" "id") ...
+  ##   (ENTITY "entity_name" "id") ...
+  ##   (PACKAGE "pkg_name" "id") ...
+  ##   (PACKAGE_USE ...) ...
+  ## )
+
   for n in projectFileNode:
     case n.ident:
     of "PROPERTIES":
@@ -145,161 +564,19 @@ func parseProj(projectFileNode: LispNode): Project =
     else: # PACKAGE_USE OBID
       discard
 
-func parseLib(designFileNode: LispNode): Library =
-  for n in designFileNode:
-    case n.ident:
-    of "OBID":
-      result.obid = n.arg(0).str
+proc parseEws*(dir: string): Project =
+  doAssert dir.endsWith ".ews", fmt"the workspace directory name must end with .ews"
 
-    of "NAME":
-      result.name = n.arg(0).str
+  result = parseProj select parseLisp readfile dir / "project.ews"
+  for d in mitems result.designs:
+    let libdir = dir / d.obid
+    d = parseLib select parseLisp libdir
 
-    of "ENTITY":
-      result.entities.add Entity(obid: n.arg(1).str, name: n.arg(0).str)
+    for e in mitems d.entities:
+      e = parseEnt select parseLisp readfile libdir / e.obid & ".eas"
 
-    of "PROPERTIES":
-      result.properties = parseProperties n
-
-    else:
-      err fmt"undefined"
-
-
-proc parseWorkSpace*(dir: string): WorkSpace =
-  result.project = parseProj select parseLisp readfile dir / "project.ews"
-
-
-
-# --- all .eas files
-#[
-(DATABASE_VERSION 17)
-...
-(END_OF_FILE)
-]#
-
-# --- project.eas
-#[
-(PROJECT_FILE
-  (OBID)
-  (PROPERTIES ...)
-
-  (DESIGN "libname" "id") ...
-  (ENTITY "entity_name" "id") ...
-
-  (PACKAGE "pkg_name" "id") ...
-  (PACKAGE_USE ...) ...
-)
-]#
-
-# --- lib<id>/library.eas
-#[
-(DESIGN_FILE
-  (OBID)
-  (PROPERTIES)
-
-  (COMPONENT_LIB 0)
-  (NAME "Lib_name")
-
-  (ENTITY "entity_name" "id") ...
-  (PACKAGE "pkg_name" "id") ...
-  (PACKAGE_USE) ...
-)
-]#
-
-
-# --- lib<id>/ent<id>.eas
-#[
-(ENTITY_FILE
-  (ENTITY
-    (OBID)
-    (PROPERTIES ...)
-    (HDL_IDENT)
-
-    (GEOMETRY)
-    (SIDE 0)
-    (HDL 1)
-    (EXTERNAL 0)
-    (OBJSTAMP)
-
-    (GENERIC) ...
-    (PORT) ...
-
-    (ARCH_DECLARATION <TYPE_NO> "<id>" "<name>") ...
-  )
-
-  (ARCH_DEFINITION
-    (OBID)
-    (HDL_IDENT)
-    (PROPERTIES ...)
-
-    (TYPE <TYPE_NO>)
-    (SCHEMATIC ...)
-  ) ...
-)
-]#
-
-# =================================
 
 #[
-
-(SCHEMATIC
-  (OBID)
-  (SHEETSIZE 0 0 <Width> <Height>)
-
-  (FREE_PLACED_TEXT) ...
-  (GENERIC) ...
-  (GENERATE) ...
-  (COMPONENT) ...
-  (PROCESS) ...
-  (PORT) ...
-  (NET) ...
-)
-
-(FREE_PLACED_TEXT
-  (LABEL)
-)
-
-(COMPONENT
-  (OBID "Comp<id>")
-  (HDL_IDENT)
-  (GEOMETRY)
-  (SIDE)
-  (LABEL)
-  (ENTITY "<lib_id>" "<entity_id>")
-  (PORT) ...
-)
-
-(LABEL
-  (POSITION)
-  (SCALE)
-  (COLOR_LINE)
-  (SIDE)
-  (ALIGNMENT)
-  (FORMAT 1)
-  (TEXT "Instruction Decoder")
-)
-
-(HDL_IDENT
-  (NAME "halt")
-  (USERNAME 1)
-  (ATTRIBUTES ...)
-)
-
-(OBJSTAMP
-  (DESIGNER "HamidB80")
-  (CREATED 939908873 "Thu Oct 14 17:17:53 1999")
-  (MODIFIED 1340886716 "Thu Jun 28 17:01:56 2012")
-)
-
-(LABEL
-  (POSITION 1384 128)
-  (SCALE 96)
-  (COLOR_LINE 0)
-  (SIDE 3)
-  (ALIGNMENT 3)
-  (FORMAT 129)
-  (TEXT "dbus(8)")
-)
-
 (PORT
   (OBID)
   (PROPERTIES)
@@ -318,209 +595,13 @@ proc parseWorkSpace*(dir: string): WorkSpace =
   (CONNECTION) ...
 )
 
-(CONNECTION
-  (OBID)
-  (GEOMETRY)
-  (SIDE 0)
-  (LABEL)
+# fliping a component:
+(COMPONENT
+  ...
+  (PROPERTIES
+    ...
+    (PROPERTY "Flip" "1")
+  )
+  ...
 )
-
-
-(NET
-  (OBID)
-  (HDL_IDENT)
-
-  (PART
-    (OBID "nprt<UNIQ_ID>")
-    (CBN 1)
-  )
-  (PART
-    (OBID "nprt<UNIQ_ID>")
-    (LABEL)
-
-    (WIRE) ...
-
-    (PORT
-      (OBID "<Port_Instance_Id>")
-      (NAME "<Port_Name>")
-    ) ... (2+)
-
-    (BUS_RIPPER
-      (OBID)
-      (HDL_IDENT
-        (USERNAME 1)
-        (ATTRIBUTES
-          (CONSTRAINT
-            if is single:
-              (INDEX "0")
-            if is bus:
-              (DIRECTION 1)
-              (RANGE 0 1)
-            )
-          )
-        ) ...
-
-        (GEOMETRY)
-        (SIDE 3)
-        (LABEL
-          (POSITION 1280 768)
-          (SCALE 80)
-          (COLOR_LINE 0)
-          (SIDE 1)
-          (ALIGNMENT 3)
-          (FORMAT 3)
-          (TEXT "iii(0)")
-        )
-      )
-    )
-  )
-
-
-  (GEOMETRY startX startY endX endY)
-  (ALIGNMENT 0..8)
-  (COLOR_LINE N)
-  (SCALE N)
-  (POSITION X Y)
-  (SIDE 0..3) -- FOR TEXTS 0, 2 And 1, 3 looks similar
-
-
-  (WIRE X1 Y1 X2 Y2)
-
-  (GENERATE
-    (OBID)
-    (PROPERTIES
-      (PROPERTY "IF_CONDITION" "my_cond")
-      (PROPERTY "FOR_LOOP_VAR" "ident")
-    )
-    (HDL_IDENT)
-    (GEOMETRY)
-    (SIDE)
-    (LABEL)
-
-    (TYPE 2)
-
-    if for:
-      (CONSTRAINT
-        (DIRECTION 1)
-        (RANGE "max" "min")
-      )
-
-    (SCHEMATIC
-      (OBID)
-      (SHEETSIZE)
-    )
-  )
-
-  (EXTERNAL_FILE
-    (OBID "extff700001022bc0d264002b4d2a9a05a77")
-    (HDL_IDENT)
-    (FILE <Path>)
-  )
-
-  (TABLE
-    (OBID)
-    (PROPERTIES)
-    (HEADER) ...
-    (ROW) ...
-  )
-
-  (HEADER
-    (OBID)
-    (LABEL)
-  )
-
-  (ROW
-    (OBID)
-    (CELL) ...
-  )
-
-  (CELL
-    (OBID)
-    (LABEL)
-  )
-
-  (HDL_FILE
-    (VHDL_FILE
-      (OBID)
-      (NAME "pr0.vhd")
-      (VALUE "lines of the file" ...)
-    )
-  )
-
-  (CBN
-    (OBID "cbna02000203cfb1d26caa3b4d28d47da31")
-    (HDL_IDENT
-      (NAME "in1")
-      (USERNAME 1)
-    )
-    (GEOMETRY)
-    (SIDE 1)
-    (LABEL
-      (POSITION 1462 694)
-      (SCALE 96)
-      (COLOR_LINE 0)
-      (SIDE 3)
-      (ALIGNMENT 5)
-      (FORMAT 1)
-    )
-    (TYPE 0)
-  )
-
-    # -----------------------------------
-
-  fliping a component:
-    (COMPONENT
-      ...
-      (PROPERTIES
-        ...
-        (PROPERTY "Flip" "1")
-      )
-      ...
-    )
-
-  OBID:
-    proj => project (PROJECT_FILE)
-    pack => package (PROJECT_FILE->PACKAGE | PACKAGE_FILE)
-    lib => library (DESIGN_FILE)
-    ent => entity (ENTITY_FILE->ENTITY)
-    Arch/arch => architecture (ARCH_DEFINITION)
-
-    eprt => entity port (ENTITY->PORT)
-    cprt => component port (COMPONENT->PORT)
-    aprt => architecture port (ARCH_DEFINITION->PORT)
-    nprt => net port (NET->PART->PORT)
-    pprt => process port (PROCESS->PORT)
-    gprt => generate port (GENERATE->PORT)
-
-    proc => process (PROCESS)
-    genb => generate block
-
-    ttab => truth table (TABLE)
-    thdr => table header (HEADER)
-    trow => table row (ROW)
-    cell => cell (CELL)
-
-    Comp/comp => component [instance of a block] (COMPONENT)
-    ncon => node connection (CONNECTION)
-    net => net (NET)
-
-    hook => bus ripper (BUS_RIPPER)
-    cbn => connect by name (CBN)
-
-    igen => instance generic (GENERIC)
-    egen => entity generic (GENERIC)
-
-    file => file content (VHDL_FILE)
-    itxt => included text (FSM_DIAGRAM->INCLUDED_TEXT)
-    extf => external file
-
-    fsm => (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
-    diag => diagram (SCHEMATIC | FSM_DIAGRAM)
-    tran => transition (TRANS_LINE | TRANS_SPLINE)
-    decl => (FSM_DIAGRAM->DECLARATION)
-    lab => ??? (ACTION | CONDITION)
-    stat => state (STATE)
-    lab => (ACTION | CONDITION)
-    act => action (ACTION)
-
-  ]#
+]#
