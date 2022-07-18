@@ -16,15 +16,22 @@ func endsWith(s, suffix: seq[string]): bool =
 
     true
 
+func safeIncl[K, V](container: var Table[K, HashSet[V]], key: K, val: V) =
+  if key notin container:
+    container[key] = initHashSet[V]()
+
+  container[key].incl val
+
 # -----------------------------------
 
 const dir = r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples"
 
 var
   uniqPortTypes: HashSet[string]
-  uniqIdents: Table[string, HashSet[string]]
+  uniqIdentsByParent: Table[string, HashSet[string]]
+  uniqIdentsByNode: Table[string, HashSet[string]]
 
-proc traverse(node: LispNode, path: Path) =
+proc goFind(node: LispNode, path: Path) =
   if path.endsWith(@["PORT", "HDL_IDENT"]) and node.matchCaller("ATTRIBUTES"):
     var
       `type` = ""
@@ -39,19 +46,20 @@ proc traverse(node: LispNode, path: Path) =
     if hasRange and not `type`.isEmptyOrWhitespace:
       uniqPortTypes.incl `type`
 
-  block:
-    let parent = path[^1]
+  let
+    parent = path[^1]
+    value = case node.kind:
+      of lnkList: node.ident
+      of lnkInt: "<INT_VALUE>"
+      of lnkString: "<STR_VALUE>"
+      else: "<..>"
 
-    if parent notin uniqIdents:
-      uniqIdents[parent] = initHashSet[string]()
-
-    uniqIdents[parent].incl:
-      if node.kind == lnkList: node.ident
-      else: "<VALUE>"
+  uniqIdentsByParent.safeIncl parent, value
+  uniqIdentsByNode.safeIncl value, parent
 
   if node.kind == lnkList:
     for s in node.args:
-      traverse s, path & node.ident
+      goFind s, path & node.ident
 
 
 # ----------------------------------
@@ -61,7 +69,8 @@ when isMainModule:
     if path.endsWith(".eas") and "ease.db" in path:
       # echo ">> ", path
       let ctx = select parseLisp readfile path
-      traverse ctx, @["/"]
+      goFind ctx, @["/"]
 
   print uniqPortTypes
-  print uniqIdents
+  print uniqIdentsByParent
+  print uniqIdentsByNode
