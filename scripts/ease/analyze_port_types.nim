@@ -1,5 +1,5 @@
-import std/[os, sets, strutils]
-import ../../src/ease/lisp
+import std/[os, sets, strutils, tables]
+import ../../src/ease/[lisp, parser]
 import print
 
 # ----------------------------------
@@ -22,12 +22,9 @@ const dir = r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples"
 
 var
   uniqPortTypes: HashSet[string]
-  uniqElements: HashSet[string]
-  uniqIdents: HashSet[string]
+  uniqIdents: Table[string, HashSet[string]]
 
-proc traverse1(s: seq[LispNode], path: Path)
-
-proc traverse1(node: LispNode, path: Path) =
+proc traverse(node: LispNode, path: Path) =
   if path.endsWith(@["PORT", "HDL_IDENT"]) and node.matchCaller("ATTRIBUTES"):
     var
       `type` = ""
@@ -42,55 +39,29 @@ proc traverse1(node: LispNode, path: Path) =
     if hasRange and not `type`.isEmptyOrWhitespace:
       uniqPortTypes.incl `type`
 
+  block:
+    let parent = path[^1]
 
-  elif node.kind == lnkList:
-    traverse1 node.args, path & node.ident
+    if parent notin uniqIdents:
+      uniqIdents[parent] = initHashSet[string]()
 
-proc traverse1(s: seq[LispNode], path: Path) =
-  for node in s:
-    traverse1 node, path
-
-
-proc traverse2(s: seq[LispNode], path: Path)
-
-proc traverse2(node: LispNode, path: Path) =
-  if path.endsWith(@["SCHEMATIC"]):
-    uniqElements.incl:
+    uniqIdents[parent].incl:
       if node.kind == lnkList: node.ident
-      else: $node
+      else: "<VALUE>"
 
-  elif node.kind == lnkList:
-    traverse2 node.args, path & node.ident
+  if node.kind == lnkList:
+    for s in node.args:
+      traverse s, path & node.ident
 
-proc traverse2(s: seq[LispNode], path: Path) =
-  for node in s:
-    traverse2 node, path
-
-
-proc traverse3(s: seq[LispNode])
-
-proc traverse3(node: LispNode) =
-  case node.kind:
-  of lnkList:
-    uniqIdents.incl node.ident
-    traverse3 node.args
-
-  else: discard
-
-proc traverse3(s: seq[LispNode]) =
-  for node in s:
-    traverse3 node
 
 # ----------------------------------
 
 when isMainModule:
   for path in walkDirRec dir:
-    if path.endsWith(".eas"):
-      let ctx = parseLisp readfile path
-      traverse1 ctx, @[]
-      traverse2 ctx, @[]
-      traverse3 ctx
+    if path.endsWith(".eas") and "ease.db" in path:
+      # echo ">> ", path
+      let ctx = select parseLisp readfile path
+      traverse ctx, @["/"]
 
   print uniqPortTypes
-  print uniqElements
   print uniqIdents

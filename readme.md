@@ -62,6 +62,7 @@ obids:
 - `lib`: library (DESIGN_FILE)
 - `ent`: entity (ENTITY_FILE->ENTITY)
 - `Arch`/`arch`: architecture (ARCH_DEFINITION)
+- `diag`: diagram (SCHEMATIC | FSM_DIAGRAM)
 
 - `eprt`: entity port (ENTITY->PORT)
 - `cprt`: component port (COMPONENT->PORT)
@@ -93,10 +94,8 @@ obids:
 - `extf`: external file
 
 - `fsm`: (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
-- `diag`: diagram (SCHEMATIC | FSM_DIAGRAM)
 - `tran`: transition (TRANS_LINE | TRANS_SPLINE)
 - `decl`: (FSM_DIAGRAM->DECLARATION)
 - `lab`: ??? (ACTION | CONDITION)
 - `stat`: state (STATE)
-- `lab`: (ACTION | CONDITION)
 - `act`: action (ACTION)

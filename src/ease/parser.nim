@@ -5,7 +5,7 @@ import ../utils, ../common/defs as cdef
 
 # FIXME do not ignore other fields, eather raise error of ingonre them explicitly
 
-func select(sl: seq[LispNode]): LispNode {.inline.} =
+func select*(sl: seq[LispNode]): LispNode {.inline.} =
   ## all .eas file styles:
   ## (DATABASE_VERSION 17)
   ## (...)
@@ -415,7 +415,7 @@ func parseDiag(schematicNode: LispNode): Schematic =
     else: 
       discard
 
-func parseEnt(entityNode: LispNode, result: var Entity) {.inline.} =
+func parseEntImpl(entityNode: LispNode, result: var Entity) {.inline.} =
   ## (ENTITY
   ##   (OBID)
   ##   (PROPERTIES ...)
@@ -491,7 +491,7 @@ func parseEnt(entityFileNode: LispNode): Entity =
   for n in entityFileNode:
     case n.ident:
     of "ENTITY":
-      parseEnt(n, result)
+      parseEntImpl(n, result)
 
     of "ARCH_DEFINITION":
       result.architectures.add parseArch n
@@ -556,15 +556,33 @@ func parseProj(projectFileNode: LispNode): Project =
 
 proc parseEws*(dir: string): Project =
   doAssert dir.endsWith ".ews", fmt"the workspace directory name must end with .ews"
+  let dbDir = dir / "ease.db"
 
-  result = parseProj select parseLisp readfile dir / "project.ews"
+  result = parseProj select parseLisp readfile dbDir / "project.ews"
   for d in mitems result.designs:
-    let libdir = dir / d.obid
+    let libdir = dbDir / d.obid
     d = parseLib select parseLisp libdir
 
     for e in mitems d.entities:
       e = parseEnt select parseLisp readfile libdir / e.obid & ".eas"
 
+
+# --------------------------------------------
+
+const 
+  `workspace.eas` = """
+    (VCM_FILE
+      (PROPERTY "TL_VCM_SYSTEM" "None")
+    )
+    (END_OF_FILE)
+  """
+
+  `toolflow.xml` = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <document_root>
+      <section type="section_root" name="section_root"/>
+    </document_root>
+  """
 
 
 # --- fliping a component:
