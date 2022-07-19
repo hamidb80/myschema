@@ -90,12 +90,12 @@ obids:
 - `egen`: entity generic (GENERIC)
 
 - `file`: file content (VHDL_FILE)
-- `itxt`: included text (FSM_DIAGRAM->INCLUDED_TEXT)
+- `itxt`: included text (INCLUDED_TEXT)
 - `extf`: external file
 
 - `fsm`: (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
 - `tran`: transition (TRANS_LINE | TRANS_SPLINE)
-- `decl`: (FSM_DIAGRAM->DECLARATION)
+- `decl`: (DECLARATION)
 - `lab`: ??? (ACTION | CONDITION)
 - `stat`: state (STATE)
 - `act`: action (ACTION)

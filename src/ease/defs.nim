@@ -132,9 +132,6 @@ type
   ProcessPort* = ref object
     info*: PortInfo
 
-  NetPort* = ref object
-    info*: PortInfo
-
   ConnectByName* = ref object
 
   Connection* = ref object

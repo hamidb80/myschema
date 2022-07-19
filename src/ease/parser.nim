@@ -17,7 +17,7 @@ func select*(sl: seq[LispNode]): LispNode {.inline.} =
   sl[1]
 
 
-func extractObid(obidNode: LispNode): string {.inline.} =
+func parseOBID(obidNode: LispNode): string {.inline.} =
   obidNode.arg(0).str
 
 func extractMode(hdlIdentNode: LispNode): int =
@@ -389,7 +389,7 @@ func parseDiag(schematicNode: LispNode): Schematic =
   for n in schematicNode:
     case n.ident:
     of "OBID": 
-      result.obid = extractObid n
+      result.obid = parseOBID n
     
     of "FREE_PLACED_TEXT":
       discard
@@ -436,7 +436,7 @@ func parseEntImpl(entityNode: LispNode, result: var Entity) {.inline.} =
       result.properties = parseProperties n
 
     of "OBID":
-      result.obid = extractObid n
+      result.obid = parseOBID n
 
     of "HDL_IDENT":
       result.name = extractName n
@@ -464,7 +464,7 @@ func parseArch(archDefNode: LispNode): Architecture {.inline.} =
   for n in archDefNode:
     case n.ident:
     of "OBID":
-      result.obid = extractObid n
+      result.obid = parseOBID n
 
     of "TYPE":
       result.kind = ArchitectureMode n.arg(0).vint
@@ -514,7 +514,7 @@ func parseLib(designFileNode: LispNode): Library =
   for n in designFileNode:
     case n.ident:
     of "OBID":
-      result.obid = extractObid n
+      result.obid = parseOBID n
 
     of "NAME":
       result.name = parseName n
