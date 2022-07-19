@@ -1,4 +1,4 @@
-import ../src/sue/lexer
+import ../../src/sue/lexer
 
 iterator expressions(sf: SueFile): SueExpression =
   for expr in sf.icon:

@@ -93,6 +93,6 @@ when isMainModule:
       let ctx = select parseLisp readfile path
       goFind ctx, @["/"]
 
-  print uniqPortTypes
-  print uniqIdentsByParent
+  # print uniqPortTypes
+  # print uniqIdentsByParent
   print uniqIdentsByNode
