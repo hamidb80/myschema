@@ -1,0 +1,5 @@
+  (PROPERTIES
+    (PROPERTY "VHDL_VECTOR" "std_logic_vector")
+    (PROPERTY "VerilogExt" "v")
+    (PROPERTY "VhdlExt" "vhd")
+  )

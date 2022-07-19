@@ -94,5 +94,5 @@ when isMainModule:
       goFind ctx, @["/"]
 
   # print uniqPortTypes
-  # print uniqIdentsByParent
-  print uniqIdentsByNode
+  print uniqIdentsByParent
+  # print uniqIdentsByNode

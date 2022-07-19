@@ -16,35 +16,10 @@ func select*(sl: seq[LispNode]): LispNode {.inline.} =
   assert sl.len == 3
   sl[1]
 
+# --- basic
 
 func parseOBID(obidNode: LispNode): string {.inline.} =
   obidNode.arg(0).str
-
-func extractMode(hdlIdentNode: LispNode): int =
-  ## (HDL_IDENT
-  ##   (NAME)
-  ##   (USERNAME)
-  ##   (ATTRIBUTES 
-  ##      (MODE <NUM>)
-  ##      ...
-  ##   )
-  ## )
-  
-  try:
-    hdlIdentNode
-      .arg(2).assertIdent("ATTRIBUTES")
-      .findNode(it |< "MODE").get
-      .arg(0).vint
-
-  except UnpackDefect, AssertionDefect:
-    err "{ATTRIBUTES/MODE} not found"
-
-func extractName(hdlIdentNode: LispNode): string {.inline.} =
-  ## (HDL_IDENT
-  ##   (NAME "...")
-  ## )
-
-  hdlIdentNode.arg(0).assertIdent("NAME").str
 
 func parseGeometry(geometryNode: LispNode): Geometry = 
   ## (GEOMETRY startX startY endX endY)
@@ -61,41 +36,6 @@ func parseScale(scaleNode: LispNode): Positive =
 func parseName(nameNode: LispNode): string {.inline.} = 
   ## (NAME "...")
   nameNode.arg(0).str
-
-func parseLabel(labelNode: LispNode): Label =
-  ## (LABEL
-  ##   (POSITION)
-  ##   (SCALE)
-  ##   (COLOR_LINE)
-  ##   (SIDE)
-  ##   (ALIGNMENT)
-  ##   (FORMAT 1)
-  ##   (TEXT "Instruction Decoder")
-  ## )
-  
-  for n in labelNode:
-    case n.ident:
-    of "POSITION": discard
-    of "SCALE": discard
-    of "COLOR_LINE": discard
-    of "SIDE": discard
-    of "ALIGNMENT": discard
-    of "FORMAT": discard
-    of "TEXT": discard
-    else:
-      err "invalid field"
-
-func parseObjStamp(objStampNode: LispNode): ObjStamp = 
-  ## (OBJSTAMP
-  ##   (DESIGNER "HamidB80")
-  ##   (CREATED 939908873 "Thu Oct 14 17:17:53 1999")
-  ##   (MODIFIED 1340886716 "Thu Jun 28 17:01:56 2012")
-  ## )
-  
-  ObjStamp(
-    designer: objStampNode.arg(0).arg(0).str,
-    created: objStampNode.arg(1).arg(0).vint,
-    modified: objStampNode.arg(2).arg(0).vint)
 
 func parseProperties(propertiesNode: LispNode): Properties =
   ## (PROPERTIES
@@ -118,11 +58,6 @@ func parseColor(colorNode: LispNode): EaseColor {.inline.} =
   ## (COLOR_LINE 0..71)
   EaseColor colorNode.arg(0).vint
 
-func parseWire(wireNode: LispNode): Wire {.inline.} = 
-  ## (WIRE X1 Y1 X2 Y2)
-  template s(n): untyped =  wireNode.arg(n).vint 
-  (s 0, s 1) .. (s 2, s 3)
-
 func parseMode(modeNode: LispNode): int = 
   ## (MODE N)
   modeNode.arg(0).vint
@@ -131,6 +66,98 @@ func parseType(typeNode: LispNode): string =
   ## (TYPE "...")
   typeNode.arg(0).str
 
+func parseFormat(formatNode: LispNode): int =
+  ## (FORMAT N)
+  formatNode.arg(0).vint
+
+func parseWire(wireNode: LispNode): Wire {.inline.} = 
+  ## (WIRE X1 Y1 X2 Y2)
+  template s(n): untyped =  wireNode.arg(n).vint 
+  (s 0, s 1) .. (s 2, s 3)
+
+func parseText(textNode: LispNode): seq[string] =
+  ## (TEXT "..."*)
+  textNode.args.mapIt(it.str)
+
+
+func extractMode(hdlIdentNode: LispNode): int =
+  ## (HDL_IDENT
+  ##   (NAME)
+  ##   (USERNAME)
+  ##   (ATTRIBUTES 
+  ##      (MODE <NUM>)
+  ##      ...
+  ##   )
+  ## )
+  
+  try:
+    hdlIdentNode
+      .arg(2).assertIdent("ATTRIBUTES")
+      .findNode(it |< "MODE").get
+      .parseMode
+
+  except UnpackDefect, AssertionDefect:
+    err "{ATTRIBUTES/MODE} not found"
+
+func extractName(hdlIdentNode: LispNode): string {.inline.} =
+  ## (HDL_IDENT
+  ##   (NAME "...")
+  ## )
+
+  hdlIdentNode.arg(0).assertIdent("NAME").parseName
+
+# --- compound
+
+func parseObjStamp(objStampNode: LispNode): ObjStamp = 
+  ## (OBJSTAMP
+  ##   (DESIGNER "HamidB80")
+  ##   (CREATED 939908873 "Thu Oct 14 17:17:53 1999")
+  ##   (MODIFIED 1340886716 "Thu Jun 28 17:01:56 2012")
+  ## )
+  
+  ObjStamp(
+    designer: objStampNode.arg(0).arg(0).str,
+    created: objStampNode.arg(1).arg(0).vint,
+    modified: objStampNode.arg(2).arg(0).vint)
+
+func parseLabel(labelNode: LispNode): Label =
+  ## (LABEL
+  ##   (POSITION)
+  ##   (SCALE)
+  ##   (COLOR_LINE)
+  ##   (SIDE)
+  ##   (ALIGNMENT)
+  ##   (FORMAT 1)
+  ##   (TEXT "Instruction Decoder")
+  ## )
+  
+  for n in labelNode:
+    case n.ident:
+    of "POSITION": 
+      result.position = parsePosition n
+
+    of "SCALE": 
+      result.scale = parseScale n
+
+    of "COLOR_LINE": 
+      result.color_line = parseColor n
+
+    of "SIDE": 
+      result.side = parseSide n
+
+    of "ALIGNMENT": 
+      result.alignment = parseAligment n
+
+    of "FORMAT": 
+      result.format = parseFormat n
+
+    of "TEXT": 
+      result.text =  n.parseText.join "\n"
+
+    else:
+      err "invalid field"
+
+# --- complex
 
 func extractPortInfoAttrImpl(attributesNode: LispNode, result: var PortInfo) =
   ## (ATTRIBUTES
@@ -345,30 +372,48 @@ func parseCbn(cbnNode: LispNode): ConnectByName =
     else:
       err "invalid field"
 
+func parseEntityRef(entityNode: LispNode): tuple[libObid, entityObid: string ] =
+  (entityNode.arg(0).str, entityNode.arg(1).str)
+
 func parseComp(componentNode: LispNode): Component = 
   ## (COMPONENT
   ##   (OBID)
   ##   (HDL_IDENT)
-  ##   (GEOMETRY)
+  ##   (GEOMETRY#igen)
   ##   (SIDE)
   ##   (LABEL)
-  ##   (ENTITY "<lib_id>" "<entity_id>")
-  ##   (PORT) ...
+  ##   (ENTITY#ref "<lib_id>" "<entity_id>")
+  ##   (GENERIC)*
+  ##   (PORT)*
   ## )
   
+  result = new Component
+
   for n in componentNode:
     case n.ident:
-    of "OBID": discard
+    of "OBID": 
+      result.obid = parseOBID n
 
-    of "HDL_IDENT": discard
+    of "HDL_IDENT": 
+      result.name = n.arg(0).parseName
 
-    of "GEOMETRY": discard
+    of "GEOMETRY": 
+      result.geometry = parseGeometry n
 
-    of "SIDE": discard
+    of "SIDE": 
+      result.side = parseSide n
 
-    of "LABEL": discard
+    of "LABEL": 
+      result.label = parseLabel n
 
-    of "ENTITY": discard
+    of "ENTITY": 
+      result.instanceof = parseEntityRef n
+    
+    of "GENERIC": 
+      discard
+
+    of "PORT": #cprt
+      discard
 
     else:
       err "invalid node"
@@ -377,13 +422,13 @@ func parseDiag(schematicNode: LispNode): Schematic =
   ## (SCHEMATIC
   ##   (OBID)
   ##   (SHEETSIZE 0 0 <Width> <Height>)
-  ##   (FREE_PLACED_TEXT) ...
-  ##   (GENERIC) ...
-  ##   (GENERATE) ...
-  ##   (COMPONENT) ...
-  ##   (PROCESS) ...
-  ##   (PORT) ...
-  ##   (NET) ...
+  ##   (FREE_PLACED_TEXT)*
+  ##   (GENERIC)*
+  ##   (GENERATE)*
+  ##   (COMPONENT)*
+  ##   (PROCESS)*
+  ##   (PORT)*
+  ##   (NET)*
   ## )
   
   for n in schematicNode:

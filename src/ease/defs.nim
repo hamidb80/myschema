@@ -105,7 +105,15 @@ type
     schematic*: Schematic
     properties*: Properties
 
+  EntityRef* = tuple
+    libObid, entityObid: string
+
   Component* = ref object
+    obid*, name*: string
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+    instanceof*: EntityRef
 
   EntityGeneric* = ref object
   
@@ -136,10 +144,6 @@ type
 
   Connection* = ref object
 
-  # TruthTable = ref object
-  # ExtternalFile = ref object
-  # HdlFile = ref object
-
   Net* = ref object
   Generate* = ref object
   
@@ -153,6 +157,13 @@ type
 
   Label* = object
     position*: Point
+    side*: Side
+    scale*: int
+    colorLine*: EaseColor
+    alignment*: Alignment
+    format*: int
+    text*: string
+
 
   ObjStamp* = object
     designer*: string

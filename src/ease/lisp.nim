@@ -182,11 +182,6 @@ func `|<`*(n: LispNode, c: string): bool {.inline.} =
   n.matchCaller c
 
 iterator items*(n: LispNode): LispNode =
-  if n.kind == lnkList:
-    for ch in n.children:
-      yield ch
-
-iterator args*(n: LispNode): LispNode =
   assert n.kind == lnkList
   for i in 1 .. n.len-1:
     yield n[i]
