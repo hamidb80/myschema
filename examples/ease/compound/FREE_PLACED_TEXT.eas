@@ -1,0 +1,11 @@
+(FREE_PLACED_TEXT
+  (LABEL
+    (POSITION 7080 13305)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 4)
+    (FORMAT 0)
+    (TEXT "Connected to interconnect_mux_slave1-3")
+  )
+)

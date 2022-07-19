@@ -157,6 +157,12 @@ func parseLabel(labelNode: LispNode): Label =
     else:
       err "invalid field"
 
+func parseFreePlacedText(textNode: LispNode): FreePlacedText = 
+  ## (FREE_PLACED_TEXT
+  ##   (LABEL)
+  ## )
+  FreePlacedText(label: parseLabel textNode.arg(0))
+
 # --- complex
 
 func extractPortInfoAttrImpl(attributesNode: LispNode, result: var PortInfo) =
@@ -290,12 +296,6 @@ func parseGenB(): Generate =
   ##     (SHEETSIZE)
   ##   )
   ## )
-
-func parseFreePlacedText(textNode: LispNode): FreePlacedText = 
-  ## (FREE_PLACED_TEXT
-  ##   (LABEL)
-  ## )
-  FreePlacedText(label: parseLabel textNode.arg(0))
 
 func parseHook(busRipperNode: LispNode): BusRipper = 
   ## (BUS_RIPPER

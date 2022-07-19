@@ -1,0 +1,9 @@
+(LABEL
+  (POSITION 2304 1024)
+  (SCALE 96)
+  (COLOR_LINE 0)
+  (SIDE 1)
+  (ALIGNMENT 5)
+  (FORMAT 35)
+  (TEXT "fullSpeedRate")
+)

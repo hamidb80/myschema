@@ -54,6 +54,9 @@ suite "basic":
   test "FORMAT":
     check parseFormat(lfName "basic/FORMAT.eas") == 129
 
+  test "ENTITY_ref":
+    check parseEntityRef(lfName "basic/ENTITY_ref.eas") == ("libdsa34d3o", "ent9890eda")
+
   test "WIRE":
     check parseWire(lfName "basic/WIRE.eas") == (200, 50)..(250, 50)
 
@@ -63,10 +66,25 @@ suite "basic":
 
 suite "compound":
   test "LABEL":
-    check parseLabel(lfName "compound/LABEL.eas")
+    let l = parseLabel(lfName "compound/LABEL.eas")
+
+    check l.position == (2304, 1024)
+    check l.scale == 96
+    check l.colorLine.int == 0
+    check l.side.int == 1
+    check l.format == 35
+    check l.alignment.int == 5
+    check l.text == "fullSpeedRate"
+
+  test "FREE_PLACED_TEXT":
+    let fpt = parseFreePlacedText(lfName "compound/FREE_PLACED_TEXT.eas")
+    check fpt.label.text == "Connected to interconnect_mux_slave1-3"
 
   test "OBJSTAMP":
-    check parseObjStamp(lfName "compound/OBJSTAMP.eas")
+    let to = parseObjStamp(lfName "compound/OBJSTAMP.eas")
+    check to.designer == "EASE example"
+    check to.created == 1086260762
+    check to.modified == 1340886594
 
 
 suite "complex":
