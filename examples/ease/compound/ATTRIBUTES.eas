@@ -1,0 +1,8 @@
+(ATTRIBUTES
+  (MODE 1)
+  (TYPE "yo")
+  (CONSTRAINT
+    (DIRECTION 2)
+    (RANGE "9" "13")
+  )
+)

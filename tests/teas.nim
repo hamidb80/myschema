@@ -1,21 +1,31 @@
-import std/[unittest, os, tables]
-import ease/lisp
+import std/[unittest, os, tables, sequtils, options]
+import ease/[lisp, defs]
 import ease/parser {.all.}
 
 # --- helpers
 
 template first(smth): untyped = smth[0]
+
+template pl(subPath): untyped =
+  parseLisp readFile "./examples/ease" / subPath
+
 template lfName(subPath): untyped =
-  first parseLisp readFile "./examples/ease" / subPath
+  first pl subpath
 
 # --- tests
 
 suite "basic":
   test "OBID":
-    check parseOBID(lfName "basic/OBID.eas") == "filedadas7d987f89"
+    check parseOBID(lfName "basic/OBID.eas").string == "filedadas7d987f89"
 
   test "GEOMETRY":
     check parseGeometry(lfName "basic/GEOMETRY.eas") == (0, -1, -2, 3)
+
+  test "SHEETSIZE":
+    check parseSheetSize(lfName "basic/SHEETSIZE.eas") == (0, 0, 2000, 1000)
+
+  test "INDEX":
+    check parseIndex(lfName "basic/INDEX.eas") == "5"
 
   test "POSITION":
     check parsePosition(lfName "basic/POSITION.eas") == (670, 403)
@@ -55,13 +65,19 @@ suite "basic":
     check parseFormat(lfName "basic/FORMAT.eas") == 129
 
   test "ENTITY_ref":
-    check parseEntityRef(lfName "basic/ENTITY_ref.eas") == ("libdsa34d3o", "ent9890eda")
+    let ef = parseEntityRef(lfName "basic/ENTITY_ref.eas")
+    check ef.obid.string == "ent9890eda"
+    check ef.libObid.string == "libdsa34d3o"
 
   test "WIRE":
     check parseWire(lfName "basic/WIRE.eas") == (200, 50)..(250, 50)
 
+  test "DIRECTION":
+    check parseDirection(lfName "basic/DIRECTION.eas") == ndInc
+
   test "TEXT":
     check parseText(lfName "basic/TEXT.eas") == @["line.1", "line.2", "line.3"]
+
 
 
 suite "compound":
@@ -86,20 +102,104 @@ suite "compound":
     check to.created == 1086260762
     check to.modified == 1340886594
 
+  test "CONSTRAINT":
+    let co = pl("compound/CONSTRAINT.eas").map(parseConstraint)
+
+    # RANGE + DIRECTION
+    check co[0].`range`.get.direction == ndDec
+    check co[0].`range`.get.indexes == "HIGH" .. "LOW"
+    # INDEX
+    check co[1].index.get == "2"
+
+  test "ATTRIBUTES":
+    let ao = parseAttributes(lfName "compound/ATTRIBUTES.eas")
+    check ao.mode == some 1
+    check ao.`type` == some "yo"
+    check ao.constraint.get.`range`.get.indexes.a == "9"
+
+  template checkPort(po, id, nm, geo_x1, sde, lbl): untyped =
+    check po.obid.string == id
+    check po.ident.name == nm
+    check po.geometry.x1 == geo_x1
+    check po.side.int == sde
+    check po.label.text == lbl
+
+  template checkPortRef(po, refId, connId): untyped =
+    check po.refObid.string == refId
+    check po.connection.obid.string == connId
+
+  test "PORT_eprt":
+    let po = parsePort(lfName "compound/PORT/eprt.eas", eprt)
+    checkPort po, "eprta0a0a056f0f80505c4914b45e9a7a454", "new_cy_o", 2328, 1, "new_cy_o((DWIDTH-1)/4:0)"
+    check po.ident.attributes.`type`.get == "STD_LOGIC_VECTOR"
+
+  test "PORT_aprt":
+    let po = parsePort(lfName "compound/PORT/aprt.eas", aprt)
+    checkPort po, "aprtf70000101260fb040e4033fc87810000", "HRESP", 664, 1, "HRESP[1:0]"
+    checkPortRef po, "eprtf70000101260fb040e4033fc86810000", "ncona0a0a0bc22ebab6449507394b7600000"
+
+  test "PORT_cprt":
+    let po = parsePort(lfName "compound/PORT/cprt.eas", cprt)
+    checkPort po, "cprtf7000010d4884404803033fcce630000", "HTRANS", 3416, 3, "HTRANS[1:0]"
+    check po.properties["SensitivityList"] == "Yes"
+    check po.refObid.string == "eprtf7000010b203330479045600affd1607"
+    check po.connection.obid.string == "ncona0a0a0bc32ebab64495073947d800000"
+
+  test "PORT_pprt":
+    let po = parsePort(lfName "compound/PORT/pprt.eas", pprt)
+    checkPort po, "pprtf7000010d90d4304848033fc75f70000", "resetn", 7768, 3, ""
+    check po.connection.obid.string == "ncona0a0a0bc32ebab64495073949b900000"
+
+  test "PORT_gprt":
+    let po = parsePort(lfName "compound/PORT/gprt.eas", gprt)
+    checkPort po, "gprta0a0a056f0f80505c4914b455aa7a454", "s_mltplctr", 2008, 1, "s_mltplctr(DWIDTH-1:0)"
+    checkPortRef po, "gprta0a0a056f0f80505c4914b454aa7a454", "ncona0a0a056f0f80505c4914b45f6b7a454"
+
+
 
 suite "complex":
+  test "GENERIC":
+    discard
+
+  # test "GENERATE":
+  #   discard
+
+  # test "PROCESS":
+  #   discard
+
   test "COMPONENT":
     let c = parseComp(lfname "complex/COMPONENT.eas")
 
-    check c.obid == "comp0c8a100706e3b3a4853033fc44480000"
-    check c.name == "u_slavecontroller"
+    check c.obid.string == "comp0c8a100706e3b3a4853033fc44480000"
+    # FIXME check c.name == "u_slavecontroller"
     check c.geometry == (2560, 4800, 4672, 7104)
     check c.side.int == 0
-    check c.instanceof == ("lib0c8a", "ent0c8")
+    check c.instanceof.libObid.string == "lib0c8a"
+    check c.instanceof.obid.string == "ent0c8"
     check c.label.text == "u_slavecontroller:slavecontroller"
 
+  test "NET":
+    discard
+
+  # test "BUS_RIPPER":
+  #   discard
+
+  # test "CBN":
+  #   discard
+
+
+suite "file":
+  test "DESIGN_FILE":
+    discard
+
+  test "PROJECT_FILE":
+    discard
+
+  test "ENTITY_FILE":
+    discard
 
 # ---
+
 
 # import print
 # print parseLisp readFile "./examples/eg1.eas"

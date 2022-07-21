@@ -1,0 +1,5116 @@
+(ENTITY_FILE
+  (ENTITY
+    (OBID "enta000000a9a859424478033fcaea30000")
+    (PROPERTIES
+      (PROPERTY "HDL_FILENAME" "C:/Tmp/system09/System09/rtl/vhdl/ram2k.vhd")
+      (PROPERTY "PORTORDER" "4")
+      (PROPERTY "STAMP_PLATFORM" "PC")
+      (PROPERTY "STAMP_REVISION" "Release Candidate 1")
+      (PROPERTY "STAMP_TIME" "Thu Jun 28 14:33:26 2012")
+      (PROPERTY "STAMP_TOOL" "Ease")
+      (PROPERTY "STAMP_VERSION" "8.0")
+    )
+    (HDL_IDENT
+      (NAME "ram_2k")
+      (USERNAME 1)
+    )
+    (GEOMETRY 0 0 1088 896)
+    (SIDE 0)
+    (HDL 1)
+    (EXTERNAL 0)
+    (OBJSTAMP
+      (DESIGNER "EASE example")
+      (CREATED 1112103081 "Tue Mar 29 15:31:21 2005")
+      (MODIFIED 1340886783 "Thu Jun 28 14:33:03 2012")
+    )
+    (PACKAGE_USE
+      (PACKAGE_USE
+        (PACKAGE "packa000000a9a859424478033fc1ea30000")
+        (LIBRARY "ieee")
+        (NAME "std_logic_arith")
+        (SUFFIX "ALL")
+      )
+      (PACKAGE_USE
+        (PACKAGE "packa0a0a08cd37cb524c95033fc4c5a0000")
+        (LIBRARY "unisim")
+        (NAME "VCOMPONENTS")
+        (SUFFIX "ALL")
+      )
+    )
+    (PORT
+      (OBID "eprta000000a9a859424478033fcbea30000")
+      (PROPERTIES
+        (PROPERTY "SensitivityList" "Yes")
+      )
+      (HDL_IDENT
+        (NAME "clk")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "std_logic")
+          (MODE 1)
+        )
+      )
+      (GEOMETRY -40 88 40 168)
+      (SIDE 3)
+      (LABEL
+        (POSITION 64 128)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "clk")
+      )
+    )
+    (PORT
+      (OBID "eprta000000a9a859424478033fccea30000")
+      (PROPERTIES
+        (PROPERTY "SensitivityList" "Yes")
+      )
+      (HDL_IDENT
+        (NAME "rst")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "std_logic")
+          (MODE 1)
+        )
+      )
+      (GEOMETRY -40 216 40 296)
+      (SIDE 3)
+      (LABEL
+        (POSITION 64 256)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "rst")
+      )
+    )
+    (PORT
+      (OBID "eprta000000a9a859424478033fcdea30000")
+      (PROPERTIES
+        (PROPERTY "SensitivityList" "Yes")
+      )
+      (HDL_IDENT
+        (NAME "cs")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "std_logic")
+          (MODE 1)
+        )
+      )
+      (GEOMETRY -40 600 40 680)
+      (SIDE 3)
+      (LABEL
+        (POSITION 64 640)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "cs")
+      )
+    )
+    (PORT
+      (OBID "eprta000000a9a859424478033fceea30000")
+      (PROPERTIES
+        (PROPERTY "SensitivityList" "Yes")
+      )
+      (HDL_IDENT
+        (NAME "rw")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "std_logic")
+          (MODE 1)
+        )
+      )
+      (GEOMETRY -40 472 40 552)
+      (SIDE 3)
+      (LABEL
+        (POSITION 64 512)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "rw")
+      )
+    )
+    (PORT
+      (OBID "eprta000000a9a859424478033fcfea30000")
+      (PROPERTIES
+        (PROPERTY "SensitivityList" "Yes")
+      )
+      (HDL_IDENT
+        (NAME "addr")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "std_logic_vector")
+          (MODE 1)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "10" "0")
+          )
+        )
+      )
+      (GEOMETRY -40 344 40 424)
+      (SIDE 3)
+      (LABEL
+        (POSITION 64 384)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "addr(10:0)")
+      )
+    )
+    (PORT
+      (OBID "eprta000000a9a859424478033fc0fa30000")
+      (PROPERTIES
+        (PROPERTY "SensitivityList" "Yes")
+      )
+      (HDL_IDENT
+        (NAME "wdata")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "std_logic_vector")
+          (MODE 1)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "7" "0")
+          )
+        )
+      )
+      (GEOMETRY -40 728 40 808)
+      (SIDE 3)
+      (LABEL
+        (POSITION 64 768)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "wdata(7:0)")
+      )
+    )
+    (PORT
+      (OBID "eprta000000a9a859424478033fc1fa30000")
+      (PROPERTIES
+        (PROPERTY "SensitivityList" "Yes")
+      )
+      (HDL_IDENT
+        (NAME "rdata")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "std_logic_vector")
+          (MODE 2)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "7" "0")
+          )
+        )
+      )
+      (GEOMETRY 1048 88 1128 168)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1024 128)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 5)
+        (FORMAT 35)
+        (TEXT "rdata(7:0)")
+      )
+    )
+    (ARCH_DECLARATION 2 "archa000000a9a859424478033fc2fa30000" "rtl")
+    (ARCH_DECLARATION 1 "archa000000a4d386524405033fc9f670000" "interface")
+  )
+  (ARCH_DEFINITION
+    (OBID "archa000000a9a859424478033fc2fa30000")
+    (HDL_IDENT
+      (NAME "rtl")
+      (USERNAME 1)
+    )
+    (TYPE 2)
+    (HDL_FILE
+      (VHDL_FILE
+        (OBID "filea0a0a0bc97b56b848e207394f6030000")
+        (NAME "rtl_1.vhd")
+        (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+               "-- "
+               "-- Architecture 'rtl' of entity 'ram_2k'."
+               "-- "
+               "--------------------------------------------------------------------------------"
+               "-- "
+               "-- Copy of the interface declaration:"
+               "-- "
+               "--   port("
+               "--     clk   : in     std_logic;"
+               "--     rst   : in     std_logic;"
+               "--     cs    : in     std_logic;"
+               "--     rw    : in     std_logic;"
+               "--     addr  : in     std_logic_vector(10 downto 0);"
+               "--     wdata : in     std_logic_vector(7 downto 0);"
+               "--     rdata : out    std_logic_vector(7 downto 0));"
+               "-- "
+               "-- EASE/HDL end ----------------------------------------------------------------"
+               "architecture rtl of ram_2k is"
+               ""
+               "   signal we       : std_logic;"
+               "   signal reset    : std_logic;"
+               "   signal rdata0   : std_logic_vector (7 downto 0);"
+               "   signal rdata1   : std_logic_vector (7 downto 0);"
+               "   signal rdata2   : std_logic_vector (7 downto 0);"
+               "   signal rdata3   : std_logic_vector (7 downto 0);"
+               "   signal ena0     : std_logic;"
+               "   signal ena1     : std_logic;"
+               "   signal ena2     : std_logic;"
+               "   signal ena3     : std_logic;"
+               ""
+               "   component RAMB4_S8"
+               "    generic ("
+               "      INIT_00, INIT_01, INIT_02, INIT_03,"
+               "      INIT_04, INIT_05, INIT_06, INIT_07,"
+               "      INIT_08, INIT_09, INIT_0A, INIT_0B,"
+               "      INIT_0C, INIT_0D, INIT_0E, INIT_0F : bit_vector (255 downto 0) :="
+               "      x\"0000000000000000000000000000000000000000000000000000000000000000\""
+               "    );"
+               ""
+               "    port ("
+               "      clk : in std_logic;"
+               "      we : in std_logic;"
+               "      en : in std_logic;"
+               "      rst : in std_logic;"
+               "      addr :  in std_logic_vector(8 downto 0);"
+               "      di   :  in std_logic_vector(7 downto 0);"
+               "      do   : out std_logic_vector(7 downto 0)"
+               "    );"
+               "  end component;"
+               ""
+               "begin"
+               ""
+               "  MY_RAM0 : RAMB4_S8"
+               "    generic map ( "
+               "INIT_00 => x\"000000FF0000001010101010101010003E1C7F7F3E1C08000000FF0000000000\","
+               "INIT_01 => x\"202020202020200000FF0000000000000000000000FF000000000000FF000000\","
+               "INIT_02 => x\"0000E0100808080000000304080808080810E000000000040404040404040420\","
+               "INIT_03 => x\"808080808080FF80402010080402010102040810204080FF8080808080808000\","
+               "INIT_04 => x\"081C3E7F7F7F3600FF000000000000003C7E7E7E7E3C0001010101010101FF80\","
+               "INIT_05 => x\"3C424242423C0081422418182442810808040300000000404040404040404000\","
+               "INIT_06 => x\"0808FF0808080800081C3E7F3E1C0802020202020202020008082A772A1C0800\","
+               "INIT_07 => x\"03070F1F3F7FFF001414543E010000080808080808080850A050A050A050A008\","
+               "INIT_08 => x\"24247E247E242400000000002424240008000008080808000000000000000000\","
+               "INIT_09 => x\"00000000100804003A444A30484830004626100864620000083C0A1C281E0800\","
+               "INIT_0A => x\"0008083E08080000082A1C3E1C2A080020100808081020000408101010080400\","
+               "INIT_0B => x\"402010080402000018180000000000000000007E000000100808000000000000\","
+               "INIT_0C => x\"3C42021C02423C007E40300C02423C003E080808281808003C42625A46423C00\","
+               "INIT_0D => x\"1010100804427E003C42427C40201C003844020478407E0004047E24140C0400\","
+               "INIT_0E => x\"080800000800000000080000080000003804023E42423C003C42423C42423C00\","
+               "INIT_0F => x\"1000100C02423C0070180C060C18700000007E007E0000000E18306030180E10\""
+               "    )"
+               ""
+               "    port map ( clk => clk,"
+               "	            en  => ena0,"
+               "				   we  => we,"
+               "				   rst => reset,"
+               "				   addr(8 downto 0) => addr(8 downto 0),"
+               "               di(7 downto 0)   => wdata(7 downto 0),"
+               "				   do(7 downto 0)   => rdata0(7 downto 0)"
+               "	);"
+               ""
+               "  MY_RAM1 : RAMB4_S8"
+               "    generic map ( "
+               ""
+               "INIT_00 => x\"001C22404040221C007C22223C22227C004242427E422418001E204C564A221C\","
+               "INIT_01 => x\"001C22424E40221C004040407840407E007E40407840407E0078242222222478\","
+               "INIT_02 => x\"0042444870484442003844040404040E001C08080808081C004242427E424242\","
+               "INIT_03 => x\"0018244242422418004242464A526242004242425A5A6642007E404040404040\","
+               "INIT_04 => x\"003C42023C40423C004244487C42427C001A244A42422418004040407C42427C\","
+               "INIT_05 => x\"0042665A5A4242420018182424424242003C424242424242000808080808083E\","
+               "INIT_06 => x\"003C20202020203C007E40201804027E000808081C2222220042422418244242\","
+               "INIT_07 => x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\","
+               "INIT_08 => x\"003C4240423C0000005C6242625C4040003A443C04380000001E204C564A221C\","
+               "INIT_09 => x\"3C023A46463A0000001010107C10120C003C407E423C0000003A4642463A0202\","
+               "INIT_0A => x\"004468504844404038440404040C0004001C08080818000800424242625C4040\","
+               "INIT_0B => x\"003C4242423C000000424242625C00000049494949760000001C080808080818\","
+               "INIT_0C => x\"007C023C403E000000404040625C000002023A46463A000040405C62625C0000\","
+               "INIT_0D => x\"00364949494100000018244242420000003A464242420000000C1210107C1010\","
+               "INIT_0E => x\"003C20202020203C007E2018047E00003C023A46424200000042241824420000\","
+               "INIT_0F => x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\""
+               "    )"
+               ""
+               "    port map ( clk => clk,"
+               "	            en  => ena1,"
+               "				   we  => we,"
+               "				   rst => reset,"
+               "				   addr(8 downto 0) => addr(8 downto 0),"
+               "               di(7 downto 0)   => wdata(7 downto 0),"
+               "				   do(7 downto 0)   => rdata1(7 downto 0)"
+               "	);"
+               ""
+               "  MY_RAM2 : RAMB4_S8"
+               "    generic map ( "
+               "INIT_00 => x\"000000FF0000001010101010101010003E1C7F7F3E1C08000000FF0000000000\","
+               "INIT_01 => x\"202020202020200000FF0000000000000000000000FF000000000000FF000000\","
+               "INIT_02 => x\"0000E0100808080000000304080808080810E000000000040404040404040420\","
+               "INIT_03 => x\"808080808080FF80402010080402010102040810204080FF8080808080808000\","
+               "INIT_04 => x\"081C3E7F7F7F3600FF000000000000003C7E7E7E7E3C0001010101010101FF80\","
+               "INIT_05 => x\"3C424242423C0081422418182442810808040300000000404040404040404000\","
+               "INIT_06 => x\"0808FF0808080800081C3E7F3E1C0802020202020202020008082A772A1C0800\","
+               "INIT_07 => x\"03070F1F3F7FFF001414543E010000080808080808080850A050A050A050A008\","
+               "INIT_08 => x\"24247E247E242400000000002424240008000008080808000000000000000000\","
+               "INIT_09 => x\"00000000100804003A444A30484830004626100864620000083C0A1C281E0800\","
+               "INIT_0A => x\"0008083E08080000082A1C3E1C2A080020100808081020000408101010080400\","
+               "INIT_0B => x\"402010080402000018180000000000000000007E000000100808000000000000\","
+               "INIT_0C => x\"3C42021C02423C007E40300C02423C003E080808281808003C42625A46423C00\","
+               "INIT_0D => x\"1010100804427E003C42427C40201C003844020478407E0004047E24140C0400\","
+               "INIT_0E => x\"080800000800000000080000080000003804023E42423C003C42423C42423C00\","
+               "INIT_0F => x\"1000100C02423C0070180C060C18700000007E007E0000000E18306030180E10\""
+               "    )"
+               ""
+               "    port map ( clk => clk,"
+               "	            en  => ena2,"
+               "				   we  => we,"
+               "				   rst => reset,"
+               "				   addr(8 downto 0) => addr(8 downto 0),"
+               "               di(7 downto 0)   => wdata(7 downto 0),"
+               "				   do(7 downto 0)   => rdata2(7 downto 0)"
+               "	);"
+               ""
+               "  MY_RAM3 : RAMB4_S8"
+               "    generic map ( "
+               ""
+               "INIT_00 => x\"001C22404040221C007C22223C22227C004242427E422418001E204C564A221C\","
+               "INIT_01 => x\"001C22424E40221C004040407840407E007E40407840407E0078242222222478\","
+               "INIT_02 => x\"0042444870484442003844040404040E001C08080808081C004242427E424242\","
+               "INIT_03 => x\"0018244242422418004242464A526242004242425A5A6642007E404040404040\","
+               "INIT_04 => x\"003C42023C40423C004244487C42427C001A244A42422418004040407C42427C\","
+               "INIT_05 => x\"0042665A5A4242420018182424424242003C424242424242000808080808083E\","
+               "INIT_06 => x\"003C20202020203C007E40201804027E000808081C2222220042422418244242\","
+               "INIT_07 => x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\","
+               "INIT_08 => x\"003C4240423C0000005C6242625C4040003A443C04380000001E204C564A221C\","
+               "INIT_09 => x\"3C023A46463A0000001010107C10120C003C407E423C0000003A4642463A0202\","
+               "INIT_0A => x\"004468504844404038440404040C0004001C08080818000800424242625C4040\","
+               "INIT_0B => x\"003C4242423C000000424242625C00000049494949760000001C080808080818\","
+               "INIT_0C => x\"007C023C403E000000404040625C000002023A46463A000040405C62625C0000\","
+               "INIT_0D => x\"00364949494100000018244242420000003A464242420000000C1210107C1010\","
+               "INIT_0E => x\"003C20202020203C007E2018047E00003C023A46424200000042241824420000\","
+               "INIT_0F => x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\""
+               "    )"
+               ""
+               "    port map ( clk => clk,"
+               "	            en  => ena3,"
+               "				   we  => we,"
+               "				   rst => reset,"
+               "				   addr(8 downto 0) => addr(8 downto 0),"
+               "               di(7 downto 0)   => wdata(7 downto 0),"
+               "				   do(7 downto 0)   => rdata3(7 downto 0)"
+               "	);"
+               ""
+               "my_ram_2k : process ( rst, cs, rw, rdata0, rdata1, rdata2, rdata3 )"
+               "begin"
+               "	 case addr(10 downto 9) is"
+               "	 when \"00\" =>"
+               "      ena0 <= cs;"
+               "	   ena1 <= '0';"
+               "      ena2 <= '0';"
+               "	   ena3 <= '0';"
+               "		rdata <= rdata0;"
+               "	 when \"01\" =>"
+               "      ena0 <= '0';"
+               "	   ena1 <= cs;"
+               "      ena2 <= '0';"
+               "	   ena3 <= '0';"
+               "		rdata <= rdata1;"
+               "	 when \"10\" =>"
+               "      ena0 <= '0';"
+               "	   ena1 <= '0';"
+               "      ena2 <= cs;"
+               "	   ena3 <= '0';"
+               "		rdata <= rdata2;"
+               "	 when \"11\" =>"
+               "      ena0 <= '0';"
+               "	   ena1 <= '0';"
+               "      ena2 <= '0';"
+               "	   ena3 <= cs;"
+               "		rdata <= rdata3;"
+               "	 when others =>"
+               "      null;"
+               "	 end case;"
+               ""
+               "	 we <= cs and (not rw);"
+               "    reset <= rst;"
+               ""
+               "end process;"
+               ""
+               "end architecture rtl ; -- of ram_2k"
+               "")
+      )
+    )
+  )
+  (ARCH_DEFINITION
+    (OBID "archa000000a4d386524405033fc9f670000")
+    (PROPERTIES
+      (PROPERTY "DEFAULT_ARCH" "true")
+    )
+    (HDL_IDENT
+      (NAME "interface")
+      (USERNAME 1)
+    )
+    (TYPE 1)
+    (SCHEMATIC
+      (OBID "diaga000000a3d386524405033fc8f670000")
+      (SHEETSIZE 0 0 6400 9600)
+      (PORT
+        (OBID "aprta000000a4d386524405033fcaf670000")
+        (PROPERTIES
+          (PROPERTY "SensitivityList" "Yes")
+        )
+        (HDL_IDENT
+          (NAME "clk")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic")
+            (MODE 1)
+          )
+        )
+        (GEOMETRY 664 2584 744 2664)
+        (SIDE 1)
+        (LABEL
+          (POSITION 640 2624)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "clk")
+        )
+        (PORT "eprta000000a9a859424478033fcbea30000")
+        (CONNECTION
+          (OBID "ncona0a0a0bc756cab644950739440020000")
+          (GEOMETRY 768 2624 768 2624)
+          (SIDE 0)
+          (LABEL
+            (POSITION 768 2592)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "aprta000000a4d386524405033fcbf670000")
+        (PROPERTIES
+          (PROPERTY "SensitivityList" "Yes")
+        )
+        (HDL_IDENT
+          (NAME "rst")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic")
+            (MODE 1)
+          )
+        )
+        (GEOMETRY 664 1560 744 1640)
+        (SIDE 1)
+        (LABEL
+          (POSITION 640 1600)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "rst")
+        )
+        (PORT "eprta000000a9a859424478033fccea30000")
+        (CONNECTION
+          (OBID "ncona0a0a0bc756cab644950739450020000")
+          (GEOMETRY 768 1600 768 1600)
+          (SIDE 0)
+          (LABEL
+            (POSITION 768 1568)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "aprta000000a4d386524405033fccf670000")
+        (PROPERTIES
+          (PROPERTY "SensitivityList" "Yes")
+        )
+        (HDL_IDENT
+          (NAME "cs")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic")
+            (MODE 1)
+          )
+        )
+        (GEOMETRY 664 1688 744 1768)
+        (SIDE 1)
+        (LABEL
+          (POSITION 640 1728)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "cs")
+        )
+        (PORT "eprta000000a9a859424478033fcdea30000")
+        (CONNECTION
+          (OBID "ncona0a0a0bc756cab644950739460020000")
+          (GEOMETRY 768 1728 768 1728)
+          (SIDE 0)
+          (LABEL
+            (POSITION 768 1696)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "aprta000000a4d386524405033fcdf670000")
+        (PROPERTIES
+          (PROPERTY "SensitivityList" "Yes")
+        )
+        (HDL_IDENT
+          (NAME "rw")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic")
+            (MODE 1)
+          )
+        )
+        (GEOMETRY 664 1816 744 1896)
+        (SIDE 1)
+        (LABEL
+          (POSITION 640 1856)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "rw")
+        )
+        (PORT "eprta000000a9a859424478033fceea30000")
+        (CONNECTION
+          (OBID "ncona0a0a0bc756cab644950739470020000")
+          (GEOMETRY 768 1856 768 1856)
+          (SIDE 0)
+          (LABEL
+            (POSITION 768 1824)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "aprta000000a4d386524405033fcef670000")
+        (PROPERTIES
+          (PROPERTY "SensitivityList" "Yes")
+        )
+        (HDL_IDENT
+          (NAME "addr")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (MODE 1)
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "10" "0")
+            )
+          )
+        )
+        (GEOMETRY 664 2392 744 2472)
+        (SIDE 1)
+        (LABEL
+          (POSITION 640 2432)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "addr(10:0)")
+        )
+        (PORT "eprta000000a9a859424478033fcfea30000")
+        (CONNECTION
+          (OBID "ncona0a0a0bc756cab644950739480020000")
+          (GEOMETRY 768 2432 768 2432)
+          (SIDE 0)
+          (LABEL
+            (POSITION 768 2400)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "aprta000000a4d386524405033fcff670000")
+        (PROPERTIES
+          (PROPERTY "SensitivityList" "Yes")
+        )
+        (HDL_IDENT
+          (NAME "wdata")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (MODE 1)
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (GEOMETRY 664 2712 744 2792)
+        (SIDE 1)
+        (LABEL
+          (POSITION 640 2752)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "wdata(7:0)")
+        )
+        (PORT "eprta000000a9a859424478033fc0fa30000")
+        (CONNECTION
+          (OBID "ncona0a0a0bc756cab644950739490020000")
+          (GEOMETRY 768 2752 768 2752)
+          (SIDE 0)
+          (LABEL
+            (POSITION 768 2720)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "aprta000000a4d386524405033fc00770000")
+        (PROPERTIES
+          (PROPERTY "SensitivityList" "Yes")
+        )
+        (HDL_IDENT
+          (NAME "rdata")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (MODE 2)
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (GEOMETRY 2712 1048 2792 1128)
+        (SIDE 3)
+        (LABEL
+          (POSITION 2816 1088)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 3)
+          (FORMAT 35)
+          (TEXT "rdata(7:0)")
+        )
+        (PORT "eprta000000a9a859424478033fc1fa30000")
+        (CONNECTION
+          (OBID "ncona0a0a0bc756cab6449507394a0020000")
+          (GEOMETRY 2688 1088 2688 1088)
+          (SIDE 0)
+          (LABEL
+            (POSITION 2688 1056)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 8)
+            (FORMAT 128)
+          )
+        )
+      )
+      (COMPONENT
+        (OBID "compa0a0a08c58bcb524c95033fcffcd0000")
+        (HDL_IDENT
+          (NAME "MY_RAM0")
+          (USERNAME 1)
+        )
+        (GEOMETRY 2880 1472 5056 3264)
+        (SIDE 0)
+        (LABEL
+          (POSITION 2896 1456)
+          (SCALE 128)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 6)
+          (FORMAT 13)
+          (TEXT "MY_RAM0:RAMB4_S8:rtl[X]")
+        )
+        (ENTITY "liba0a0a08cd37cb524c95033fc0c5a0000" "enta0a0a08c947cb524c95033fc667c0000")
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc00dd0000")
+          (HDL_IDENT
+            (NAME "INIT_00")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 1560 3048 1640)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 1600)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_00")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc767c0000")
+          (ACT_VALUE "x\"000000FF0000001010101010101010003E1C7F7F3E1C08000000FF0000000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc10dd0000")
+          (HDL_IDENT
+            (NAME "INIT_01")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 1560 3688 1640)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 1600)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_01")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc867c0000")
+          (ACT_VALUE "x\"202020202020200000FF0000000000000000000000FF000000000000FF000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc20dd0000")
+          (HDL_IDENT
+            (NAME "INIT_02")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 1560 4328 1640)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 1600)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_02")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc967c0000")
+          (ACT_VALUE "x\"0000E0100808080000000304080808080810E000000000040404040404040420\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc30dd0000")
+          (HDL_IDENT
+            (NAME "INIT_03")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 1688 3048 1768)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 1728)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_03")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fca67c0000")
+          (ACT_VALUE "x\"808080808080FF80402010080402010102040810204080FF8080808080808000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc40dd0000")
+          (HDL_IDENT
+            (NAME "INIT_04")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 1688 3688 1768)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 1728)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_04")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcb67c0000")
+          (ACT_VALUE "x\"081C3E7F7F7F3600FF000000000000003C7E7E7E7E3C0001010101010101FF80\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc50dd0000")
+          (HDL_IDENT
+            (NAME "INIT_05")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 1688 4328 1768)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 1728)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_05")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcc67c0000")
+          (ACT_VALUE "x\"3C424242423C0081422418182442810808040300000000404040404040404000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc60dd0000")
+          (HDL_IDENT
+            (NAME "INIT_06")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 1816 3048 1896)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 1856)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_06")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcd67c0000")
+          (ACT_VALUE "x\"0808FF0808080800081C3E7F3E1C0802020202020202020008082A772A1C0800\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc70dd0000")
+          (HDL_IDENT
+            (NAME "INIT_07")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 1816 3688 1896)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 1856)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_07")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fce67c0000")
+          (ACT_VALUE "x\"03070F1F3F7FFF001414543E010000080808080808080850A050A050A050A008\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc80dd0000")
+          (HDL_IDENT
+            (NAME "INIT_08")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 1816 4328 1896)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 1856)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_08")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcf67c0000")
+          (ACT_VALUE "x\"24247E247E242400000000002424240008000008080808000000000000000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fc90dd0000")
+          (HDL_IDENT
+            (NAME "INIT_09")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 1944 3048 2024)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 1984)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_09")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc077c0000")
+          (ACT_VALUE "x\"00000000100804003A444A30484830004626100864620000083C0A1C281E0800\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fca0dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0A")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 1944 3688 2024)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 1984)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0A")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc177c0000")
+          (ACT_VALUE "x\"0008083E08080000082A1C3E1C2A080020100808081020000408101010080400\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fcb0dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0B")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 1944 4328 2024)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 1984)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0B")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc277c0000")
+          (ACT_VALUE "x\"402010080402000018180000000000000000007E000000100808000000000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fcc0dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0C")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 2072 3048 2152)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 2112)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0C")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc377c0000")
+          (ACT_VALUE "x\"3C42021C02423C007E40300C02423C003E080808281808003C42625A46423C00\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fcd0dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0D")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 2072 3688 2152)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 2112)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0D")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc477c0000")
+          (ACT_VALUE "x\"1010100804427E003C42427C40201C003844020478407E0004047E24140C0400\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fce0dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0E")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 2072 4328 2152)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 2112)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0E")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc577c0000")
+          (ACT_VALUE "x\"080800000800000000080000080000003804023E42423C003C42423C42423C00\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c58bcb524c95033fcf0dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0F")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 2200 3048 2280)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 2240)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0F")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc677c0000")
+          (ACT_VALUE "x\"1000100C02423C0070180C060C18700000007E007E0000000E18306030180E10\"")
+        )
+        (PORT
+          (OBID "cprta0a0a08c58bcb524c95033fc01dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DO")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 2)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 5016 2456 5096 2536)
+          (SIDE 1)
+          (LABEL
+            (POSITION 4992 2496)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 35)
+            (TEXT "DO(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc777c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394b0020000")
+            (GEOMETRY 5120 2496 5120 2496)
+            (SIDE 0)
+            (LABEL
+              (POSITION 5120 2464)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c58bcb524c95033fc11dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ADDR")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "8" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 2456 2920 2536)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 2496)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "ADDR(8:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc877c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394c0020000")
+            (GEOMETRY 2816 2496 2816 2496)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 2464)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c58bcb524c95033fc21dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "CLK")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 2584 2920 2664)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 2624)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "CLK")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc977c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394d0020000")
+            (GEOMETRY 2816 2624 2816 2624)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 2592)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c58bcb524c95033fc31dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DI")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 2712 2920 2792)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 2752)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "DI(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fca77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394e0020000")
+            (GEOMETRY 2816 2752 2816 2752)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 2720)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c58bcb524c95033fc41dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "EN")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 2840 2920 2920)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 2880)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "EN")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcb77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394f0020000")
+            (GEOMETRY 2816 2880 2816 2880)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 2848)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c58bcb524c95033fc51dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "RST")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 2968 2920 3048)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 3008)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "RST")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcc77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739401020000")
+            (GEOMETRY 2816 3008 2816 3008)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 2976)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c58bcb524c95033fc61dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "WE")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 3096 2920 3176)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 3136)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "WE")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcd77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739411020000")
+            (GEOMETRY 2816 3136 2816 3136)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 3104)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+      )
+      (COMPONENT
+        (OBID "compa0a0a08ca8bcb524c95033fc71dd0000")
+        (HDL_IDENT
+          (NAME "MY_RAM1")
+          (USERNAME 1)
+        )
+        (GEOMETRY 2880 3456 5056 5248)
+        (SIDE 0)
+        (LABEL
+          (POSITION 2896 3440)
+          (SCALE 128)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 6)
+          (FORMAT 13)
+          (TEXT "MY_RAM1:RAMB4_S8:rtl[X]")
+        )
+        (ENTITY "liba0a0a08cd37cb524c95033fc0c5a0000" "enta0a0a08c947cb524c95033fc667c0000")
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc81dd0000")
+          (HDL_IDENT
+            (NAME "INIT_00")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 3544 3048 3624)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 3584)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_00")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc767c0000")
+          (ACT_VALUE "x\"001C22404040221C007C22223C22227C004242427E422418001E204C564A221C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc91dd0000")
+          (HDL_IDENT
+            (NAME "INIT_01")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 3544 3688 3624)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 3584)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_01")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc867c0000")
+          (ACT_VALUE "x\"001C22424E40221C004040407840407E007E40407840407E0078242222222478\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fca1dd0000")
+          (HDL_IDENT
+            (NAME "INIT_02")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 3544 4328 3624)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 3584)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_02")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc967c0000")
+          (ACT_VALUE "x\"0042444870484442003844040404040E001C08080808081C004242427E424242\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fcb1dd0000")
+          (HDL_IDENT
+            (NAME "INIT_03")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 3672 3048 3752)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 3712)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_03")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fca67c0000")
+          (ACT_VALUE "x\"0018244242422418004242464A526242004242425A5A6642007E404040404040\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fcc1dd0000")
+          (HDL_IDENT
+            (NAME "INIT_04")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 3672 3688 3752)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 3712)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_04")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcb67c0000")
+          (ACT_VALUE "x\"003C42023C40423C004244487C42427C001A244A42422418004040407C42427C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fcd1dd0000")
+          (HDL_IDENT
+            (NAME "INIT_05")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 3672 4328 3752)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 3712)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_05")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcc67c0000")
+          (ACT_VALUE "x\"0042665A5A4242420018182424424242003C424242424242000808080808083E\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fce1dd0000")
+          (HDL_IDENT
+            (NAME "INIT_06")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 3800 3048 3880)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 3840)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_06")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcd67c0000")
+          (ACT_VALUE "x\"003C20202020203C007E40201804027E000808081C2222220042422418244242\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fcf1dd0000")
+          (HDL_IDENT
+            (NAME "INIT_07")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 3800 3688 3880)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 3840)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_07")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fce67c0000")
+          (ACT_VALUE "x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc02dd0000")
+          (HDL_IDENT
+            (NAME "INIT_08")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 3800 4328 3880)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 3840)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_08")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcf67c0000")
+          (ACT_VALUE "x\"003C4240423C0000005C6242625C4040003A443C04380000001E204C564A221C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc12dd0000")
+          (HDL_IDENT
+            (NAME "INIT_09")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 3928 3048 4008)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 3968)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_09")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc077c0000")
+          (ACT_VALUE "x\"3C023A46463A0000001010107C10120C003C407E423C0000003A4642463A0202\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc22dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0A")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 3928 3688 4008)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 3968)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0A")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc177c0000")
+          (ACT_VALUE "x\"004468504844404038440404040C0004001C08080818000800424242625C4040\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc32dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0B")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 3928 4328 4008)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 3968)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0B")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc277c0000")
+          (ACT_VALUE "x\"003C4242423C000000424242625C00000049494949760000001C080808080818\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc42dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0C")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 4056 3048 4136)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 4096)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0C")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc377c0000")
+          (ACT_VALUE "x\"007C023C403E000000404040625C000002023A46463A000040405C62625C0000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc52dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0D")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 4056 3688 4136)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 4096)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0D")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc477c0000")
+          (ACT_VALUE "x\"00364949494100000018244242420000003A464242420000000C1210107C1010\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc62dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0E")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 4056 4328 4136)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 4096)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0E")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc577c0000")
+          (ACT_VALUE "x\"003C20202020203C007E2018047E00003C023A46424200000042241824420000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08ca8bcb524c95033fc72dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0F")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 4184 3048 4264)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 4224)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0F")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc677c0000")
+          (ACT_VALUE "x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\"")
+        )
+        (PORT
+          (OBID "cprta0a0a08ca8bcb524c95033fc82dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DO")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 2)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 5016 4440 5096 4520)
+          (SIDE 1)
+          (LABEL
+            (POSITION 4992 4480)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 35)
+            (TEXT "DO(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc777c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739421020000")
+            (GEOMETRY 5120 4480 5120 4480)
+            (SIDE 0)
+            (LABEL
+              (POSITION 5120 4448)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08ca8bcb524c95033fc92dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ADDR")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "8" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 4440 2920 4520)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 4480)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "ADDR(8:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc877c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739431020000")
+            (GEOMETRY 2816 4480 2816 4480)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 4448)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08ca8bcb524c95033fca2dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "CLK")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 4568 2920 4648)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 4608)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "CLK")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc977c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739441020000")
+            (GEOMETRY 2816 4608 2816 4608)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 4576)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08ca8bcb524c95033fcb2dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DI")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 4696 2920 4776)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 4736)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "DI(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fca77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739451020000")
+            (GEOMETRY 2816 4736 2816 4736)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 4704)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08ca8bcb524c95033fcc2dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "EN")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 4824 2920 4904)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 4864)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "EN")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcb77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739461020000")
+            (GEOMETRY 2816 4864 2816 4864)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 4832)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08ca8bcb524c95033fcd2dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "RST")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 4952 2920 5032)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 4992)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "RST")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcc77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739471020000")
+            (GEOMETRY 2816 4992 2816 4992)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 4960)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08ca8bcb524c95033fce2dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "WE")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 5080 2920 5160)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 5120)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "WE")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcd77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739481020000")
+            (GEOMETRY 2816 5120 2816 5120)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 5088)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+      )
+      (COMPONENT
+        (OBID "compa0a0a08cc9bcb524c95033fcf2dd0000")
+        (HDL_IDENT
+          (NAME "MY_RAM2")
+          (USERNAME 1)
+        )
+        (GEOMETRY 2880 5440 5056 7232)
+        (SIDE 0)
+        (LABEL
+          (POSITION 2896 5424)
+          (SCALE 128)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 6)
+          (FORMAT 13)
+          (TEXT "MY_RAM2:RAMB4_S8:rtl[X]")
+        )
+        (ENTITY "liba0a0a08cd37cb524c95033fc0c5a0000" "enta0a0a08c947cb524c95033fc667c0000")
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc03dd0000")
+          (HDL_IDENT
+            (NAME "INIT_00")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 5528 3048 5608)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 5568)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_00")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc767c0000")
+          (ACT_VALUE "x\"000000FF0000001010101010101010003E1C7F7F3E1C08000000FF0000000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc13dd0000")
+          (HDL_IDENT
+            (NAME "INIT_01")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 5528 3688 5608)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 5568)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_01")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc867c0000")
+          (ACT_VALUE "x\"202020202020200000FF0000000000000000000000FF000000000000FF000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc23dd0000")
+          (HDL_IDENT
+            (NAME "INIT_02")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 5528 4328 5608)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 5568)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_02")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc967c0000")
+          (ACT_VALUE "x\"0000E0100808080000000304080808080810E000000000040404040404040420\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc33dd0000")
+          (HDL_IDENT
+            (NAME "INIT_03")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 5656 3048 5736)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 5696)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_03")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fca67c0000")
+          (ACT_VALUE "x\"808080808080FF80402010080402010102040810204080FF8080808080808000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc43dd0000")
+          (HDL_IDENT
+            (NAME "INIT_04")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 5656 3688 5736)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 5696)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_04")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcb67c0000")
+          (ACT_VALUE "x\"081C3E7F7F7F3600FF000000000000003C7E7E7E7E3C0001010101010101FF80\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc53dd0000")
+          (HDL_IDENT
+            (NAME "INIT_05")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 5656 4328 5736)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 5696)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_05")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcc67c0000")
+          (ACT_VALUE "x\"3C424242423C0081422418182442810808040300000000404040404040404000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc63dd0000")
+          (HDL_IDENT
+            (NAME "INIT_06")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 5784 3048 5864)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 5824)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_06")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcd67c0000")
+          (ACT_VALUE "x\"0808FF0808080800081C3E7F3E1C0802020202020202020008082A772A1C0800\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc73dd0000")
+          (HDL_IDENT
+            (NAME "INIT_07")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 5784 3688 5864)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 5824)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_07")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fce67c0000")
+          (ACT_VALUE "x\"03070F1F3F7FFF001414543E010000080808080808080850A050A050A050A008\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc83dd0000")
+          (HDL_IDENT
+            (NAME "INIT_08")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 5784 4328 5864)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 5824)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_08")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcf67c0000")
+          (ACT_VALUE "x\"24247E247E242400000000002424240008000008080808000000000000000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fc93dd0000")
+          (HDL_IDENT
+            (NAME "INIT_09")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 5912 3048 5992)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 5952)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_09")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc077c0000")
+          (ACT_VALUE "x\"00000000100804003A444A30484830004626100864620000083C0A1C281E0800\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fca3dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0A")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 5912 3688 5992)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 5952)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0A")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc177c0000")
+          (ACT_VALUE "x\"0008083E08080000082A1C3E1C2A080020100808081020000408101010080400\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fcb3dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0B")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 5912 4328 5992)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 5952)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0B")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc277c0000")
+          (ACT_VALUE "x\"402010080402000018180000000000000000007E000000100808000000000000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fcc3dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0C")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 6040 3048 6120)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 6080)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0C")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc377c0000")
+          (ACT_VALUE "x\"3C42021C02423C007E40300C02423C003E080808281808003C42625A46423C00\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fcd3dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0D")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 6040 3688 6120)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 6080)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0D")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc477c0000")
+          (ACT_VALUE "x\"1010100804427E003C42427C40201C003844020478407E0004047E24140C0400\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fce3dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0E")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 6040 4328 6120)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 6080)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0E")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc577c0000")
+          (ACT_VALUE "x\"080800000800000000080000080000003804023E42423C003C42423C42423C00\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08cc9bcb524c95033fcf3dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0F")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 6168 3048 6248)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 6208)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0F")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc677c0000")
+          (ACT_VALUE "x\"1000100C02423C0070180C060C18700000007E007E0000000E18306030180E10\"")
+        )
+        (PORT
+          (OBID "cprta0a0a08cc9bcb524c95033fc04dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DO")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 2)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 5016 6424 5096 6504)
+          (SIDE 1)
+          (LABEL
+            (POSITION 4992 6464)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 35)
+            (TEXT "DO(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc777c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739491020000")
+            (GEOMETRY 5120 6464 5120 6464)
+            (SIDE 0)
+            (LABEL
+              (POSITION 5120 6432)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08cc9bcb524c95033fc14dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ADDR")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "8" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 6424 2920 6504)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 6464)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "ADDR(8:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc877c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394a1020000")
+            (GEOMETRY 2816 6464 2816 6464)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 6432)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08cc9bcb524c95033fc24dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "CLK")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 6552 2920 6632)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 6592)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "CLK")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc977c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394b1020000")
+            (GEOMETRY 2816 6592 2816 6592)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 6560)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08cc9bcb524c95033fc34dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DI")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 6680 2920 6760)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 6720)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "DI(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fca77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394c1020000")
+            (GEOMETRY 2816 6720 2816 6720)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 6688)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08cc9bcb524c95033fc44dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "EN")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 6808 2920 6888)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 6848)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "EN")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcb77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394d1020000")
+            (GEOMETRY 2816 6848 2816 6848)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 6816)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08cc9bcb524c95033fc54dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "RST")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 6936 2920 7016)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 6976)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "RST")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcc77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394e1020000")
+            (GEOMETRY 2816 6976 2816 6976)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 6944)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08cc9bcb524c95033fc64dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "WE")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 7064 2920 7144)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 7104)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "WE")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcd77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394f1020000")
+            (GEOMETRY 2816 7104 2816 7104)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 7072)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+      )
+      (COMPONENT
+        (OBID "compa0a0a08c2abcb524c95033fc74dd0000")
+        (HDL_IDENT
+          (NAME "MY_RAM3")
+          (USERNAME 1)
+        )
+        (GEOMETRY 2880 7424 5056 9216)
+        (SIDE 0)
+        (LABEL
+          (POSITION 2896 7408)
+          (SCALE 128)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 6)
+          (FORMAT 13)
+          (TEXT "MY_RAM3:RAMB4_S8:rtl[X]")
+        )
+        (ENTITY "liba0a0a08cd37cb524c95033fc0c5a0000" "enta0a0a08c947cb524c95033fc667c0000")
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc84dd0000")
+          (HDL_IDENT
+            (NAME "INIT_00")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 7512 3048 7592)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 7552)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_00")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc767c0000")
+          (ACT_VALUE "x\"001C22404040221C007C22223C22227C004242427E422418001E204C564A221C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc94dd0000")
+          (HDL_IDENT
+            (NAME "INIT_01")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 7512 3688 7592)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 7552)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_01")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc867c0000")
+          (ACT_VALUE "x\"001C22424E40221C004040407840407E007E40407840407E0078242222222478\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fca4dd0000")
+          (HDL_IDENT
+            (NAME "INIT_02")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 7512 4328 7592)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 7552)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_02")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc967c0000")
+          (ACT_VALUE "x\"0042444870484442003844040404040E001C08080808081C004242427E424242\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fcb4dd0000")
+          (HDL_IDENT
+            (NAME "INIT_03")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 7640 3048 7720)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 7680)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_03")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fca67c0000")
+          (ACT_VALUE "x\"0018244242422418004242464A526242004242425A5A6642007E404040404040\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fcc4dd0000")
+          (HDL_IDENT
+            (NAME "INIT_04")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 7640 3688 7720)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 7680)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_04")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcb67c0000")
+          (ACT_VALUE "x\"003C42023C40423C004244487C42427C001A244A42422418004040407C42427C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fcd4dd0000")
+          (HDL_IDENT
+            (NAME "INIT_05")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 7640 4328 7720)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 7680)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_05")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcc67c0000")
+          (ACT_VALUE "x\"0042665A5A4242420018182424424242003C424242424242000808080808083E\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fce4dd0000")
+          (HDL_IDENT
+            (NAME "INIT_06")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 7768 3048 7848)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 7808)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_06")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcd67c0000")
+          (ACT_VALUE "x\"003C20202020203C007E40201804027E000808081C2222220042422418244242\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fcf4dd0000")
+          (HDL_IDENT
+            (NAME "INIT_07")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 7768 3688 7848)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 7808)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_07")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fce67c0000")
+          (ACT_VALUE "x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc05dd0000")
+          (HDL_IDENT
+            (NAME "INIT_08")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 7768 4328 7848)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 7808)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_08")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fcf67c0000")
+          (ACT_VALUE "x\"003C4240423C0000005C6242625C4040003A443C04380000001E204C564A221C\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc15dd0000")
+          (HDL_IDENT
+            (NAME "INIT_09")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 7896 3048 7976)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 7936)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_09")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc077c0000")
+          (ACT_VALUE "x\"3C023A46463A0000001010107C10120C003C407E423C0000003A4642463A0202\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc25dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0A")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 7896 3688 7976)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 7936)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0A")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc177c0000")
+          (ACT_VALUE "x\"004468504844404038440404040C0004001C08080818000800424242625C4040\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc35dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0B")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 7896 4328 7976)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 7936)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0B")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc277c0000")
+          (ACT_VALUE "x\"003C4242423C000000424242625C00000049494949760000001C080808080818\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc45dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0C")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 8024 3048 8104)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 8064)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0C")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc377c0000")
+          (ACT_VALUE "x\"007C023C403E000000404040625C000002023A46463A000040405C62625C0000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc55dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0D")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 3608 8024 3688 8104)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3712 8064)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0D")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc477c0000")
+          (ACT_VALUE "x\"00364949494100000018244242420000003A464242420000000C1210107C1010\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc65dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0E")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 4248 8024 4328 8104)
+          (SIDE 3)
+          (LABEL
+            (POSITION 4352 8064)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0E")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc577c0000")
+          (ACT_VALUE "x\"003C20202020203C007E2018047E00003C023A46424200000042241824420000\"")
+        )
+        (GENERIC
+          (OBID "igena0a0a08c2abcb524c95033fc75dd0000")
+          (HDL_IDENT
+            (NAME "INIT_0F")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "bit_vector")
+              (DEF_VALUE "\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"")
+            )
+          )
+          (GEOMETRY 2968 8152 3048 8232)
+          (SIDE 3)
+          (LABEL
+            (POSITION 3072 8192)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 1)
+            (TEXT "INIT_0F")
+          )
+          (GENERIC "egena0a0a08c947cb524c95033fc677c0000")
+          (ACT_VALUE "x\"0010207F20100000080808082A1C0800003C04040404043C006E70103C10100C\"")
+        )
+        (PORT
+          (OBID "cprta0a0a08c2abcb524c95033fc85dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DO")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 2)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 5016 8408 5096 8488)
+          (SIDE 1)
+          (LABEL
+            (POSITION 4992 8448)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 35)
+            (TEXT "DO(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc777c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739402020000")
+            (GEOMETRY 5120 8448 5120 8448)
+            (SIDE 0)
+            (LABEL
+              (POSITION 5120 8416)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c2abcb524c95033fc95dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ADDR")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "8" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 8408 2920 8488)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 8448)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "ADDR(8:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc877c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739412020000")
+            (GEOMETRY 2816 8448 2816 8448)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 8416)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c2abcb524c95033fca5dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "CLK")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 8536 2920 8616)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 8576)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "CLK")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fc977c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739422020000")
+            (GEOMETRY 2816 8576 2816 8576)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 8544)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c2abcb524c95033fcb5dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "DI")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 2840 8664 2920 8744)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 8704)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "DI(7:0)")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fca77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739432020000")
+            (GEOMETRY 2816 8704 2816 8704)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 8672)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c2abcb524c95033fcc5dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "EN")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 8792 2920 8872)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 8832)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "EN")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcb77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739442020000")
+            (GEOMETRY 2816 8832 2816 8832)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 8800)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c2abcb524c95033fcd5dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "RST")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 8920 2920 9000)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 8960)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "RST")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcc77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739452020000")
+            (GEOMETRY 2816 8960 2816 8960)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 8928)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "cprta0a0a08c2abcb524c95033fce5dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "WE")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 2840 9048 2920 9128)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2944 9088)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 35)
+            (TEXT "WE")
+          )
+          (PORT "eprta0a0a08c947cb524c95033fcd77c0000")
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739462020000")
+            (GEOMETRY 2816 9088 2816 9088)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2816 9056)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+      )
+      (PROCESS
+        (TYPE 1)
+        (OBID "proca0a0a08caadcb524c95033fcf5dd0000")
+        (HDL_IDENT
+          (NAME "my_ram2k")
+          (USERNAME 1)
+        )
+        (GEOMETRY 1216 960 1856 2112)
+        (SIDE 0)
+        (LABEL
+          (POSITION 1232 944)
+          (SCALE 128)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 6)
+          (FORMAT 65)
+          (TEXT "my_ram2k(V)")
+        )
+        (SENSLIST 1)
+        (PORT
+          (OBID "pprta0a0a08c0cdcb524c95033fc06dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "rdata")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 2)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 1816 1048 1896 1128)
+          (SIDE 1)
+          (LABEL
+            (POSITION 1792 1088)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739472020000")
+            (GEOMETRY 1920 1088 1920 1088)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1920 1056)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08c2cdcb524c95033fc16dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ena0")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 2)
+            )
+          )
+          (GEOMETRY 1816 1176 1896 1256)
+          (SIDE 1)
+          (LABEL
+            (POSITION 1792 1216)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739482020000")
+            (GEOMETRY 1920 1216 1920 1216)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1920 1184)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08c3cdcb524c95033fc26dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ena1")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 2)
+            )
+          )
+          (GEOMETRY 1816 1304 1896 1384)
+          (SIDE 1)
+          (LABEL
+            (POSITION 1792 1344)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739492020000")
+            (GEOMETRY 1920 1344 1920 1344)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1920 1312)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08c4cdcb524c95033fc36dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ena2")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 2)
+            )
+          )
+          (GEOMETRY 1816 1432 1896 1512)
+          (SIDE 1)
+          (LABEL
+            (POSITION 1792 1472)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394a2020000")
+            (GEOMETRY 1920 1472 1920 1472)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1920 1440)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08c5cdcb524c95033fc46dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "ena3")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_ulogic")
+              (MODE 2)
+            )
+          )
+          (GEOMETRY 1816 1560 1896 1640)
+          (SIDE 1)
+          (LABEL
+            (POSITION 1792 1600)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394b2020000")
+            (GEOMETRY 1920 1600 1920 1600)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1920 1568)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08c6cdcb524c95033fc56dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "reset")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic")
+              (MODE 2)
+            )
+          )
+          (GEOMETRY 1816 1688 1896 1768)
+          (SIDE 1)
+          (LABEL
+            (POSITION 1792 1728)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394c2020000")
+            (GEOMETRY 1920 1728 1920 1728)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1920 1696)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08c7cdcb524c95033fc66dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "we")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic")
+              (MODE 2)
+            )
+          )
+          (GEOMETRY 1816 1816 1896 1896)
+          (SIDE 1)
+          (LABEL
+            (POSITION 1792 1856)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394d2020000")
+            (GEOMETRY 1920 1856 1920 1856)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1920 1824)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08caedcb524c95033fc76dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "rdata0")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 1176 1048 1256 1128)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1088)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394e2020000")
+            (GEOMETRY 1152 1088 1152 1088)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1056)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08c9fdcb524c95033fc86dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "rdata1")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 1176 1176 1256 1256)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1216)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab6449507394f2020000")
+            (GEOMETRY 1152 1216 1152 1216)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1184)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08cbfdcb524c95033fc96dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "rdata2")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 1176 1304 1256 1384)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1344)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739403020000")
+            (GEOMETRY 1152 1344 1152 1344)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1312)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08ccfdcb524c95033fca6dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "rdata3")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "7" "0")
+              )
+            )
+          )
+          (GEOMETRY 1176 1432 1256 1512)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1472)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739413020000")
+            (GEOMETRY 1152 1472 1152 1472)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1440)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08cdfdcb524c95033fcb6dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "rst")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 1176 1560 1256 1640)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1600)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739423020000")
+            (GEOMETRY 1152 1600 1152 1600)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1568)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08cefdcb524c95033fcc6dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "cs")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 1176 1688 1256 1768)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1728)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739433020000")
+            (GEOMETRY 1152 1728 1152 1728)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1696)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08cb0ecb524c95033fcd6dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "rw")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic")
+              (MODE 1)
+            )
+          )
+          (GEOMETRY 1176 1816 1256 1896)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1856)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739443020000")
+            (GEOMETRY 1152 1856 1152 1856)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1824)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a08cc0ecb524c95033fce6dd0000")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+          )
+          (HDL_IDENT
+            (NAME "addr")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "std_logic_vector")
+              (MODE 1)
+              (CONSTRAINT
+                (DIRECTION 1)
+                (RANGE "10" "0")
+              )
+            )
+          )
+          (GEOMETRY 1176 1944 1256 2024)
+          (SIDE 3)
+          (LABEL
+            (POSITION 1280 1984)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 65539)
+          )
+          (CONNECTION
+            (OBID "ncona0a0a0bc756cab644950739453020000")
+            (GEOMETRY 1152 1984 1152 1984)
+            (SIDE 0)
+            (LABEL
+              (POSITION 1152 1952)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (HDL_FILE
+          (VHDL_FILE
+            (OBID "filea0a0a0bc97b56b848e20739407030000")
+            (NAME "my_ram2k.vhd")
+            (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+                   "-- "
+                   "-- Process 'my_ram2k' in architecture 'interface' of entity 'ram_2k'."
+                   "-- "
+                   "--------------------------------------------------------------------------------"
+                   "-- "
+                   "-- Copy of the interface signals:"
+                   "-- "
+                   "-- rdata  : out    std_logic_vector(7 downto 0);"
+                   "-- ena0   : out    std_ulogic;"
+                   "-- ena1   : out    std_ulogic;"
+                   "-- ena2   : out    std_ulogic;"
+                   "-- ena3   : out    std_ulogic;"
+                   "-- reset  : out    std_logic;"
+                   "-- we     : out    std_logic;"
+                   "-- rdata0 : in     std_logic_vector(7 downto 0);"
+                   "-- rdata1 : in     std_logic_vector(7 downto 0);"
+                   "-- rdata2 : in     std_logic_vector(7 downto 0);"
+                   "-- rdata3 : in     std_logic_vector(7 downto 0);"
+                   "-- rst    : in     std_logic;"
+                   "-- cs     : in     std_logic;"
+                   "-- rw     : in     std_logic;"
+                   "-- addr   : in     std_logic_vector(10 downto 0);"
+                   "-- "
+                   "-- EASE/HDL end ----------------------------------------------------------------"
+                   ""
+                   "my_ram2k: process (rdata0, rdata1, rdata2, rdata3, rst, cs, rw, addr) is		-- EASE/HDL sens.list"
+                   "begin"
+                   "	case addr(10 downto 9) is"
+                   "	  when \"00\" =>"
+                   "		ena0 <= cs;"
+                   "		ena1 <= '0';"
+                   "		ena2 <= '0';"
+                   "		ena3 <= '0';"
+                   "		rdata <= rdata0;"
+                   "	  when \"01\" =>"
+                   "		ena0 <= '0';"
+                   "		ena1 <= cs;"
+                   "		ena2 <= '0';"
+                   "		ena3 <= '0';"
+                   "		rdata <= rdata1;"
+                   "	  when \"10\" =>"
+                   "		ena0 <= '0';"
+                   "		ena1 <= '0';"
+                   "		ena2 <= cs;"
+                   "		ena3 <= '0';"
+                   "		rdata <= rdata2;"
+                   "	  when \"11\" =>"
+                   "		ena0 <= '0';"
+                   "		ena1 <= '0';"
+                   "		ena2 <= '0';"
+                   "		ena3 <= cs;"
+                   "		rdata <= rdata3;"
+                   "	  when others =>"
+                   "		null;"
+                   "	end case;"
+                   ""
+                   "	we <= cs and (not rw);"
+                   "	reset <= rst;"
+                   "end process my_ram2k ;"
+                   "")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c51fcb524c95033fc27dd0000")
+        (HDL_IDENT
+          (NAME "we")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17def50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17eef50ff7")
+          (LABEL
+            (POSITION 1929 1820)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "we")
+          )
+          (WIRE 2048 1856 2048 3136)
+          (WIRE 1920 1856 2048 1856)
+          (WIRE 2048 3136 2048 5120)
+          (WIRE 2048 5120 2048 7104)
+          (WIRE 2048 7104 2048 9088)
+          (WIRE 2048 3136 2816 3136)
+          (WIRE 2048 5120 2816 5120)
+          (WIRE 2048 7104 2816 7104)
+          (WIRE 2048 9088 2816 9088)
+          (PORT
+            (OBID "pprta0a0a08c7cdcb524c95033fc66dd0000")
+            (NAME "we")
+          )
+          (PORT
+            (OBID "cprta0a0a08c58bcb524c95033fc61dd0000")
+            (NAME "WE")
+          )
+          (PORT
+            (OBID "cprta0a0a08ca8bcb524c95033fce2dd0000")
+            (NAME "WE")
+          )
+          (PORT
+            (OBID "cprta0a0a08cc9bcb524c95033fc64dd0000")
+            (NAME "WE")
+          )
+          (PORT
+            (OBID "cprta0a0a08c2abcb524c95033fce5dd0000")
+            (NAME "WE")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c14fcb524c95033fc37dd0000")
+        (HDL_IDENT
+          (NAME "reset")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17fef50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d170ff50ff7")
+          (LABEL
+            (POSITION 1911 1658)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "reset")
+          )
+          (WIRE 1920 1728 2176 1728)
+          (WIRE 2176 6976 2176 8960)
+          (WIRE 2176 4992 2176 6976)
+          (WIRE 2176 3008 2176 4992)
+          (WIRE 2176 1728 2176 3008)
+          (WIRE 2176 8960 2816 8960)
+          (WIRE 2176 6976 2816 6976)
+          (WIRE 2176 4992 2816 4992)
+          (WIRE 2176 3008 2816 3008)
+          (PORT
+            (OBID "pprta0a0a08c6cdcb524c95033fc56dd0000")
+            (NAME "reset")
+          )
+          (PORT
+            (OBID "cprta0a0a08c2abcb524c95033fcd5dd0000")
+            (NAME "RST")
+          )
+          (PORT
+            (OBID "cprta0a0a08cc9bcb524c95033fc54dd0000")
+            (NAME "RST")
+          )
+          (PORT
+            (OBID "cprta0a0a08ca8bcb524c95033fcd2dd0000")
+            (NAME "RST")
+          )
+          (PORT
+            (OBID "cprta0a0a08c58bcb524c95033fc51dd0000")
+            (NAME "RST")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c56fcb524c95033fc47dd0000")
+        (HDL_IDENT
+          (NAME "ena3")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_ulogic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d171ff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d172ff50ff7")
+          (LABEL
+            (POSITION 1928 1540)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "ena3")
+          )
+          (WIRE 1920 1600 2304 1600)
+          (WIRE 2304 1600 2304 8832)
+          (WIRE 2304 8832 2816 8832)
+          (PORT
+            (OBID "pprta0a0a08c5cdcb524c95033fc46dd0000")
+            (NAME "ena3")
+          )
+          (PORT
+            (OBID "cprta0a0a08c2abcb524c95033fcc5dd0000")
+            (NAME "EN")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08cb6fcb524c95033fc57dd0000")
+        (HDL_IDENT
+          (NAME "ena2")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_ulogic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d173ff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d174ff50ff7")
+          (LABEL
+            (POSITION 1934 1432)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "ena2")
+          )
+          (WIRE 2432 1472 2432 6848)
+          (WIRE 1920 1472 2432 1472)
+          (WIRE 2432 6848 2816 6848)
+          (PORT
+            (OBID "pprta0a0a08c4cdcb524c95033fc36dd0000")
+            (NAME "ena2")
+          )
+          (PORT
+            (OBID "cprta0a0a08cc9bcb524c95033fc44dd0000")
+            (NAME "EN")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c07fcb524c95033fc67dd0000")
+        (HDL_IDENT
+          (NAME "ena1")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_ulogic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d175ff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d176ff50ff7")
+          (LABEL
+            (POSITION 1939 1313)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "ena1")
+          )
+          (WIRE 1920 1344 2560 1344)
+          (WIRE 2560 1344 2560 4864)
+          (WIRE 2560 4864 2816 4864)
+          (PORT
+            (OBID "pprta0a0a08c3cdcb524c95033fc26dd0000")
+            (NAME "ena1")
+          )
+          (PORT
+            (OBID "cprta0a0a08ca8bcb524c95033fcc2dd0000")
+            (NAME "EN")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c47fcb524c95033fc77dd0000")
+        (HDL_IDENT
+          (NAME "ena0")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_ulogic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d177ff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d178ff50ff7")
+          (LABEL
+            (POSITION 1944 1170)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "ena0")
+          )
+          (WIRE 1920 1216 2688 1216)
+          (WIRE 2688 1216 2688 2880)
+          (WIRE 2688 2880 2816 2880)
+          (PORT
+            (OBID "pprta0a0a08c2cdcb524c95033fc16dd0000")
+            (NAME "ena0")
+          )
+          (PORT
+            (OBID "cprta0a0a08c58bcb524c95033fc41dd0000")
+            (NAME "EN")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08cfcfcb524c95033fc87dd0000")
+        (HDL_IDENT
+          (NAME "rdata")
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d179ff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17aff50ff7")
+          (LABEL
+            (POSITION 2304 1088)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 4099)
+          )
+          (WIRE 1920 1088 2688 1088)
+          (PORT
+            (OBID "pprta0a0a08c0cdcb524c95033fc06dd0000")
+            (NAME "rdata")
+          )
+          (PORT
+            (OBID "aprta000000a4d386524405033fc00770000")
+            (NAME "rdata")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c2efcb524c95033fc97dd0000")
+        (HDL_IDENT
+          (NAME "rst")
+          (ATTRIBUTES
+            (TYPE "std_logic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17bff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17cff50ff7")
+          (LABEL
+            (POSITION 960 1600)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 4099)
+          )
+          (WIRE 768 1600 1152 1600)
+          (PORT
+            (OBID "aprta000000a4d386524405033fcbf670000")
+            (NAME "rst")
+          )
+          (PORT
+            (OBID "pprta0a0a08cdfdcb524c95033fcb6dd0000")
+            (NAME "rst")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c4efcb524c95033fca7dd0000")
+        (HDL_IDENT
+          (NAME "cs")
+          (ATTRIBUTES
+            (TYPE "std_logic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17dff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17eff50ff7")
+          (LABEL
+            (POSITION 960 1728)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 4099)
+          )
+          (WIRE 768 1728 1152 1728)
+          (PORT
+            (OBID "aprta000000a4d386524405033fccf670000")
+            (NAME "cs")
+          )
+          (PORT
+            (OBID "pprta0a0a08cefdcb524c95033fcc6dd0000")
+            (NAME "cs")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c5efcb524c95033fcb7dd0000")
+        (HDL_IDENT
+          (NAME "rw")
+          (ATTRIBUTES
+            (TYPE "std_logic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17fff50ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1700060ff7")
+          (LABEL
+            (POSITION 960 1856)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 4099)
+          )
+          (WIRE 768 1856 1152 1856)
+          (PORT
+            (OBID "aprta000000a4d386524405033fcdf670000")
+            (NAME "rw")
+          )
+          (PORT
+            (OBID "pprta0a0a08cb0ecb524c95033fcd6dd0000")
+            (NAME "rw")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c9efcb524c95033fcc7dd0000")
+        (HDL_IDENT
+          (NAME "addr")
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "10" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1710060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1720060ff7")
+          (LABEL
+            (POSITION 2704 7456)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+          )
+          (WIRE 960 1984 1152 1984)
+          (WIRE 960 2432 1728 2432)
+          (WIRE 960 1984 960 2432)
+          (WIRE 768 2432 960 2432)
+          (WIRE 1728 2432 1728 4416)
+          (WIRE 1728 6400 1728 8384)
+          (WIRE 1728 4416 1728 6400)
+          (PORT
+            (OBID "pprta0a0a08cc0ecb524c95033fce6dd0000")
+            (NAME "addr")
+          )
+          (PORT
+            (OBID "aprta000000a4d386524405033fcef670000")
+            (NAME "addr")
+          )
+          (BUS_RIPPER
+            (OBID "hooka000000afb01d524053033fc04c70000")
+            (HDL_IDENT
+              (USERNAME 1)
+              (ATTRIBUTES
+                (CONSTRAINT
+                  (DIRECTION 1)
+                  (RANGE "8" "0")
+                )
+              )
+            )
+            (GEOMETRY 1664 2368 1792 2496)
+            (SIDE 2)
+            (LABEL
+              (POSITION 1792 2368)
+              (SCALE 80)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 3)
+              (FORMAT 3)
+              (TEXT "addr(8:0)")
+            )
+            (DEST_NET "neta000000acd01d524053033fc74c70000")
+          )
+          (BUS_RIPPER
+            (OBID "hooka000000a2c01d524053033fc14c70000")
+            (HDL_IDENT
+              (USERNAME 1)
+              (ATTRIBUTES
+                (CONSTRAINT
+                  (DIRECTION 1)
+                  (RANGE "8" "0")
+                )
+              )
+            )
+            (GEOMETRY 1664 4352 1792 4480)
+            (SIDE 2)
+            (LABEL
+              (POSITION 1792 4352)
+              (SCALE 80)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 3)
+              (FORMAT 3)
+              (TEXT "addr(8:0)")
+            )
+            (DEST_NET "neta000000a7d01d524053033fc64c70000")
+          )
+          (BUS_RIPPER
+            (OBID "hooka000000a6c01d524053033fc24c70000")
+            (HDL_IDENT
+              (USERNAME 1)
+              (ATTRIBUTES
+                (CONSTRAINT
+                  (DIRECTION 1)
+                  (RANGE "8" "0")
+                )
+              )
+            )
+            (GEOMETRY 1664 6336 1792 6464)
+            (SIDE 2)
+            (LABEL
+              (POSITION 1792 6336)
+              (SCALE 80)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 3)
+              (FORMAT 3)
+              (TEXT "addr(8:0)")
+            )
+            (DEST_NET "neta000000a4d01d524053033fc54c70000")
+          )
+          (BUS_RIPPER
+            (OBID "hooka000000a8c01d524053033fc34c70000")
+            (HDL_IDENT
+              (USERNAME 1)
+              (ATTRIBUTES
+                (CONSTRAINT
+                  (DIRECTION 1)
+                  (RANGE "8" "0")
+                )
+              )
+            )
+            (GEOMETRY 1664 8320 1792 8448)
+            (SIDE 2)
+            (LABEL
+              (POSITION 1792 8320)
+              (SCALE 80)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 3)
+              (FORMAT 3)
+              (TEXT "addr(8:0)")
+            )
+            (DEST_NET "neta000000a1d01d524053033fc44c70000")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08cfffcb524c95033fcd7dd0000")
+        (HDL_IDENT
+          (NAME "clk")
+          (ATTRIBUTES
+            (TYPE "std_logic")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1730060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1740060ff7")
+          (LABEL
+            (POSITION 2640 3616)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+          )
+          (WIRE 1536 2624 1536 4608)
+          (WIRE 768 2624 1536 2624)
+          (WIRE 1536 4608 1536 6592)
+          (WIRE 1536 6592 1536 8576)
+          (WIRE 1536 2624 2816 2624)
+          (WIRE 1536 4608 2816 4608)
+          (WIRE 1536 8576 2816 8576)
+          (WIRE 1536 6592 2816 6592)
+          (PORT
+            (OBID "aprta000000a4d386524405033fcaf670000")
+            (NAME "clk")
+          )
+          (PORT
+            (OBID "cprta0a0a08c58bcb524c95033fc21dd0000")
+            (NAME "CLK")
+          )
+          (PORT
+            (OBID "cprta0a0a08ca8bcb524c95033fca2dd0000")
+            (NAME "CLK")
+          )
+          (PORT
+            (OBID "cprta0a0a08c2abcb524c95033fca5dd0000")
+            (NAME "CLK")
+          )
+          (PORT
+            (OBID "cprta0a0a08cc9bcb524c95033fc24dd0000")
+            (NAME "CLK")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08cf00db524c95033fce7dd0000")
+        (HDL_IDENT
+          (NAME "wdata")
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1750060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1760060ff7")
+          (LABEL
+            (POSITION 2512 7712)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+          )
+          (WIRE 1408 2752 1408 4736)
+          (WIRE 768 2752 1408 2752)
+          (WIRE 1408 4736 1408 6720)
+          (WIRE 1408 6720 1408 8704)
+          (WIRE 1408 2752 2816 2752)
+          (WIRE 1408 4736 2816 4736)
+          (WIRE 1408 6720 2816 6720)
+          (WIRE 1408 8704 2816 8704)
+          (PORT
+            (OBID "aprta000000a4d386524405033fcff670000")
+            (NAME "wdata")
+          )
+          (PORT
+            (OBID "cprta0a0a08c58bcb524c95033fc31dd0000")
+            (NAME "DI")
+          )
+          (PORT
+            (OBID "cprta0a0a08ca8bcb524c95033fcb2dd0000")
+            (NAME "DI")
+          )
+          (PORT
+            (OBID "cprta0a0a08cc9bcb524c95033fc34dd0000")
+            (NAME "DI")
+          )
+          (PORT
+            (OBID "cprta0a0a08c2abcb524c95033fcb5dd0000")
+            (NAME "DI")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08cf80db524c95033fcf7dd0000")
+        (HDL_IDENT
+          (NAME "rdata0")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1770060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1780060ff7")
+          (LABEL
+            (POSITION 3136 576)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 4099)
+            (TEXT "rdata0(7:0)")
+          )
+          (WIRE 5120 2496 5248 2496)
+          (WIRE 1024 576 5248 576)
+          (WIRE 5248 576 5248 2496)
+          (WIRE 1024 576 1024 1088)
+          (WIRE 1024 1088 1152 1088)
+          (PORT
+            (OBID "cprta0a0a08c58bcb524c95033fc01dd0000")
+            (NAME "DO")
+          )
+          (PORT
+            (OBID "pprta0a0a08caedcb524c95033fc76dd0000")
+            (NAME "rdata0")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c790db524c95033fc08dd0000")
+        (HDL_IDENT
+          (NAME "rdata1")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1790060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17a0060ff7")
+          (LABEL
+            (POSITION 3126 445)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 4099)
+            (TEXT "rdata1(7:0)")
+          )
+          (WIRE 960 448 5376 448)
+          (WIRE 960 448 960 1216)
+          (WIRE 960 1216 1152 1216)
+          (WIRE 5376 448 5376 4480)
+          (WIRE 5120 4480 5376 4480)
+          (PORT
+            (OBID "pprta0a0a08c9fdcb524c95033fc86dd0000")
+            (NAME "rdata1")
+          )
+          (PORT
+            (OBID "cprta0a0a08ca8bcb524c95033fc82dd0000")
+            (NAME "DO")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08cf90db524c95033fc18dd0000")
+        (HDL_IDENT
+          (NAME "rdata2")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17b0060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17c0060ff7")
+          (LABEL
+            (POSITION 2880 272)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "rdata2(7:0)")
+          )
+          (WIRE 896 320 5504 320)
+          (WIRE 896 320 896 1344)
+          (WIRE 896 1344 1152 1344)
+          (WIRE 5504 320 5504 6464)
+          (WIRE 5120 6464 5504 6464)
+          (PORT
+            (OBID "pprta0a0a08cbfdcb524c95033fc96dd0000")
+            (NAME "rdata2")
+          )
+          (PORT
+            (OBID "cprta0a0a08cc9bcb524c95033fc04dd0000")
+            (NAME "DO")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a08c8a0db524c95033fc28dd0000")
+        (HDL_IDENT
+          (NAME "rdata3")
+          (USERNAME 1)
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "7" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17d0060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17e0060ff7")
+          (LABEL
+            (POSITION 2884 145)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 4099)
+            (TEXT "rdata3(7:0)")
+          )
+          (WIRE 832 192 5632 192)
+          (WIRE 832 192 832 1472)
+          (WIRE 832 1472 1152 1472)
+          (WIRE 5632 192 5632 8448)
+          (WIRE 5120 8448 5632 8448)
+          (PORT
+            (OBID "pprta0a0a08ccfdcb524c95033fca6dd0000")
+            (NAME "rdata3")
+          )
+          (PORT
+            (OBID "cprta0a0a08c2abcb524c95033fc85dd0000")
+            (NAME "DO")
+          )
+        )
+      )
+      (NET
+        (OBID "neta000000a1d01d524053033fc44c70000")
+        (HDL_IDENT
+          (NAME "Net_0")
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "8" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d17f0060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1701060ff7")
+          (LABEL
+            (POSITION 0 0)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 0)
+            (FORMAT 4099)
+          )
+          (WIRE 1792 8448 2816 8448)
+          (PORT
+            (OBID "cprta0a0a08c2abcb524c95033fc95dd0000")
+            (NAME "ADDR")
+          )
+        )
+      )
+      (NET
+        (OBID "neta000000a4d01d524053033fc54c70000")
+        (HDL_IDENT
+          (NAME "Net_1")
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "8" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1711060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1721060ff7")
+          (LABEL
+            (POSITION 0 0)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 0)
+            (FORMAT 4099)
+          )
+          (WIRE 1792 6464 2816 6464)
+          (PORT
+            (OBID "cprta0a0a08cc9bcb524c95033fc14dd0000")
+            (NAME "ADDR")
+          )
+        )
+      )
+      (NET
+        (OBID "neta000000a7d01d524053033fc64c70000")
+        (HDL_IDENT
+          (NAME "Net_2")
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "8" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1731060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1741060ff7")
+          (LABEL
+            (POSITION 0 0)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 0)
+            (FORMAT 4099)
+          )
+          (WIRE 1792 4480 2816 4480)
+          (PORT
+            (OBID "cprta0a0a08ca8bcb524c95033fc92dd0000")
+            (NAME "ADDR")
+          )
+        )
+      )
+      (NET
+        (OBID "neta000000acd01d524053033fc74c70000")
+        (HDL_IDENT
+          (NAME "Net_3")
+          (ATTRIBUTES
+            (TYPE "std_logic_vector")
+            (CONSTRAINT
+              (DIRECTION 1)
+              (RANGE "8" "0")
+            )
+          )
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1751060ff7")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a09c2ba93af400509d1761060ff7")
+          (LABEL
+            (POSITION 0 0)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 0)
+            (FORMAT 4099)
+          )
+          (WIRE 1792 2496 2816 2496)
+          (PORT
+            (OBID "cprta0a0a08c58bcb524c95033fc11dd0000")
+            (NAME "ADDR")
+          )
+        )
+      )
+    )
+  )
+)

@@ -17,7 +17,7 @@ func endsWith(s, suffix: seq[string]): bool =
 
     true
 
-func safeIncl[K, V](container: var Table[K, HashSet[V]], key: K, val: V) =
+func incl[K, V](container: var Table[K, HashSet[V]], key: K, val: V) =
   if key notin container:
     container[key] = initHashSet[V]()
 
@@ -32,8 +32,8 @@ const dir = r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples"
 
 var
   uniqPortTypes: HashSet[string]
-  uniqIdentsByParent: Table[string, HashSet[string]]
-  uniqIdentsByNode: Table[string, HashSet[string]]
+  uniqIdentsRepeat: Table[string, tuple[fields: CountTable[string], total: int]]
+  uniqIdentParent: Table[string, HashSet[string]]
   lastPath: string
 
 
@@ -41,16 +41,16 @@ proc goFind(node: LispNode, path: Path) =
   if path.endsWith(@["PORT", "HDL_IDENT"]) and node.matchCaller("ATTRIBUTES"):
     var
       `type` = ""
-      hasRange = false
+      hasSlice = false
 
     for a in node.args:
       if a.matchCaller "TYPE":
         `type` = $a
       elif a.matchCaller "CONSTRAINT":
-        hasRange = true
+        hasSlice = true
 
-    if hasRange and not `type`.isEmptyOrWhitespace:
-      uniqPortTypes.incl `type`
+    if hasSlice and not `type`.isEmptyOrWhitespace:
+      uniqPortTypes.incL `type`
 
   let
     parent = path[^1]
@@ -60,10 +60,19 @@ proc goFind(node: LispNode, path: Path) =
       of lnkString: "<STR_VALUE>"
       else: "<..>"
 
-  uniqIdentsByParent.safeIncl parent, value
-  uniqIdentsByNode.safeIncl value, parent
+  uniqIdentParent.incl value, parent
 
-  # if parent == "PROCESS" and node.ident == "PORT":
+  if parent notin uniqIdentsRepeat:
+    uniqIdentsRepeat[parent] = (initCountTable[string](), 0)
+
+  uniqIdentsRepeat[parent].fields.inc value
+
+  if value notin uniqIdentsRepeat:
+    uniqIdentsRepeat[value] = (initCountTable[string](), 0)
+
+  uniqIdentsRepeat[value].total.inc
+  
+  # if parent == "PORT#pprt" and node.ident == "NAME":
   #   echo ">> ", lastPath
   #   jump()
 
@@ -74,7 +83,7 @@ proc goFind(node: LispNode, path: Path) =
           let sub = node.findNode(it.matchCaller "OBID")
 
           if issome sub:
-            "PORT" & '#' & sub.get.parseOBID[0..<4]
+            "PORT" & '#' & sub.get.parseOBID.string[0..<4]
           else:
             "PORT"
 
@@ -93,6 +102,5 @@ when isMainModule:
       let ctx = select parseLisp readfile path
       goFind ctx, @["/"]
 
-  # print uniqPortTypes
-  print uniqIdentsByParent
-  # print uniqIdentsByNode
+  echo uniqIdentsRepeat["PROCESS"]
+  print uniqIdentParent["PROCESS"]

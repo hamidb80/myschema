@@ -72,8 +72,191 @@ type
     # 0 1
     # 3 2
 
+  NumberDirection* = enum
+    ndDec = 1
+    ndInc
+
+  CbnType* = enum
+    ctConnectByName
+    ctConnectByValue
+    ctIntentionallyOpen
+
 type
+  Obid* = distinct string
+
   Properties* = Table[string, string]
+
+  Range* = object
+    direction*: NumberDirection
+    indexes*: Slice[string]
+
+  Constraint* = object
+    index*: Option[string]
+    `range`*: Option[Range]
+
+  Attributes* = object
+    mode*: Option[int]
+    kind*: Option[string]
+    constraint*: Option[Constraint]
+    # def_value: Option[string]
+
+  HdlIdent* = ref object
+    name*: string
+    attributes*: Attributes
+
+  ObjStamp* = object
+    designer*: string
+    created*, modified*: int
+
+  Size* = tuple
+    w, h: int
+
+  Geometry* = tuple
+    x1, y1, x2, y2: int
+
+  Wire* = Slice[Point]
+
+  Label* = object
+    position*: Point
+    side*: Side
+    scale*: int
+    colorLine*: EaseColor
+    alignment*: Alignment
+    format*: int
+    text*: string
+
+  FreePlacedText* = distinct Label
+
+  CBN* = ref object # AKA CBN
+    obid*: Obid
+    kind*: CbnType
+    ident*: HdlIdent
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+
+
+
+  Generic* = ref object
+  Generate* = ref object
+
+  BusRipper* = ref object
+    obid*: Obid
+    ident*: HdlIdent
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+    destNet*: Net
+
+  NetKind* = enum
+    netRef, netDef
+
+  Net* = ref object
+    obid*: Obid
+
+    case kind*: NetKind:
+    of netRef: discard
+    of netDef:
+      ident*: HdlIdent
+      label*: Label
+      wires*: seq[Wire]
+      ports*: seq[Port]
+      busRippers*: seq[BusRipper]
+
+
+  Connection* = ref object
+    obid*: Obid
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+
+  PortKind* = enum
+    refprt
+    eprt, pprt, aprt, cprt, gprt
+
+  Port* = ref object
+    obid*: Obid
+
+    case kind*: PortKind
+    of refprt:
+      name*: string
+
+    else:
+      ident*: HdlIdent
+      properties*: Properties
+      geometry*: Geometry
+      side*: Side
+      label*: Label
+      cbn*: Option[CBN]
+      connection*: Connection
+      refObid*: Obid
+
+  Process* = ref object
+
+  
+  Component* = ref object
+    obid*: Obid
+    ident*: HdlIdent
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+    instanceof*: Entity
+
+  Schematic* = ref object
+    obid*: Obid
+    sheetSize*: Geometry
+    properties*: Properties
+
+    freePlacedTexts*: seq[FreePlacedText]
+    # generics*: seq[Generic]
+    # generates*: seq[Generate]
+    components*: seq[Component]
+    processes*: seq[Process]
+    ports*: seq[Port]
+    nets*: seq[Net]
+    
+
+  Architecture* = ref object
+    obid*: Obid
+    properties*: Properties
+    ident*: HdlIdent
+    kind*: ArchitectureMode
+    schematic*: Schematic
+
+
+  EntityKind* = enum
+    ekRef, ekDecl, ekDef
+
+  Entity* = ref object
+    obid*: Obid
+
+    case kind*: EntityKind
+    of ekRef:
+      libObid*: Obid
+
+    of ekDecl:
+      name*: string
+
+    of ekDef:
+      ident*: HdlIdent
+      properties*: Properties
+      componentSize*: Size
+      ports*: seq[Port]
+      architectures*: seq[Architecture]
+
+
+  LibraryKind* = enum
+    lkDecl, lkDef
+
+  Library* = ref object
+    obid*: Obid
+    name*: string
+
+    case kind*: LibraryKind
+    of lkDecl: discard
+    of lkDef:
+      properties*: Properties
+      entities*: seq[Entity]
 
   Package* = ref object
     obid*, library*, name*: string
@@ -85,97 +268,6 @@ type
     packages*: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
 
-  Library* = ref object
-    obid*, name*: string
-    isResolved*: bool
-    properties*: Properties
-    entities*: seq[Entity]
-
-  Size* = tuple[w, h: int]
-
-  BusRipper* = ref object
-
-  Schematic* = ref object
-    obid*: string
-    sheetSize*: Size
-
-  Architecture* = ref object
-    obid*, name*: string
-    kind*: ArchitectureMode
-    schematic*: Schematic
-    properties*: Properties
-
-  EntityRef* = tuple
-    libObid, entityObid: string
-
-  Component* = ref object
-    obid*, name*: string
-    geometry*: Geometry
-    side*: Side
-    label*: Label
-    instanceof*: EntityRef
-
-  EntityGeneric* = ref object
-  
-  InstanceGeneric* = ref object
-
-  PortInfo* = object
-    name*: string
-    mode*: PortMode
-    `type`*: string
-    busIndex*: Option[Range[int]]
-
-  EntityPort* = ref object
-    info*: PortInfo
-
-  ArchitecturePort* = ref object
-    info*: PortInfo
-
-  GeneratePort* = ref object
-    info*: PortInfo
-
-  ComponentPort* = ref object
-    info*: PortInfo
-
-  ProcessPort* = ref object
-    info*: PortInfo
-
-  ConnectByName* = ref object
-
-  Connection* = ref object
-
-  Net* = ref object
-  Generate* = ref object
-  
-  FreePlacedText* = object
-    label*: Label
-
-  Geometry* = tuple
-    x1, y1, x2, y2: int
-
-  Wire* = Range[Point]
-
-  Label* = object
-    position*: Point
-    side*: Side
-    scale*: int
-    colorLine*: EaseColor
-    alignment*: Alignment
-    format*: int
-    text*: string
-
-
-  ObjStamp* = object
-    designer*: string
-    created*, modified*: int
-
-  Entity* = object
-    obid*, name*: string
-    isResolved*: bool
-    properties*: Properties
-    architectures*: seq[Architecture]
-    ports*: seq[EntityPort]
-    componentSize*: Size
 
 type
   LibraryEncodeMode* = enum
@@ -185,3 +277,11 @@ type
   EntityEncodeMode* = enum
     eemRef
     eemDef
+
+
+
+func isEmpty*(attrs: Attributes): bool =
+    (isNone attrs.mode) and
+    (isNone attrs.kind) and
+    (isNone attrs.constraint)
+  

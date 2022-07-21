@@ -3,7 +3,7 @@ import ../utils
 import ../common/defs
 
 type
-  SueSegemnt = Range[Point]
+  SueSegemnt = Slice[Point]
 
   SueLabel = ref object
     content: string

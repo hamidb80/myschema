@@ -24,7 +24,7 @@ macro pickTuple*(list: untyped, indexes: static[openArray[int]]): untyped =
       let `tempId` = `list`
       `tupleDef`
 
-template toRange*(a): untyped =
+template toSlice*(a): untyped =
   a[0] .. a[1]
 
 template err*(msg: string): untyped =

@@ -1,0 +1,42 @@
+(PORT
+  (OBID "cprtf7000010d4884404803033fcce630000")
+  (PROPERTIES
+    (PROPERTY "SensitivityList" "Yes")
+  )
+  (HDL_IDENT
+    (NAME "HTRANS")
+    (USERNAME 1)
+    (ATTRIBUTES
+      (MODE 1)
+      (CONSTRAINT
+        (DIRECTION 1)
+        (RANGE "1" "0")
+      )
+    )
+  )
+  (GEOMETRY 3416 1688 3496 1768)
+  (SIDE 3)
+  (LABEL
+    (POSITION 3520 1728)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 3)
+    (FORMAT 35)
+    (TEXT "HTRANS[1:0]")
+  )
+  (PORT "eprtf7000010b203330479045600affd1607")
+  (CONNECTION
+    (OBID "ncona0a0a0bc32ebab64495073947d800000")
+    (GEOMETRY 3392 1728 3392 1728)
+    (SIDE 0)
+    (LABEL
+      (POSITION 3392 1696)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 8)
+      (FORMAT 128)
+    )
+  )
+)

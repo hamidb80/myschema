@@ -1,0 +1,7 @@
+(CONSTRAINT
+  (DIRECTION 1)
+  (RANGE "HIGH" "LOW")
+)
+(CONSTRAINT
+  (INDEX "2")
+)

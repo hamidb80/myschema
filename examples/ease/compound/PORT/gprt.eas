@@ -1,0 +1,39 @@
+(PORT
+  (OBID "gprta0a0a056f0f80505c4914b455aa7a454")
+  (HDL_IDENT
+    (NAME "s_mltplctr")
+    (ATTRIBUTES
+      (TYPE "STD_LOGIC_VECTOR")
+      (MODE 1)
+      (CONSTRAINT
+        (DIRECTION 1)
+        (RANGE "DWIDTH-1" "0")
+      )
+    )
+  )
+  (GEOMETRY 2008 3224 2088 3304)
+  (SIDE 1)
+  (LABEL
+    (POSITION 1984 3264)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 1)
+    (ALIGNMENT 5)
+    (FORMAT 35)
+    (TEXT "s_mltplctr(DWIDTH-1:0)")
+  )
+  (GENERATE "gprta0a0a056f0f80505c4914b454aa7a454")
+  (CONNECTION
+    (OBID "ncona0a0a056f0f80505c4914b45f6b7a454")
+    (GEOMETRY 2112 3264 2112 3264)
+    (SIDE 2)
+    (LABEL
+      (POSITION 2112 3296)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 1)
+      (ALIGNMENT 0)
+      (FORMAT 128)
+    )
+  )
+)

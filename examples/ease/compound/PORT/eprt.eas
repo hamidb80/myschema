@@ -1,0 +1,26 @@
+(PORT
+  (OBID "eprta0a0a056f0f80505c4914b45e9a7a454")
+  (HDL_IDENT
+    (NAME "new_cy_o")
+    (USERNAME 1)
+    (ATTRIBUTES
+      (TYPE "STD_LOGIC_VECTOR")
+      (MODE 2)
+      (CONSTRAINT
+        (DIRECTION 1)
+        (RANGE "(DWIDTH-1)/4" "0")
+      )
+    )
+  )
+  (GEOMETRY 2328 600 2408 680)
+  (SIDE 1)
+  (LABEL
+    (POSITION 2304 640)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 1)
+    (ALIGNMENT 5)
+    (FORMAT 35)
+    (TEXT "new_cy_o((DWIDTH-1)/4:0)")
+  )
+)

@@ -1,0 +1,23 @@
+(BUS_RIPPER
+  (OBID "hookf7000010a203330479045600dddd1607")
+  (HDL_IDENT
+    (USERNAME 1)
+    (ATTRIBUTES
+      (CONSTRAINT
+        (INDEX "1")
+      )
+    )
+  )
+  (GEOMETRY 10560 5440 10688 5568)
+  (SIDE 2)
+  (LABEL
+    (POSITION 10596 5462)
+    (SCALE 80)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 5)
+    (FORMAT 3)
+    (TEXT "layer2_HSEL[1]")
+  )
+  (DEST_NET "netf7000010a203330479045600eddd1607")
+)

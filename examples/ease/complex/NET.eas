@@ -1,0 +1,186 @@
+(NET
+  (OBID "netf7000010a2033304790456008ddd1607")
+  (HDL_IDENT
+    (NAME "layer2_HSEL")
+    (USERNAME 1)
+    (ATTRIBUTES
+      (CONSTRAINT
+        (DIRECTION 1)
+        (RANGE "2" "0")
+      )
+    )
+  )
+  (PART
+    (OBID "nprta0a0a09cbd893af400509d1762a40ff7")
+    (CBN 1)
+  )
+  (PART
+    (OBID "nprta0a0a09cbd893af400509d1772a40ff7")
+    (LABEL
+      (POSITION 10640 8032)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 4099)
+      (TEXT "layer2_HSEL[2:0]")
+    )
+    (WIRE 4416 3712 10624 3712)
+    (WIRE 4416 3712 4416 4480)
+    (WIRE 4416 4480 4992 4480)
+    (WIRE 10624 3712 10624 5504)
+    (WIRE 10624 3328 10624 3712)
+    (WIRE 10624 2304 10624 3328)
+    (WIRE 10624 896 10624 2304)
+    (WIRE 10368 896 10624 896)
+    (WIRE 10624 5504 10624 6528)
+    (WIRE 10624 6528 10624 9536)
+    (WIRE 10624 9536 10624 10560)
+    (PORT
+      (OBID "cprtf7000010a20333047904560005dd1607")
+      (NAME "HSEL")
+    )
+    (PORT
+      (OBID "cprtf7000010a203330479045600d7dd1607")
+      (NAME "HSEL")
+    )
+    (BUS_RIPPER
+      (OBID "hookf7000010a2033304790456003edd1607")
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (CONSTRAINT
+            (INDEX "2")
+          )
+        )
+      )
+      (GEOMETRY 10560 3264 10688 3392)
+      (SIDE 2)
+      (LABEL
+        (POSITION 10597 3270)
+        (SCALE 80)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "layer2_HSEL[2]")
+      )
+      (DEST_NET "netf7000010a2033304790456004edd1607")
+    )
+    (BUS_RIPPER
+      (OBID "hookf7000010a2033304790456001edd1607")
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (CONSTRAINT
+            (INDEX "2")
+          )
+        )
+      )
+      (GEOMETRY 10560 2240 10688 2368)
+      (SIDE 2)
+      (LABEL
+        (POSITION 10597 2252)
+        (SCALE 80)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "layer2_HSEL[2]")
+      )
+      (DEST_NET "netf7000010a2033304790456002edd1607")
+    )
+    (BUS_RIPPER
+      (OBID "hookf7000010a203330479045600dddd1607")
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (CONSTRAINT
+            (INDEX "1")
+          )
+        )
+      )
+      (GEOMETRY 10560 5440 10688 5568)
+      (SIDE 2)
+      (LABEL
+        (POSITION 10596 5462)
+        (SCALE 80)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "layer2_HSEL[1]")
+      )
+      (DEST_NET "netf7000010a203330479045600eddd1607")
+    )
+    (BUS_RIPPER
+      (OBID "hookf7000010a203330479045600fddd1607")
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (CONSTRAINT
+            (INDEX "1")
+          )
+        )
+      )
+      (GEOMETRY 10560 6464 10688 6592)
+      (SIDE 2)
+      (LABEL
+        (POSITION 10620 6482)
+        (SCALE 80)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "layer2_HSEL[1]")
+      )
+      (DEST_NET "netf7000010a2033304790456000edd1607")
+    )
+    (BUS_RIPPER
+      (OBID "hookf7000010a2033304790456009ddd1607")
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (CONSTRAINT
+            (INDEX "0")
+          )
+        )
+      )
+      (GEOMETRY 10560 9472 10688 9600)
+      (SIDE 2)
+      (LABEL
+        (POSITION 10619 9489)
+        (SCALE 80)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "layer2_HSEL[0]")
+      )
+      (DEST_NET "netf7000010a203330479045600addd1607")
+    )
+    (BUS_RIPPER
+      (OBID "hookf7000010a203330479045600bddd1607")
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (CONSTRAINT
+            (INDEX "0")
+          )
+        )
+      )
+      (GEOMETRY 10560 10496 10688 10624)
+      (SIDE 2)
+      (LABEL
+        (POSITION 10608 10513)
+        (SCALE 80)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "layer2_HSEL[0]")
+      )
+      (DEST_NET "netf7000010a203330479045600cddd1607")
+    )
+  )
+)
