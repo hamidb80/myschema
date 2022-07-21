@@ -3,8 +3,6 @@ import lisp, defs
 import ../utils, ../common/defs as cdef
 
 
-# FIXME do not ignore other fields, eather raise error of ingonre them explicitly
-
 func select*(sl: seq[LispNode]): LispNode {.inline.} =
   ## all .eas file styles:
   ## (DATABASE_VERSION 17)
@@ -31,56 +29,40 @@ func parseOBID(obidNode: LispNode): Obid {.inline.} =
   Obid obidNode.parseStr
 
 func parseGeometry(geometryNode: LispNode): Geometry {.inline.} =
-  ## (GEOMETRY startX startY endX endY)
   (geometryNode.args.mapIt it.vint).toTuple 4
 
 func parseSheetSize(sheetSizeNode: LispNode): Geometry {.inline.} =
-  ## (GEOMETRY startX startY endX endY)
   parseGeometry sheetSizeNode
 
 func parsePosition(positionNode: LispNode): Point {.inline.} =
-  ## (POSITION X Y)
   (positionNode.arg(0).vint, positionNode.arg(1).vint)
 
 func parseScale(scaleNode: LispNode): Positive {.inline.} =
-  ## (SCALE N)
   scaleNode.parseInt
 
 func parseName(nameNode: LispNode): string {.inline.} =
-  ## (NAME "...")
   nameNode.parseStr
 
 func parseProperties(propertiesNode: LispNode): Properties =
-  ## (PROPERTIES
-  ##   (PROPERTY "Key" "Value") ...
-  ## )
-
   for property in propertiesNode:
     result[property.arg(0).str] = property.arg(1).str
 
 func parseAligment(alignmentNode: LispNode): Alignment {.inline.} =
-  ## (ALIGNMENT 0..8)
   alignmentNode.parseInt.Alignment
 
 func parseSide(sideNode: LispNode): Side {.inline.} =
-  ## (SIDE 0..3)
-  ## -- FOR TEXTS 0, 2 And 1, 3 looks similar
   Side sideNode.parseInt
 
 func parseColor(colorNode: LispNode): EaseColor {.inline.} =
-  ## (COLOR_LINE 0..71)
   EaseColor colorNode.parseInt
 
 func parseMode(modeNode: LispNode): int {.inline.} =
-  ## (MODE N)
   modeNode.parseInt
 
 func parseType(typeNode: LispNode): LispNode {.inline.} =
-  ## (TYPE "...")
   typeNode.arg(0)
 
 func parseFormat(formatNode: LispNode): int {.inline.} =
-  ## (FORMAT N)
   formatNode.parseInt
 
 func parseEntityRef(entityNode: LispNode): Entity {.inline.} =
@@ -89,20 +71,16 @@ func parseEntityRef(entityNode: LispNode): Entity {.inline.} =
     obid: entityNode.arg(1).str.Obid)
 
 func parseDirection(directionNode: LispNode): NumberDirection {.inline.} =
-  ## (DIRECTION 1|2)
   NumberDirection parseInt directionNode
 
 func parseWire(wireNode: LispNode): Wire {.inline.} =
-  ## (WIRE X1 Y1 X2 Y2)
   template s(n): untyped = wireNode.arg(n).vint
   (s 0, s 1) .. (s 2, s 3)
 
 func parseText(textNode: LispNode): seq[string] {.inline.} =
-  ## (TEXT "..."*)
   textNode.args.mapIt(it.str)
 
 func parseIndex(indexNode: LispNode): string {.inline.} =
-  ## (INDEX "...")
   indexNode.parseStr
 
 func parseDestNet(destNetNode: LispNode): Net =
@@ -117,13 +95,14 @@ func parseConstraint(constraintNode: LispNode): Constraint =
   for n in constraintNode:
     case n.ident:
     of "INDEX":
-      result.index = some parseIndex n
+      result = Constraint(kind: ckIndex, index: parseIndex n)
 
     of "DIRECTION":
-      result.`range` = some Range(direction: parseDirection n)
+      result = Constraint(kind: ckRange, `range`: Range(
+          direction: parseDirection n))
 
     of "RANGE":
-      result.`range`.get.indexes = (n.arg(0).str) .. (n.arg(1).str)
+      result.`range`.indexes = (n.arg(0).str) .. (n.arg(1).str)
 
     of "NAME": discard
     else: err "invalid"
@@ -140,7 +119,10 @@ func parseAttributes(attributesNode: LispNode): Attributes =
     of "CONSTRAINT":
       result.constraint = some parseConstraint n
 
-    of "DEF_VALUE": discard
+    of "DEF_VALUE":
+      result.defValue = some parseStr n
+
+    of "VERILOG_TYPE": discard
     else: err fmt"invalid attribute: {n.ident}"
 
 func parseHDLIdent(hdlIdentNode: LispNode): HdlIdent =
@@ -159,16 +141,6 @@ func parseHDLIdent(hdlIdentNode: LispNode): HdlIdent =
 
 
 func parseLabel(labelNode: LispNode): Label =
-  ## (LABEL
-  ##   (POSITION)
-  ##   (SCALE)
-  ##   (COLOR_LINE)
-  ##   (SIDE)
-  ##   (ALIGNMENT)
-  ##   (FORMAT 1)
-  ##   (TEXT "Instruction Decoder")
-  ## )
-
   for n in labelNode:
     case n.ident:
     of "POSITION":
@@ -192,23 +164,13 @@ func parseLabel(labelNode: LispNode): Label =
     of "TEXT":
       result.text = n.parseText.join "\n"
 
-    else:
-      err "invalid field"
+    else: err "invalid field"
 
 func parseFreePlacedText(textNode: LispNode): FreePlacedText =
-  ## (FREE_PLACED_TEXT
-  ##   (LABEL)
-  ## )
   FreePlacedText parseLabel textNode.arg(0)
 
 
 func parseObjStamp(objStampNode: LispNode): ObjStamp =
-  ## (OBJSTAMP
-  ##   (DESIGNER "HamidB80")
-  ##   (CREATED 939908873 "Thu Oct 14 17:17:53 1999")
-  ##   (MODIFIED 1340886716 "Thu Jun 28 17:01:56 2012")
-  ## )
-
   ObjStamp(
     designer: objStampNode.arg(0).parseStr,
     created: objStampNode.arg(1).parseInt,
@@ -217,14 +179,7 @@ func parseObjStamp(objStampNode: LispNode): ObjStamp =
 # --- complex
 
 func parseHook(busRipperNode: LispNode): BusRipper =
-  ## (BUS_RIPPER
-  ##   (OBID)
-  ##   (HDL_IDENT)
-  ##   (GEOMETRY)
-  ##   (SIDE)
-  ##   (LABEL)
-  ##   (DEST_NET)
-  ## )
+  result = new BusRipper
 
   for n in busRipperNode:
     case n.ident:
@@ -249,15 +204,6 @@ func parseHook(busRipperNode: LispNode): BusRipper =
     else: err "invalid"
 
 func parseCbn(cbnNode: LispNode): CBN =
-  ## (CBN
-  ##   (OBID)
-  ##   (HDL_IDENT
-  ##   (GEOMETRY)
-  ##   (SIDE 1)
-  ##   (LABEL)
-  ##   (TYPE 0)
-  ## )
-
   result = new CBN
 
   for n in cbnNode:
@@ -304,19 +250,6 @@ func parseNCon(connectionNode: LispNode): Connection =
 
 
 func parsePort(portNode: LispNode, pk: PortKind): Port =
-  ## (PORT
-  ##   (OBID)
-  ##   (PROPERTIES)
-  ##   (HDL_IDENT)
-  ##   (GEOMETRY)
-  ##   (SIDE)
-  ##   (LABEL)
-  ##
-  ##   (GENERATE)?
-  ##   (PORT#ref)?
-  ##   (CONNECTION)? *
-  ## )
-
   result = Port(kind: pk)
 
   for n in portNode:
@@ -343,7 +276,7 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
       result.label = parseLabel n
 
     of "CONNECTION":
-      result.connection = parseNCon n
+      result.connection = some parseNCon n
 
     of "GENERATE", "PORT":
       result.refObid = parseOBID n
@@ -351,21 +284,9 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
     of "CBN":
       result.cbn = some parseCbn n
 
-    else:
-      err "what?"
+    else: err "what?"
 
 func parseNetPart2(part2Node: LispNode, result: var Net) =
-  ## (PART#2
-  ##   (OBID)
-  ##   (LABEL)
-  ##   (WIRE)+
-  ##   (PORT
-  ##     (OBID "<Port_Instance_Id>")
-  ##     (NAME "<Port_Name>")
-  ##   )*
-  ##   (BUS_RIPPER)*
-  ## )
-
   for n in part2Node:
     case n.ident:
     of "OBID": discard
@@ -385,18 +306,8 @@ func parseNetPart2(part2Node: LispNode, result: var Net) =
     else: err "invalid"
 
 func parseNet(netNode: LispNode): Net =
-  ## (NET
-  ##   (OBID)
-  ##   (HDL_IDENT)
-  ##   (PART
-  ##     (OBID)
-  ##     (CBN 1)
-  ##   )
-  ##   (PART#2)
-  ## )
-
-  result = new Net
-  var seenPart = false
+  result = Net(kind: netDef)
+  var seenFirstPart = false
 
   for n in netNode:
     case n.ident:
@@ -407,30 +318,40 @@ func parseNet(netNode: LispNode): Net =
       result.ident = parseHDLIdent n
 
     of "PART":
-      if seenPart:
+      if seenFirstPart:
         parseNetPart2 n, result
 
-      else: # ignore first PART
-        seenPart = true
+      else:
+        seenFirstPart = true
 
-    else:
-      err "invalid field"
 
-func parseIgen(): Generic =
-  discard
+func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
+  result = Generic(kind: gkind)
+
+  for n in genericNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
+    of "HDL_IDENT":
+      result.ident = parseHDLIdent n
+
+    of "GEOMETRY":
+      result.geometry = parseGeometry n
+
+    of "SIDE":
+      result.side = parseSide n
+
+    of "LABEL":
+      result.label = parseLabel n
+
+    of "GENERIC":
+      result.instanceOf = some Generic(kind: gkRef, obid: parseOBID n)
+
+    of "ACT_VALUE": discard
+    else: err fmt"invalid field {n.ident}"
 
 func parseComp(componentNode: LispNode): Component =
-  ## (COMPONENT
-  ##   (OBID)
-  ##   (HDL_IDENT)
-  ##   (GEOMETRY#igen)
-  ##   (SIDE)
-  ##   (LABEL)
-  ##   (ENTITY#ref "<lib_id>" "<entity_id>")
-  ##   (GENERIC)*
-  ##   (PORT)*
-  ## )
-
   result = new Component
 
   for n in componentNode:
@@ -454,14 +375,12 @@ func parseComp(componentNode: LispNode): Component =
       result.instanceof = parseEntityRef n
 
     of "GENERIC":
-      discard
+      result.generics.add parseGeneric(n, gkInstance)
 
-    of "PORT": #cprt
-      discard
-      # TODO
+    of "PORT":
+      result.ports.add parsePort(n, cprt)
 
-    else:
-      err "invalid node"
+    else: err "invalid node"
 
 func parseProc(processNode: LispNode): Process =
   result = new Process
@@ -498,22 +417,6 @@ func parseProc(processNode: LispNode): Process =
 func parseDiag(schematicNode: LispNode): Schematic
 
 func parseGenB(generateNode: LispNode): GenerateBlock =
-  ## (GENERATE
-  ##   (OBID)
-  ##   (PROPERTIES
-  ##     (PROPERTY "IF_CONDITION" "my_cond")
-  ##     (PROPERTY "FOR_LOOP_VAR" "ident")
-  ##   )
-  ##   (HDL_IDENT)
-  ##   (GEOMETRY)
-  ##   (CONSTRAINT) ;; for
-  ##   (SIDE)
-  ##   (LABEL)
-  ##   (TYPE)
-  ##   (PORT)*
-  ##   (SCHEMATIC)
-  ## )
-
   result = new GenerateBlock
 
   for n in generateNode:
@@ -540,7 +443,7 @@ func parseGenB(generateNode: LispNode): GenerateBlock =
       result.label = parseLabel n
 
     of "TYPE":
-      result.kind = GenerateBlockType parseInt parseType n
+      result.kind = GenerateBlockType parseType(n).vint
 
     of "PORT":
       result.ports.add parsePort(n, gprt)
@@ -551,20 +454,7 @@ func parseGenB(generateNode: LispNode): GenerateBlock =
     else: err "invalid"
 
 func parseDiag(schematicNode: LispNode): Schematic =
-  ## (SCHEMATIC
-  ##   (OBID)
-  ##   (PROPERTIES)
-  ##   (SHEETSIZE 0 0 <Width> <Height>)
-  ##   (DECLARATION)*
-  ##   (INCLUDED_TEXT)*
-  ##   (FREE_PLACED_TEXT)*
-  ##   (GENERIC)*
-  ##   (GENERATE)*
-  ##   (COMPONENT)*
-  ##   (PROCESS)*
-  ##   (PORT)*
-  ##   (NET)*
-  ## )
+  result = new Schematic
 
   for n in schematicNode:
     case n.ident:
@@ -580,9 +470,8 @@ func parseDiag(schematicNode: LispNode): Schematic =
     of "FREE_PLACED_TEXT":
       result.freePlacedTexts.add parseFreePlacedText n
 
-    # TODO
-    # of "GENERIC":
-    #   discard
+    of "GENERIC":
+      result.generics.add parseGeneric(n, gkInstance)
 
     of "GENERATE":
       result.generateBlocks.add parseGenB n
@@ -603,13 +492,7 @@ func parseDiag(schematicNode: LispNode): Schematic =
     else: err "invalid"
 
 func parseArch(archDefNode: LispNode): Architecture =
-  ## (ARCH_DEFINITION
-  ##   (OBID)
-  ##   (HDL_IDENT)
-  ##   (PROPERTIES ...)
-  ##   (TYPE <TYPE_NO>)
-  ##   (SCHEMATIC ...)
-  ## )
+  result = new Architecture
 
   for n in archDefNode:
     case n.ident:
@@ -617,9 +500,7 @@ func parseArch(archDefNode: LispNode): Architecture =
       result.obid = parseOBID n
 
     of "TYPE":
-      discard
-      # TODO
-      # result.kind = ArchitectureMode n.parseInt
+      result.kind = ArchitectureMode n.parseInt
 
     of "HDL_IDENT":
       result.ident = parseHDLIdent n
@@ -630,23 +511,10 @@ func parseArch(archDefNode: LispNode): Architecture =
     of "SCHEMATIC":
       result.schematic = parseDiag n
 
-    else: err "invalid"
+    of "HDL_FILE": discard
+    else: err fmt"invalid field: {n.ident}"
 
 func parseEnt(entityNode: LispNode, result: var Entity) =
-  ## (ENTITY
-  ##   (OBID)
-  ##   (PROPERTIES)
-  ##   (HDL_IDENT)
-  ##   (GEOMETRY)
-  ##   (SIDE 0)
-  ##   (HDL 1)
-  ##   (EXTERNAL 0)
-  ##   (OBJSTAMP)
-  ##   (GENERIC)*
-  ##   (PORT)*
-  ##   (ARCH_DECLARATION <TYPE_NO> "<id>" "<name>")*
-  ## )
-
   for n in entityNode:
     case n.ident:
     of "PROPERTIES":
@@ -661,17 +529,20 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
     of "GEOMETRY":
       result.componentSize = parseGeometry(n).pickTuple([2, 3])
 
+    of "GENERIC":
+      result.generics.add parseGeneric(n, gkEntity)
+
     of "PORT":
       result.ports.add parsePort(n, eprt)
 
-    of "ARCH_DECLARATION": discard
+    of "OBJSTAMP":
+      result.objStamp = parseObjStamp n
+
+    of "ARCH_DECLARATION", "PACKAGE_USE", "HDL", "SIDE", "EXTERNAL": discard
     else: err "invalid"
 
 func parseEntityFile(entityFileNode: LispNode): Entity =
-  ## (ENTITY_FILE
-  ##   (ENTITY)
-  ##   (ARCH_DEFINITION) ...
-  ## )
+  result = Entity(kind: ekDef)
 
   for n in entityFileNode:
     case n.ident:
@@ -681,7 +552,7 @@ func parseEntityFile(entityFileNode: LispNode): Entity =
     of "ARCH_DEFINITION":
       result.architectures.add parseArch n
 
-    else: discard
+    else: err "invalid"
 
 func parseEntityDecl(edn: LispNode): Entity =
   Entity(kind: ekDecl,
@@ -689,15 +560,7 @@ func parseEntityDecl(edn: LispNode): Entity =
     obid: edn.arg(1).str.Obid)
 
 func parseLib(designFileNode: LispNode): Library =
-  ## (DESIGN_FILE
-  ##   (OBID)
-  ##   (PROPERTIES)
-  ##   (COMPONENT_LIB 0)
-  ##   (NAME "Lib_name")
-  ##   (ENTITY "entity_name" "id") ...
-  ##   (PACKAGE "pkg_name" "id") ...
-  ##   (PACKAGE_USE) ...
-  ## )
+  result = Library(kind: lkDef)
 
   for n in designFileNode:
     case n.ident:
@@ -713,25 +576,28 @@ func parseLib(designFileNode: LispNode): Library =
     of "PROPERTIES":
       result.properties = parseProperties n
 
-    else: discard
+    of "COMPONENT_LIB": discard
+    else: err fmt"invalid ident: {n.ident}"
 
 func parseLibDecl(libraryNode: LispNode): Library =
   Library(kind: lkDecl,
     name: libraryNode.arg(0).str,
     obid: libraryNode.arg(1).str.Obid)
 
+func parsePack(packageNode: LispNode): Package =
+  Package(
+    obid: packageNode.arg(0).parseOBID,
+    library: packageNode.arg(1).parseStr,
+    name: packageNode.arg(2).parseStr)
+
 func parseProj(projectFileNode: LispNode): Project =
-  ## (PROJECT_FILE
-  ##   (OBID)
-  ##   (PROPERTIES ...)
-  ##   (DESIGN "libname" "id") ...
-  ##   (ENTITY "entity_name" "id") ...
-  ##   (PACKAGE "pkg_name" "id") ...
-  ##   (PACKAGE_USE ...) ...
-  ## )
+  result = new Project
 
   for n in projectFileNode:
     case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
     of "PROPERTIES":
       result.properties = parseProperties n
 
@@ -739,13 +605,11 @@ func parseProj(projectFileNode: LispNode): Project =
       result.designs.add parseLibDecl n
 
     of "PACKAGE":
-      result.packages.add Package(
-        obid: n.arg(0).str,
-        library: n.arg(1).str,
-        name: n.arg(2).str)
+      result.packages.add parsePack n
 
-    else: # PACKAGE_USE OBID
-      discard
+    of "PACKAGE_USE", "EXTERNAL_DOC": discard
+    else: err fmt"invalid ident: {n.ident}"
+
 
 proc parseEws*(dir: string): Project =
   doAssert dir.endsWith ".ews", fmt"the workspace directory name must end with .ews"
@@ -758,77 +622,3 @@ proc parseEws*(dir: string): Project =
 
     for e in mitems d.entities:
       e = parseEntityFile select parseLisp readfile libdir / e.obid.string & ".eas"
-
-
-# --------------------------------------------
-
-const
-  `workspace.eas` = """
-    (VCM_FILE
-      (PROPERTY "TL_VCM_SYSTEM" "None")
-    )
-    (END_OF_FILE)
-  """
-
-  `toolflow.xml` = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <document_root>
-      <section type="section_root" name="section_root"/>
-    </document_root>
-  """
-
-
-# --- fliping a component:
-#[
-  (COMPONENT
-    ...
-    (PROPERTIES
-      ...
-      (PROPERTY "Flip" "1")
-    )
-    ...
-  )
-]#
-
-# --- draft
-#[
-
-  func parseExtf(externalFileNode: LispNode): ExtternalFile =
-    ## (EXTERNAL_FILE
-    ##   (OBID "extff700001022bc0d264002b4d2a9a05a77")
-    ##   (HDL_IDENT)
-    ##   (FILE <Path>)
-    ## )
-
-  func parseHdlFile(hdlFileNode: LispNode): HdlFile =
-    ## (HDL_FILE
-    ##   (VHDL_FILE
-    ##     (OBID)
-    ##     (NAME "pr0.vhd")
-    ##     (VALUE "lines of the file" ...)
-    ##   )
-    ## )
-
-  func parseTtab(tableNode: LispNode): TruthTable =
-    ## (TABLE
-    ##   (OBID)
-    ##   (PROPERTIES)
-    ##   (HEADER) ...
-    ##   (ROW) ...
-    ## )
-    ##
-    ## (HEADER
-    ##   (OBID)
-    ##   (LABEL)
-    ## )
-    ##
-    ## (ROW
-    ##   (OBID)
-    ##   (CELL) ...
-    ## )
-    ##
-    ## (CELL
-    ##   (OBID)
-    ##   (LABEL)
-    ## )
-  ]#

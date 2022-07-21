@@ -5,4 +5,5 @@
     (DIRECTION 2)
     (RANGE "9" "13")
   )
+  (DEF_VALUE "3'b011")
 )

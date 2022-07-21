@@ -92,15 +92,21 @@ type
     direction*: NumberDirection
     indexes*: Slice[string]
 
+  ConstraintKind* = enum
+    ckIndex, ckRange
+
   Constraint* = object
-    index*: Option[string]
-    `range`*: Option[Range]
+    case kind*: ConstraintKind
+    of ckIndex:
+      index*: string
+    of ckRange:
+      `range`*: Range
 
   Attributes* = object
     mode*: Option[int]
     kind*: Option[string]
     constraint*: Option[Constraint]
-    # def_value: Option[string]
+    def_value*: Option[string]
 
   HdlIdent* = ref object
     name*: string
@@ -137,9 +143,20 @@ type
     side*: Side
     label*: Label
 
+  GenericKind* = enum
+    gkRef, gkEntity, gkInstance
 
-  Generic* = ref object
-
+  Generic* = ref object ## entity generic
+    obid*: Obid
+    
+    case kind*: GenericKind
+    of gkRef: discard
+    of gkEntity, gkInstance:
+      ident*: HdlIdent
+      geometry*: Geometry
+      side*:Side
+      label*: Label
+      instanceOf*: Option[Generic]
 
   GenerateKind* = enum
     ifGen, forGen
@@ -204,7 +221,7 @@ type
       side*: Side
       label*: Label
       cbn*: Option[CBN]
-      connection*: Connection
+      connection*: Option[Connection]
       refObid*: Obid
 
   Process* = ref object
@@ -223,7 +240,9 @@ type
     geometry*: Geometry
     side*: Side
     label*: Label
+    ports*: seq[Port]
     instanceof*: Entity
+    generics*: seq[Generic]
 
   Schematic* = ref object
     obid*: Obid
@@ -263,7 +282,9 @@ type
     of ekDef:
       ident*: HdlIdent
       properties*: Properties
+      objStamp*: ObjStamp
       componentSize*: Size
+      generics*: seq[Generic]
       ports*: seq[Port]
       architectures*: seq[Architecture]
 
@@ -282,10 +303,11 @@ type
       entities*: seq[Entity]
 
   Package* = ref object
-    obid*, library*, name*: string
+    obid*: Obid
+    library*, name*: string
 
   Project* = ref object
-    obid*: string
+    obid*: Obid
     properties*: Properties
     designs*: seq[Library]
     packages*: seq[Package]
@@ -306,4 +328,5 @@ type
 func isEmpty*(attrs: Attributes): bool =
   (isNone attrs.mode) and
   (isNone attrs.kind) and
-  (isNone attrs.constraint)
+  (isNone attrs.constraint) and
+  (isNone attrs.def_value)

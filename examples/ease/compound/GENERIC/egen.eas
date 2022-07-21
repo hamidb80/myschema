@@ -1,0 +1,22 @@
+(GENERIC
+  (OBID "egenf7000010b203330479045600b40e1607")
+  (HDL_IDENT
+    (NAME "DATA_PHASE")
+    (USERNAME 1)
+    (ATTRIBUTES
+      (TYPE "integer")
+      (DEF_VALUE "3'b010")
+    )
+  )
+  (GEOMETRY 1304 88 1384 168)
+  (SIDE 2)
+  (LABEL
+    (POSITION 1448 128)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 3)
+    (FORMAT 128)
+    (TEXT "DATA_PHASE(3'b010)")
+  )
+)

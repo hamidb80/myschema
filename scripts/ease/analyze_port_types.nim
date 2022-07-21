@@ -105,5 +105,5 @@ when isMainModule:
       let ctx = select parseLisp readfile path
       goFind ctx, @["/"]
 
-  echo uniqIdentsRepeat["GENERATE"]
-  print uniqIdentParent["GENERATE"]
+  echo uniqIdentsRepeat["GENERIC"]
+  print uniqIdentParent["GENERIC"]

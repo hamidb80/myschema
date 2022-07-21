@@ -1,0 +1,19 @@
+(CBN
+  (OBID "cbna0a0a0bc32ebab64495073946e800000")
+  (HDL_IDENT
+    (NAME "HCLK")
+    (USERNAME 1)
+  )
+  (GEOMETRY 3256 2200 3400 2280)
+  (SIDE 2)
+  (LABEL
+    (POSITION 3212 2240)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 5)
+    (FORMAT 1)
+    (TEXT "HCLK")
+  )
+  (TYPE 1)
+)
