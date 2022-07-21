@@ -59,7 +59,7 @@ suite "basic":
     check parseMode(lfName "basic/MODE.eas") == 4
 
   test "TYPE":
-    check parseType(lfName "basic/TYPE.eas") == "std_logic"
+    check parseType(lfName "basic/TYPE.eas").str == "std_logic"
 
   test "FORMAT":
     check parseFormat(lfName "basic/FORMAT.eas") == 129
@@ -94,7 +94,7 @@ suite "compound":
 
   test "FREE_PLACED_TEXT":
     let fpt = parseFreePlacedText(lfName "compound/FREE_PLACED_TEXT.eas")
-    check fpt.label.text == "Connected to interconnect_mux_slave1-3"
+    check fpt.Label.text == "Connected to interconnect_mux_slave1-3"
 
   test "OBJSTAMP":
     let to = parseObjStamp(lfName "compound/OBJSTAMP.eas")
@@ -114,7 +114,7 @@ suite "compound":
   test "ATTRIBUTES":
     let ao = parseAttributes(lfName "compound/ATTRIBUTES.eas")
     check ao.mode == some 1
-    check ao.`type` == some "yo"
+    check ao.kind == some "yo"
     check ao.constraint.get.`range`.get.indexes.a == "9"
 
   template checkPort(po, id, nm, geo_x1, sde, lbl): untyped =
@@ -131,7 +131,7 @@ suite "compound":
   test "PORT_eprt":
     let po = parsePort(lfName "compound/PORT/eprt.eas", eprt)
     checkPort po, "eprta0a0a056f0f80505c4914b45e9a7a454", "new_cy_o", 2328, 1, "new_cy_o((DWIDTH-1)/4:0)"
-    check po.ident.attributes.`type`.get == "STD_LOGIC_VECTOR"
+    check po.ident.attributes.kind.get == "STD_LOGIC_VECTOR"
 
   test "PORT_aprt":
     let po = parsePort(lfName "compound/PORT/aprt.eas", aprt)

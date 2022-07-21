@@ -36,6 +36,19 @@ var
   uniqIdentParent: Table[string, HashSet[string]]
   lastPath: string
 
+func newId(node: LispNode): string = 
+  case node.ident:
+  of "PORT":
+    let sub = node.findNode(it.matchCaller "OBID")
+
+    if issome sub:
+      "PORT" & '#' & sub.get.parseOBID.string[0..<4]
+    else:
+      "PORT"
+
+  else: 
+    node.ident
+
 
 proc goFind(node: LispNode, path: Path) =
   if path.endsWith(@["PORT", "HDL_IDENT"]) and node.matchCaller("ATTRIBUTES"):
@@ -72,23 +85,13 @@ proc goFind(node: LispNode, path: Path) =
 
   uniqIdentsRepeat[value].total.inc
   
-  # if parent == "PORT#pprt" and node.ident == "NAME":
+  # if parent == "PROCESS" and value == "FREE_PLACED_TEXT":
   #   echo ">> ", lastPath
   #   jump()
 
   if node.kind == lnkList:
-    for s in node.args:
-      let id = case node.ident:
-        of "PORT":
-          let sub = node.findNode(it.matchCaller "OBID")
-
-          if issome sub:
-            "PORT" & '#' & sub.get.parseOBID.string[0..<4]
-          else:
-            "PORT"
-
-        else: node.ident
-
+    for s in node:
+      let id = newId node
       goFind s, path & id
 
 
@@ -102,5 +105,5 @@ when isMainModule:
       let ctx = select parseLisp readfile path
       goFind ctx, @["/"]
 
-  echo uniqIdentsRepeat["PROCESS"]
-  print uniqIdentParent["PROCESS"]
+  echo uniqIdentsRepeat["GENERATE"]
+  print uniqIdentParent["GENERATE"]

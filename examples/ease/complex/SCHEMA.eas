@@ -1,0 +1,1984 @@
+(SCHEMATIC
+  (OBID "diaga0a0a056154e0905c7414b4536d16626")
+  (PROPERTIES
+    (PROPERTY "SheetInfoFontSize" "8")
+  )
+  (SHEETSIZE 0 0 9600 6400)
+  (DECLARATION
+    (OBID "dclsa0a0a056154e0905c7414b4546d16626")
+    (GEOMETRY 3864 3160 3944 3240)
+    (SIDE 3)
+    (LABEL
+      (POSITION 4008 3200)
+      (SCALE 80)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 129)
+      (TEXT "Declarations"
+            "Signal    sp")
+    )
+    (DECLARATION
+      (OBID "decla0a0a056154e0905c7414b4556d16626")
+      (PROPERTIES
+        (PROPERTY "DeclarationType" "Signal")
+      )
+      (HDL_IDENT
+        (NAME "sp")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrParallelPorts")
+        )
+      )
+    )
+  )
+  (FREE_PLACED_TEXT
+    (LABEL
+      (POSITION 5688 5211)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 4)
+      (FORMAT 0)
+      (TEXT "--  MC8051 - VHDL 8051 Microcontroller IP Core"
+            "--  Copyright (C) 2001 OREGANO SYSTEMS"
+            "--"
+            "--  This library is free software; you can redistribute it and/or"
+            "--  modify it under the terms of the GNU Lesser General Public"
+            "--  License as published by the Free Software Foundation; either"
+            "--  version 2.1 of the License, or (at your option) any later version."
+            "--"
+            "--  This library is distributed in the hope that it will be useful,"
+            "--  but WITHOUT ANY WARRANTY; without even the implied warranty of"
+            "--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU"
+            "--  Lesser General Public License for more details."
+            "")
+    )
+  )
+  (INCLUDED_TEXT
+    (OBID "itxta0a0a056154e0905c7414b4566d16626")
+    (GEOMETRY 600 5272 680 5352)
+    (SIDE 3)
+    (LABEL
+      (POSITION 744 5312)
+      (SCALE 80)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 129)
+      (TEXT "Declarations after Signals:"
+            "function FUNC_PULLUP (signal s_bidir_line : in std_logic) return std_logic is"
+            ""
+            "    variable v_result : std_logic;"
+            "    "
+            "  begin"
+            "    if s_bidir_line = 'Z' then"
+            "      v_result:= '1';"
+            "    else"
+            "      v_result := s_bidir_line;"
+            "    end if;"
+            "    return v_result;"
+            "  end FUNC_PULLUP;")
+    )
+    (TYPE "Declarations after Signals")
+    (VALUE "function FUNC_PULLUP (signal s_bidir_line : in std_logic) return std_logic is"
+            ""
+            "    variable v_result : std_logic;"
+            "    "
+            "  begin"
+            "    if s_bidir_line = 'Z' then"
+            "      v_result:= '1';"
+            "    else"
+            "      v_result := s_bidir_line;"
+            "    end if;"
+            "    return v_result;"
+            "  end FUNC_PULLUP;")
+  )
+  (GENERIC
+    (OBID "igena0a0a056154e0905c7414b4576d16626")
+    (HDL_IDENT
+      (NAME "one_period")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "time")
+        (DEF_VALUE "100 ns")
+      )
+    )
+    (GEOMETRY 3480 216 3560 296)
+    (SIDE 3)
+    (LABEL
+      (POSITION 3624 256)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 129)
+      (TEXT "one_period(100 ns)")
+    )
+    (GENERIC "egena0a0a056154e0905c7414b4516d16626")
+  )
+  (COMPONENT
+    (OBID "compa0a0a056154e0905c7414b4586d16626")
+    (HDL_IDENT
+      (NAME "i_mc8051_top")
+      (USERNAME 1)
+    )
+    (GEOMETRY 5440 832 8448 3200)
+    (SIDE 0)
+    (LABEL
+      (POSITION 5440 832)
+      (SCALE 128)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 6)
+      (FORMAT 13)
+      (TEXT "i_mc8051_top:mc8051_top:struc(B)")
+    )
+    (ENTITY "liba0a0a056c34e0905c7414b459cc16626" "enta0a0a056d54e0905c7414b4593526626")
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b4596d16626")
+      (HDL_IDENT
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrCtrl")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 6808 3160 6888 3240)
+      (SIDE 2)
+      (LABEL
+        (POSITION 6848 3136)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 2)
+        (ALIGNMENT 7)
+        (FORMAT 35)
+        (TEXT "(vrCtrl)")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b45a3526626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b45a6d16626")
+        (GEOMETRY 6848 3264 6848 3264)
+        (SIDE 3)
+        (LABEL
+          (POSITION 6816 3264)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 2)
+          (ALIGNMENT 2)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b45b6d16626")
+      (HDL_IDENT
+        (NAME "int")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrInterrupts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 5400 1176 5480 1256)
+      (SIDE 3)
+      (LABEL
+        (POSITION 5504 1216)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "int")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b45b3526626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b45c6d16626")
+        (GEOMETRY 5376 1216 5376 1216)
+        (SIDE 0)
+        (LABEL
+          (POSITION 5376 1184)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 8)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b45d6d16626")
+      (HDL_IDENT
+        (NAME "all_t")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrTimer")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 5400 1880 5480 1960)
+      (SIDE 3)
+      (LABEL
+        (POSITION 5504 1920)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "all_t")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b45c3526626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b45e6d16626")
+        (GEOMETRY 5376 1920 5376 1920)
+        (SIDE 0)
+        (LABEL
+          (POSITION 5376 1888)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 8)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b45f6d16626")
+      (HDL_IDENT
+        (NAME "all_rxd_i")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "STD_LOGIC_VECTOR")
+          (MODE 1)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "C_IMPL_N_SIU-1" "0")
+          )
+        )
+      )
+      (GEOMETRY 5400 2136 5480 2216)
+      (SIDE 3)
+      (LABEL
+        (POSITION 5504 2176)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "all_rxd_i(C_IMPL_N_SIU-1:0)")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b45d3526626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4507d16626")
+        (GEOMETRY 5376 2176 5376 2176)
+        (SIDE 0)
+        (LABEL
+          (POSITION 5376 2144)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 8)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b4517d16626")
+      (PROPERTIES
+        (PROPERTY "relma0a0a0564bf815050b914b45cf670832_mode" "virtual")
+        (PROPERTY "relma0a0a0564bf815050b914b45df670832_mode" "virtual")
+        (PROPERTY "relma0a0a0564bf815050b914b45ef670832_mode" "virtual")
+        (PROPERTY "relma0a0a0564bf815050b914b45ff670832_mode" "virtual")
+      )
+      (HDL_IDENT
+        (NAME "pi")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrParallelPorts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 5400 2648 5480 2728)
+      (SIDE 3)
+      (LABEL
+        (POSITION 5504 2688)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 35)
+        (TEXT "pi")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b45e3526626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4527d16626")
+        (GEOMETRY 5376 2688 5376 2688)
+        (SIDE 0)
+        (LABEL
+          (POSITION 5376 2656)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 8)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b4537d16626")
+      (PROPERTIES
+        (PROPERTY "relma0a0a0564bf815050b914b45cf670832_mode" "output")
+        (PROPERTY "relma0a0a0564bf815050b914b45df670832_mode" "output")
+        (PROPERTY "relma0a0a0564bf815050b914b45ef670832_mode" "output")
+        (PROPERTY "relma0a0a0564bf815050b914b45ff670832_mode" "output")
+      )
+      (HDL_IDENT
+        (NAME "po")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrParallelPorts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 8408 2392 8488 2472)
+      (SIDE 1)
+      (LABEL
+        (POSITION 8384 2432)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 35)
+        (TEXT "po")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b45f3526626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4547d16626")
+        (GEOMETRY 8512 2432 8512 2432)
+        (SIDE 2)
+        (LABEL
+          (POSITION 8512 2464)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b4557d16626")
+      (HDL_IDENT
+        (NAME "all_rxd_o")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "STD_LOGIC_VECTOR")
+          (MODE 2)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "C_IMPL_N_SIU-1" "0")
+          )
+        )
+      )
+      (GEOMETRY 8408 1432 8488 1512)
+      (SIDE 1)
+      (LABEL
+        (POSITION 8384 1472)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 35)
+        (TEXT "all_rxd_o(C_IMPL_N_SIU-1:0)")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b4504526626")
+      (CBN
+        (OBID "cbna0a0a056154e0905c7414b4577d16626")
+        (HDL_IDENT
+          (USERNAME 1)
+        )
+        (GEOMETRY 8504 1432 8584 1512)
+        (SIDE 0)
+        (LABEL
+          (POSITION 8704 1472)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 1)
+        )
+        (TYPE 2)
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4567d16626")
+        (GEOMETRY 8512 1472 8512 1472)
+        (SIDE 2)
+        (LABEL
+          (POSITION 8704 1472)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b4587d16626")
+      (HDL_IDENT
+        (NAME "all_txd_o")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "STD_LOGIC_VECTOR")
+          (MODE 2)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "C_IMPL_N_SIU-1" "0")
+          )
+        )
+      )
+      (GEOMETRY 8408 1560 8488 1640)
+      (SIDE 1)
+      (LABEL
+        (POSITION 8384 1600)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 35)
+        (TEXT "all_txd_o(C_IMPL_N_SIU-1:0)")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b4514526626")
+      (CBN
+        (OBID "cbna0a0a056154e0905c7414b45a7d16626")
+        (HDL_IDENT
+          (USERNAME 1)
+        )
+        (GEOMETRY 8504 1560 8584 1640)
+        (SIDE 0)
+        (LABEL
+          (POSITION 8704 1600)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 1)
+        )
+        (TYPE 2)
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4597d16626")
+        (GEOMETRY 8512 1600 8512 1600)
+        (SIDE 2)
+        (LABEL
+          (POSITION 8704 1600)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "cprta0a0a056154e0905c7414b45b7d16626")
+      (HDL_IDENT
+        (NAME "all_rxdwr_o")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "STD_LOGIC_VECTOR")
+          (MODE 2)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "C_IMPL_N_SIU-1" "0")
+          )
+        )
+      )
+      (GEOMETRY 8408 1688 8488 1768)
+      (SIDE 1)
+      (LABEL
+        (POSITION 8384 1728)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 35)
+        (TEXT "all_rxdwr_o(C_IMPL_N_SIU-1:0)")
+      )
+      (PORT "eprta0a0a056d54e0905c7414b4524526626")
+      (CBN
+        (OBID "cbna0a0a056154e0905c7414b45d7d16626")
+        (HDL_IDENT
+          (USERNAME 1)
+        )
+        (GEOMETRY 8504 1688 8584 1768)
+        (SIDE 0)
+        (LABEL
+          (POSITION 8672 1728)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 1)
+        )
+        (TYPE 2)
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b45c7d16626")
+        (GEOMETRY 8512 1728 8512 1728)
+        (SIDE 2)
+        (LABEL
+          (POSITION 8704 1728)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 128)
+        )
+      )
+    )
+  )
+  (GENERATE
+    (OBID "genba0a0a056154e0905c7414b45e7d16626")
+    (PROPERTIES
+      (PROPERTY "FOR_LOOP_VAR" "i")
+    )
+    (HDL_IDENT
+      (NAME "gen_portmodel")
+      (USERNAME 1)
+    )
+    (GEOMETRY 3776 2432 4864 3008)
+    (SIDE 0)
+    (LABEL
+      (POSITION 3150 2368)
+      (SCALE 128)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 129)
+      (TEXT "gen_portmodel: for i in (0 to 7) generate")
+    )
+    (TYPE 1)
+    (CONSTRAINT
+      (DIRECTION 2)
+      (RANGE "0" "7")
+    )
+    (PORT
+      (OBID "gprta0a0a056154e0905c7414b45f7d16626")
+      (HDL_IDENT
+        (NAME "s_po")
+        (ATTRIBUTES
+          (TYPE "vrParallelPorts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 3736 2776 3816 2856)
+      (SIDE 3)
+      (LABEL
+        (POSITION 3840 2816)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 3)
+        (TEXT "s_po")
+      )
+      (GENERATE "gprta0a0a056154e0905c7414b4568d16626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4508d16626")
+        (GEOMETRY 3712 2816 3712 2816)
+        (SIDE 0)
+        (LABEL
+          (POSITION 3712 2784)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 8)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "gprta0a0a056154e0905c7414b4518d16626")
+      (PROPERTIES
+        (PROPERTY "relma0a0a0564bf815050b914b45cf670832_mode" "virtual")
+        (PROPERTY "relma0a0a0564bf815050b914b45df670832_mode" "virtual")
+        (PROPERTY "relma0a0a0564bf815050b914b45ef670832_mode" "virtual")
+        (PROPERTY "relma0a0a0564bf815050b914b45ff670832_mode" "virtual")
+      )
+      (HDL_IDENT
+        (NAME "pi")
+        (ATTRIBUTES
+          (TYPE "vrParallelPorts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 4824 2648 4904 2728)
+      (SIDE 1)
+      (LABEL
+        (POSITION 4800 2688)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "pi")
+      )
+      (GENERATE "gprta0a0a056154e0905c7414b4588d16626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4528d16626")
+        (GEOMETRY 4928 2688 4928 2688)
+        (SIDE 2)
+        (LABEL
+          (POSITION 4928 2656)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 6)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "gprta0a0a056154e0905c7414b4538d16626")
+      (HDL_IDENT
+        (NAME "s_p_ext")
+        (ATTRIBUTES
+          (TYPE "vrParallelPorts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 3736 2584 3816 2664)
+      (SIDE 3)
+      (LABEL
+        (POSITION 3840 2624)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 3)
+        (FORMAT 3)
+        (TEXT "s_p_ext")
+      )
+      (GENERATE "gprta0a0a056154e0905c7414b45a8d16626")
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b4548d16626")
+        (GEOMETRY 3712 2624 3712 2624)
+        (SIDE 0)
+        (LABEL
+          (POSITION 3712 2592)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 8)
+          (FORMAT 128)
+        )
+      )
+    )
+    (SCHEMATIC
+      (OBID "diaga0a0a056154e0905c7414b4558d16626")
+      (SHEETSIZE 0 0 6400 4266)
+      (PORT
+        (OBID "gprta0a0a056154e0905c7414b4568d16626")
+        (PROPERTIES
+          (PROPERTY "relma0a0a05648060ef405014b454b25d445_prefix" "s_po_net")
+          (PROPERTY "relma0a0a05648060ef405014b455b25d445_prefix" "s_po_net")
+          (PROPERTY "relma0a0a05648060ef405014b456b25d445_prefix" "s_po_net")
+          (PROPERTY "relma0a0a05648060ef405014b457b25d445_prefix" "s_po_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45cf670832_prefix" "s_po_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45df670832_prefix" "s_po_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45ef670832_prefix" "s_po_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45ff670832_prefix" "s_po_net")
+        )
+        (HDL_IDENT
+          (NAME "s_po")
+          (ATTRIBUTES
+            (TYPE "vrParallelPorts")
+            (MODE 5)
+          )
+        )
+        (GEOMETRY 1240 1816 1320 1896)
+        (SIDE 1)
+        (LABEL
+          (POSITION 1216 1856)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "s_po")
+        )
+        (GENERATE "gprta0a0a056154e0905c7414b45f7d16626")
+        (CONNECTION
+          (OBID "ncona0a0a056154e0905c7414b4578d16626")
+          (GEOMETRY 1344 1856 1344 1856)
+          (SIDE 2)
+          (LABEL
+            (POSITION 1344 1888)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "gprta0a0a056154e0905c7414b4588d16626")
+        (PROPERTIES
+          (PROPERTY "relma0a0a05648060ef405014b454b25d445_prefix" "s_pi_net")
+          (PROPERTY "relma0a0a05648060ef405014b455b25d445_prefix" "s_pi_net")
+          (PROPERTY "relma0a0a05648060ef405014b456b25d445_prefix" "s_pi_net")
+          (PROPERTY "relma0a0a05648060ef405014b457b25d445_prefix" "s_pi_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45cf670832_prefix" "pi_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45df670832_prefix" "pi_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45ef670832_prefix" "pi_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45ff670832_prefix" "pi_net")
+        )
+        (HDL_IDENT
+          (NAME "pi")
+          (ATTRIBUTES
+            (TYPE "vrParallelPorts")
+            (MODE 5)
+          )
+        )
+        (GEOMETRY 4888 1944 4968 2024)
+        (SIDE 3)
+        (LABEL
+          (POSITION 4992 1984)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 3)
+          (FORMAT 35)
+          (TEXT "pi")
+        )
+        (GENERATE "gprta0a0a056154e0905c7414b4518d16626")
+        (CONNECTION
+          (OBID "ncona0a0a056154e0905c7414b4598d16626")
+          (GEOMETRY 4864 1984 4864 1984)
+          (SIDE 0)
+          (LABEL
+            (POSITION 4864 2016)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 8)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PORT
+        (OBID "gprta0a0a056154e0905c7414b45a8d16626")
+        (PROPERTIES
+          (PROPERTY "relma0a0a05648060ef405014b454b25d445_prefix" "s_p_ext_net")
+          (PROPERTY "relma0a0a05648060ef405014b455b25d445_prefix" "s_p_ext_net")
+          (PROPERTY "relma0a0a05648060ef405014b456b25d445_prefix" "s_p_ext_net")
+          (PROPERTY "relma0a0a05648060ef405014b457b25d445_prefix" "s_p_ext_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45cf670832_prefix" "s_p_ext_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45df670832_prefix" "s_p_ext_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45ef670832_prefix" "s_p_ext_net")
+          (PROPERTY "relma0a0a0564bf815050b914b45ff670832_prefix" "s_p_ext_net")
+        )
+        (HDL_IDENT
+          (NAME "s_p_ext")
+          (ATTRIBUTES
+            (TYPE "vrParallelPorts")
+            (MODE 5)
+          )
+        )
+        (GEOMETRY 1240 2072 1320 2152)
+        (SIDE 1)
+        (LABEL
+          (POSITION 1216 2112)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 5)
+          (FORMAT 35)
+          (TEXT "s_p_ext")
+        )
+        (GENERATE "gprta0a0a056154e0905c7414b4538d16626")
+        (CONNECTION
+          (OBID "ncona0a0a056154e0905c7414b45b8d16626")
+          (GEOMETRY 1344 2112 1344 2112)
+          (SIDE 2)
+          (LABEL
+            (POSITION 1344 2144)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 6)
+            (FORMAT 128)
+          )
+        )
+      )
+      (PROCESS
+        (TYPE 3)
+        (OBID "proca0a0a056154e0905c7414b45c8d16626")
+        (HDL_IDENT
+          (NAME "n0")
+          (USERNAME 1)
+        )
+        (GEOMETRY 2368 1600 3904 2368)
+        (SIDE 0)
+        (LABEL
+          (POSITION 2368 1536)
+          (SCALE 128)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 6)
+          (FORMAT 65)
+          (TEXT "n0(V)")
+        )
+        (SENSLIST 1)
+        (PORT
+          (OBID "pprta0a0a056154e0905c7414b45d8d16626")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+            (PROPERTY "relma0a0a05648060ef405014b454b25d445_prefix" "s_po_net")
+            (PROPERTY "relma0a0a05648060ef405014b455b25d445_prefix" "s_po_net")
+            (PROPERTY "relma0a0a05648060ef405014b456b25d445_prefix" "s_po_net")
+            (PROPERTY "relma0a0a05648060ef405014b457b25d445_prefix" "s_po_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45cf670832_prefix" "s_po_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45df670832_prefix" "s_po_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45ef670832_prefix" "s_po_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45ff670832_prefix" "s_po_net")
+          )
+          (HDL_IDENT
+            (NAME "s_po")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "vrParallelPorts")
+              (MODE 5)
+            )
+          )
+          (GEOMETRY 2328 1816 2408 1896)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2432 1856)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 3)
+            (TEXT "s_po")
+          )
+          (CONNECTION
+            (OBID "ncona0a0a056154e0905c7414b45e8d16626")
+            (GEOMETRY 2304 1856 2304 1856)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2304 1888)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a056154e0905c7414b45f8d16626")
+          (PROPERTIES
+            (PROPERTY "relma0a0a05648060ef405014b454b25d445_prefix" "s_pi_net")
+            (PROPERTY "relma0a0a05648060ef405014b455b25d445_prefix" "s_pi_net")
+            (PROPERTY "relma0a0a05648060ef405014b456b25d445_prefix" "s_pi_net")
+            (PROPERTY "relma0a0a05648060ef405014b457b25d445_prefix" "s_pi_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45cf670832_prefix" "pi_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45df670832_prefix" "pi_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45ef670832_prefix" "pi_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45ff670832_prefix" "pi_net")
+          )
+          (HDL_IDENT
+            (NAME "pi")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "vrParallelPorts")
+              (MODE 5)
+            )
+          )
+          (GEOMETRY 3864 1944 3944 2024)
+          (SIDE 1)
+          (LABEL
+            (POSITION 3840 1984)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 1)
+            (ALIGNMENT 5)
+            (FORMAT 3)
+            (TEXT "pi")
+          )
+          (CONNECTION
+            (OBID "ncona0a0a056154e0905c7414b4509d16626")
+            (GEOMETRY 3968 1984 3968 1984)
+            (SIDE 2)
+            (LABEL
+              (POSITION 3968 2016)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 1)
+              (ALIGNMENT 6)
+              (FORMAT 128)
+            )
+          )
+        )
+        (PORT
+          (OBID "pprta0a0a056154e0905c7414b4519d16626")
+          (PROPERTIES
+            (PROPERTY "SensitivityList" "Yes")
+            (PROPERTY "relma0a0a05648060ef405014b454b25d445_mode" "output")
+            (PROPERTY "relma0a0a05648060ef405014b454b25d445_prefix" "s_p_ext_net")
+            (PROPERTY "relma0a0a05648060ef405014b455b25d445_mode" "output")
+            (PROPERTY "relma0a0a05648060ef405014b455b25d445_prefix" "s_p_ext_net")
+            (PROPERTY "relma0a0a05648060ef405014b456b25d445_mode" "output")
+            (PROPERTY "relma0a0a05648060ef405014b456b25d445_prefix" "s_p_ext_net")
+            (PROPERTY "relma0a0a05648060ef405014b457b25d445_mode" "output")
+            (PROPERTY "relma0a0a05648060ef405014b457b25d445_prefix" "s_p_ext_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45cf670832_prefix" "s_p_ext_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45df670832_prefix" "s_p_ext_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45ef670832_prefix" "s_p_ext_net")
+            (PROPERTY "relma0a0a0564bf815050b914b45ff670832_prefix" "s_p_ext_net")
+          )
+          (HDL_IDENT
+            (NAME "s_p_ext")
+            (USERNAME 1)
+            (ATTRIBUTES
+              (TYPE "vrParallelPorts")
+              (MODE 5)
+            )
+          )
+          (GEOMETRY 2328 2072 2408 2152)
+          (SIDE 3)
+          (LABEL
+            (POSITION 2432 2112)
+            (SCALE 96)
+            (COLOR_LINE 0)
+            (SIDE 3)
+            (ALIGNMENT 3)
+            (FORMAT 3)
+            (TEXT "s_p_ext")
+          )
+          (CONNECTION
+            (OBID "ncona0a0a056154e0905c7414b4529d16626")
+            (GEOMETRY 2304 2112 2304 2112)
+            (SIDE 0)
+            (LABEL
+              (POSITION 2304 2144)
+              (SCALE 96)
+              (COLOR_LINE 0)
+              (SIDE 3)
+              (ALIGNMENT 8)
+              (FORMAT 128)
+            )
+          )
+        )
+        (HDL_FILE
+          (VHDL_FILE
+            (OBID "filea0a0a056154e0905c7414b4539d16626")
+            (NAME "n0.vhd")
+            (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+                    "-- "
+                    "-- Concurrent Statement 'n0' in architecture 'sim' of entity 'tb_mc8051_top'."
+                    "-- "
+                    "--------------------------------------------------------------------------------"
+                    "-- "
+                    "-- Copy of the interface signals:"
+                    "-- "
+                    "-- Virtual record: vrParallelPorts (4 elements)"
+                    "-- s_po_0    : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- s_po_1    : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- s_po_2    : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- s_po_3    : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- Virtual record: vrParallelPorts (4 elements)"
+                    "-- pi_0      : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- pi_1      : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- pi_2      : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- pi_3      : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- Virtual record: vrParallelPorts (4 elements)"
+                    "-- s_p_ext_0 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- s_p_ext_1 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- s_p_ext_2 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- s_p_ext_3 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                    "-- "
+                    "-- EASE/HDL end ----------------------------------------------------------------"
+                    ""
+                    "sp_0(i) <= s_po_0(i);"
+                    "sp_1(i) <= s_po_1(i);"
+                    "sp_2(i) <= s_po_2(i);"
+                    "sp_3(i) <= s_po_3(i);"
+                    ""
+                    "pi_0(i) <= '0' when sp_0(i) = '0' else FUNC_PULLUP(s_p_ext_0(i));"
+                    "pi_1(i) <= '0' when sp_1(i) = '0' else FUNC_PULLUP(s_p_ext_1(i));"
+                    "pi_2(i) <= '0' when sp_2(i) = '0' else FUNC_PULLUP(s_p_ext_2(i));"
+                    "pi_3(i) <= '0' when sp_3(i) = '0' else FUNC_PULLUP(s_p_ext_3(i));"
+                    "")
+          )
+          (VERILOG_FILE
+            (OBID "filea0a0a056d54e0905c7414b453e526626")
+            (NAME "n0.v")
+            (VALUE "")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a056154e0905c7414b4549d16626")
+        (HDL_IDENT
+          (NAME "s_po")
+          (ATTRIBUTES
+            (TYPE "vrParallelPorts")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a056154e0905c7414b4559d16626")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a056154e0905c7414b4569d16626")
+          (LABEL
+            (POSITION 1824 1840)
+            (SCALE 96)
+            (COLOR_LINE 52)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 2051)
+          )
+          (WIRE 1344 1856 2304 1856)
+          (PORT
+            (OBID "gprta0a0a056154e0905c7414b4568d16626")
+            (NAME "s_po")
+          )
+          (PORT
+            (OBID "pprta0a0a056154e0905c7414b45d8d16626")
+            (NAME "s_po")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a056154e0905c7414b4579d16626")
+        (HDL_IDENT
+          (NAME "pi")
+          (ATTRIBUTES
+            (TYPE "vrParallelPorts")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a056154e0905c7414b4589d16626")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a056154e0905c7414b4599d16626")
+          (LABEL
+            (POSITION 4416 1968)
+            (SCALE 96)
+            (COLOR_LINE 52)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 2051)
+          )
+          (WIRE 3968 1984 4864 1984)
+          (PORT
+            (OBID "pprta0a0a056154e0905c7414b45f8d16626")
+            (NAME "pi")
+          )
+          (PORT
+            (OBID "gprta0a0a056154e0905c7414b4588d16626")
+            (NAME "pi")
+          )
+        )
+      )
+      (NET
+        (OBID "neta0a0a056154e0905c7414b45a9d16626")
+        (HDL_IDENT
+          (NAME "s_p_ext")
+          (ATTRIBUTES
+            (TYPE "vrParallelPorts")
+          )
+        )
+        (PART
+          (OBID "nprta0a0a056154e0905c7414b45b9d16626")
+          (CBN 1)
+        )
+        (PART
+          (OBID "nprta0a0a056154e0905c7414b45c9d16626")
+          (LABEL
+            (POSITION 1824 2096)
+            (SCALE 96)
+            (COLOR_LINE 52)
+            (SIDE 3)
+            (ALIGNMENT 7)
+            (FORMAT 2051)
+          )
+          (WIRE 1344 2112 2304 2112)
+          (PORT
+            (OBID "gprta0a0a056154e0905c7414b45a8d16626")
+            (NAME "s_p_ext")
+          )
+          (PORT
+            (OBID "pprta0a0a056154e0905c7414b4519d16626")
+            (NAME "s_p_ext")
+          )
+        )
+      )
+    )
+  )
+  (PROCESS
+    (TYPE 1)
+    (OBID "proca0a0a056154e0905c7414b45d9d16626")
+    (HDL_IDENT
+      (NAME "p_run")
+      (USERNAME 1)
+    )
+    (GEOMETRY 256 1728 1536 3264)
+    (SIDE 0)
+    (LABEL
+      (POSITION 256 1664)
+      (SCALE 128)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 6)
+      (FORMAT 65)
+      (TEXT "p_run(V)")
+    )
+    (SENSLIST 1)
+    (PORT
+      (OBID "pprta0a0a056154e0905c7414b45e9d16626")
+      (HDL_IDENT
+        (NAME "s_p_ext")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrParallelPorts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 1496 2584 1576 2664)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1472 2624)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "s_p_ext")
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b45f9d16626")
+        (GEOMETRY 1600 2624 1600 2624)
+        (SIDE 2)
+        (LABEL
+          (POSITION 1600 2656)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "pprta0a0a056154e0905c7414b450ad16626")
+      (HDL_IDENT
+        (NAME "all_t")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrTimer")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 1496 1880 1576 1960)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1472 1920)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "all_t")
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b451ad16626")
+        (GEOMETRY 1600 1920 1600 1920)
+        (SIDE 2)
+        (LABEL
+          (POSITION 1600 1952)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "pprta0a0a056154e0905c7414b452ad16626")
+      (HDL_IDENT
+        (NAME "s_all_rxd")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "STD_LOGIC_VECTOR")
+          (MODE 2)
+          (CONSTRAINT
+            (DIRECTION 1)
+            (RANGE "C_IMPL_N_SIU-1" "0")
+          )
+        )
+      )
+      (GEOMETRY 1496 2136 1576 2216)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1472 2176)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "s_all_rxd(C_IMPL_N_SIU-1:0)")
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b453ad16626")
+        (GEOMETRY 1600 2176 1600 2176)
+        (SIDE 2)
+        (LABEL
+          (POSITION 1600 2208)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (PORT
+      (OBID "pprta0a0a056154e0905c7414b454ad16626")
+      (HDL_IDENT
+        (NAME "reset")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (MODE 2)
+        )
+      )
+      (GEOMETRY 1496 3032 1576 3112)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1472 3072)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "reset")
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b455ad16626")
+        (GEOMETRY 1600 3072 1600 3072)
+        (SIDE 2)
+        (LABEL
+          (POSITION 1600 3104)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (HDL_FILE
+      (VHDL_FILE
+        (OBID "filea0a0a056154e0905c7414b456ad16626")
+        (NAME "p_run.vhd")
+        (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+                "-- "
+                "-- Process 'p_run' in architecture 'sim' of entity 'tb_mc8051_top'."
+                "-- "
+                "--------------------------------------------------------------------------------"
+                "-- "
+                "-- Copy of the interface signals:"
+                "-- "
+                "-- Virtual record: vrParallelPorts (4 elements)"
+                "-- s_p_ext_0 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                "-- s_p_ext_1 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                "-- s_p_ext_2 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                "-- s_p_ext_3 : in     STD_LOGIC_VECTOR(7 downto 0);"
+                "-- Virtual record: vrTimer (2 elements)"
+                "-- all_t_0   : in     std_logic_vector(C_IMPL_N_TMR-1 downto 0);"
+                "-- all_t_1   : in     std_logic_vector(C_IMPL_N_TMR-1 downto 0);"
+                "-- s_all_rxd : out    STD_LOGIC_VECTOR(C_IMPL_N_SIU-1 downto 0);"
+                "-- reset     : out    std_logic;"
+                "-- "
+                "-- EASE/HDL end ----------------------------------------------------------------"
+                ""
+                "p_run: process"
+                "		-- EASE/HDL sens.list"
+                "begin"
+                ""
+                "  s_p_ext_0 <= ( others => 'Z' );"
+                "  s_p_ext_1 <= ( others => 'Z' );"
+                "  s_p_ext_2 <= ( others => 'Z' );"
+                "  s_p_ext_3 <= ( others => 'Z' );"
+                "  "
+                "  all_t_0   <= ( others => '0' );"
+                "  all_t_1   <= ( others => '0' );"
+                "  s_all_rxd <= ( others => '0' );"
+                ""
+                "  reset <= '1';"
+                "  wait for one_period + one_period/2 + 5 ns;"
+                "  reset <= '0';"
+                ""
+                "  wait for one_period * 5000;"
+                ""
+                "  wait for one_period / 2;"
+                ""
+                "  assert false report \"END OF SIMULATION\" severity failure;"
+                ""
+                "end process p_run ;"
+                "")
+      )
+      (VERILOG_FILE
+        (OBID "filea0a0a056d54e0905c7414b454e526626")
+        (NAME "p_run.v")
+        (VALUE "")
+      )
+    )
+  )
+  (PROCESS
+    (TYPE 1)
+    (OBID "proca0a0a056154e0905c7414b457ad16626")
+    (HDL_IDENT
+      (NAME "gen_int0")
+      (USERNAME 1)
+    )
+    (GEOMETRY 256 256 1472 640)
+    (SIDE 0)
+    (LABEL
+      (POSITION 192 192)
+      (SCALE 128)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 6)
+      (FORMAT 65)
+      (TEXT "gen_int0(V)")
+    )
+    (SENSLIST 1)
+    (PORT
+      (OBID "pprta0a0a056154e0905c7414b458ad16626")
+      (HDL_IDENT
+        (NAME "int")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrInterrupts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 1432 408 1512 488)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1408 448)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "int")
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b459ad16626")
+        (GEOMETRY 1536 448 1536 448)
+        (SIDE 2)
+        (LABEL
+          (POSITION 1536 480)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (HDL_FILE
+      (VHDL_FILE
+        (OBID "filea0a0a056154e0905c7414b45aad16626")
+        (NAME "gen_int0.vhd")
+        (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+                "-- "
+                "-- Process 'gen_int0' in architecture 'sim' of entity 'tb_mc8051_top'."
+                "-- "
+                "--------------------------------------------------------------------------------"
+                "-- "
+                "-- Copy of the interface signals:"
+                "-- "
+                "-- Virtual record: vrInterrupts (2 elements)"
+                "-- int_0 : in     std_logic_vector(C_IMPL_N_EXT-1 downto 0);"
+                "-- int_1 : in     std_logic_vector(C_IMPL_N_EXT-1 downto 0);"
+                "-- "
+                "-- EASE/HDL end ----------------------------------------------------------------"
+                ""
+                "gen_int0: process"
+                "		-- EASE/HDL sens.list"
+                "begin"
+                "  int_0 <= ( others => '0' );"
+                "  wait for 3000 ns;"
+                "  int_0 <= ( others => '1' );"
+                "  wait for 7000 ns;"
+                "  int_0 <= ( others => '0' );"
+                "  wait for 8000 ns;"
+                "  int_0 <= ( others => '1' );"
+                "  wait for 7000 ns;"
+                "  int_0 <= ( others => '0' );"
+                "  wait for 5000 ns;"
+                "  int_0 <= ( others => '0' );"
+                "  wait for 3000 ns;"
+                "  int_0 <= ( others => '0' );"
+                "  wait;"
+                "end process gen_int0 ;"
+                "")
+      )
+      (VERILOG_FILE
+        (OBID "filea0a0a056d54e0905c7414b455e526626")
+        (NAME "gen_int0.v")
+        (VALUE "")
+      )
+    )
+  )
+  (PROCESS
+    (TYPE 1)
+    (OBID "proca0a0a056154e0905c7414b45bad16626")
+    (HDL_IDENT
+      (NAME "gen_int1")
+      (USERNAME 1)
+    )
+    (GEOMETRY 256 1024 1472 1408)
+    (SIDE 0)
+    (LABEL
+      (POSITION 256 960)
+      (SCALE 128)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 6)
+      (FORMAT 65)
+      (TEXT "gen_int1(V)")
+    )
+    (SENSLIST 1)
+    (PORT
+      (OBID "pprta0a0a056154e0905c7414b45cad16626")
+      (HDL_IDENT
+        (NAME "int")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (TYPE "vrInterrupts")
+          (MODE 5)
+        )
+      )
+      (GEOMETRY 1432 1176 1512 1256)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1408 1216)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "int")
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b45dad16626")
+        (GEOMETRY 1536 1216 1536 1216)
+        (SIDE 2)
+        (LABEL
+          (POSITION 1536 1248)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (HDL_FILE
+      (VHDL_FILE
+        (OBID "filea0a0a056154e0905c7414b45ead16626")
+        (NAME "gen_int1.vhd")
+        (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+                "-- "
+                "-- Process 'gen_int1' in architecture 'sim' of entity 'tb_mc8051_top'."
+                "-- "
+                "--------------------------------------------------------------------------------"
+                "-- "
+                "-- Copy of the interface signals:"
+                "-- "
+                "-- Virtual record: vrInterrupts (2 elements)"
+                "-- int_0 : in     std_logic_vector(C_IMPL_N_EXT-1 downto 0);"
+                "-- int_1 : in     std_logic_vector(C_IMPL_N_EXT-1 downto 0);"
+                "-- "
+                "-- EASE/HDL end ----------------------------------------------------------------"
+                ""
+                "gen_int1: process"
+                "		-- EASE/HDL sens.list"
+                "begin"
+                "  int_1 <= ( others => '0' );"
+                "  wait for 4000 ns;"
+                "  int_1 <= ( others => '1' );"
+                "  wait for 6000 ns;"
+                "  int_1 <= ( others => '0' );"
+                "  wait;"
+                "end process gen_int1 ;"
+                "")
+      )
+      (VERILOG_FILE
+        (OBID "filea0a0a056d54e0905c7414b456e526626")
+        (NAME "gen_int1.v")
+        (VALUE "")
+      )
+    )
+  )
+  (PROCESS
+    (TYPE 1)
+    (OBID "proca0a0a056154e0905c7414b45fad16626")
+    (HDL_IDENT
+      (NAME "p_clock")
+      (USERNAME 1)
+    )
+    (GEOMETRY 320 3904 1472 4352)
+    (SIDE 0)
+    (LABEL
+      (POSITION 320 3840)
+      (SCALE 128)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 6)
+      (FORMAT 65)
+      (TEXT "p_clock(V)")
+    )
+    (SENSLIST 1)
+    (PORT
+      (OBID "pprta0a0a056154e0905c7414b450bd16626")
+      (HDL_IDENT
+        (NAME "clk")
+        (USERNAME 1)
+        (ATTRIBUTES
+          (MODE 3)
+        )
+      )
+      (GEOMETRY 1432 4056 1512 4136)
+      (SIDE 1)
+      (LABEL
+        (POSITION 1408 4096)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 5)
+        (FORMAT 3)
+        (TEXT "clk")
+      )
+      (CONNECTION
+        (OBID "ncona0a0a056154e0905c7414b451bd16626")
+        (GEOMETRY 1536 4096 1536 4096)
+        (SIDE 2)
+        (LABEL
+          (POSITION 1536 4128)
+          (SCALE 96)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 0)
+          (FORMAT 128)
+        )
+      )
+    )
+    (HDL_FILE
+      (VHDL_FILE
+        (OBID "filea0a0a056154e0905c7414b452bd16626")
+        (NAME "p_clock.vhd")
+        (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+                "-- "
+                "-- Process 'p_clock' in architecture 'sim' of entity 'tb_mc8051_top'."
+                "-- "
+                "--------------------------------------------------------------------------------"
+                "-- "
+                "-- Copy of the interface signals:"
+                "-- "
+                "-- clk : inout  std_logic;"
+                "-- "
+                "-- EASE/HDL end ----------------------------------------------------------------"
+                ""
+                "p_clock: process"
+                "		-- EASE/HDL sens.list"
+                "  variable v_loop1 : integer;"
+                "begin"
+                "  clk <= '0';"
+                "      wait for one_period/2;"
+                "      while true loop"
+                "        clk <= not clk;"
+                "        wait for one_period/2;"
+                "      end loop;"
+                "end process p_clock ;"
+                "")
+      )
+      (VERILOG_FILE
+        (OBID "filea0a0a056d54e0905c7414b457e526626")
+        (NAME "p_clock.v")
+        (VALUE "")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b453bd16626")
+    (PROPERTIES
+      (PROPERTY "relma0a0a0564bf815050b914b45cf670832_mode" "virtual")
+      (PROPERTY "relma0a0a0564bf815050b914b45df670832_mode" "virtual")
+      (PROPERTY "relma0a0a0564bf815050b914b45ef670832_mode" "virtual")
+      (PROPERTY "relma0a0a0564bf815050b914b45ff670832_mode" "virtual")
+    )
+    (HDL_IDENT
+      (NAME "pi")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "vrParallelPorts")
+      )
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b454bd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b455bd16626")
+      (LABEL
+        (POSITION 5152 2672)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+        (TEXT "pi")
+      )
+      (WIRE 4928 2688 5376 2688)
+      (PORT
+        (OBID "cprta0a0a056154e0905c7414b4517d16626")
+        (NAME "pi")
+      )
+      (PORT
+        (OBID "gprta0a0a056154e0905c7414b4518d16626")
+        (NAME "pi")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b456bd16626")
+    (HDL_IDENT
+      (NAME "s_p_ext")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "vrParallelPorts")
+      )
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b457bd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b458bd16626")
+      (LABEL
+        (POSITION 2656 2608)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+        (TEXT "s_p_ext")
+      )
+      (WIRE 1600 2624 3712 2624)
+      (PORT
+        (OBID "pprta0a0a056154e0905c7414b45e9d16626")
+        (NAME "s_p_ext")
+      )
+      (PORT
+        (OBID "gprta0a0a056154e0905c7414b4538d16626")
+        (NAME "s_p_ext")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b459bd16626")
+    (HDL_IDENT
+      (NAME "s_po")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "vrParallelPorts")
+      )
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45abd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45bbd16626")
+      (LABEL
+        (POSITION 6064 3633)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+        (TEXT "s_po")
+      )
+      (WIRE 3200 3648 8960 3648)
+      (WIRE 3200 2816 3200 3648)
+      (WIRE 8960 2432 8960 3648)
+      (WIRE 8512 2432 8960 2432)
+      (WIRE 3200 2816 3712 2816)
+      (PORT
+        (OBID "gprta0a0a056154e0905c7414b45f7d16626")
+        (NAME "s_po")
+      )
+      (PORT
+        (OBID "cprta0a0a056154e0905c7414b4537d16626")
+        (NAME "po")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b45cbd16626")
+    (HDL_IDENT
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "vrCtrl")
+      )
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45dbd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45ebd16626")
+      (LABEL
+        (POSITION 5088 4208)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+        (TEXT "(vrCtrl)")
+      )
+      (WIRE 2816 4032 6848 4032)
+      (WIRE 2816 3136 2816 4032)
+      (WIRE 6848 3264 6848 4032)
+      (PORT
+        (OBID "cprta0a0a056154e0905c7414b4596d16626")
+        (NAME "")
+      )
+      (BUS_RIPPER
+        (OBID "hooka0a0a056154e0905c7414b45fbd16626")
+        (HDL_IDENT
+          (USERNAME 1)
+          (ATTRIBUTES
+            (CONSTRAINT
+              (NAME "reset")
+            )
+          )
+        )
+        (GEOMETRY 2752 3072 2880 3200)
+        (SIDE 0)
+        (LABEL
+          (POSITION 2880 3136)
+          (SCALE 80)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 3)
+          (TEXT "reset")
+        )
+        (DEST_NET "neta0a0a056154e0905c7414b45acd16626")
+      )
+      (BUS_RIPPER
+        (OBID "hooka0a0a056154e0905c7414b450cd16626")
+        (HDL_IDENT
+          (USERNAME 1)
+          (ATTRIBUTES
+            (CONSTRAINT
+              (NAME "clk")
+            )
+          )
+        )
+        (GEOMETRY 2752 3968 2880 4096)
+        (SIDE 3)
+        (LABEL
+          (POSITION 2867 4117)
+          (SCALE 80)
+          (COLOR_LINE 0)
+          (SIDE 1)
+          (ALIGNMENT 3)
+          (FORMAT 3)
+          (TEXT "clk")
+        )
+        (DEST_NET "neta0a0a056154e0905c7414b457cd16626")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b451cd16626")
+    (HDL_IDENT
+      (NAME "int")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "vrInterrupts")
+      )
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b452cd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b453cd16626")
+      (LABEL
+        (POSITION 3648 1200)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+        (TEXT "int")
+      )
+      (WIRE 2560 448 2560 1216)
+      (WIRE 2560 1216 5376 1216)
+      (WIRE 1536 448 2560 448)
+      (WIRE 1536 1216 2560 1216)
+      (PORT
+        (OBID "pprta0a0a056154e0905c7414b458ad16626")
+        (NAME "int")
+      )
+      (PORT
+        (OBID "cprta0a0a056154e0905c7414b45b6d16626")
+        (NAME "int")
+      )
+      (PORT
+        (OBID "pprta0a0a056154e0905c7414b45cad16626")
+        (NAME "int")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b454cd16626")
+    (HDL_IDENT
+      (NAME "s_all_rxd")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "STD_LOGIC_VECTOR")
+        (CONSTRAINT
+          (DIRECTION 1)
+          (RANGE "C_IMPL_N_SIU-1" "0")
+        )
+      )
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b455cd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b456cd16626")
+      (LABEL
+        (POSITION 3085 2160)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+        (TEXT "s_all_rxd(C_IMPL_N_SIU-1:0)")
+      )
+      (WIRE 1600 2176 5376 2176)
+      (PORT
+        (OBID "pprta0a0a056154e0905c7414b452ad16626")
+        (NAME "s_all_rxd")
+      )
+      (PORT
+        (OBID "cprta0a0a056154e0905c7414b45f6d16626")
+        (NAME "all_rxd_i")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b457cd16626")
+    (HDL_IDENT
+      (NAME "clk")
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b458cd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b459cd16626")
+      (LABEL
+        (POSITION 2144 4080)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 6)
+        (FORMAT 2051)
+      )
+      (WIRE 1536 4096 2752 4096)
+      (PORT
+        (OBID "pprta0a0a056154e0905c7414b450bd16626")
+        (NAME "clk")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b45acd16626")
+    (HDL_IDENT
+      (NAME "reset")
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45bcd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45ccd16626")
+      (LABEL
+        (POSITION 2272 3056)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+      )
+      (WIRE 1600 3072 2752 3072)
+      (PORT
+        (OBID "pprta0a0a056154e0905c7414b454ad16626")
+        (NAME "reset")
+      )
+    )
+  )
+  (NET
+    (OBID "neta0a0a056154e0905c7414b45dcd16626")
+    (HDL_IDENT
+      (NAME "all_t")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "vrTimer")
+      )
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45ecd16626")
+      (CBN 1)
+    )
+    (PART
+      (OBID "nprta0a0a056154e0905c7414b45fcd16626")
+      (LABEL
+        (POSITION 2565 1910)
+        (SCALE 96)
+        (COLOR_LINE 52)
+        (SIDE 3)
+        (ALIGNMENT 7)
+        (FORMAT 2051)
+        (TEXT "all_t")
+      )
+      (WIRE 1600 1920 5376 1920)
+      (PORT
+        (OBID "cprta0a0a056154e0905c7414b45d6d16626")
+        (NAME "all_t")
+      )
+      (PORT
+        (OBID "pprta0a0a056154e0905c7414b450ad16626")
+        (NAME "all_t")
+      )
+    )
+  )
+)

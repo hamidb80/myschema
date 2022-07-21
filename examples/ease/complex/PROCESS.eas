@@ -1,0 +1,507 @@
+(PROCESS
+  (TYPE 1)
+  (OBID "proca000000a062824244fa033fcc3040000")
+  (HDL_IDENT
+    (NAME "Control")
+    (USERNAME 1)
+  )
+  (GEOMETRY 3008 1280 3968 2304)
+  (SIDE 0)
+  (LABEL
+    (POSITION 3024 1264)
+    (SCALE 128)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 6)
+    (FORMAT 65)
+    (TEXT "Control(V)")
+  )
+  (SENSLIST 1)
+  (PORT
+    (OBID "pprta000000ad24824244fa033fcd7040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "Yes")
+    )
+    (HDL_IDENT
+      (NAME "clk")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 1)
+      )
+    )
+    (GEOMETRY 2968 1432 3048 1512)
+    (SIDE 3)
+    (LABEL
+      (POSITION 3072 1472)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab64495073945fe10000")
+      (GEOMETRY 2944 1472 2944 1472)
+      (SIDE 0)
+      (LABEL
+        (POSITION 2944 1440)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 8)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000a034824244fa033fce7040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "Yes")
+    )
+    (HDL_IDENT
+      (NAME "reset")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 1)
+      )
+    )
+    (GEOMETRY 2968 1560 3048 1640)
+    (SIDE 3)
+    (LABEL
+      (POSITION 3072 1600)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab64495073946fe10000")
+      (GEOMETRY 2944 1600 2944 1600)
+      (SIDE 0)
+      (LABEL
+        (POSITION 2944 1568)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 8)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000af34824244fa033fc28040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "No")
+    )
+    (HDL_IDENT
+      (NAME "cs")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 1)
+      )
+    )
+    (GEOMETRY 2968 1688 3048 1768)
+    (SIDE 3)
+    (LABEL
+      (POSITION 3072 1728)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab64495073947fe10000")
+      (GEOMETRY 2944 1728 2944 1728)
+      (SIDE 0)
+      (LABEL
+        (POSITION 2944 1696)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 8)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000a444824244fa033fc78040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "No")
+    )
+    (HDL_IDENT
+      (NAME "rw")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 1)
+      )
+    )
+    (GEOMETRY 2968 1816 3048 1896)
+    (SIDE 3)
+    (LABEL
+      (POSITION 3072 1856)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab64495073948fe10000")
+      (GEOMETRY 2944 1856 2944 1856)
+      (SIDE 0)
+      (LABEL
+        (POSITION 2944 1824)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 8)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000ab44824244fa033fcc8040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "No")
+    )
+    (HDL_IDENT
+      (NAME "Addr")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 1)
+      )
+    )
+    (GEOMETRY 2968 1944 3048 2024)
+    (SIDE 3)
+    (LABEL
+      (POSITION 3072 1984)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab64495073949fe10000")
+      (GEOMETRY 2944 1984 2944 1984)
+      (SIDE 0)
+      (LABEL
+        (POSITION 2944 1952)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 8)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000a854824244fa033fc19040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "No")
+    )
+    (HDL_IDENT
+      (NAME "DataIn")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "std_logic_vector")
+        (MODE 1)
+        (CONSTRAINT
+          (DIRECTION 1)
+          (RANGE "7" "0")
+        )
+      )
+    )
+    (GEOMETRY 2968 2072 3048 2152)
+    (SIDE 3)
+    (LABEL
+      (POSITION 3072 2112)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab6449507394afe10000")
+      (GEOMETRY 2944 2112 2944 2112)
+      (SIDE 0)
+      (LABEL
+        (POSITION 2944 2080)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 3)
+        (ALIGNMENT 8)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000a664824244fa033fc69040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "No")
+    )
+    (HDL_IDENT
+      (NAME "TxData")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (TYPE "std_logic_vector")
+        (MODE 3)
+        (CONSTRAINT
+          (DIRECTION 1)
+          (RANGE "7" "0")
+        )
+      )
+    )
+    (GEOMETRY 3928 1624 4008 1704)
+    (SIDE 1)
+    (LABEL
+      (POSITION 3904 1664)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 1)
+      (ALIGNMENT 5)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab6449507394bfe10000")
+      (GEOMETRY 4032 1664 4032 1664)
+      (SIDE 0)
+      (LABEL
+        (POSITION 4032 1632)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 6)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000a874824244fa033fc89040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "No")
+    )
+    (HDL_IDENT
+      (NAME "CtrlReg")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 2)
+        (CONSTRAINT
+          (DIRECTION 1)
+          (RANGE "7" "0")
+        )
+      )
+    )
+    (GEOMETRY 3928 2072 4008 2152)
+    (SIDE 1)
+    (LABEL
+      (POSITION 3904 2112)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 1)
+      (ALIGNMENT 5)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab6449507394cfe10000")
+      (GEOMETRY 4032 2112 4032 2112)
+      (SIDE 0)
+      (LABEL
+        (POSITION 4032 2080)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 6)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000a694824244fa033fc99040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "Yes")
+    )
+    (HDL_IDENT
+      (NAME "Load")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 2)
+      )
+    )
+    (GEOMETRY 3928 1496 4008 1576)
+    (SIDE 1)
+    (LABEL
+      (POSITION 3904 1536)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 1)
+      (ALIGNMENT 5)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab6449507394dfe10000")
+      (GEOMETRY 4032 1536 4032 1536)
+      (SIDE 0)
+      (LABEL
+        (POSITION 4032 1504)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 6)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000a6b4824244fa033fcb9040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "Yes")
+    )
+    (HDL_IDENT
+      (NAME "Read_net")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 2)
+      )
+    )
+    (GEOMETRY 3928 1752 4008 1832)
+    (SIDE 1)
+    (LABEL
+      (POSITION 3904 1792)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 1)
+      (ALIGNMENT 5)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab6449507394efe10000")
+      (GEOMETRY 4032 1792 4032 1792)
+      (SIDE 0)
+      (LABEL
+        (POSITION 4032 1760)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 6)
+        (FORMAT 128)
+      )
+    )
+  )
+  (PORT
+    (OBID "pprta000000afb4824244fa033fcf9040000")
+    (PROPERTIES
+      (PROPERTY "SensitivityList" "Yes")
+    )
+    (HDL_IDENT
+      (NAME "ReadCS")
+      (USERNAME 1)
+      (ATTRIBUTES
+        (MODE 2)
+      )
+    )
+    (GEOMETRY 3928 1880 4008 1960)
+    (SIDE 1)
+    (LABEL
+      (POSITION 3904 1920)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 1)
+      (ALIGNMENT 5)
+      (FORMAT 65539)
+    )
+    (CONNECTION
+      (OBID "ncona0a0a0bc756cab6449507394ffe10000")
+      (GEOMETRY 4032 1920 4032 1920)
+      (SIDE 0)
+      (LABEL
+        (POSITION 4032 1888)
+        (SCALE 96)
+        (COLOR_LINE 0)
+        (SIDE 1)
+        (ALIGNMENT 6)
+        (FORMAT 128)
+      )
+    )
+  )
+  (HDL_FILE
+    (VHDL_FILE
+      (OBID "filea0a0a0bc97b56b848e20739443030000")
+      (NAME "Control.vhd")
+      (VALUE "-- EASE/HDL begin --------------------------------------------------------------"
+              "-- "
+              "-- Process 'Control' in architecture 'structure' of entity 'Control_Status'."
+              "-- "
+              "--------------------------------------------------------------------------------"
+              "-- "
+              "-- Copy of the interface signals:"
+              "-- "
+              "-- clk      : in     std_logic;"
+              "-- reset    : in     std_logic;"
+              "-- cs       : in     std_logic;"
+              "-- rw       : in     std_logic;"
+              "-- Addr     : in     std_logic;"
+              "-- DataIn   : in     std_logic_vector(7 downto 0);"
+              "-- TxData   : inout  std_logic_vector(7 downto 0);"
+              "-- CtrlReg  : out    std_logic_vector(7 downto 0);"
+              "-- Load     : out    std_logic;"
+              "-- Read_net : out    std_logic;"
+              "-- ReadCS   : out    std_logic;"
+              "-- "
+              "-- EASE/HDL end ----------------------------------------------------------------"
+              ""
+              "Control: process (clk, reset) is		-- EASE/HDL sens.list"
+              "begin"
+              "	if (reset = '1') then"
+              "		TxData   <= \"00000000\";"
+              "		Load     <= '0';"
+              "		Read_net <= '0';"
+              "		CtrlReg  <= \"00000000\";"
+              "		--LoadCS   <= '0';"
+              "		ReadCS   <= '0';"
+              "	elsif clk'event and clk='0' then"
+              "		if cs = '1' then"
+              "		  if Addr = '1' then	-- Data Register"
+              "			if rw = '0' then	-- write data register"
+              "			  TxData   <= DataIn;"
+              "			  Load     <= '1';"
+              "			  Read_net <= '0';"
+              "			else				-- read Data Register"
+              "			  TxData   <= TxData;"
+              "			  Load     <= '0';"
+              "			  Read_net <= '1';"
+              "			end if; -- rw"
+              "			CtrlReg <= CtrlReg;"
+              "			--LoadCS  <= '0';"
+              "			ReadCS  <= '0';"
+              "		  else					-- Control / Status register"
+              "			TxData   <= TxData;"
+              "			Load     <= '0';"
+              "			Read_net <= '0';"
+              "			if rw = '0' then	-- write control register"
+              "			  CtrlReg <= DataIn;"
+              "			  --LoadCS  <= '1';"
+              "			  ReadCS  <= '0';"
+              "			else				-- read status Register"
+              "			  CtrlReg <= CtrlReg;"
+              "			  --LoadCS  <= '0';"
+              "			  ReadCS  <= '1';"
+              "			end if; -- rw"
+              "		  end if; -- Addr"
+              "		else					-- not selected"
+              "		  TxData   <= TxData;"
+              "		  Load     <= '0';"
+              "		  Read_net <= '0';"
+              "		  CtrlReg  <= CtrlReg;"
+              "		  --LoadCS   <= '0';"
+              "		  ReadCS   <= '0';"
+              "		end if;  -- cs"
+              "	end if; -- clk / reset"
+              "end process Control ;"
+              "")
+    )
+  )
+)

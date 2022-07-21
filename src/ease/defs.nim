@@ -81,6 +81,8 @@ type
     ctConnectByValue
     ctIntentionallyOpen
 
+## NOTE: `type` fields is replaced with`kind`
+
 type
   Obid* = distinct string
 
@@ -136,9 +138,23 @@ type
     label*: Label
 
 
-
   Generic* = ref object
-  Generate* = ref object
+
+
+  GenerateKind* = enum
+    ifGen, forGen
+
+  GenerateBlock* = ref object
+    obid*: Obid
+    ident*: HdlIdent
+    properties*: Properties
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+    constraint*: Option[Constraint]
+    ports*: seq[Port]
+    kind*: GenerateBlockType
+    schematic*: Schematic
 
   BusRipper* = ref object
     obid*: Obid
@@ -192,8 +208,15 @@ type
       refObid*: Obid
 
   Process* = ref object
+    obid*: Obid
+    ident*: HdlIdent
+    geometry*: Geometry
+    side*: Side
+    kind*: ProcessType
+    label*: Label
+    sensitivityList*: bool
+    ports*: seq[Port]
 
-  
   Component* = ref object
     obid*: Obid
     ident*: HdlIdent
@@ -208,13 +231,13 @@ type
     properties*: Properties
 
     freePlacedTexts*: seq[FreePlacedText]
-    # generics*: seq[Generic]
-    # generates*: seq[Generate]
+    generics*: seq[Generic]
+    generateBlocks*: seq[GenerateBlock]
     components*: seq[Component]
     processes*: seq[Process]
     ports*: seq[Port]
     nets*: seq[Net]
-    
+
 
   Architecture* = ref object
     obid*: Obid
@@ -281,7 +304,6 @@ type
 
 
 func isEmpty*(attrs: Attributes): bool =
-    (isNone attrs.mode) and
-    (isNone attrs.kind) and
-    (isNone attrs.constraint)
-  
+  (isNone attrs.mode) and
+  (isNone attrs.kind) and
+  (isNone attrs.constraint)
