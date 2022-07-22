@@ -3,6 +3,8 @@ import ../common/[errors, minmax]
 import lexer, model
 
 
+# -- options
+
 func parsePortType(s: string): PortDir =
   case s:
   of "input": input
@@ -47,6 +49,28 @@ func parseOrient(s: string): Orient =
     rotation: parseRotation t[0],
     flips: parseFlip t[1])
 
+# -- experssions
+
+func parseMake(expr: SueExpression) =
+  let
+    parent = expr.args[0].strVal
+    name = expr[sfName].strval
+    orient = parseOrient expr[sfOrigin].strval
+
+func parseWire(expr: SueExpression) =
+  let
+    s = expr.args.mapIt it.intval
+    w = (s[0], s[1]) .. (s[2], s[3])
+
+func parseMakeText(expr: SueExpression) =
+  # -text
+  # -origin
+  # -rotate
+  # -size
+  # -anchor
+  discard
+
+# -- groups
 
 func resolveSchematic(sf: seq[SueExpression],
   lookup: Table[string, Icon]): Schematic =
@@ -56,28 +80,20 @@ func resolveSchematic(sf: seq[SueExpression],
   for expr in sf:
     case expr.command:
     of scMake:
-      let
-        parent = expr.args[0].strVal
-        name = expr[sfName].strval
-        orient = parseOrient expr[sfOrigin].strval
+      parseMake expr
 
     of scMakeWire:
-      let
-        s = expr.args.mapIt it.intval
-        w = (s[0], s[1]) .. (s[2], s[3])
+      parseWire expr
 
     of scMakeText:
-      # -text
-      # -origin
-      # -rotate
-      # -size
-      # -anchor
-      discard
+      parseMakeText expr
 
     of scMakeLine: discard
     of scGenerate: err "'generate' is not implemented"
     else:
       err fmt"invalid command in schematic: {expr.command}"
+
+# TODO: add stdlib icons
 
 func resolveIcon(sf: seq[SueExpression]): Icon =
   result = new Icon
