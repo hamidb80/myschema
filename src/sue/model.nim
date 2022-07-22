@@ -1,0 +1,68 @@
+import std/[tables]
+import ../common/defs
+
+type
+  Wire* = Slice[Point]
+
+  Rect* = object
+    x*, y*, w*, h*: int
+
+  Flip* = enum
+    X, Y
+
+  FontSize* = enum
+    fzMedium, fzSmall, fzLarge
+
+  Rotation* = enum
+    r0, r90, r180, r270
+
+  Orient* = object
+    rotation*: Rotation
+    flips*: set[Flip]
+
+  Anchors* = enum
+    c, s, w, e, n
+    sw, se, nw, ne
+
+  Label* = ref object
+    content*: string
+    location*: Point
+    anchor*: Anchors
+
+  SueSize* = enum
+    ssNormal = ""
+    ssSmall = "small"
+    ssLarge = "large"
+
+
+  PortDir* = enum
+    input, output, inout
+
+  Port* = ref object
+    kind*: PortDir
+    location*: Point
+    name*: string
+
+
+  Schematic* = ref object
+    instances*: seq[Instance]
+    wires*: seq[Wire]
+    texts*: seq[Label]
+
+  Icon* = ref object
+    ports*: seq[Port]
+    geometry*: Rect
+    labels*: seq[Label]
+
+  Module* = ref object
+    name*: string
+    schematic*: Schematic
+    # icon*: Icon
+
+  Instance* = ref object
+    name*: string
+    parent* {.cursor.}: Module
+
+  Project* = ref object
+    icons*: Table[string, Icon]
+    modules*: seq[Module]

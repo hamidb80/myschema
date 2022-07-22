@@ -1,5 +1,5 @@
 import std/[unittest, os, tables, options]
-import ease/[lisp, defs]
+import ease/[lisp, model]
 import ease/parser {.all.}
 
 # --- helpers
@@ -114,6 +114,13 @@ suite "compound":
     check ao.def_value.get == "3'b011"
     check ao.constraint.get.`range`.indexes.a == "9"
 
+  test "CONNECTION":
+    let co = parseNCon lfName "compound/CONNECTION.eas"
+    check co.obid.string == "ncona0a0a056f0f80505c4914b456fa7a454"
+    check co.position == (1152, 1280)
+    check co.side.int == 2
+    check co.label.format == 128
+
   template checkPort(po, id, nm, geo_x1, sde, lbl): untyped =
     check po.obid.string == id
     check po.ident.name == nm
@@ -181,12 +188,12 @@ suite "compound":
   test "GENERIC_egen":
     let go = parseGeneric(lfName "compound/GENERIC/egen.eas", gkEntity)
     genericCheck go, "egenf7000010b203330479045600b40e1607", "DATA_PHASE", 1304, 2, 128
-    check go.instanceOf.isNone
+    check go.parent.isNone
 
   test "GENERIC_igen":
     let go = parseGeneric(lfName "compound/GENERIC/igen.eas", gkInstance)
     genericCheck go, "igenf7000010f6884404803033fc11730000", "DATA_PHASE", 4760, 3, 129
-    check go.instanceOf.get.obid.string == "egenf7000010b203330479045600b40e1607"
+    check go.parent.get.obid.string == "egenf7000010b203330479045600b40e1607"
 
 
 suite "complex":
@@ -236,8 +243,8 @@ suite "complex":
     check c.ident.name == "u_slavecontroller"
     check c.geometry == (2560, 4800, 4672, 7104)
     check c.side.int == 0
-    check c.instanceof.libObid.string == "lib0c8a"
-    check c.instanceof.obid.string == "ent0c8"
+    check c.parent.libObid.string == "lib0c8a"
+    check c.parent.obid.string == "ent0c8"
     check c.label.text == "u_slavecontroller:slavecontroller"
 
   test "NET":

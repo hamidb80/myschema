@@ -64,6 +64,9 @@ type
     # 3   1
     #   2
 
+  # Rotation* = enum # AKA Side
+  #   r0, r90, r180, r270
+
   BusRipperSide* = enum
     brsTopLeft
     brsTopRight
@@ -135,7 +138,7 @@ type
 
   FreePlacedText* = distinct Label
 
-  CBN* = ref object # AKA CBN
+  ConnectByName* = ref object # AKA CBN
     obid*: Obid
     kind*: CbnType
     ident*: HdlIdent
@@ -148,15 +151,15 @@ type
 
   Generic* = ref object ## entity generic
     obid*: Obid
-    
+
     case kind*: GenericKind
     of gkRef: discard
     of gkEntity, gkInstance:
       ident*: HdlIdent
       geometry*: Geometry
-      side*:Side
+      side*: Side
       label*: Label
-      instanceOf*: Option[Generic]
+      parent*: Option[Generic]
 
   GenerateKind* = enum
     ifGen, forGen
@@ -199,7 +202,7 @@ type
 
   Connection* = ref object
     obid*: Obid
-    geometry*: Geometry
+    position*: Point # AKA geometry
     side*: Side
     label*: Label
 
@@ -220,7 +223,7 @@ type
       geometry*: Geometry
       side*: Side
       label*: Label
-      cbn*: Option[CBN]
+      cbn*: Option[ConnectByName]
       connection*: Option[Connection]
       refObid*: Obid
 
@@ -241,7 +244,7 @@ type
     side*: Side
     label*: Label
     ports*: seq[Port]
-    instanceof*: Entity
+    parent*: Entity
     generics*: seq[Generic]
 
   Schematic* = ref object

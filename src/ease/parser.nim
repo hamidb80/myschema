@@ -1,6 +1,6 @@
 import std/[tables, strformat, strutils, os, sequtils, options]
-import lisp, defs
-import ../utils, ../common/defs as cdef
+import lisp, model
+import ../utils, ../common/defs
 
 
 func select*(sl: seq[LispNode]): LispNode {.inline.} =
@@ -203,8 +203,8 @@ func parseHook(busRipperNode: LispNode): BusRipper =
 
     else: err "invalid"
 
-func parseCbn(cbnNode: LispNode): CBN =
-  result = new CBN
+func parseCbn(cbnNode: LispNode): ConnectByName =
+  result = new ConnectByName
 
   for n in cbnNode:
     case n.ident:
@@ -238,7 +238,7 @@ func parseNCon(connectionNode: LispNode): Connection =
       result.obid = parseOBID n
 
     of "GEOMETRY":
-      result.geometry = parseGeometry n
+      result.position = parsePosition n
 
     of "SIDE":
       result.side = parseSide n
@@ -346,7 +346,7 @@ func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
       result.label = parseLabel n
 
     of "GENERIC":
-      result.instanceOf = some Generic(kind: gkRef, obid: parseOBID n)
+      result.parent = some Generic(kind: gkRef, obid: parseOBID n)
 
     of "ACT_VALUE": discard
     else: err fmt"invalid field {n.ident}"
@@ -372,7 +372,7 @@ func parseComp(componentNode: LispNode): Component =
       result.label = parseLabel n
 
     of "ENTITY":
-      result.instanceof = parseEntityRef n
+      result.parent = parseEntityRef n
 
     of "GENERIC":
       result.generics.add parseGeneric(n, gkInstance)

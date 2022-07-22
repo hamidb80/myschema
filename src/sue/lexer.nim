@@ -1,5 +1,5 @@
 import std/[strutils, strformat, sequtils]
-import ../utils
+import ../common/[errors, tuples, defs]
 
 
 type
@@ -54,16 +54,6 @@ type
     sfExtent = "-extent"
     sfCustom = "-<CUSTOM_FIELD>"
 
-  SueType* = enum
-    spInput = "input"
-    spOutput = "output"
-    spInOut = "inout"
-    spUser = "user"
-
-  SueSize* = enum
-    ssSmall = "small"
-    ssLarge = "large"
-
   SueOption* = object
     flag*: SueFlag
     field*: string
@@ -74,7 +64,7 @@ type
     args*: seq[SueToken]
     options*: seq[SueOption]
 
-  SueFile* = object
+  SueFile* = ref object
     name*: string
     schematic*, icon*: seq[SueExpression]
 
@@ -146,6 +136,16 @@ func `==`*(t: SueToken, s: string): bool =
 
 func `==`*(t: SueToken, ch: char): bool =
   t.kind == (toToken ch).kind
+
+func `[]`*(se: SueExpression, f: SueFlag): SueToken =
+  for o in se.options:
+    if o.flag == f:
+      return o.value
+
+  err fmt"flag '{f}' not found" 
+
+func parseOrigin*(s: string): Point = 
+  s.split(" ").map(parseInt).toTuple(2)
 
 # --- lexer
 

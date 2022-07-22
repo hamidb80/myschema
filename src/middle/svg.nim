@@ -1,4 +1,4 @@
-import std/[xmltree]
+import std/[xmltree, strtabs, sequtils]
 import ../common/defs
 
 type
@@ -6,29 +6,44 @@ type
     r, g, b: range[0..255]
     a: Percent
 
-  DesignSettings* = object
-    stroke: Color
-    strokeWidth: float
-    fill: Color
+  Font* = object
+    family*: string
+    size*: float
+    color*: Color
+
+  ShapeDrawingSettings* = object
+    width*: float # AKA strokeWidth
+    line*: Color  # AKA stroke
+    fill*: Color
+
+
+func add(parent: var XmlNode, newChildren: openArray[XmlNode]) = 
+  for ch in newChildren:
+    parent.add ch
 
 
 func newCanvas*(x, y, w, h: int): XmlNode =
-  discard
+  result = <>svg(xmlns = "http://www.w3.org/2000/svg")
+  result.attrs["xmlns:xlink"] = "http://www.w3.org/1999/xlink"
 
 func newGroup*(children: seq[XmlNode]): XmlNode =
-  discard
+  result = <>g()
+  result.add children
 
 func newRect*(x, y, w, h: int): XmlNode =
-  discard
+  <>rect(x = $x, y = $y, width = $w, height = $h)
 
 func newCircle*(cx, cy, r: int): XmlNode =
-  discard
+  <>circle(cx = $cx, ct = $cy, r = $r)
 
-func newLine*(points: seq[Point]): XmlNode =
-  discard
+func newLine*(head, tail: Point): XmlNode =
+  <>line(x1 = $head.x, y1 = $head.y, x2 = $tail.x, y2 = $tail.y)
 
-func newPoly*(points: seq[Point]): XmlNode =
-  discard
+func newPartialText(sentence: string): XmlNode =
+  # alignment-baseline 
+  # anchor-text
+  <>tspan(newText(sentence))
 
-func newText*(font, size, weight: string): XmlNode =
-  discard
+func newTextBox*(sentences: seq[string], font: Font): XmlNode =
+  result = <>text()
+  result.add sentences.map(newPartialText)

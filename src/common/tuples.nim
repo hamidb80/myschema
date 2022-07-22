@@ -23,12 +23,3 @@ macro pickTuple*(list: untyped, indexes: static[openArray[int]]): untyped =
     block:
       let `tempId` = `list`
       `tupleDef`
-
-template toSlice*(a): untyped =
-  a[0] .. a[1]
-
-template err*(msg: string): untyped =
-  raise newException(ValueError, msg)
-
-template impossible*: untyped =
-  err "impossible"
