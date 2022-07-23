@@ -1,5 +1,9 @@
-import std/[] # browser
+import std/[xmltree] # , browser
 
-import svg
-import model
+import svg, model, logic
+
+
+func drawNet*(canvas: var XmlNode, ngn: NetGraphNode) =
+  for sg in toSegments ngn:
+    canvas.add newLine(sg.a, sg.b)
 

@@ -16,11 +16,13 @@ type
     line*: Color  # AKA stroke
     fill*: Color
 
+# --- utils
 
 func add(parent: var XmlNode, newChildren: openArray[XmlNode]) = 
   for ch in newChildren:
     parent.add ch
 
+# --- main
 
 func newCanvas*(x, y, w, h: int): XmlNode =
   result = <>svg(xmlns = "http://www.w3.org/2000/svg")

@@ -27,12 +27,14 @@ type
     text*: string
     position*: Point
 
-  Net* = object
-
     
   Wire* = ref object
-    segments*: seq[Segment]
     isBus*: bool
+
+  NetGraphNode* {.acyclic.} = ref object # AKA Net
+    location*: Point
+    connections*: seq[NetGraphNode] # only forward connections
+
 
 
 # func toSvg*(sch: MSchema): XmlNode =

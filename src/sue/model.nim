@@ -66,9 +66,9 @@ type
     location*: Point
     orient*: Orient
 
-  LookUp* = TableRef[string, Module]
+  ModuleLookUp* = TableRef[string, Module]
 
   Project* = ref object
-    lookup*: LookUp
+    lookup*: ModuleLookUp
     modules*: seq[Module]
 
