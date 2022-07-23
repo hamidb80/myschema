@@ -1,5 +1,5 @@
-import std/[strutils, strformat, sequtils]
-import ../common/[errors, tuples, defs]
+import std/[strutils, strformat, sequtils, options]
+import ../common/[errors, tuples]
 
 
 type
@@ -144,8 +144,10 @@ func `[]`*(se: SueExpression, f: SueFlag): SueToken =
 
   err fmt"flag '{f}' not found" 
 
-func parseOrigin*(s: string): Point = 
-  s.split(" ").map(parseInt).toTuple(2)
+func find*(se: SueExpression, f: SueFlag): Option[SueToken] =
+  for o in se.options:
+    if o.flag == f:
+      return some o.value
 
 # --- lexer
 

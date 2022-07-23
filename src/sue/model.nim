@@ -4,8 +4,8 @@ import ../common/defs
 type
   Wire* = Slice[Point]
 
-  Rect* = object
-    x*, y*, w*, h*: int
+  Bounds* = object
+    x1*, y1*, x2*, y2*: int
 
   Flip* = enum
     X, Y
@@ -20,14 +20,14 @@ type
     rotation*: Rotation
     flips*: set[Flip]
 
-  Anchors* = enum
+  Anchor* = enum
     c, s, w, e, n
     sw, se, nw, ne
 
   Label* = ref object
     content*: string
     location*: Point
-    anchor*: Anchors
+    anchor*: Anchor
 
   SueSize* = enum
     ssNormal = ""
@@ -51,18 +51,23 @@ type
 
   Icon* = ref object
     ports*: seq[Port]
-    geometry*: Rect
+    bounds*: Bounds
     labels*: seq[Label]
 
   Module* = ref object
     name*: string
     schematic*: Schematic
-    # icon*: Icon
+    icon*: Icon
 
   Instance* = ref object
     name*: string
     parent* {.cursor.}: Module
+    location*: Point
+    orient*: Orient
+
+  LookUp* = TableRef[string, Module]
 
   Project* = ref object
-    icons*: Table[string, Icon]
+    lookup*: LookUp
     modules*: seq[Module]
+
