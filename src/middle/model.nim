@@ -1,3 +1,4 @@
+import std/[tables]
 import ../common/defs
 
 type
@@ -15,27 +16,33 @@ type
     dir*: PortDir
     position*: Point
 
-  Component* = ref object
-    ports*: seq[Port]
+  Module* = ref object
+    icon*: Icon
     schema*: Schema
 
+  Icon* = ref object
+    ports*: seq[Port]
+    # bounds*: 
+
   Instance* = ref object
-    parent* {.cursor.}: Component
+    parent* {.cursor.}: Module
     name*: string
 
   Label* = ref object
     text*: string
     position*: Point
 
-    
+
   Wire* = ref object
     isBus*: bool
 
   NetGraphNode* {.acyclic.} = ref object # AKA Net
     location*: Point
-    connections*: seq[NetGraphNode] # only forward connections
+    connections*: seq[NetGraphNode]      # only forward connections
 
+  ModuleLookup* = Table[string, Module]
 
+  Project* = ref object
+    modulelookUp*: ModuleLookup
+    mainModules*: seq[Module]
 
-# func toSvg*(sch: MSchema): XmlNode =
-#   discard

@@ -27,6 +27,7 @@ func add(parent: var XmlNode, newChildren: openArray[XmlNode]) =
 func newCanvas*(x, y, w, h: int): XmlNode =
   result = <>svg(xmlns = "http://www.w3.org/2000/svg")
   result.attrs["xmlns:xlink"] = "http://www.w3.org/1999/xlink"
+  #TODO add acanvas view-port
 
 func newGroup*(children: seq[XmlNode]): XmlNode =
   result = <>g()

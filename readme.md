@@ -1,7 +1,7 @@
 based on `Ease 8.0 rev4` and `SUE MMI 4.4.0`
 
 
-note that some `.sue` files have some problems like invalid white-space
+note that some `.sue` files have some problems like invalid white-space or 5 argument for make_wire/make_line
 
 TODO: list broken files with fixes
 
@@ -56,46 +56,5 @@ usedModeles - availableModules=[
 
 ```
 
-obids:
-- `proj`: project (PROJECT_FILE)
-- `pack`: package (PROJECT_FILE->PACKAGE | PACKAGE_FILE)
-- `lib`: library (DESIGN_FILE)
-- `ent`: entity (ENTITY_FILE->ENTITY)
-- `Arch`/`arch`: architecture (ARCH_DEFINITION)
-- `diag`: diagram (SCHEMATIC | FSM_DIAGRAM)
-
-- `eprt`: entity port (ENTITY->PORT)
-- `cprt`: component port (COMPONENT->PORT)
-- `aprt`: architecture port (ARCH_DEFINITION->PORT)
-- `nprt`: net port (NET->PART->PORT)
-- `pprt`: process port (PROCESS->PORT)
-- `gprt`: generate port (GENERATE->PORT)
-
-- `proc`: process (PROCESS)
-- `genb`: generate block
-
-- `ttab`: truth table (TABLE)
-- `thdr`: table header (HEADER)
-- `trow`: table row (ROW)
-- `cell`: cell (CELL)
-
-- `Comp`/`comp`: component [instance of a block] (COMPONENT)
-- `ncon`: node connection (CONNECTION)
-- `net`: net (NET)
-
-- `hook`: bus ripper (BUS_RIPPER)
-- `cbn`: connect by name (CBN)
-
-- `igen`: instance generic (GENERIC)
-- `egen`: entity generic (GENERIC)
-
-- `file`: file content (VHDL_FILE)
-- `itxt`: included text (INCLUDED_TEXT)
-- `extf`: external file
-
-- `fsm`: (STATE_MACHINE_V2 | TRANS_LINE/TRANS_SPLINE->[FROM_CONN, TO_CONN] | GLOBAL)
-- `tran`: transition (TRANS_LINE | TRANS_SPLINE)
-- `decl`: (DECLARATION)
-- `lab`: ??? (ACTION | CONDITION)
-- `stat`: state (STATE)
-- `act`: action (ACTION)
+### aknoledgements:
+- [svg toturoial](https://jenkov.com/tutorials/svg/index.html)

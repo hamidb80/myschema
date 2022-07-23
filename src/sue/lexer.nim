@@ -307,6 +307,7 @@ func lexSue(code; bounds; result: var SueFile) =
     i = newi
 
 func lexSue*(code: string): SueFile =
+  result = new SueFile
   lexSue(addr code, 0 .. code.high, result)
 
 # --- serializer

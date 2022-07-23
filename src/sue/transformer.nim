@@ -5,6 +5,7 @@ import ../common/[defs, errors, seqs]
 import model as sm
 import ../middle/model as mm
 
+# ------------------------------- utils
 
 func safeAdd[K, V](lookup: var Table[K, seq[V]], k: K, v: V) {.inline.} =
   lookup.withValue k, list:
@@ -16,24 +17,24 @@ func addBoth[T](lookup: var Table[T, seq[T]], v1, v2: T) {.inline.} =
   lookup.safeAdd v1, v2
   lookup.safeAdd v2, v1
 
+# ------------------------------- sue model -> middle model
 
 type NetLookup = Table[Point, seq[Point]]
 
 func collectImpl(last: var NetGraphNode, ntlkp: var NetLookup) =
   let loc = last.location
 
-  withValue ntlkp, loc, conns:
-    for p in conns[]:
-      # remove it from other way of relation
-      withValue ntlkp, p, connsBack:
-        connsBack[].remove loc
+  var conns = addr ntlkp[loc]
+  
+  for p in conns[]:
+    ntlkp[p].remove loc # remove it from other way of relation
 
-      var newNode = NetGraphNode(location: p)
-      collectImpl newNode, ntlkp
+    var newNode = NetGraphNode(location: p)
+    collectImpl newNode, ntlkp
+    
+    last.connections.add newNode
 
-      last.connections.add newNode
-
-    clear conns[]
+  clear conns[]
 
 func collect(head: Point, ntlkp: var NetLookup): NetGraphNode =
   result = NetGraphNode(location: head)
@@ -63,4 +64,10 @@ func toNet(wires: seq[sm.Wire]): seq[NetGraphNode] =
 func toMiddleModel*(sch: sm.Schematic, lookup: sm.ModuleLookUp): mm.Schema =
   discard toNet sch.wires
 
+func toMiddleModel*(sueIcon: sm.Icon): mm.Icon =
+  discard
 
+func toMiddleModel*(proj: sm.Project): mm.Project =
+  discard
+
+# ------------------------------- middle model -> sue model

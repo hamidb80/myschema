@@ -28,32 +28,38 @@ type
     content*: string
     location*: Point
     anchor*: Anchor
-    size*:FontSize
-
-  SueSize* = enum
-    ssNormal = ""
-    ssSmall = "small"
-    ssLarge = "large"
-
+    size*: FontSize
 
   PortDir* = enum
     input, output, inout
 
   Port* = ref object
     kind*: PortDir
-    location*: Point
+    location*: Point # relative
     name*: string
 
+  LineKind* = enum
+    arc, straight
+
+  Line* = object
+    case kind*: LineKind
+    of arc:
+      head*, tail*: Point
+      start*, extent*: Degree
+
+    of straight:
+      points*: seq[Point]
+
+  Icon* = ref object
+    ports*: seq[Port]
+    labels*: seq[Label]
+    lines*: seq[Line]
+    # properties*:
 
   Schematic* = ref object
     instances*: seq[Instance]
     wires*: seq[Wire]
     texts*: seq[Label]
-
-  Icon* = ref object
-    ports*: seq[Port]
-    bounds*: Bounds
-    labels*: seq[Label]
 
   Module* = ref object
     name*: string
@@ -72,3 +78,12 @@ type
     lookup*: ModuleLookUp
     modules*: seq[Module]
 
+
+func isNone*(o: Orient): bool =
+  o.flips.len == 0 and o.rotation == r0
+
+func isNone*(a: Anchor): bool =
+  a == c
+
+func isNone*(fz: FontSize): bool =
+  fz == fzMedium
