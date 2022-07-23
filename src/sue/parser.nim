@@ -12,7 +12,6 @@ func parsePortType(s: string): PortDir =
   of "inout": inout
   else: err fmt"not a port type: {s}"
 
-
 func parseFlip(s: string): set[Flip] =
   for c in s:
     result.incl case c:
@@ -68,21 +67,34 @@ func getRotate(expr: SueExpression): bool =
   if issome tk: tk.get.intval == 1
   else: false
 
-func getSize(expr: SueExpression): FontSize = 
+func getSize(expr: SueExpression): FontSize =
   let tk = expr.find(sfSize)
 
-  if issome tk: 
+  if issome tk:
     let s = tk.get.strval
     case s:
     of "small": fzSmall
     of "large": fzLarge
     else: err fmt"invalid '-side' value: {s}"
-  
-  else: 
-    fzMedium
-  
-func getAnchor(expr: SueExpression): Anchor = 
-  discard
+
+  else: fzMedium
+
+func getAnchor(expr: SueExpression): Anchor =
+  let tk = expr.find(sfAnchor)
+  if issome tk:
+    let str = tk.get.strval
+    case str:
+    of "c": c
+    of "s": s
+    of "w": w
+    of "e": e
+    of "n": n
+    of "sw": sw
+    of "se": se
+    of "nw": nw
+    of "ne": ne
+    else: err fmt"invalid '-anchor' value: {str}"
+  else: c
 
 func parseMake(expr: SueExpression, lookup: LookUp): Instance =
   let
@@ -104,12 +116,14 @@ func parseMakeText(expr: SueExpression): Label =
   let
     content = expr[sfText].strval
     origin = getOrigin expr
-    rotated = getRotate expr
+    # rotated = getRotate expr # TODO
     size = getSize expr
     anchor = getAnchor expr
 
-  # TODO
-  Label()
+  Label(content: content,
+    location: origin,
+    anchor: anchor,
+    size: size)
 
 # -- groups
 # TODO: add stdlib icons

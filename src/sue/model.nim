@@ -28,6 +28,7 @@ type
     content*: string
     location*: Point
     anchor*: Anchor
+    size*:FontSize
 
   SueSize* = enum
     ssNormal = ""
