@@ -1,6 +1,6 @@
 import std/[unittest, os, tables, options]
-import ease/[lisp, model]
-import ease/parser {.all.}
+import src/ease/[lisp, model]
+import src/ease/parser {.all.}
 
 # --- helpers
 

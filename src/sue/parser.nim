@@ -1,5 +1,5 @@
 import std/[tables, os, strformat, strutils, sequtils, options]
-import ../common/[errors, minmax, defs, tuples]
+import ../common/[errors, minmax, coordination, tuples]
 import lexer, model
 
 

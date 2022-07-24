@@ -1,6 +1,6 @@
 import std/[tables]
 
-import ../common/[defs, errors, seqs]
+import ../common/[coordination, errors, seqs]
 
 import model as sm
 import ../middle/model as mm

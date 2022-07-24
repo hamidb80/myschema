@@ -1,12 +1,10 @@
 import std/[tables]
-import ../common/defs
+import ../common/[coordination]
 
 type
-
-  Schema* = ref object
-    instances*: seq[Instance]
-    conntections*: seq[Wire]
-    lables*: seq[Label]
+  Label* = ref object
+    text*: string
+    position*: Point
 
   PortDir* = enum
     input, output, inout
@@ -16,21 +14,22 @@ type
     dir*: PortDir
     position*: Point
 
-  Module* = ref object
-    icon*: Icon
-    schema*: Schema
-
   Icon* = ref object
     ports*: seq[Port]
     # bounds*: 
 
+  Schema* = ref object
+    instances*: seq[Instance]
+    conntections*: seq[Wire]
+    lables*: seq[Label]
+
+  Module* = ref object
+    icon*: Icon
+    schema*: Schema
+
   Instance* = ref object
     parent* {.cursor.}: Module
     name*: string
-
-  Label* = ref object
-    text*: string
-    position*: Point
 
 
   Wire* = ref object

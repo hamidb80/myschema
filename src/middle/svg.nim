@@ -1,5 +1,5 @@
 import std/[xmltree, strtabs, sequtils]
-import ../common/defs
+import ../common/coordination
 
 type
   Color* = object

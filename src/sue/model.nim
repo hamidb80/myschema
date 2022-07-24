@@ -1,6 +1,6 @@
 import std/[tables]
 import lexer
-import ../common/defs
+import ../common/[coordination, domain]
 
 type
   Wire* = Slice[Point]

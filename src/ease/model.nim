@@ -1,5 +1,5 @@
 import std/[tables, options]
-import ../common/defs
+import ../common/[coordination]
 
 type
   ProcessType* = enum

@@ -1,5 +1,5 @@
 import model
-import ../common/[defs, seqs]
+import ../common/[coordination, seqs]
 
 type Segment* = Slice[Point]
 

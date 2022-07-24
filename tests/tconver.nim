@@ -1,2 +1,2 @@
 import tease/[tlisp, tparser]
-import tsue/[tsue]
+import tsue/[tlexer, tparser]
