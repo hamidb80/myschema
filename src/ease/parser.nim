@@ -339,6 +339,9 @@ func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
     of "OBID":
       result.obid = parseOBID n
 
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
     of "HDL_IDENT":
       result.ident = parseHDLIdent n
 
@@ -517,7 +520,7 @@ func parseArch(archDefNode: LispNode): Architecture =
     of "SCHEMATIC":
       result.schematic = some parseDiag n
 
-    of "HDL_FILE": discard
+    of "HDL_FILE", "STATE_MACHINE_V2": discard
     else: err fmt"invalid field: {n.ident}"
 
 func parseEnt(entityNode: LispNode, result: var Entity) =
@@ -582,7 +585,7 @@ func parseLib(designFileNode: LispNode): Library =
     of "PROPERTIES":
       result.properties = parseProperties n
 
-    of "COMPONENT_LIB": discard
+    of "COMPONENT_LIB", "PACKAGE", "PACKAGE_USE": discard
     else: err fmt"invalid ident: {n.ident}"
 
 func parseLibDecl(libraryNode: LispNode): Library =
@@ -619,18 +622,18 @@ func parseProj(projectFileNode: LispNode): Project =
 
 func resolve(genb: var GenerateBlock) =
   ## resolves port references inside generate block
-  ## 
+  ##
   ## generate def ports are referd to schematic port
   ## generate boy ports are refered to def port :-/
   ## 2 way connection
-  
+
   var portMap: Table[Obid, Port]
 
   for p in genb.ports:
     portMap[p.obid] = p
 
   for p in genb.schematic.ports:
-    let 
+    let
       pg_obid = p.parent.get.obid
       pg = portMap[pg_obid]
 
@@ -660,7 +663,7 @@ func resolve(proj: var Project) =
     entityMap: Table[Obid, Entity]
     portMap: Table[Obid, Port]
     netMap: Table[Obid, Net]
-    # TODO generate + generic
+    # TODO generic
 
 
   for d in proj.designs:
@@ -674,6 +677,9 @@ func resolve(proj: var Project) =
         case a.kind:
         of amBlockDiagram:
           let s = a.schematic.get
+
+          for p in s.ports:
+            portMap[p.obid] = p
 
           for n in s.nets:
             netMap[n.obid] = n
@@ -690,7 +696,7 @@ func resolve(proj: var Project) =
             resolve gb
 
             for p in gb.ports:
-              portMap[p.obid] = p 
+              portMap[p.obid] = p
 
         else: discard
 
@@ -712,20 +718,22 @@ func resolve(proj: var Project) =
             for br in n.busRippers:
               br.destNet = netMap[br.destNet.obid]
 
-            for p in n.ports:
-              p.parent = some portMap[p.parent.get.obid]
+            for p in mitems n.ports:
+              p = portMap[p.obid]
 
 
 proc parseEws*(dir: string): Project =
   doAssert dir.endsWith ".ews", fmt"the workspace directory name must end with .ews"
   let dbDir = dir / "ease.db"
 
-  result = parseProj select parseLisp readfile dbDir / "project.ews"
+
+  result = parseProj select parseLisp readfile dbDir / "project.eas"
   for d in mitems result.designs:
     let libdir = dbDir / d.obid.string
-    d = parseLib select parseLisp libdir
+    d = parseLib select parseLisp readFile libdir / "library.eas"
 
     for e in mitems d.entities:
       e = parseEntityFile select parseLisp readfile libdir / e.obid.string & ".eas"
+
 
   resolve result

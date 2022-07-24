@@ -1,5 +1,8 @@
 import std/[]
 
-import model
-import ../middle/model as mmodel
+import model as em
+import ../middle/model as mm
 
+
+func toMiddleMode(proj: em.Project): mm.Project =
+  discard

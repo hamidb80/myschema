@@ -156,6 +156,7 @@ type
     of gkRef: discard
     of gkEntity, gkInstance:
       ident*: HdlIdent
+      properties*: Properties
       geometry*: Geometry
       side*: Side
       label*: Label
@@ -318,7 +319,7 @@ type
 
 # ----------------------------------------
 
-import hashes
+import std/hashes
 
 func `==`*(o1, o2: Obid): bool {.borrow.}
 func hash*(o: Obid): Hash {.borrow.}
