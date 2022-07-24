@@ -2,6 +2,8 @@ import std/[tables, strformat, strutils, os, sequtils, options]
 import lisp, model
 import ../common/[coordination, tuples, errors]
 
+# {.experimental: "strictFuncs".}
+
 
 func select*(sl: seq[LispNode]): LispNode {.inline.} =
   ## all .eas file styles:
@@ -291,6 +293,7 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
 
 func parseNetPart2(part2Node: LispNode, result: var Net) =
   for n in part2Node:
+
     case n.ident:
     of "OBID": discard
 
@@ -613,33 +616,93 @@ func parseProj(projectFileNode: LispNode): Project =
     of "PACKAGE_USE", "EXTERNAL_DOC": discard
     else: err fmt"invalid ident: {n.ident}"
 
+func resolve(genb: var GenerateBlock) =
+  ## resolves port references inside generate block
+  ## 
+  ## generate def ports are referd to schematic port
+  ## generate boy ports are refered to def port :-/
+  ## 2 way connection
+
+  discard
 
 func resolve(proj: var Project) =
   ## there are several types of resolving:
   ## schema:
-  ## - ports <- refers to ports from entity def
-  ## 
+  ##   ports <- refers to ports from entity def
+  ##
   ## process:
-  ## - ports
-  ## 
-  ## net:
-  ##   part2/port
-  ## 
+  ##   ports
+  ##
+  ## net/part2:
+  ##   port
+  ##   BusRipper:
+  ##     destination net
+  ##
   ## component:
   ##   entity ref
   ##   ports ref
-  ## 
-  ## BusRipper:
-  ##   destination net
-  ## 
+  ##
   ## generate block: ...
   ## generic instance
 
-  # create table of OBIDs
+  var
+    entityMap: Table[Obid, Entity]
+    portMap: Table[Obid, Port]
+    netMap: Table[Obid, Net]
+    # TODO generate + generic
 
-  for d in mitems proj.designs:
+
+  # add entity + eprt + net
+  for d in proj.designs:
     for e in d.entities:
-      discard
+      entityMap[e.obid] = e
+
+      for p in e.ports:
+        portMap[p.obid] = p
+
+      for a in e.architectures:
+        case a.kind:
+        of amBlockDiagram:
+          let s = a.schematic.get
+
+          for n in s.nets:
+            netMap[n.obid] = n
+
+          for c in s.components:
+            for p in c.ports:
+              portMap[p.obid] = p
+
+          for pr in s.processes:
+            for p in pr.ports:
+              portMap[p.obid] = p
+
+          for gb in s.generateBlocks:
+            for p in gb.ports:
+              discard
+
+        else: discard
+
+
+  for d in proj.designs:
+    for e in d.entities:
+
+      for a in e.architectures:
+        if a.kind == amBlockDiagram:
+          let s = a.schematic.get
+
+          for c in s.components:
+            c.parent = entityMap[c.parent.obid]
+
+            for p in c.ports:
+              p.parent = some portMap[p.parent.get.obid]
+
+          for n in s.nets:
+            for br in n.busRippers:
+              br.destNet = netMap[br.destNet.obid]
+
+            for p in n.ports:
+              p.parent = some portMap[p.parent.get.obid]
+
 
 proc parseEws*(dir: string): Project =
   doAssert dir.endsWith ".ews", fmt"the workspace directory name must end with .ews"

@@ -19,11 +19,11 @@ type
     pmBuffer
 
   ArchitectureMode* = enum
-    etBlockDiagram = 1 # Schema
-    etHDLFile          # HDL code
-    etStateDiagram     # FSM
-    etTableDiagram     # truth table
-    etExternalHDLFIle  # HDL code
+    amBlockDiagram = 1 # Schema
+    amHDLFile          # HDL code
+    amStateDiagram     # FSM
+    amTableDiagram     # truth table
+    amExternalHDLFIle  # HDL code
 
   FlipMode* = enum
     vertical = 1
@@ -317,6 +317,11 @@ type
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
 
 # ----------------------------------------
+
+import hashes
+
+func `==`*(o1, o2: Obid): bool {.borrow.}
+func hash*(o: Obid): Hash {.borrow.}
 
 func isEmpty*(attrs: Attributes): bool =
   (isNone attrs.mode) and
