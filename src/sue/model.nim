@@ -1,4 +1,5 @@
 import std/[tables]
+import lexer
 import ../common/defs
 
 type
@@ -54,7 +55,7 @@ type
     ports*: seq[Port]
     labels*: seq[Label]
     lines*: seq[Line]
-    # properties*:
+    # properties*: for Generics
 
   Schematic* = ref object
     instances*: seq[Instance]
@@ -63,8 +64,12 @@ type
 
   Module* = ref object
     name*: string
-    schematic*: Schematic
-    icon*: Icon
+    case resolved: bool
+    of false:
+      file: SueFile
+    of true:
+      schematic*: Schematic
+      icon*: Icon
 
   Instance* = ref object
     name*: string
@@ -78,6 +83,7 @@ type
     lookup*: ModuleLookUp
     modules*: seq[Module]
 
+# ----------------------------------------
 
 func isNone*(o: Orient): bool =
   o.flips.len == 0 and o.rotation == r0

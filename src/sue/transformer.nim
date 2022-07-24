@@ -61,6 +61,7 @@ func toNet(wires: seq[sm.Wire]): seq[NetGraphNode] =
       result.add collect(leaf, netGraph)
 
 
+
 func toMiddleModel*(sch: sm.Schematic, lookup: sm.ModuleLookUp): mm.Schema =
   discard toNet sch.wires
 

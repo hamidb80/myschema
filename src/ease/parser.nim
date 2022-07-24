@@ -1,6 +1,6 @@
 import std/[tables, strformat, strutils, os, sequtils, options]
 import lisp, model
-import ../utils, ../common/defs
+import ../common/[defs, tuples, errors]
 
 
 func select*(sl: seq[LispNode]): LispNode {.inline.} =

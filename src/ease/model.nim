@@ -326,7 +326,7 @@ type
     eemRef
     eemDef
 
-
+# ----------------------------------------
 
 func isEmpty*(attrs: Attributes): bool =
   (isNone attrs.mode) and
