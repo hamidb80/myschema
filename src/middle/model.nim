@@ -1,4 +1,4 @@
-import std/[tables]
+import std/[tables, options]
 import ../common/[coordination]
 
 type
@@ -9,10 +9,11 @@ type
   PortDir* = enum
     input, output, inout
 
-  Port = object
+  Port = ref object
     name*: string
     dir*: PortDir
     position*: Point
+    parent*: Option[Port]
 
   Icon* = ref object
     ports*: seq[Port]
@@ -24,13 +25,13 @@ type
     lables*: seq[Label]
 
   Module* = ref object
+    name*: string
     icon*: Icon
     schema*: Schema
 
   Instance* = ref object
     parent* {.cursor.}: Module
     name*: string
-
 
   Wire* = ref object
     isBus*: bool
@@ -42,6 +43,5 @@ type
   ModuleLookup* = Table[string, Module]
 
   Project* = ref object
-    modulelookUp*: ModuleLookup
-    mainModules*: seq[Module]
+    modules*: ModuleLookup
 

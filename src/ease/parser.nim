@@ -249,6 +249,9 @@ func parseNCon(connectionNode: LispNode): Connection =
     else: err "invalid"
 
 
+func parseRefPort(refNode: LispNode): Port =
+  Port(obid: parseOBID refNode, kind: refprt)
+
 func parsePort(portNode: LispNode, pk: PortKind): Port =
   result = Port(kind: pk)
 
@@ -279,7 +282,7 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
       result.connection = some parseNCon n
 
     of "GENERATE", "PORT":
-      result.refObid = parseOBID n
+      result.parent = some parseRefPort n
 
     of "CBN":
       result.cbn = some parseCbn n
@@ -509,7 +512,7 @@ func parseArch(archDefNode: LispNode): Architecture =
       result.properties = parseProperties n
 
     of "SCHEMATIC":
-      result.schematic = parseDiag n
+      result.schematic = some parseDiag n
 
     of "HDL_FILE": discard
     else: err fmt"invalid field: {n.ident}"
@@ -610,6 +613,22 @@ func parseProj(projectFileNode: LispNode): Project =
     of "PACKAGE_USE", "EXTERNAL_DOC": discard
     else: err fmt"invalid ident: {n.ident}"
 
+func resolve(proj: var Project) =
+  ## there are several types of resolving:
+  ## 1. entity [schema ports refers to declaration ports]
+  ## 2. component:
+  ##    a. generics
+  ##    b. ports
+  ##    c. ...
+  ##
+  ## 3. resoling process port
+
+
+  # create table of OBIDs
+
+  for d in mitems proj.designs:
+    for e in d.entities:
+      discard
 
 proc parseEws*(dir: string): Project =
   doAssert dir.endsWith ".ews", fmt"the workspace directory name must end with .ews"
@@ -622,3 +641,5 @@ proc parseEws*(dir: string): Project =
 
     for e in mitems d.entities:
       e = parseEntityFile select parseLisp readfile libdir / e.obid.string & ".eas"
+
+  resolve result

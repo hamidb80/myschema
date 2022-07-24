@@ -225,7 +225,7 @@ type
       label*: Label
       cbn*: Option[ConnectByName]
       connection*: Option[Connection]
-      refObid*: Obid
+      parent*: Option[Port]
 
   Process* = ref object
     obid*: Obid
@@ -266,7 +266,7 @@ type
     properties*: Properties
     ident*: HdlIdent
     kind*: ArchitectureMode
-    schematic*: Schematic
+    schematic*: Option[Schematic]
 
 
   EntityKind* = enum
@@ -315,16 +315,6 @@ type
     designs*: seq[Library]
     packages*: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
-
-
-type
-  LibraryEncodeMode* = enum
-    lemRef
-    lemDef
-
-  EntityEncodeMode* = enum
-    eemRef
-    eemDef
 
 # ----------------------------------------
 

@@ -1,5 +1,4 @@
 import std/[tables]
-import lexer
 import ../common/[coordination, domain]
 
 type
@@ -38,6 +37,7 @@ type
     kind*: PortDir
     location*: Point # relative
     name*: string
+    # parent*: Option[Port]
 
   LineKind* = enum
     arc, straight
@@ -62,14 +62,18 @@ type
     wires*: seq[Wire]
     texts*: seq[Label]
 
+  ModuleKind* = enum
+    mkRef # instance
+    mkCtx
+
   Module* = ref object
     name*: string
-    case resolved: bool
-    of false:
-      file: SueFile
-    of true:
-      schematic*: Schematic
+
+    case kind*: ModuleKind
+    of mkRef: discard
+    of mkCtx:
       icon*: Icon
+      schema*: Schematic
 
   Instance* = ref object
     name*: string
@@ -80,8 +84,7 @@ type
   ModuleLookUp* = TableRef[string, Module]
 
   Project* = ref object
-    lookup*: ModuleLookUp
-    modules*: seq[Module]
+    modules*: ModuleLookUp
 
 # ----------------------------------------
 

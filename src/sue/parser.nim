@@ -1,11 +1,11 @@
 import std/[tables, os, strformat, strutils, sequtils, options]
-import ../common/[errors, minmax, coordination, tuples]
+import ../common/[errors, coordination, tuples]
 import lexer, model
 
 
 # -- options
 
-func parsePortType(s: string): PortDir =
+func parsePortType*(s: string): PortDir =
   case s:
   of "input": input
   of "output": output
@@ -96,7 +96,10 @@ func getAnchor(expr: SueExpression): Anchor =
     else: err fmt"invalid '-anchor' value: {str}"
   else: c
 
-func parseMake(expr: SueExpression, lookup: LookUp): Instance =
+func moduleRef(name: string): Module = 
+   Module(name: name, kind: mkRef)
+
+func parseMake*(expr: SueExpression): Instance =
   let
     parent = expr.args[0].strVal
     name = expr[sfName].strval
@@ -104,19 +107,19 @@ func parseMake(expr: SueExpression, lookup: LookUp): Instance =
     orient = getOrient expr
 
   Instance(name: name,
-    parent: lookup[parent],
+    parent: moduleRef parent,
     location: origin,
     orient: orient)
 
-func parseWire(expr: SueExpression): Wire =
+func parseWire*(expr: SueExpression): Wire =
   let s = expr.args.mapIt it.intval
   (s[0], s[1]) .. (s[2], s[3])
 
-func parseMakeText(expr: SueExpression): Label =
+func parseMakeText*(expr: SueExpression): Label =
   let
     content = expr[sfText].strval
     origin = getOrigin expr
-    # rotated = getRotate expr # TODO
+    rotated = getRotate expr
     size = getSize expr
     anchor = getAnchor expr
 
@@ -126,15 +129,14 @@ func parseMakeText(expr: SueExpression): Label =
     size: size)
 
 # -- groups
-# TODO: add stdlib icons
 
-func resolveSchematic(sf: seq[SueExpression], lookup: LookUp): Schematic =
+func parseSchematic(se: seq[SueExpression]): Schematic =
   result = new Schematic
 
-  for expr in sf:
+  for expr in se:
     case expr.command:
     of scMake:
-      result.instances.add parseMake(expr, lookup)
+      result.instances.add parseMake expr
 
     of scMakeWire:
       result.wires.add parseWire expr
@@ -147,56 +149,42 @@ func resolveSchematic(sf: seq[SueExpression], lookup: LookUp): Schematic =
     else:
       err fmt"invalid command in schematic: {expr.command}"
 
-func resolveIcon(sf: seq[SueExpression]): Icon =
+func parseIcon(se: seq[SueExpression]): Icon =
   result = new Icon
 
-  var
-    xs: MinMax[int]
-    ys: MinMax[int]
-
-
-  for expr in sf:
+  for expr in se:
     case expr.command:
     of scIconSetup, scIconProperty, scIconLine, scIconArc: discard
 
     of scIconTerm:
-      let p = Port(
+      result.ports.add Port(
         name: expr[sfName].strval,
         kind: parsePortType expr[sfType].strval,
         location: parseOrigin expr[sfOrigin].strval)
 
-      xs.update(p.location.x)
-      ys.update(p.location.y)
-      result.ports.add p
-
     else:
       err fmt"invalid command in icon: {expr.command}"
 
-  result.bounds = Bounds(
-    x1: xs.min, x2: xs.max,
-    y1: ys.min, y2: ys.max)
+func resolve(proj: var Project) =
+  for _, m in mpairs proj.modules:
+    for ins in m.schema.instances:
+      ins.parent = proj.modules[ins.parent.name]
 
 proc parseProject*(mainDir: string, lookupDirs: seq[string]): Project =
-  result = Project(lookup: new LookUp)
+  result = Project(modules: new ModuleLookUp)
 
-  template walkSue(dir, body): untyped {.dirty.} =
+  template walkSue(dir): untyped {.dirty.} =
     for path in walkFiles dir / "*.sue":
-      let
-        sf = lexSue path
-        m = Module(name: sf.name, icon: resolveIcon sf.icon)
+      let sf = lexSue path
+      result.modules[sf.name] = Module(
+        name: sf.name, 
+        kind: mkCtx,
+        icon: parseIcon(sf.icon),
+        schema: parseSchematic(sf.schematic))
 
-      body
-
-
-  var mainModules: seq[tuple[module: Module, file: SueFile]]
-
-  walkSue mainDir:
-    mainModules.add (m, sf)
-    result.lookup[sf.name] = m
+  walkSue mainDir
 
   for d in lookupDirs:
-    walkSue d:
-      result.lookup[sf.name] = m
+    walkSue d
 
-  for (m, sf) in mainModules:
-    m.schematic = resolveSchematic(sf.schematic, result.lookup)
+  resolve result

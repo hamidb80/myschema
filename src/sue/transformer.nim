@@ -25,13 +25,13 @@ func collectImpl(last: var NetGraphNode, ntlkp: var NetLookup) =
   let loc = last.location
 
   var conns = addr ntlkp[loc]
-  
+
   for p in conns[]:
     ntlkp[p].remove loc # remove it from other way of relation
 
     var newNode = NetGraphNode(location: p)
     collectImpl newNode, ntlkp
-    
+
     last.connections.add newNode
 
   clear conns[]
@@ -62,13 +62,21 @@ func toNet(wires: seq[sm.Wire]): seq[NetGraphNode] =
 
 
 
-func toMiddleModel*(sch: sm.Schematic, lookup: sm.ModuleLookUp): mm.Schema =
+func toMiddleModel*(sch: sm.Schematic): mm.Schema =
   discard toNet sch.wires
 
-func toMiddleModel*(sueIcon: sm.Icon): mm.Icon =
+func toMiddleModel*(ico: sm.Icon): mm.Icon =
+  discard
+
+func toMiddleModel*(mo: sm.Module): mm.Module = 
   discard
 
 func toMiddleModel*(proj: sm.Project): mm.Project =
-  discard
+  result = new mm.Project
+
+  for name, sueModule in proj.modules:
+    var m = mm.Module(name: name)
+    result.modules[name] = toMiddleModel sueModule
+
 
 # ------------------------------- middle model -> sue model

@@ -129,7 +129,7 @@ suite "compound":
     check po.label.text == lbl
 
   template checkPortRef(po, refId, connId): untyped =
-    check po.refObid.string == refId
+    check po.parent.get.obid.string == refId
     check po.connection.get.obid.string == connId
 
   test "PORT_eprt":
@@ -146,7 +146,7 @@ suite "compound":
     let po = parsePort(lfName "compound/PORT/cprt.eas", cprt)
     checkPort po, "cprtf7000010d4884404803033fcce630000", "HTRANS", 3416, 3, "HTRANS[1:0]"
     check po.properties["SensitivityList"] == "Yes"
-    check po.refObid.string == "eprtf7000010b203330479045600affd1607"
+    check po.parent.get.obid.string == "eprtf7000010b203330479045600affd1607"
     check po.connection.get.obid.string == "ncona0a0a0bc32ebab64495073947d800000"
 
   test "PORT_pprt":
@@ -158,6 +158,16 @@ suite "compound":
     let po = parsePort(lfName "compound/PORT/gprt.eas", gprt)
     checkPort po, "gprta0a0a056f0f80505c4914b455aa7a454", "s_mltplctr", 2008, 1, "s_mltplctr(DWIDTH-1:0)"
     checkPortRef po, "gprta0a0a056f0f80505c4914b454aa7a454", "ncona0a0a056f0f80505c4914b45f6b7a454"
+
+  test "PORT_ref_1":
+    let po = parseRefPort(lfName "compound/PORT/ref_1.eas")
+    check po.obid.string == "cprtabc987acvwv"
+
+  test "PORT_ref_2":
+    let po = parsePort(lfName "compound/PORT/ref_2.eas", refprt)
+    check po.obid.string == "cprtf7000010a20333047904560005dd1607"
+    check po.name == "HSEL"
+
 
   test "BUS_RIPPER":
     let bo = parseHook lfName "compound/BUS_RIPPER.eas"
