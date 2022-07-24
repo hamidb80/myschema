@@ -1,0 +1,11 @@
+proc SCHEMATIC_wires {} {
+  make_wire 0 0 0 10
+  make_wire 0 10 10 10
+  make_wire 10 10 20 10
+  make_wire 20 10 20 20
+  make_wire 20 20 20 30
+  make_wire 20 30 30 30
+
+  make_wire 20 20 20 -10
+  make_wire 20 -10 0 0
+}

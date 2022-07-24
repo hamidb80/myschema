@@ -3,9 +3,7 @@ import errors
 func remove*[T](s: var seq[T], v: T) =
   let i = s.find(v)
 
-  if i == -1:
-    err "not found"
-  else:
+  if i != -1:
     s.del i
 
 func clear*(s: var seq) =

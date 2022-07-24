@@ -17,31 +17,31 @@ type
 
   Icon* = ref object
     ports*: seq[Port]
-    # bounds*: 
+    # bounds*:
 
   Schema* = ref object
     instances*: seq[Instance]
-    conntections*: seq[Wire]
+    connections*: seq[NetGraphNode]
     lables*: seq[Label]
 
-  Module* = ref object
+  MModule* = ref object
     name*: string
     icon*: Icon
     schema*: Schema
 
   Instance* = ref object
-    parent* {.cursor.}: Module
+    parent* {.cursor.}: MModule
     name*: string
 
-  Wire* = ref object
-    isBus*: bool
+  # Net = ref object
+  #   ports
 
   NetGraphNode* {.acyclic.} = ref object # AKA Net
     location*: Point
     connections*: seq[NetGraphNode]      # only forward connections
 
-  ModuleLookup* = Table[string, Module]
+  ModuleLookup* = Table[string, MModule] 
 
-  Project* = ref object
+  MProject* = ref object # FIXME in `transformer.nim` types with the asme name cause gcc error
     modules*: ModuleLookup
 

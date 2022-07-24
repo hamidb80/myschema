@@ -172,12 +172,14 @@ func resolve(proj: var Project) =
       ins.parent = proj.modules[ins.parent.name]
 
 
-proc parseProject*(mainDir: string, lookupDirs: seq[string]): Project =
-  result = Project(modules: new ModuleLookUp)
+import print
+proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
+  result = Project(modules: ModuleLookUp())
 
   template walkSue(dir): untyped {.dirty.} =
     for path in walkFiles dir / "*.sue":
-      let sf = lexSue path
+      echo "{{{ ", path
+      let sf = lexSue readFile path
       result.modules[sf.name] = Module(
         name: sf.name, 
         kind: mkCtx,

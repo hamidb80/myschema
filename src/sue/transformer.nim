@@ -63,20 +63,25 @@ func toNet(wires: seq[sm.Wire]): seq[NetGraphNode] =
 
 
 func toMiddleModel*(sch: sm.Schematic): mm.Schema =
-  discard toNet sch.wires
+  mm.Schema(
+    connections: toNet sch.wires
+  )
 
 func toMiddleModel*(ico: sm.Icon): mm.Icon =
   discard
 
-func toMiddleModel*(mo: sm.Module): mm.Module = 
-  discard
+func toMiddleModel*(mo: sm.Module): MModule = 
+  MModule(
+    # mo.icon
+    name: mo.name,
+    schema: toMiddleModel mo.schema
+  )
 
-func toMiddleModel*(proj: sm.Project): mm.Project =
-  result = new mm.Project
+func toMiddleModel*(proj: sm.Project): mm.MProject =
+  result = new mm.MProject
 
   for name, sueModule in proj.modules:
-    var m = mm.Module(name: name)
+    debugEcho ">>> ", name, " <<<"
     result.modules[name] = toMiddleModel sueModule
-
 
 # ------------------------------- middle model -> sue model

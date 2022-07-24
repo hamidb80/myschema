@@ -80,7 +80,7 @@ type
     location*: Point
     orient*: Orient
 
-  ModuleLookUp* = TableRef[string, Module]
+  ModuleLookUp* = Table[string, Module]
 
   Project* = ref object
     modules*: ModuleLookUp
