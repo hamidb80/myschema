@@ -283,7 +283,7 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
     of "CONNECTION":
       result.connection = some parseNCon n
 
-    of "GENERATE", "PORT":
+    of "PORT", "GENERATE":
       result.parent = some parseRefPort n
 
     of "CBN":
@@ -616,14 +616,26 @@ func parseProj(projectFileNode: LispNode): Project =
     of "PACKAGE_USE", "EXTERNAL_DOC": discard
     else: err fmt"invalid ident: {n.ident}"
 
+
 func resolve(genb: var GenerateBlock) =
   ## resolves port references inside generate block
   ## 
   ## generate def ports are referd to schematic port
   ## generate boy ports are refered to def port :-/
   ## 2 way connection
+  
+  var portMap: Table[Obid, Port]
 
-  discard
+  for p in genb.ports:
+    portMap[p.obid] = p
+
+  for p in genb.schematic.ports:
+    let 
+      pg_obid = p.parent.get.obid
+      pg = portMap[pg_obid]
+
+    p.parent = some pg
+    pg.parent = some p
 
 func resolve(proj: var Project) =
   ## there are several types of resolving:
@@ -642,8 +654,7 @@ func resolve(proj: var Project) =
   ##   entity ref
   ##   ports ref
   ##
-  ## generate block: ...
-  ## generic instance
+  ## generic +++++++++++
 
   var
     entityMap: Table[Obid, Entity]
@@ -652,7 +663,6 @@ func resolve(proj: var Project) =
     # TODO generate + generic
 
 
-  # add entity + eprt + net
   for d in proj.designs:
     for e in d.entities:
       entityMap[e.obid] = e
@@ -676,9 +686,11 @@ func resolve(proj: var Project) =
             for p in pr.ports:
               portMap[p.obid] = p
 
-          for gb in s.generateBlocks:
+          for gb in mitems s.generateBlocks:
+            resolve gb
+
             for p in gb.ports:
-              discard
+              portMap[p.obid] = p 
 
         else: discard
 
