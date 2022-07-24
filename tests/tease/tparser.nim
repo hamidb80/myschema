@@ -293,7 +293,7 @@ suite "file":
     check ef.obid.string == "enta000000a9a859424478033fcaea30000"
     check ef.properties["STAMP_TOOL"] == "Ease"
     check ef.ident.name  == "ram_2k"
-    check ef.componentSize  == (1088, 896)
+    check ef.size  == (1088, 896)
     check ef.objStamp.created == 1112103081
     
     check ef.ports[0].obid.string == "eprta000000a9a859424478033fcbea30000"

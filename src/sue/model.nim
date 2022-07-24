@@ -37,7 +37,6 @@ type
     kind*: PortDir
     location*: Point # relative
     name*: string
-    # parent*: Option[Port]
 
   LineKind* = enum
     arc, straight

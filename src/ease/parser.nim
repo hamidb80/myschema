@@ -530,7 +530,7 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
       result.ident = parseHDLIdent n
 
     of "GEOMETRY":
-      result.componentSize = parseGeometry(n).pickTuple([2, 3])
+      result.size = parseGeometry(n).pickTuple([2, 3])
 
     of "GENERIC":
       result.generics.add parseGeneric(n, gkEntity)
@@ -613,16 +613,27 @@ func parseProj(projectFileNode: LispNode): Project =
     of "PACKAGE_USE", "EXTERNAL_DOC": discard
     else: err fmt"invalid ident: {n.ident}"
 
+
 func resolve(proj: var Project) =
   ## there are several types of resolving:
-  ## 1. entity [schema ports refers to declaration ports]
-  ## 2. component:
-  ##    a. generics
-  ##    b. ports
-  ##    c. ...
-  ##
-  ## 3. resoling process port
-
+  ## schema:
+  ## - ports <- refers to ports from entity def
+  ## 
+  ## process:
+  ## - ports
+  ## 
+  ## net:
+  ##   part2/port
+  ## 
+  ## component:
+  ##   entity ref
+  ##   ports ref
+  ## 
+  ## BusRipper:
+  ##   destination net
+  ## 
+  ## generate block: ...
+  ## generic instance
 
   # create table of OBIDs
 

@@ -286,7 +286,7 @@ type
       ident*: HdlIdent
       properties*: Properties
       objStamp*: ObjStamp
-      componentSize*: Size
+      size*: Size
       generics*: seq[Generic]
       ports*: seq[Port]
       architectures*: seq[Architecture]

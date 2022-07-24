@@ -166,9 +166,11 @@ func parseIcon(se: seq[SueExpression]): Icon =
       err fmt"invalid command in icon: {expr.command}"
 
 func resolve(proj: var Project) =
+  # resolve module instances
   for _, m in mpairs proj.modules:
-    for ins in m.schema.instances:
+    for ins in mitems m.schema.instances:
       ins.parent = proj.modules[ins.parent.name]
+
 
 proc parseProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: new ModuleLookUp)
