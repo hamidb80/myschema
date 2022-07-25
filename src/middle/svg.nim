@@ -1,4 +1,4 @@
-import std/[xmltree, strtabs, sequtils]
+import std/[xmltree, strtabs, sequtils, strformat]
 import ../common/[coordination, domain]
 
 type
@@ -18,18 +18,18 @@ type
 
 # --- utils
 
-func add(parent: var XmlNode, newChildren: openArray[XmlNode]) = 
+func add(parent: var XmlNode, newChildren: openArray[XmlNode]) =
   for ch in newChildren:
     parent.add ch
 
 # --- main
 
-func newCanvas*(x, y, w, h: int): XmlNode =
-  result = <>svg(xmlns = "http://www.w3.org/2000/svg")
-  result.attrs["xmlns:xlink"] = "http://www.w3.org/1999/xlink"
-  #TODO add acanvas view-port
 
-func newGroup*(children: seq[XmlNode]): XmlNode =
+func newCanvas*(x, y, w, h: int): XmlNode =
+  result = <>svg(xmlns = "http://www.w3.org/2000/svg",
+      viewBox = fmt"{x} {y} {w} {h}", version = "1.1")
+
+func newGroup*(children: openArray[XmlNode]): XmlNode =
   result = <>g()
   result.add children
 
@@ -40,10 +40,11 @@ func newCircle*(cx, cy, r: int): XmlNode =
   <>circle(cx = $cx, ct = $cy, r = $r)
 
 func newLine*(head, tail: Point): XmlNode =
-  <>line(x1 = $head.x, y1 = $head.y, x2 = $tail.x, y2 = $tail.y)
+  <>line(x1 = $head.x, y1 = $head.y, x2 = $tail.x, y2 = $tail.y,
+      stroke-width = "0.5", stroke = "black")
 
 func newPartialText(sentence: string): XmlNode =
-  # alignment-baseline 
+  # alignment-baseline
   # anchor-text
   <>tspan(newText(sentence))
 

@@ -178,7 +178,6 @@ proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
 
   template walkSue(dir): untyped {.dirty.} =
     for path in walkFiles dir / "*.sue":
-      echo "{{{ ", path
       let sf = lexSue readFile path
       result.modules[sf.name] = Module(
         name: sf.name, 

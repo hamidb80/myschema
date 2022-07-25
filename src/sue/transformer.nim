@@ -31,7 +31,6 @@ func collectImpl(last: var NetGraphNode, ntlkp: var NetLookup) =
 
     var newNode = NetGraphNode(location: p)
     collectImpl newNode, ntlkp
-
     last.connections.add newNode
 
   clear conns[]
@@ -41,6 +40,8 @@ func collect(head: Point, ntlkp: var NetLookup): NetGraphNode =
   collectImpl result, ntlkp
 
 func toNet(wires: seq[sm.Wire]): seq[NetGraphNode] =
+  ## detects wire groups by generating a 2-way connection table
+
   var netGraph: NetLookup
 
   for w in wires:
@@ -57,9 +58,8 @@ func toNet(wires: seq[sm.Wire]): seq[NetGraphNode] =
   # ---
 
   for leaf in leaves:
-    if leaf in netGraph:
+    if netGraph[leaf].len > 0:
       result.add collect(leaf, netGraph)
-
 
 
 func toMiddleModel*(sch: sm.Schematic): mm.Schema =
@@ -70,7 +70,7 @@ func toMiddleModel*(sch: sm.Schematic): mm.Schema =
 func toMiddleModel*(ico: sm.Icon): mm.Icon =
   discard
 
-func toMiddleModel*(mo: sm.Module): MModule = 
+func toMiddleModel*(mo: sm.Module): MModule =
   MModule(
     # mo.icon
     name: mo.name,
@@ -81,7 +81,6 @@ func toMiddleModel*(proj: sm.Project): mm.MProject =
   result = new mm.MProject
 
   for name, sueModule in proj.modules:
-    debugEcho ">>> ", name, " <<<"
     result.modules[name] = toMiddleModel sueModule
 
 # ------------------------------- middle model -> sue model
