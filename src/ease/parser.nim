@@ -332,7 +332,7 @@ func parseNet(netNode: LispNode): Net =
 
 
 func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
-  result = Generic(kind: gkind)
+  result = Generic(kind: gkind) # FIXME `scriptfunction` complains here
 
   for n in genericNode:
     case n.ident:

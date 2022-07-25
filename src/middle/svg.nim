@@ -41,7 +41,7 @@ func newCircle*(cx, cy, r: int): XmlNode =
 
 func newLine*(head, tail: Point): XmlNode =
   <>line(x1 = $head.x, y1 = $head.y, x2 = $tail.x, y2 = $tail.y,
-      stroke-width = "0.5", stroke = "black")
+      stroke-width = "8", stroke = "#9b9b9b")
 
 func newPartialText(sentence: string): XmlNode =
   # alignment-baseline
