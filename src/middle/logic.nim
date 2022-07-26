@@ -11,10 +11,11 @@ iterator toSegments*(head: NetGraphNode): Segment =
 
     if i == lastNode.connections.len:
       shoot nstack
-    
+
     else:
       let nextNode = lastNode.connections[i]
       yield lastNode.location .. nextNode.location
 
       inc nstack.last.connIndex
       nstack.add (nextNode, 0)
+

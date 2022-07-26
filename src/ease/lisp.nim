@@ -1,4 +1,5 @@
-import std/[strutils, macros, sugar, sequtils, options]
+import std/[strutils, macros, sequtils, options, strformat]
+import ../common/errors
 
 type
   LispNodeKind* = enum
@@ -186,6 +187,8 @@ iterator items*(n: LispNode): LispNode =
   for i in 1 .. n.len-1:
     yield n[i]
 
+func add*(ln: var LispNode, newChildren: LispNode) =
+  ln.children.add newChildren
 
 template findNode*(node: LispNode, cond): untyped =
   var result: Option[LispNode]
@@ -201,39 +204,23 @@ template assertIdent*(call: LispNode, name: string): untyped =
 
 # ----------------------------------------------------------
 
-let
-  toLispNodeIdent {.compileTime.} = ident "toLispNode"
-  toLispSymbolIdent {.compileTime.} = ident "toLispSymbol"
-  newLispListIdent {.compileTime.} = ident "newLispList"
-
-proc toLispImpl(nodes: seq[NimNode]): NimNode =
-  result = newCall(newLispListIdent)
-
-  for n in nodes:
-    result.add:
-      case n.kind:
-      of nnkIdent:
-        newCall(toLispSymbolIdent, newlit n.strVal)
-
-      of nnkTupleConstr:
-        toLispImpl n.toseq
-
-      of nnkPar:
-        newCall(newLispListIdent, n[0])
-
-      else:
-        newCall(toLispNodeIdent, n)
+proc toLispImpl(n: NimNode): NimNode =
+  case n.kind:
+  of nnkTupleConstr, nnkPar: newCall("newLispList").add n.mapIt(newCall("toLisp", it)) 
+  of nnkPrefix: 
+    if n.kind == nnkPrefix and n[0].strVal == "!":
+      newCall("toLispSymbol", newlit n[1].strval)
+    else:
+      newCall("toLispNode", n)
+  else: newCall("toLispNode", n)
 
 macro toLisp*(body): untyped =
-  result = case body.kind:
-  of nnkTupleConstr:
-    toLispImpl body.toseq
+  runnableExamples:
+    echo toLisp ()
+    echo toLisp (1)
+    echo toLisp (1, (2, (3, 4)), 5)
 
-  of nnkStmtList:
-    newTree(nnkBracket).add collect do:
-      for n in body:
-        expectKind n, nnkTupleConstr
-        toLispImpl n.toseq
+    let a = 2
+    echo toLisp (!FN, a)
 
-  else:
-    raise newException(ValueError, "expected tupleConstr or stmtList. got: " & $body.kind)
+  toLispImpl body
