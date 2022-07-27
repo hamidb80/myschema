@@ -241,21 +241,32 @@ func encodeComponent(comp: Component): LispNode =
 
 # --- files
 
-func encodeEntity*(enf: Entity): LispNode =
+func encodeEntity(enf: Entity): LispNode =
   discard
 
-func encodeDesign*(df: Library): LispNode =
+func encodeDesign(df: Library): LispNode =
   discard
 
-func encodeProject*(proj: Project): LispNode =
+func encodeProject(proj: Project): LispNode =
   discard
 
-func wrapFile*(node: LispNode): seq[LispNode] = 
+func wrapFile(node: LispNode): seq[LispNode] =
   @[
     toLisp (`DATABASE_VERSION`, 17),
     node,
     toLisp (`END_OF_FILE`),
   ]
+
+
+func makeEntityFile*(entity: Entity): seq[LispNode] =
+  wrapFile encodeEntity entity
+
+func makeDesignFile*(lib: Library): seq[LispNode] =
+  wrapFile encodeDesign lib
+
+func makeProjectFile*(proj: Project): seq[LispNode] =
+  wrapFile encodeProject proj
+
 
 when isMainModule:
   echo encodeGeometry (1, 2, 3, 4)

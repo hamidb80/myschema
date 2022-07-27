@@ -11,7 +11,7 @@ type
     X, Y
 
   FontSize* = enum
-    fzMedium, fzSmall, fzLarge
+    fzStandard, fzVerySmall, fzSmall, fzLarge, fzVeryLarge
 
   Rotation* = enum
     r0, r90, r180, r270
@@ -21,7 +21,7 @@ type
     flips*: set[Flip]
 
   Anchor* = enum
-    c, s, w, e, n
+    w, s, e, n, c
     sw, se, nw, ne
 
   Label* = ref object
@@ -94,4 +94,4 @@ func isNone*(a: Anchor): bool =
   a == c
 
 func isNone*(fz: FontSize): bool =
-  fz == fzMedium
+  fz == fzStandard

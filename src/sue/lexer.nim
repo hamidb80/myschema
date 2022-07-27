@@ -129,6 +129,10 @@ func toToken*(ch: char): SueToken =
 
   SueToken(kind: k)
 
+func toToken*(i: int): SueToken =
+  SueToken(kind: sttNumber, intval: i)
+
+
 func `==`*(t: SueToken, s: string): bool =
   case t.kind:
   of sttString, sttLiteral, sttCommand: t.strval == s
