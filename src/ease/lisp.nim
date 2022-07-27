@@ -1,5 +1,4 @@
-import std/[strutils, macros, sequtils, options, strformat]
-import ../common/errors
+import std/[strutils, macros, options]
 
 type
   LispNodeKind* = enum
@@ -30,7 +29,6 @@ type
     of lnkList:
       children*: seq[LispNode]
 
-  LispGroup = distinct LispNode
 
 func toLispNode*(s: string): LispNode =
   LispNode(kind: lnkString, str: s)
@@ -46,17 +44,21 @@ func toLispNode*(i: int): LispNode =
 func toLispSymbol*(s: string): LispNode =
   LispNode(kind: lnkSymbol, name: s)
 
-func newLispList*(s: openArray[LispNode]): LispNode =
+func toLispNode*(s: openArray[LispNode]): LispNode =
+  result = LispNode(kind: lnkList)
+  result.children = @s
+
+func toLispList*(s: varargs[LispNode]): LispNode =
   result = LispNode(kind: lnkList)
   result.children.add s
 
-func newLispList*(s: varargs[LispNode]): LispNode =
-  result = LispNode(kind: lnkList)
-  result.children.add s
 
+func add*(ln: var LispNode, newChild: LispNode) =
+  ln.children.add newChild
 
-func add*(ln: var LispNode, newChildren: LispNode) =
-  ln.children.add newChildren
+func add*(ln: var LispNode, newChildren: openArray[LispNode]) =
+  for nch in newChildren:
+    ln.children.add nch
 
 func parseLisp(s: ptr string, startI: int, acc: var seq[LispNode]): int =
   ## return the last index that was there
@@ -111,7 +113,7 @@ func parseLisp(s: ptr string, startI: int, acc: var seq[LispNode]): int =
     of psInitial:
       case c:
       of '(':
-        var node = newLispList()
+        var node = toLispList()
         i = parseLisp(s, i+1, node.children)
         acc.add node
 
@@ -204,68 +206,3 @@ template findNode*(node: LispNode, cond): untyped =
 template assertIdent*(call: LispNode, name: string): untyped =
   doAssert call.ident == name
   call
-
-# ----------------------------------------------------------
-
-func add*(ln: var LispNode, gl: LispGroup) =
-  for n in gl.LispNode.children:
-    ln.add n
-
-func `...`*(ln: LispNode): LispGroup =
-  ## exapnds the list
-
-  assert ln.kind == lnkList
-  LispGroup ln
-
-macro `\`*(s: untyped): untyped =
-  ## scapes the ident
-  expectKind s, nnkIdent
-  newCall "toLispSymbol", newlit s.strVal
-
-proc toLispImpl(nn: NimNode): NimNode =
-  template any(val): untyped = newCall("toLispNode", val)
-
-  case nn.kind:
-  of nnkPar:
-    result = newCall "newLispList"
-  
-    if nn.len == 1:
-      result.add toLispImpl any nn[0]
-
-  of nnkTupleConstr:
-    let id = ident "temp"
-
-    result = newStmtList()
-    result.add quote do:
-      var `id` = newLispList()
-
-    for n in nn:
-      result.add quote do:
-        `id`.add toLisp `n`
-
-    result.add id
-    result = newBlockStmt result
-
-  of nnkPrefix:
-    result =
-      if nn[0].strval == "...":
-        prefix(nn[1].toLispImpl, "...")
-      else:
-        any nn
-
-  else:
-    result = any nn
-
-  debugEcho repr result
-
-macro toLisp*(body): untyped =
-  runnableExamples:
-    let a = 2
-
-    echo toLisp ()
-    echo toLisp (1)
-    echo toLisp (\FN, a.int)
-    echo toLisp (1, (2, (3, 4)), 5)
-    echo toLisp (1, (2, ...(3, 4, 5, 6)), 7)
-
-  toLispImpl body
