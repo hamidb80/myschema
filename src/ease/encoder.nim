@@ -97,7 +97,7 @@ proc toLispImpl(nn: NimNode, mode = lmmInital): NimNode =
   # debugEcho "------------------"
   # debugEcho repr result
 
-macro toLisp*(body): untyped =
+macro toLisp(body): untyped =
   ## converts paranterized nim code to lisp nodes
   runnableExamples:
     toLisp (`END_OF_FILE`) # scaped => ("END_OF_FILE")
@@ -108,7 +108,7 @@ macro toLisp*(body): untyped =
 
 # --- basics
 
-func encodeObid*(o: Obid): LispNode =
+func encodeObid(o: Obid): LispNode =
   toLisp (`OBID`, o.string)
 
 func encodeAttributes(attrs: Attributes): LispNode =
@@ -117,61 +117,61 @@ func encodeAttributes(attrs: Attributes): LispNode =
 func encodeConstraint(cons: Constraint): LispNode =
   discard
 
-func encodeHdlIdent*(id: HdlIdent): LispNode =
+func encodeHdlIdent(id: HdlIdent): LispNode =
   err "not implemented"
 
-func encodeGeometry*(g: Geometry): LispNode =
+func encodeGeometry(g: Geometry): LispNode =
   toLisp (`GEOMETRY`, g.x1, g.y1, g.x2, g.y2)
 
-func encodeWire*(w: Wire): LispNode =
+func encodeWire(w: Wire): LispNode =
   toLisp (`WIRE`, w.a.x, w.a.y, w.b.x, w.b.y)
 
-func encodeSide*(s: Side): LispNode =
+func encodeSide(s: Side): LispNode =
   toLisp (`SIDE`, s.int)
 
-func encodeAlignment*(a: Alignment): LispNode =
+func encodeAlignment(a: Alignment): LispNode =
   toLisp (`ALIGNMENT`, a.int)
 
-func encodeDirection*(d: NumberDirection): LispNode =
+func encodeDirection(d: NumberDirection): LispNode =
   toLisp (`DIRECTION`, d.int)
 
-func encodeProperties*(prs: Properties): LispNode =
+func encodeProperties(prs: Properties): LispNode =
   result = toLisp (`PROPERTIES`)
   for k, v in prs:
     result.add toLisp (`PROPERTY`, k, v)
 
-func encodeMode*(i: int): LispNode =
+func encodeMode(i: int): LispNode =
   toLisp (`MODE`, i)
 
-func encodeFormat*(f: int): LispNode =
+func encodeFormat(f: int): LispNode =
   toLisp (`FORMAT`, f)
 
 func encodeTypeImpl(t: int): LispNode =
   toLisp (`TYPE`, t)
 
-template encodeType*(t): untyped =
+template encodeType(t): untyped =
   encodeTypeImpl t.int
 
-func encodeColorFill*(c: EaseColor): LispNode =
+func encodeColorFill(c: EaseColor): LispNode =
   toLisp (`COLOR_FILL`, c.int)
 
-func encodeColorLine*(c: EaseColor): LispNode =
+func encodeColorLine(c: EaseColor): LispNode =
   toLisp (`COLOR_LINE`, c.int)
 
-func encodeObjStamp*(username: string, created, modified: int): LispNode =
+func encodeObjStamp(username: string, created, modified: int): LispNode =
   toLisp (`OBJSTAMP`,
     (`DESIGNER`, username),
     (`CREATED`, created, "..."),
     (`MODIFIED`, modified, "..."),
   )
 
-func encodePosition*(pos: Point): LispNode =
+func encodePosition(pos: Point): LispNode =
   toLisp (`POSITION`, pos.x, pos.y)
 
-func encodeScale*(s: int): LispNode =
+func encodeScale(s: int): LispNode =
   toLisp (`SCALE`, s)
 
-func encodeText*(ss: seq[string]): Option[LispNode] =
+func encodeText(ss: seq[string]): Option[LispNode] =
   if ss.len != 0:
     let t = ss.map(toLispNode)
     some toLisp (`TEXT`, _ t)
@@ -192,13 +192,13 @@ func encodeProcess(pro: Process): LispNode =
 func encodeConnection(conn: Connection): LispNode =
   discard
 
-func encodeSchematic*(s: Schematic): LispNode =
+func encodeSchematic(s: Schematic): LispNode =
   discard
 
 func encodeBusRipper(br: BusRipper): LispNode =
   error "not implemented"
 
-func encodeLabel*(lbl: Label): LispNode =
+func encodeLabel(lbl: Label): LispNode =
   toLisp (`LABEL`,
     (POSITION, lbl.position),
     (SCALE, lbl.scale),
@@ -209,12 +209,12 @@ func encodeLabel*(lbl: Label): LispNode =
     (TEXT, lbl.texts),
   )
 
-func encodeFreePlacedText*(fpt: FreePlacedText): LispNode =
+func encodeFreePlacedText(fpt: FreePlacedText): LispNode =
   toLisp (`FREE_PLACED_TEXT`,
     (LABEL, fpt.Label)
   )
 
-func encodeCBN*(cbn: ConnectByName): LispNode =
+func encodeCBN(cbn: ConnectByName): LispNode =
   toLisp (`CBN`,
     (OBID, cbn.obid),
     (HDL_IDENT, cbn.ident),
@@ -224,7 +224,7 @@ func encodeCBN*(cbn: ConnectByName): LispNode =
     (TYPE, cbn.kind),
   )
 
-func encodeComponent*(comp: Component): LispNode =
+func encodeComponent(comp: Component): LispNode =
   var
     generics: seq[LispNode]
     ports: seq[LispNode]
@@ -239,6 +239,23 @@ func encodeComponent*(comp: Component): LispNode =
     _ ports,
   )
 
+# --- files
+
+func encodeEntity*(enf: Entity): LispNode =
+  discard
+
+func encodeDesign*(df: Library): LispNode =
+  discard
+
+func encodeProject*(proj: Project): LispNode =
+  discard
+
+func wrapFile*(node: LispNode): seq[LispNode] = 
+  @[
+    toLisp (`DATABASE_VERSION`, 17),
+    node,
+    toLisp (`END_OF_FILE`),
+  ]
 
 when isMainModule:
   echo encodeGeometry (1, 2, 3, 4)
