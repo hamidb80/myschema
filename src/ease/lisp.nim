@@ -30,9 +30,12 @@ type
     of lnkList:
       children*: seq[LispNode]
 
+  LispGroup = distinct LispNode
 
 func toLispNode*(s: string): LispNode =
   LispNode(kind: lnkString, str: s)
+
+func toLispNode*(ln: LispNode): LispNode = ln
 
 func toLispNode*(f: float): LispNode =
   LispNode(kind: lnkFloat, vfloat: f)
@@ -51,6 +54,9 @@ func newLispList*(s: varargs[LispNode]): LispNode =
   result = LispNode(kind: lnkList)
   result.children.add s
 
+
+func add*(ln: var LispNode, newChildren: LispNode) =
+  ln.children.add newChildren
 
 func parseLisp(s: ptr string, startI: int, acc: var seq[LispNode]): int =
   ## return the last index that was there
@@ -187,9 +193,6 @@ iterator items*(n: LispNode): LispNode =
   for i in 1 .. n.len-1:
     yield n[i]
 
-func add*(ln: var LispNode, newChildren: LispNode) =
-  ln.children.add newChildren
-
 template findNode*(node: LispNode, cond): untyped =
   var result: Option[LispNode]
   for it {.inject.} in node:
@@ -204,23 +207,65 @@ template assertIdent*(call: LispNode, name: string): untyped =
 
 # ----------------------------------------------------------
 
-proc toLispImpl(n: NimNode): NimNode =
-  case n.kind:
-  of nnkTupleConstr, nnkPar: newCall("newLispList").add n.mapIt(newCall("toLisp", it)) 
-  of nnkPrefix: 
-    if n.kind == nnkPrefix and n[0].strVal == "!":
-      newCall("toLispSymbol", newlit n[1].strval)
-    else:
-      newCall("toLispNode", n)
-  else: newCall("toLispNode", n)
+func add*(ln: var LispNode, gl: LispGroup) =
+  for n in gl.LispNode.children:
+    ln.add n
+
+func `...`*(ln: LispNode): LispGroup =
+  ## exapnds the list
+
+  assert ln.kind == lnkList
+  LispGroup ln
+
+macro `\`*(s: untyped): untyped =
+  ## scapes the ident
+  expectKind s, nnkIdent
+  newCall "toLispSymbol", newlit s.strVal
+
+proc toLispImpl(nn: NimNode): NimNode =
+  template any(val): untyped = newCall("toLispNode", val)
+
+  case nn.kind:
+  of nnkPar:
+    result = newCall "newLispList"
+  
+    if nn.len == 1:
+      result.add toLispImpl any nn[0]
+
+  of nnkTupleConstr:
+    let id = ident "temp"
+
+    result = newStmtList()
+    result.add quote do:
+      var `id` = newLispList()
+
+    for n in nn:
+      result.add quote do:
+        `id`.add toLisp `n`
+
+    result.add id
+    result = newBlockStmt result
+
+  of nnkPrefix:
+    result =
+      if nn[0].strval == "...":
+        prefix(nn[1].toLispImpl, "...")
+      else:
+        any nn
+
+  else:
+    result = any nn
+
+  debugEcho repr result
 
 macro toLisp*(body): untyped =
   runnableExamples:
+    let a = 2
+
     echo toLisp ()
     echo toLisp (1)
+    echo toLisp (\FN, a.int)
     echo toLisp (1, (2, (3, 4)), 5)
-
-    let a = 2
-    echo toLisp (!FN, a)
+    echo toLisp (1, (2, ...(3, 4, 5, 6)), 7)
 
   toLispImpl body

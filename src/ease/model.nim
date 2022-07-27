@@ -134,7 +134,7 @@ type
     colorLine*: EaseColor
     alignment*: Alignment
     format*: int
-    text*: string
+    texts*: seq[string]
 
   FreePlacedText* = distinct Label
 
