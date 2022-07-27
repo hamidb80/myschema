@@ -111,6 +111,12 @@ macro toLisp*(body): untyped =
 func encodeObid*(o: Obid): LispNode =
   toLisp (`OBID`, o.string)
 
+func encodeAttributes(attrs: Attributes): LispNode =
+  discard
+
+func encodeConstraint(cons: Constraint): LispNode =
+  discard
+
 func encodeHdlIdent*(id: HdlIdent): LispNode =
   err "not implemented"
 
@@ -140,8 +146,11 @@ func encodeMode*(i: int): LispNode =
 func encodeFormat*(f: int): LispNode =
   toLisp (`FORMAT`, f)
 
-func encodeType*(t: int): LispNode =
+func encodeTypeImpl(t: int): LispNode =
   toLisp (`TYPE`, t)
+
+template encodeType*(t): untyped =
+  encodeTypeImpl t.int
 
 func encodeColorFill*(c: EaseColor): LispNode =
   toLisp (`COLOR_FILL`, c.int)
@@ -171,6 +180,24 @@ func encodeText*(ss: seq[string]): Option[LispNode] =
 
 # --- compound
 
+func encodeGeneric(gen: Generic): LispNode =
+  discard
+
+func encodePort(port: Port): LispNode =
+  discard
+
+func encodeProcess(pro: Process): LispNode =
+  discard
+
+func encodeConnection(conn: Connection): LispNode =
+  discard
+
+func encodeSchematic*(s: Schematic): LispNode =
+  discard
+
+func encodeBusRipper(br: BusRipper): LispNode =
+  error "not implemented"
+
 func encodeLabel*(lbl: Label): LispNode =
   toLisp (`LABEL`,
     (POSITION, lbl.position),
@@ -188,17 +215,29 @@ func encodeFreePlacedText*(fpt: FreePlacedText): LispNode =
   )
 
 func encodeCBN*(cbn: ConnectByName): LispNode =
-  err "not implemented"
-
   toLisp (`CBN`,
     (OBID, cbn.obid),
-    # (HDL_IDENT, cbn.ident),
+    (HDL_IDENT, cbn.ident),
     (GEOMETRY, cbn.geometry),
-    # (SIDE, 2),
-    # (TYPE, 1),
+    (SIDE, cbn.side),
     (LABEL, cbn.label),
+    (TYPE, cbn.kind),
   )
 
+func encodeComponent*(comp: Component): LispNode =
+  var
+    generics: seq[LispNode]
+    ports: seq[LispNode]
+
+  toLisp (`COMPONENT`,
+    (HDL_IDENT, comp.ident),
+    (GEOMETRY, comp.geometry),
+    (SIDE, comp.side),
+    (LABEL, comp.label),
+    # (ENTITY, comp.ident),
+    _ generics,
+    _ ports,
+  )
 
 
 when isMainModule:
