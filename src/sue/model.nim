@@ -11,10 +11,17 @@ type
     X, Y
 
   FontSize* = enum
-    fzStandard, fzVerySmall, fzSmall, fzLarge, fzVeryLarge
+    fzStandard = "standard"
+    fzVerySmall = "very-small"
+    fzSmall = "small"
+    fzLarge = "large"
+    fzVeryLarge = "very-large"
 
   Rotation* = enum
-    r0, r90, r180, r270
+    r0 = 0
+    r90 = 90
+    r180 = 180
+    r270 = 270
 
   Orient* = object
     rotation*: Rotation
@@ -85,13 +92,3 @@ type
   Project* = ref object
     modules*: ModuleLookUp
 
-# ----------------------------------------
-
-func isNone*(o: Orient): bool =
-  o.flips.len == 0 and o.rotation == r0
-
-func isNone*(a: Anchor): bool =
-  a == c
-
-func isNone*(fz: FontSize): bool =
-  fz == fzStandard

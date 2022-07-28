@@ -5,7 +5,7 @@ import print
 
 # ----------------------------------
 
-const dir = r"C:\Users\HamidB80\Desktop\set4"
+const dir = r"C:\Users\HamidB80\Desktop\sue_files\set4"
 
 var
   customMakeFields: Table[string, HashSet[string]]
