@@ -6,10 +6,11 @@ import model as em
 import ../middle/model as mm
 
 
-func extractNet(em.Net): mm.MNet = 
+
+func extractNet(net: em.Net): mm.MNet =
   discard
 
-func findInitialGeometry(): Geometry = 
+func findInitialGeometry(): Geometry =
   discard
 
 func buildSchema(sch: em.Schematic): mm.Schema =
