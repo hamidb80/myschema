@@ -1,16 +1,16 @@
 import std/[sequtils, strutils]
-import ../common/[domain, errors, coordination]
+import ../common/[coordination]
 import model, lexer
 
 # --- options
 
-func toToken*(p: Point): SueToken = 
+func toToken*(p: Point): SueToken =
   toToken '{' & $p.x & ' ' & $p.y & '}'
 
-template toOption(f, val): untyped = 
+template toOption(f, val): untyped =
   SueOption(flag: f, value: toToken val)
 
-func `$`*(o: Orient): string = 
+func `$`*(o: Orient): string =
   $o.rotation & join toseq o.flips
 
 # --- helpers
@@ -30,11 +30,13 @@ func encode(l: Line): SueExpression =
       args: l.points.speardPoints.map(toToken))
 
   of arc:
-    err "not implemented"
     SueExpression(
       command: scMakeLine,
       args: @[l.head.x, l.head.y, l.tail.x, l.tail.y].map(toToken),
-      options: @[SueOption()])
+      options: @[
+        toOption(sfStart, l.start),
+        toOption(sfExtent, l.extent),
+      ])
 
 func encode(w: Wire): SueExpression =
   SueExpression(
@@ -48,10 +50,11 @@ func encode(i: Instance): SueExpression =
     args: @[totoken i.parent.name],
     options: @[
       toOption(sfName, i.name),
-      toOption(sfOrigin, asOrigin i.location),
+      toOption(sfOrigin, i.location),
       toOption(sfOrient, $i.orient)
     ],
   )
+
 
 type LabelContext = enum
   lcIcon, lcSchematic
@@ -78,13 +81,12 @@ func encode(l: Label, ctx: LabelContext): SueExpression =
       ]
     )
 
-func encode(p: Port): SueExpression = 
+func encode(p: Port): SueExpression =
   SueExpression(
-    command: scMake, 
+    command: scMake,
     args: @[toToken $p.kind],
     options: @[
-      toOption(sfName, p.name), 
+      toOption(sfName, p.name),
       toOption(sfOrigin, p.location)
     ],
   )
-

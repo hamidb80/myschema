@@ -17,12 +17,6 @@ type
     fzLarge = "large"
     fzVeryLarge = "very-large"
 
-  Rotation* = enum
-    r0 = 0
-    r90 = 90
-    r180 = 180
-    r270 = 270
-
   Orient* = object
     rotation*: Rotation
     flips*: set[Flip]
