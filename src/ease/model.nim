@@ -119,12 +119,6 @@ type
     designer*: string
     created*, modified*: int
 
-  Size* = tuple
-    w, h: int
-
-  Geometry* = tuple
-    x1, y1, x2, y2: int
-
   Wire* = Slice[Point]
 
   Label* = object
@@ -183,11 +177,13 @@ type
     geometry*: Geometry
     side*: Side
     label*: Label
+    cbn*: Option[ConnectByName]
     destNet*: Net
 
   NetKind* = enum
     netRef, netDef
 
+  # FIXME add part1#cbn and part2
   Net* = ref object
     obid*: Obid
 
@@ -261,14 +257,12 @@ type
     ports*: seq[Port]
     nets*: seq[Net]
 
-
   Architecture* = ref object
     obid*: Obid
     properties*: Properties
     ident*: HdlIdent
     kind*: ArchitectureMode
     schematic*: Option[Schematic]
-
 
   EntityKind* = enum
     ekRef, ekDecl, ekDef
@@ -317,7 +311,7 @@ type
     packages*: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
 
-# ----------------------------------------
+  # ----------------------------------------
 
 import std/hashes
 

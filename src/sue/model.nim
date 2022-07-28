@@ -4,9 +4,6 @@ import ../common/[coordination, domain]
 type
   Wire* = Slice[Point]
 
-  Bounds* = object
-    x1*, y1*, x2*, y2*: int
-
   Flip* = enum
     X, Y
 

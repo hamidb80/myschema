@@ -20,4 +20,23 @@
     (TEXT "layer2_HSEL[1]")
   )
   (DEST_NET "netf7000010a203330479045600eddd1607")
+  (CBN
+    (OBID "cbn0c8ab227dda8fd2644b4b4d295f4cf40")
+    (HDL_IDENT
+      (NAME "new_port")
+      (USERNAME 1)
+    )
+    (GEOMETRY 2808 792 2952 872)
+    (SIDE 0)
+    (LABEL
+      (POSITION 3008 832)
+      (SCALE 96)
+      (COLOR_LINE 0)
+      (SIDE 1)
+      (ALIGNMENT 3)
+      (FORMAT 1)
+      (TEXT "new_port")
+    )
+    (TYPE 0)
+  )
 )

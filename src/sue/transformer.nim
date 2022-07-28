@@ -21,7 +21,7 @@ func addBoth[T](lookup: var Table[T, seq[T]], v1, v2: T) {.inline.} =
 
 type NetLookup = Table[Point, seq[Point]]
 
-func collectImpl(last: var NetGraphNode, ntlkp: var NetLookup) =
+func collectImpl(last: var WireGraphNode, ntlkp: var NetLookup) =
   let loc = last.location
 
   var conns = addr ntlkp[loc]
@@ -29,17 +29,17 @@ func collectImpl(last: var NetGraphNode, ntlkp: var NetLookup) =
   for p in conns[]:
     ntlkp[p].remove loc # remove it from other way of relation
 
-    var newNode = NetGraphNode(location: p)
+    var newNode = WireGraphNode(location: p)
     collectImpl newNode, ntlkp
     last.connections.add newNode
 
   clear conns[]
 
-func collect(head: Point, ntlkp: var NetLookup): NetGraphNode =
-  result = NetGraphNode(location: head)
+func collect(head: Point, ntlkp: var NetLookup): WireGraphNode =
+  result = WireGraphNode(location: head)
   collectImpl result, ntlkp
 
-func toNet(wires: seq[sm.Wire]): seq[NetGraphNode] =
+func toNet(wires: seq[sm.Wire]): seq[WireGraphNode] =
   ## detects wire groups by generating a 2-way connection table
 
   var netGraph: NetLookup
@@ -67,7 +67,7 @@ func toMiddleModel*(sch: sm.Schematic): mm.Schema =
     connections: toNet sch.wires
   )
 
-func toMiddleModel*(ico: sm.Icon): mm.Icon =
+func toMiddleModel*(ico: sm.Icon): mm.MIcon =
   discard
 
 func toMiddleModel*(mo: sm.Module): MModule =

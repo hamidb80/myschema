@@ -71,20 +71,16 @@ func getSize(expr: SueExpression): FontSize =
   let tk = expr.find(sfSize)
 
   if issome tk:
-    let s = tk.get.strval
-    case s:
-    of "small": fzSmall
-    of "large": fzLarge
-    else: err fmt"invalid '-side' value: {s}"
-
-  else: fzMedium
+    parseEnum[FontSize](tk.get.strval)
+  else:
+    fzStandard
 
 func getAnchor(expr: SueExpression): Anchor =
   let tk = expr.find(sfAnchor)
   if issome tk:
     let str = tk.get.strval
     case str:
-    of "c": c
+    of "c", "center": c
     of "s": s
     of "w": w
     of "e": e
@@ -94,10 +90,10 @@ func getAnchor(expr: SueExpression): Anchor =
     of "nw": nw
     of "ne": ne
     else: err fmt"invalid '-anchor' value: {str}"
-  else: c
+  else: w
 
-func moduleRef(name: string): Module = 
-   Module(name: name, kind: mkRef)
+func moduleRef(name: string): Module =
+  Module(name: name, kind: mkRef)
 
 func parseMake*(expr: SueExpression): Instance =
   let
@@ -172,7 +168,7 @@ func resolve(proj: var Project) =
       ins.parent = proj.modules[ins.parent.name]
 
 
-import print
+# import print
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())
 
@@ -180,7 +176,7 @@ proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
     for path in walkFiles dir / "*.sue":
       let sf = lexSue readFile path
       result.modules[sf.name] = Module(
-        name: sf.name, 
+        name: sf.name,
         kind: mkCtx,
         icon: parseIcon(sf.icon),
         schema: parseSchematic(sf.schematic))

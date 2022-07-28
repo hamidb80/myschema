@@ -86,11 +86,11 @@ suite "compound":
     check l.side.int == 1
     check l.format == 35
     check l.alignment.int == 5
-    check l.text == "fullSpeedRate"
+    check l.texts[0] == "fullSpeedRate"
 
   test "FREE_PLACED_TEXT":
     let fpt = parseFreePlacedText(lfName "compound/FREE_PLACED_TEXT.eas")
-    check fpt.Label.text == "Connected to interconnect_mux_slave1-3"
+    check fpt.Label.texts == @["Connected to interconnect_mux_slave1-3"]
 
   test "OBJSTAMP":
     let to = parseObjStamp(lfName "compound/OBJSTAMP.eas")
@@ -126,7 +126,11 @@ suite "compound":
     check po.ident.name == nm
     check po.geometry.x1 == geo_x1
     check po.side.int == sde
-    check po.label.text == lbl
+
+    if lbl.len == 0:
+      check po.label.texts.len == 0
+    else:
+      check po.label.texts == @[lbl]
 
   template checkPortRef(po, refId, connId): untyped =
     check po.parent.get.obid.string == refId
@@ -168,16 +172,6 @@ suite "compound":
     check po.obid.string == "cprtf7000010a20333047904560005dd1607"
     check po.name == "HSEL"
 
-
-  test "BUS_RIPPER":
-    let bo = parseHook lfName "compound/BUS_RIPPER.eas"
-    check bo.obid.string == "hookf7000010a203330479045600dddd1607"
-    check bo.ident.attributes.constraint.get.index == "1"
-    check bo.geometry.x1 == 10560
-    check bo.side.int == 2
-    check bo.label.text == "layer2_HSEL[1]"
-    check bo.destNet.obid.string == "netf7000010a203330479045600eddd1607"
-
   test "CBN":
     let co = parseCbn lfName "compound/CBN.eas"
     check co.obid.string == "cbna0a0a0bc32ebab64495073946e800000"
@@ -185,7 +179,17 @@ suite "compound":
     check co.geometry.x1 == 3256
     check co.side.int == 2
     check co.kind.int == 1
-    check co.label.text == "HCLK"
+    check co.label.texts == @["HCLK"]
+
+  test "BUS_RIPPER":
+    let bo = parseHook lfName "compound/BUS_RIPPER.eas"
+    check bo.obid.string == "hookf7000010a203330479045600dddd1607"
+    check bo.ident.attributes.constraint.get.index == "1"
+    check bo.geometry.x1 == 10560
+    check bo.side.int == 2
+    check bo.label.texts == @["layer2_HSEL[1]"]
+    check bo.destNet.obid.string == "netf7000010a203330479045600eddd1607"
+    check (issome bo.cbn) and bo.cbn.get.obid.string == "cbn0c8ab227dda8fd2644b4b4d295f4cf40"
 
 
   template genericCheck(o, id, nm, xxx, s, f): untyped =
@@ -213,7 +217,7 @@ suite "complex":
     check o.ident.name == nm
     check o.geometry.x1 == xx
     check o.side.int == sd
-    check o.label.text == t
+    check o.label.texts == @[t]
     check o.ports[0].obid.string == p0id
     check o.ports[0].kind == p0k
     check o.schematic.obid.string == schid
@@ -242,7 +246,7 @@ suite "complex":
     check po.ident.name == "Control"
     check po.side.int == 2
     check po.geometry.x1 == 3008
-    check po.label.text == "Control(V)"
+    check po.label.texts == @["Control(V)"]
     check po.sensitivityList
     check po.ports[0].label.format == 65539
 
@@ -255,12 +259,12 @@ suite "complex":
     check c.side.int == 0
     check c.parent.libObid.string == "lib0c8a"
     check c.parent.obid.string == "ent0c8"
-    check c.label.text == "u_slavecontroller:slavecontroller"
+    check c.label.texts == @["u_slavecontroller:slavecontroller"]
 
   test "NET":
     let no = parseNet lfName "complex/NET.eas"
     check no.obid.string == "netf7000010a2033304790456008ddd1607"
-    check no.label.text == "layer2_HSEL[2:0]"
+    check no.label.texts == @["layer2_HSEL[2:0]"]
     check no.wires[0] == (4416, 3712) .. (10624, 3712)
     check no.wires[^1] == (10624, 9536) .. (10624, 10560)
     check no.ports[1].obid.string == "cprtf7000010a203330479045600d7dd1607"

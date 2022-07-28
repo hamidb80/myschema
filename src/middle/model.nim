@@ -15,33 +15,33 @@ type
     position*: Point
     parent*: Option[Port]
 
-  Icon* = ref object
+  MIcon* = ref object
     ports*: seq[Port]
-    # bounds*:
+    size*: Point
 
   Schema* = ref object
     instances*: seq[Instance]
-    connections*: seq[NetGraphNode]
+    connections*: seq[WireGraphNode]
     lables*: seq[Label]
 
   MModule* = ref object
     name*: string
-    icon*: Icon
+    icon*: MIcon
     schema*: Schema
 
   Instance* = ref object
     parent* {.cursor.}: MModule
     name*: string
 
-  # Net = ref object
-  #   ports
-
-  NetGraphNode* {.acyclic.} = ref object # AKA Net
+  WireGraphNode* = ref object # AKA Net
     location*: Point
-    connections*: seq[NetGraphNode]      # only forward connections
+    connections*: seq[WireGraphNode]      # only forward connections
+
+  MNet* = ref object
+    startWire: WireGraphNode
 
   ModuleLookup* = Table[string, MModule] 
 
-  MProject* = ref object # FIXME in `transformer.nim` types with the asme name cause gcc error
+  MProject* = ref object # FIXME in `transformer.nim` types with the same name cause gcc error
     modules*: ModuleLookup
 

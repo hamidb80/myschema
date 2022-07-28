@@ -8,6 +8,12 @@ type
     r180 = 180
     r270 = 270
 
+  Size* = tuple
+    w, h: int
+
+  Geometry* = tuple
+    x1, y1, x2, y2: int
+
 # logic ---
 
 func `+`*(p1, p2: Point): Point =

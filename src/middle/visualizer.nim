@@ -3,7 +3,7 @@ import std/[xmltree] # , browser
 import svg, model, logic
 
 
-func draw*(container: var XmlNode, ngn: NetGraphNode) =
+func draw*(container: var XmlNode, ngn: WireGraphNode) =
   for sg in toSegments ngn:
     container.add newLine(sg.a, sg.b)
 

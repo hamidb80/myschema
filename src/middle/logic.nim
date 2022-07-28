@@ -3,8 +3,8 @@ import ../common/[coordination, seqs]
 
 type Segment* = Slice[Point]
 
-iterator toSegments*(head: NetGraphNode): Segment =
-  var nstack: seq[tuple[node: NetGraphNode, connIndex: int]] = @[(head, 0)]
+iterator toSegments*(head: WireGraphNode): Segment =
+  var nstack: seq[tuple[node: WireGraphNode, connIndex: int]] = @[(head, 0)]
 
   while not isEmpty nstack:
     let (lastNode, i) = nstack.last

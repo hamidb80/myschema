@@ -164,7 +164,7 @@ func parseLabel(labelNode: LispNode): Label =
       result.format = parseFormat n
 
     of "TEXT":
-      result.text = n.parseText.join "\n"
+      result.texts = parseText n
 
     else: err "invalid field"
 
@@ -179,31 +179,6 @@ func parseObjStamp(objStampNode: LispNode): ObjStamp =
     modified: objStampNode.arg(2).parseInt)
 
 # --- complex
-
-func parseHook(busRipperNode: LispNode): BusRipper =
-  result = new BusRipper
-
-  for n in busRipperNode:
-    case n.ident:
-    of "OBID":
-      result.obid = parseOBID n
-
-    of "HDL_IDENT":
-      result.ident = parseHDLIdent n
-
-    of "GEOMETRY":
-      result.geometry = parseGeometry n
-
-    of "SIDE":
-      result.side = parseSide n
-
-    of "LABEL":
-      result.label = parseLabel n
-
-    of "DEST_NET":
-      result.destNet = parseDestNet n
-
-    else: err "invalid"
 
 func parseCbn(cbnNode: LispNode): ConnectByName =
   result = new ConnectByName
@@ -230,6 +205,34 @@ func parseCbn(cbnNode: LispNode): ConnectByName =
 
     else:
       err "invalid field"
+
+func parseHook(busRipperNode: LispNode): BusRipper =
+  result = new BusRipper
+
+  for n in busRipperNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
+    of "HDL_IDENT":
+      result.ident = parseHDLIdent n
+
+    of "GEOMETRY":
+      result.geometry = parseGeometry n
+
+    of "SIDE":
+      result.side = parseSide n
+
+    of "LABEL":
+      result.label = parseLabel n
+
+    of "DEST_NET":
+      result.destNet = parseDestNet n
+
+    of "CBN":
+      result.cbn = some parseCbn n
+
+    else: err "invalid"
 
 func parseNCon(connectionNode: LispNode): Connection =
   result = new Connection
@@ -665,7 +668,7 @@ func resolve(proj: var Project) =
     netMap: Table[Obid, Net]
     # TODO generic
 
-
+  # phase 1. finding
   for d in proj.designs:
     for e in d.entities:
       entityMap[e.obid] = e
@@ -700,7 +703,7 @@ func resolve(proj: var Project) =
 
         else: discard
 
-
+  # phasw 2. resolving
   for d in proj.designs:
     for e in d.entities:
 
