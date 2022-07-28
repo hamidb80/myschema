@@ -1,10 +1,9 @@
-import std/[unittest, os, tables, options]
+import std/[unittest, os, strtabs, options]
 import src/ease/[lisp, model]
 import src/ease/parser {.all.}
+import src/common/[seqs]
 
 # --- helpers
-
-template first(smth): untyped = smth[0]
 
 template lfName(subPath): untyped =
   first parseLisp readFile "./examples/ease" / subPath
@@ -77,6 +76,19 @@ suite "basic":
 
 
 suite "compound":
+  test "HDL_IDENT_simple":
+    let ident = parseHDLIdent(lfName "compound/HDL_IDENT/simple.eas")
+    check ident.name == "comp"
+
+  test "HDL_IDENT_without_name":
+    let ident = parseHDLIdent(lfName "compound/HDL_IDENT/without_name.eas")
+    check ident.name == ""
+
+  test "HDL_IDENT_with_attrs":
+    let ident = parseHDLIdent(lfName "compound/HDL_IDENT/with_attrs.eas")
+    check ident.attributes.mode.get == 1
+
+
   test "LABEL":
     let l = parseLabel(lfName "compound/LABEL.eas")
 

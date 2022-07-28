@@ -1,47 +1,71 @@
 import std/[tables, options]
-import ../common/[coordination]
+import ../common/[coordination, domain]
 
 type
-  Label* = ref object
+  MLabel* = ref object
     text*: string
     position*: Point
 
-  PortDir* = enum
-    input, output, inout
+  # TODO bus ripper
+  # TODO tag
 
-  Port = ref object
-    name*: string
-    dir*: PortDir
+  WrapperKind* = enum
+    wkSchematic
+    wkIcon
+    wkInstance
+
+  MWrapper* = object 
+    case kind*: WrapperKind
+    of wkSchematic:
+      schematic: MSchematic
+    
+    of wkIcon:
+      icon: MIcon
+    
+    of wkInstance: 
+      instance: MInstance
+
+
+  MPortDir* = enum
+    input, output, inout
+    # FIXME ease has buffer
+
+  MPort* = ref object
+    id*: Identifier
+    dir*: MPortDir
     position*: Point
-    parent*: Option[Port]
+    wrapper*: MWrapper
+    refersTo*: Option[MPort]
+
+  MSchematic* = ref object
+    ports*: seq[MPort]
+    nets*: seq[MNet]
+    instances*: seq[MInstance]
+    lables*: seq[MLabel]
 
   MIcon* = ref object
-    ports*: seq[Port]
-    size*: Point
-
-  Schema* = ref object
-    instances*: seq[Instance]
-    connections*: seq[WireGraphNode]
-    lables*: seq[Label]
+    ports*: seq[MPort]
+    size*: Size
 
   MModule* = ref object
     name*: string
     icon*: MIcon
-    schema*: Schema
+    schema*: MSchematic
 
-  Instance* = ref object
+  MInstance* = ref object
     parent* {.cursor.}: MModule
     name*: string
 
-  WireGraphNode* = ref object # AKA Net
+  WireGraphNode* = ref object        # AKA Net
     location*: Point
-    connections*: seq[WireGraphNode]      # only forward connections
+    connections*: seq[WireGraphNode] # only forward connections
 
   MNet* = ref object
-    startWire: WireGraphNode
+    start*: WireGraphNode
 
-  ModuleLookup* = Table[string, MModule] 
+  ModuleLookup* = Table[string, MModule]
 
-  MProject* = ref object # FIXME in `transformer.nim` types with the same name cause gcc error
+  MProject* = ref object 
     modules*: ModuleLookup
 
+# FIXME in `transformer.nim` types with the same name cause gcc error

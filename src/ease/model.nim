@@ -1,5 +1,5 @@
-import std/[tables, options]
-import ../common/[coordination]
+import std/[strtabs, options]
+import ../common/[coordination, domain]
 
 type
   ProcessType* = enum
@@ -24,11 +24,6 @@ type
     amStateDiagram     # FSM
     amTableDiagram     # truth table
     amExternalHDLFIle  # HDL code
-
-  FlipMode* = enum
-    vertical = 1
-    horizontal
-    both
 
   EaseColor* = enum
     ncBlack1, ncBlack2, ncBlack3, ncBlack4, ncBlack5, ncBlack6, ncBlack7, ncBlack8
@@ -64,9 +59,6 @@ type
     # 3   1
     #   2
 
-  # Rotation* = enum # AKA Side
-  #   r0, r90, r180, r270
-
   BusRipperSide* = enum
     brsTopLeft
     brsTopRight
@@ -74,10 +66,6 @@ type
     brsBottomLeft
     # 0 1
     # 3 2
-
-  NumberDirection* = enum
-    ndDec = 1
-    ndInc
 
   CbnType* = enum
     ctConnectByName
@@ -89,7 +77,7 @@ type
 type
   Obid* = distinct string
 
-  Properties* = Table[string, string]
+  Properties* = StringTableRef
 
   Range* = object
     direction*: NumberDirection
@@ -110,6 +98,7 @@ type
     kind*: Option[string]
     constraint*: Option[Constraint]
     def_value*: Option[string]
+    # TODO add ACT_VALUE
 
   HdlIdent* = ref object
     name*: string
@@ -118,8 +107,6 @@ type
   ObjStamp* = object
     designer*: string
     created*, modified*: int
-
-  Wire* = Slice[Point]
 
   Label* = object
     position*: Point

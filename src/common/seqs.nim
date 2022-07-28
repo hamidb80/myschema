@@ -10,6 +10,7 @@ func clear*(s: var seq) =
 func isEmpty*(s: seq): bool {.inline.} =
   s.len == 0
 
+template first*(s): untyped = s[0]
 template last*(s): untyped = s[^1]
 
 func shoot*(s: var seq) =

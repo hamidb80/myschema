@@ -2,11 +2,6 @@ import std/[tables]
 import ../common/[coordination, domain]
 
 type
-  Wire* = Slice[Point]
-
-  Flip* = enum
-    X, Y
-
   FontSize* = enum
     fzStandard = "standard"
     fzVerySmall = "very-small"

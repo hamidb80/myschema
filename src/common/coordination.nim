@@ -8,6 +8,9 @@ type
     r180 = 180
     r270 = 270
 
+  Flip* = enum
+    X, Y
+
   Size* = tuple
     w, h: int
 

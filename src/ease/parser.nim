@@ -1,4 +1,4 @@
-import std/[tables, strformat, strutils, os, sequtils, options]
+import std/[strtabs, tables, strformat, strutils, os, sequtils, options]
 import lisp, model
 import ../common/[coordination, tuples, errors]
 
@@ -46,6 +46,8 @@ func parseName(nameNode: LispNode): string {.inline.} =
   nameNode.parseStr
 
 func parseProperties(propertiesNode: LispNode): Properties =
+  result = newStringTable()
+  
   for property in propertiesNode:
     result[property.arg(0).str] = property.arg(1).str
 

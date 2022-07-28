@@ -7,7 +7,7 @@ func draw*(container: var XmlNode, ngn: WireGraphNode) =
   for sg in toSegments ngn:
     container.add newLine(sg.a, sg.b)
 
-func visualize*(canvas: var XmlNode, schema: Schema) =
+func visualize*(canvas: var XmlNode, schema: MSchema) =
   for n in schema.connections:
     var g = newGroup([])
     canvas.add g
