@@ -1,6 +1,10 @@
+import minmax
+
 type
   Point* = tuple
     x, y: int
+
+  Vector* = Point
 
   Rotation* = enum
     r0 = 0
@@ -50,3 +54,59 @@ func rotate*(p, center: Point, r: Rotation): Point =
   ## rptates `p` around `center``r` degrees
   rotate0(p - center, r) + center
 
+
+func center*(g: Geometry): Point =
+  ((g.x1 + g.x2) div 2, (g.y1 + g.y2) div 2)
+
+func topLeft*(geo: Geometry): Point =
+  (geo.x1, geo.y1)
+
+func topRight*(geo: Geometry): Point =
+  (geo.x2, geo.y1)
+
+func bottomLeft*(geo: Geometry): Point =
+  (geo.x1, geo.y2)
+
+func bottomRight*(geo: Geometry): Point =
+  (geo.x2, geo.y2)
+
+func points*(geo: Geometry): array[4, Point] =
+  [topLeft geo, topRight geo, bottomRight geo, bottomLeft geo]
+
+func area*(ps: seq[Point]): Geometry =
+  var
+    xs: MinMax[int]
+    ys: MinMax[int]
+
+  for p in ps:
+    xs.update p.x
+    ys.update p.y
+
+  (xs.min, ys.min, xs.max, ys.max)
+
+
+func flip_y(p: Point): Point =
+  (p.x, -p.y)
+
+func flip_x(p: Point): Point =
+  (-p.x, p.y)
+
+template applyFlip(fn, p, c): untyped =
+  fn(p - c) + c
+
+func flip*(p, c: Point, flips: set[Flip]): Point =
+  result = p
+
+  for f in flips:
+    result = case f:
+      of X: applyFlip flip_x, result, c
+      of Y: applyFlip flip_y, result, c
+
+
+import std/sequtils
+
+func rotate*(geo: Geometry, center: Point, r: Rotation): Geometry =
+  area geo.points.mapIt rotate(it, center, r)
+
+func move*(g: Geometry, v: Vector): Geometry =
+  (g.x1 + v.x, g.y1 + v.y, g.x2 + v.x, g.y2 + v.y)

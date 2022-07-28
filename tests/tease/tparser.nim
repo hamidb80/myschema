@@ -1,7 +1,7 @@
 import std/[unittest, os, strtabs, options]
 import src/ease/[lisp, model]
 import src/ease/parser {.all.}
-import src/common/[seqs]
+import src/common/[seqs, domain]
 
 # --- helpers
 

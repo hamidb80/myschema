@@ -80,11 +80,11 @@ template traverseNet(net, body): untyped {.dirty.} =
 
 type Segment* = Slice[Point]
 
-iterator toSegments*(net: MNet): Segment =
+iterator segments*(net: MNet): Segment =
   traverseNet net:
     yield lastNode.location .. nextNode.location
 
-iterator toPoints*(net: MNet): Point =
+iterator points*(net: MNet): Point =
   yield net.start.location
 
   traverseNet net:

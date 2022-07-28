@@ -1,6 +1,6 @@
 import std/[strtabs, tables, strformat, strutils, os, sequtils, options]
 import lisp, model
-import ../common/[coordination, tuples, errors]
+import ../common/[coordination, tuples, errors, domain]
 
 # {.experimental: "strictFuncs".}
 
@@ -372,6 +372,9 @@ func parseComp(componentNode: LispNode): Component =
     case n.ident:
     of "OBID":
       result.obid = parseOBID n
+
+    of "PROPERTIES":
+      result.properties = parseProperties n
 
     of "HDL_IDENT":
       result.ident = parseHDLIdent n

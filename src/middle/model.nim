@@ -5,6 +5,7 @@ type
   MLabel* = ref object
     text*: string
     position*: Point
+    # TODO aligment*: Alignment
 
   # TODO bus ripper
   # TODO tag
@@ -14,15 +15,15 @@ type
     wkIcon
     wkInstance
 
-  MWrapper* = object 
+  MWrapper* = object
     case kind*: WrapperKind
     of wkSchematic:
       schematic: MSchematic
-    
+
     of wkIcon:
       icon: MIcon
-    
-    of wkInstance: 
+
+    of wkInstance:
       instance: MInstance
 
 
@@ -52,9 +53,19 @@ type
     icon*: MIcon
     schema*: MSchematic
 
+  MTransform* = object
+    movement*: Vector
+    rotation*: Rotation
+    flips*: set[Flip]
+    center*: Point
+
   MInstance* = ref object
-    parent* {.cursor.}: MModule
     name*: string
+    parent* {.cursor.}: MModule
+    ports*: seq[MPort]
+    position*: Point
+    transform*: MTransform
+
 
   WireGraphNode* = ref object        # AKA Net
     location*: Point
@@ -65,7 +76,7 @@ type
 
   ModuleLookup* = Table[string, MModule]
 
-  MProject* = ref object 
+  MProject* = ref object
     modules*: ModuleLookup
 
 # FIXME in `transformer.nim` types with the same name cause gcc error

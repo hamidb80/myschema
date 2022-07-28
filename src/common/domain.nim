@@ -1,8 +1,25 @@
 import coordination
 
+# types ---
+
 type
   Percent* = range[0.0 .. 1.0]
   Degree* = range[-359 .. 359]
+
+
+  Alignment* = enum
+    aBottomRight
+    aBottom
+    aBottomLeft
+    aRight
+    aCenter
+    aLeft
+    aTopRight
+    aTop
+    aTopLeft
+    # 8 7 6
+    # 5 4 3
+    # 2 1 0
 
   Wire* = Slice[Point]
 
@@ -27,3 +44,4 @@ type
     of ikRange:
       direction*: NumberDirection
       indexes*: Slice[string] # TODO this too
+

@@ -36,20 +36,6 @@ type
     ncBlue4, ncBlue5, ncBlue6, ncBlue7, ncBlue8, ncBlue9, ncBlue10, ncPurple1
     ncPurple2, ncPink5, ncPink6, ncPink7, ncPink8, ncPink9, ncPink10, ncPurple3
 
-  Alignment* = enum
-    aBottomRight = 0
-    aBottom = 1
-    aBottomLeft = 2
-    aRight = 3
-    aCenter = 4
-    aLeft = 5
-    aTopRight = 6
-    aTop = 7
-    aTopLeft = 8
-    # 8 7 6
-    # 5 4 3
-    # 2 1 0
-
   Side* = enum
     sTopToBottom
     sRightToLeft
@@ -224,12 +210,13 @@ type
   Component* = ref object
     obid*: Obid
     ident*: HdlIdent
+    properties*: Properties
     geometry*: Geometry
     side*: Side
     label*: Label
     ports*: seq[Port]
-    parent*: Entity
     generics*: seq[Generic]
+    parent*: Entity
 
   Schematic* = ref object
     obid*: Obid
