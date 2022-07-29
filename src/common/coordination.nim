@@ -111,9 +111,12 @@ import std/sequtils
 func rotate*(geo: Geometry, center: Point, r: Rotation): Geometry =
   area geo.points.mapIt rotate(it, center, r)
 
-func move*(g: Geometry, v: Vector): Geometry =
+func `+`*(g: Geometry, v: Vector): Geometry =
   (g.x1 + v.x, g.y1 + v.y, g.x2 + v.x, g.y2 + v.y)
 
+func `-`*(g: Geometry, v: Vector): Geometry =
+  g + -v
+  
 func toPoint*(s: Size): Point =
   (s.w, s.h)
 

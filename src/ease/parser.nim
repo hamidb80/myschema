@@ -335,7 +335,8 @@ func parseNet(netNode: LispNode): Net =
         elif result.part.ports.len == 0:
           pkWire
         else:
-          err "part is already full"
+          pkWire
+          # err fmt"part is already full: {result.obid.string}"
 
 
 func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
@@ -399,7 +400,8 @@ func parseComp(componentNode: LispNode): Component =
     of "PORT":
       result.ports.add parsePort(n, cprt)
 
-    else: err "invalid node"
+    of "TYPE", "CONSTRAINT": discard
+    else: err fmt"invalid {n.ident}"
 
 func parseProc(processNode: LispNode): Process =
   result = new Process
@@ -560,8 +562,9 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
     of "OBJSTAMP":
       result.objStamp = parseObjStamp n
 
-    of "ARCH_DECLARATION", "PACKAGE_USE", "HDL", "SIDE", "EXTERNAL": discard
-    else: err "invalid"
+    of "ARCH_DECLARATION", "PACKAGE_USE", "HDL", "SIDE", "EXTERNAL",
+        "DEFAULT_CONFIG", "CONFIG_DECL": discard
+    else: err fmt"invalid {n.ident}"
 
 func parseEntityFile(entityFileNode: LispNode): Entity =
   result = Entity(kind: ekDef)
@@ -574,7 +577,8 @@ func parseEntityFile(entityFileNode: LispNode): Entity =
     of "ARCH_DEFINITION":
       result.architectures.add parseArch n
 
-    else: err "invalid"
+    of "CONFIGURATION": discard
+    else: err fmt"invalid {n.ident}"
 
 func parseEntityDecl(edn: LispNode): Entity =
   Entity(kind: ekDecl,
@@ -598,7 +602,7 @@ func parseLib(designFileNode: LispNode): Library =
     of "PROPERTIES":
       result.properties = parseProperties n
 
-    of "COMPONENT_LIB", "PACKAGE", "PACKAGE_USE": discard
+    of "COMPONENT_LIB", "PACKAGE", "PACKAGE_USE", "VIRTUAL_PACKAGE": discard
     else: err fmt"invalid ident: {n.ident}"
 
 func parseLibDecl(libraryNode: LispNode): Library =

@@ -17,6 +17,7 @@ type
     pmOutput
     pmInout
     pmBuffer
+    pmUnknown
 
   ArchitectureMode* = enum
     amBlockDiagram = 1 # Schema
@@ -271,6 +272,7 @@ type
     of ekDef:
       ident*: HdlIdent
       properties*: Properties
+      side*: Side
       objStamp*: ObjStamp
       geometry*: Geometry
       generics*: seq[Generic]

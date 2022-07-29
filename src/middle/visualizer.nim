@@ -71,9 +71,6 @@ template genGroup(canvas): untyped =
   g
 
 func visualize*(canvas: var XmlNode, schema: MSchematic) =
-  for lbl in schema.labels:
-    canvas.draw lbl
-
   for n in schema.nets:
     case n.kind:
     of mnkWire:
@@ -92,3 +89,7 @@ func visualize*(canvas: var XmlNode, schema: MSchematic) =
 
   for ins in schema.instances:
     draw genGroup canvas, ins
+
+  for lbl in schema.labels:
+    canvas.draw lbl
+

@@ -5,7 +5,8 @@ import middle/[model, visualizer, svg]
 
 const path = 
   #r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\uart\uart.ews"
-  r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\hex2bin\hex2bin.ews"
+  # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\i2c\i2c.ews"
+  r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\mc8051\mc8051.ews"
   
 let proj = toMiddleMode parseEws path
 

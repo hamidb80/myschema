@@ -47,12 +47,15 @@ func toPortDir(m: em.PortMode): mm.MPortDir =
   MPortDir min(int m, 2)
 
 func extractIcon[T: Visible](smth: T): mm.MIcon =
-  result = mm.MIcon(size: toSize smth.geometry)
+  let ro = toRotation smth.side
+
+  result = mm.MIcon(size: toSize smth.geometry.rotate((0, 0), -ro))
 
   for p in smth.ports:
     result.ports.add mm.MPort(
       id: p.identifier,
-      position: p.position - topleft smth.geometry,
+      position: rotate((p.position - topleft smth.geometry), (0, 0), -ro) -
+          smth.geometry.placeAt((0, 0)).rotate((0, 0), -ro).topLeft,
       dir: toPortDir mode p)
     # TODO add wrapper
 
