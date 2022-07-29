@@ -6,7 +6,10 @@ import svg, model, logic
 
 const
   moduleInstanceStyle = ShapeStyle(
-    fill: initColor(50, 50, 50, 1.0),
+    fill: initColor(200, 200, 200, 1.0),
+    corner: 10,
+    width: 10,
+    border: initColor(100, 100, 100, 1.0)
   )
   processInstanceStyle = ShapeStyle(
     fill: initColor(100, 80, 200, 1.0),
@@ -16,16 +19,19 @@ const
     fill: initColor(40, 190, 110, 1.0),
   )
   wireStyle = ShapeStyle(
-    width: 4,
+    width: 10,
     border: initColor(30, 30, 30, 1.0),
   )
-  portStyle = ShapeStyle(
-    fill: initColor(200, 30, 30, 1.0),
+  mainPortStyle = ShapeStyle(
+    fill: initColor(100, 200, 100, 1.0),
+  )
+  insportStyle = ShapeStyle(
+    fill: initColor(200, 100, 100, 1.0),
   )
 
 
-func draw*(container: var XmlNode, p: MPort) =
-  container.add newCircle(p.position.x, p.position.y, 40, portStyle)
+func draw*(container: var XmlNode, p: MPort, style: ShapeStyle) =
+  container.add newCircle(p.position.x, p.position.y, 40, style)
 
 func draw*(container: var XmlNode, net: MNet) =
   for sg in net.segments:
@@ -47,7 +53,7 @@ func draw*(container: var XmlNode, ins: MInstance) =
   container.add newRect(box.x, box.y, box.w, box.h, style)
 
   for p in ins.ports:
-    container.add newCircle(p.position.x, p.position.y, 40, portStyle)
+    container.draw p, insportStyle
 
 template genGroup(canvas): untyped =
   var g = newGroup([])
@@ -56,12 +62,12 @@ template genGroup(canvas): untyped =
 
 func visualize*(canvas: var XmlNode, schema: MSchematic) =
   # debugEcho schema.ports
-  for p in schema.ports:
-    draw canvas, p
-
-  for ins in schema.instances:
-    draw genGroup canvas, ins
 
   for n in schema.nets:
     draw genGroup canvas, n
 
+  for p in schema.ports:
+    draw canvas, p, mainPortStyle
+
+  for ins in schema.instances:
+    draw genGroup canvas, ins

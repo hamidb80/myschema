@@ -1,0 +1,38 @@
+(NET
+        (OBID "netf700001043984404803033fc14730000")
+        (HDL_IDENT
+          (NAME "HRESETn")
+        )
+        (PART
+          (OBID "nprta0a0a09ccd893af400509d17eed40ff7")
+          (CBN 1)
+          (PORT
+            (OBID "aprtf700001024784404803033fc89630000")
+            (NAME "HRESETn")
+          )
+          (PORT
+            (OBID "cprtf7000010f6884404803033fcc1730000")
+            (NAME "HRESETn")
+          )
+          (PORT
+            (OBID "cprtf700001078884404803033fcb2730000")
+            (NAME "reset")
+          )
+          (PORT
+            (OBID "cprtf70000105a884404803033fcb3730000")
+            (NAME "reset")
+          )
+          (PORT
+            (OBID "cprtf7000010f9884404803033fc33730000")
+            (NAME "reset")
+          )
+          (PORT
+            (OBID "cprtf7000010e95feb040e4033fc25810000")
+            (NAME "HRESETn")
+          )
+          (PORT
+            (OBID "cprtf70000103b5feb040e4033fcd5810000")
+            (NAME "HRESETn")
+          )
+        )
+      )

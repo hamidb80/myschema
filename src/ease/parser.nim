@@ -294,11 +294,13 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
 
     else: err "what?"
 
-func parseNetPart2(part2Node: LispNode, result: var Net) =
-  for n in part2Node:
+func parseNetPart(part2Node: LispNode, k: PartKind): Part =
+  result = Part(kind: k)
 
+  for n in part2Node:
     case n.ident:
-    of "OBID": discard
+    of "OBID":
+      result.obid = parseOBID n
 
     of "LABEL":
       result.label = parseLabel n
@@ -312,11 +314,11 @@ func parseNetPart2(part2Node: LispNode, result: var Net) =
     of "BUS_RIPPER":
       result.busRippers.add parseHook n
 
+    of "CBN": discard
     else: err "invalid"
 
 func parseNet(netNode: LispNode): Net =
   result = Net(kind: netDef)
-  var seenFirstPart = false
 
   for n in netNode:
     case n.ident:
@@ -327,11 +329,13 @@ func parseNet(netNode: LispNode): Net =
       result.ident = parseHDLIdent n
 
     of "PART":
-      if seenFirstPart:
-        parseNetPart2 n, result
-
-      else:
-        seenFirstPart = true
+      result.part = parseNetPart n:
+        if result.part == nil:
+          pkTag
+        elif result.part.ports.len == 0:
+          pkWire
+        else:
+          err "part is already full"
 
 
 func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
@@ -724,10 +728,11 @@ func resolve(proj: var Project) =
               p.parent = some portMap[p.parent.get.obid]
 
           for n in s.nets:
-            for br in n.busRippers:
-              br.destNet = netMap[br.destNet.obid]
+            if n.part.kind == pkWire:
+              for br in n.part.busRippers:
+                br.destNet = netMap[br.destNet.obid]
 
-            for p in mitems n.ports:
+            for p in mitems n.part.ports:
               p = portMap[p.obid]
 
 

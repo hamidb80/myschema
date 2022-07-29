@@ -157,6 +157,21 @@ type
     netRef, netDef
 
   # FIXME add part1#cbn and part2
+
+  PartKind* = enum
+    pkTag, pkWire
+
+  Part* = ref object
+    obid*: Obid
+    ports*: seq[Port]
+
+    case kind*: PartKind:
+    of pkTag: discard
+    of pkWire:
+      label*: Label
+      wires*: seq[Wire]
+      busRippers*: seq[BusRipper]
+
   Net* = ref object
     obid*: Obid
 
@@ -164,10 +179,7 @@ type
     of netRef: discard
     of netDef:
       ident*: HdlIdent
-      label*: Label
-      wires*: seq[Wire]
-      ports*: seq[Port]
-      busRippers*: seq[BusRipper]
+      part*: Part
 
 
   Connection* = ref object

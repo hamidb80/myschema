@@ -273,14 +273,21 @@ suite "complex":
     check c.parent.obid.string == "ent0c8"
     check c.label.texts == @["u_slavecontroller:slavecontroller"]
 
-  test "NET":
-    let no = parseNet lfName "complex/NET.eas"
+  test "NET_tag":
+    let no = parseNet lfName "complex/NET/tag.eas"
+    check no.part.kind == pkTag
+    check no.part.ports[0].obid.string == "aprtf700001024784404803033fc89630000"
+    check no.part.ports[^1].obid.string == "cprtf70000103b5feb040e4033fcd5810000"
+
+  test "NET_wire":
+    let no = parseNet lfName "complex/NET/wire.eas"
+    check no.part.kind == pkWire
     check no.obid.string == "netf7000010a2033304790456008ddd1607"
-    check no.label.texts == @["layer2_HSEL[2:0]"]
-    check no.wires[0] == (4416, 3712) .. (10624, 3712)
-    check no.wires[^1] == (10624, 9536) .. (10624, 10560)
-    check no.ports[1].obid.string == "cprtf7000010a203330479045600d7dd1607"
-    check no.busRippers[^1].destNet.obid.string == "netf7000010a203330479045600cddd1607"
+    check no.part.ports[1].obid.string == "cprtf7000010a203330479045600d7dd1607"
+    check no.part.label.texts == @["layer2_HSEL[2:0]"]
+    check no.part.wires[0] == (4416, 3712) .. (10624, 3712)
+    check no.part.wires[^1] == (10624, 9536) .. (10624, 10560)
+    check no.part.busRippers[^1].destNet.obid.string == "netf7000010a203330479045600cddd1607"
 
 
 suite "file":

@@ -34,6 +34,7 @@ type
     id*: Identifier
     dir*: MPortDir
     position*: Point
+    rotation*: Rotation
     wrapper*: MWrapper
     refersTo*: Option[MPort]
 

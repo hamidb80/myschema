@@ -44,14 +44,14 @@ func newGroup*(children: openArray[XmlNode]): XmlNode =
 func newRect*(x, y, w, h: int, style: ShapeStyle): XmlNode =
   <>rect(x = $x, y = $y, width = $w, height = $h,
     fill = $style.fill,
-    strokeWidth = $style.width,
+    stroke-width = $style.width,
     stroke = $style.border,
     rx = $style.corner)
 
 func newCircle*(cx, cy, r: int, style: ShapeStyle): XmlNode =
   <>circle(cx = $cx, cy = $cy, r = $r,
     fill = $style.fill,
-    strokeWidth = $style.width,
+    stroke-width = $style.width,
     stroke = $style.border)
 
 func newLine*(head, tail: Point, style: ShapeStyle): XmlNode =

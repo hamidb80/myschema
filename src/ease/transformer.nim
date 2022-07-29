@@ -145,10 +145,10 @@ proc buildSchema(schema: em.Schematic,
       ports: el.icon.ports.mapIt copyPort(it, t, pos))
 
   for n in schema.nets:
-    if n.wires.len > 0:
-      var completeWires = n.wires
+    if n.part.kind == pkWire:
+      var completeWires = n.part.wires
 
-      for p in n.ports:
+      for p in n.part.ports:
         let conn = p.connection.get
         completeWires.add conn.position .. p.position
 
