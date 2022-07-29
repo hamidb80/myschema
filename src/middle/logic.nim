@@ -35,7 +35,7 @@ func collectImpl(last: WireGraphNode, ntlkp: var NetLookup) =
 
 func collect(head: Point, ntlkp: var NetLookup): MNet =
   var head = WireGraphNode(location: head)
-  result = MNet(start: head)
+  result = MNet(kind: mnkWire, start: head)
   collectImpl head, ntlkp
 
 func toNets*(wires: seq[Wire]): seq[MNet] =

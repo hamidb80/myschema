@@ -5,7 +5,9 @@ type
   MLabel* = ref object
     texts*: seq[string]
     position*: Point
-    # TODO aligment*: Alignment
+    fontSize*: int
+    anchor*: Alignment
+    
 
   # TODO bus ripper
   # TODO tag
@@ -117,8 +119,17 @@ type
     location*: Point
     connections*: seq[WireGraphNode] # only forward connections
 
+  MNetKind* = enum
+    mnkWire
+    mnkTag
+
   MNet* = ref object
-    start*: WireGraphNode
+    ports*: seq[MPort]
+
+    case kind*: MNetKind
+    of mnkTag: discard
+    of mnkWire:
+      start*: WireGraphNode
 
   ModuleLookup* = Table[string, MElement]
 

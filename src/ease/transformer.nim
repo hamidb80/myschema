@@ -62,22 +62,28 @@ proc buildSchema(schema: em.Schematic,
   elements: var Table[string, mm.MElement]
   ): mm.MSchematic =
 
+
   result = mm.MSchematic(size: toSize bottomRight schema.sheetSize)
 
-  # for gr in schema.generics:
-  #   discard
+  var allPortsMap: Table[ptr em.PortImpl, MPort]
+
+  for gr in schema.generics:
+    discard
 
   for fpt in schema.freePlacedTexts:
     result.lables.add toLable fpt
 
   for p in schema.ports:
-    result.ports.add mm.MPort(
+    let mp = mm.MPort(
       id: p.identifier,
       dir: toPortDir p.mode,
       position: p.position,
       refersTo: none MPort, # FIXME refers to icon port
-      # wrapper:  # FIXME
+                            # wrapper:  # FIXME
     )
+
+    result.ports.add mp
+    allPortsMap[addr p[]] = mp
 
   for c in schema.components:
     let
@@ -95,6 +101,11 @@ proc buildSchema(schema: em.Schematic,
         ports: mlk[pid].icon.ports.mapIt copyPort(it, t, pos))
 
     result.instances.add ins
+
+    for i, p in c.ports:
+      allPortsMap[addr p[]] = ins.ports[i]
+
+    result.lables.add toLable c.label
 
   for pr in schema.processes:
     var el = case pr.kind:
@@ -119,12 +130,19 @@ proc buildSchema(schema: em.Schematic,
       pos = topleft pr.geometry
       t = getTransform pr
 
-    result.instances.add mm.MInstance(
-      name: pr.ident.name,
-      position: pos,
-      parent: el,
-      transform: t,
-      ports: el.icon.ports.mapIt copyPort(it, t, pos))
+      ins = mm.MInstance(
+        name: pr.ident.name,
+        position: pos,
+        parent: el,
+        transform: t,
+        ports: el.icon.ports.mapIt copyPort(it, t, pos))
+
+    result.instances.add ins
+    
+    for i, p in pr.ports:
+      allPortsMap[addr p[]] = ins.ports[i]
+
+    result.lables.add toLable pr.label
 
   for gb in schema.generateBlocks:
     var el = mm.MElement(kind: mekGenerator)
@@ -136,30 +154,41 @@ proc buildSchema(schema: em.Schematic,
     let
       pos = topleft gb.geometry
       t = getTransform gb
+      ins = mm.MInstance(
+        name: gb.ident.name,
+        position: pos,
+        parent: el,
+        transform: t,
+        ports: el.icon.ports.mapIt copyPort(it, t, pos))
 
-    result.instances.add mm.MInstance(
-      name: gb.ident.name,
-      position: pos,
-      parent: el,
-      transform: t,
-      ports: el.icon.ports.mapIt copyPort(it, t, pos))
+    for i, p in gb.ports:
+      allPortsMap[addr p[]] = ins.ports[i]
+
+    result.instances.add ins
+
+    result.lables.add toLable gb.label
 
   for n in schema.nets:
+
+    var mn = case n.part.kind:
+      of pkTag: MNet(kind: mnkTag)
+      of pkWire:
+        var completeWires = n.part.wires
+
+        for p in n.part.ports:
+          let conn = p.connection.get
+          completeWires.add conn.position .. p.position
+
+        extractNet completeWires
+
+    for p in n.part.ports:
+      mn.ports.add allPortsMap[addr p[]]
+
+    result.nets.add mn
+
     if n.part.kind == pkWire:
-      var completeWires = n.part.wires
+      result.lables.add toLable n.part.label
 
-      for p in n.part.ports:
-        let conn = p.connection.get
-        completeWires.add conn.position .. p.position
-
-      result.nets.add extractNet completeWires
-
-    else:
-      discard
-
-
-  # TODO resolve connections for instance ports
-  # TODO Tag
 
 func initModule(en: em.Entity): mm.MElement =
   mm.MElement(
@@ -178,25 +207,25 @@ proc toMiddleMode*(proj: em.Project): mm.MProject =
   # phase 1. convert icons
 
   var
-    en2mod: Table[em.Obid, mm.MElement]
-    enlook: Table[em.Obid, em.Entity]
+    modernIdMap: Table[em.Obid, mm.MElement]
+    originalIdMap: Table[em.Obid, em.Entity]
 
   for d in proj.designs:
     for en in d.entities:
       let m = initModule en
-      en2mod[en.obid] = m
-      enlook[en.obid] = en
+      modernIdMap[en.obid] = m
+      originalIdMap[en.obid] = en
       result.modules[m.name] = m
 
   # phase 2. convert schematics
-  for id, m in en2mod.mpairs:
-    for a in enlook[id].architectures:
+  for id, m in modernIdMap.mpairs:
+    for a in originalIdMap[id].architectures:
       case a.kind:
       of amBlockDiagram:
         m.archs.add toArch buildSchema(
           a.schematic.get,
           m.icon,
-          en2mod,
+          modernIdMap,
           result.modules)
 
       else: discard

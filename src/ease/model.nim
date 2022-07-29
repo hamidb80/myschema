@@ -192,7 +192,9 @@ type
     refprt
     eprt, pprt, aprt, cprt, gprt
 
-  Port* = ref object
+  Port* = ref PortImpl
+
+  PortImpl* = object
     obid*: Obid
 
     case kind*: PortKind

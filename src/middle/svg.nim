@@ -64,6 +64,6 @@ func newPartialText(sentence: string): XmlNode =
   # anchor-text
   <>tspan(newText(sentence))
 
-func newTextBox*(sentences: seq[string], font: FontStyle): XmlNode =
-  result = <>text()
+func newTextBox*(x, y: int, sentences: seq[string], font: FontStyle): XmlNode =
+  result = <>text(x = $x, y = $y, font-size = $font.size)
   result.add sentences.map(newPartialText)
