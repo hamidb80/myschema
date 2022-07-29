@@ -288,7 +288,7 @@ suite "file":
     let pf = parseProj lfName "file/PROJECT_FILE.eas"
     check pf.obid.string == "proj41a0a0a0442cfdc32c4156006e933346"
     check pf.properties["HdlFileEncoding"] == "ASCII"
-    
+
     check pf.designs[0].name == "design"
     check pf.designs[^1].obid.string == "liba0a0a040a917bec393c656007ab6f6b3"
 
@@ -300,7 +300,7 @@ suite "file":
     let df = parseLib lfName "file/DESIGN_FILE.eas"
     check df.obid.string == "lib9aef568962fb27a3023079900d800000"
     check df.properties["STAMP_REVISION"] == "Release Candidate 1"
-    check df.name  == "design"
+    check df.name == "design"
     check df.entities[0].name == "Toplevel"
     check df.entities[^1].obid.string == "entf70000105f8463e3025033fc59400000"
 
@@ -308,14 +308,14 @@ suite "file":
     let ef = parseEntityFile lfName "file/ENTITY_FILE.eas"
     check ef.obid.string == "enta000000a9a859424478033fcaea30000"
     check ef.properties["STAMP_TOOL"] == "Ease"
-    check ef.ident.name  == "ram_2k"
-    check ef.size  == (1088, 896)
+    check ef.ident.name == "ram_2k"
+    check ef.geometry == (0, 0, 1088, 896)
     check ef.objStamp.created == 1112103081
-    
+
     check ef.ports[0].obid.string == "eprta000000a9a859424478033fcbea30000"
     check ef.ports[0].kind == eprt
     check ef.ports[^1].obid.string == "eprta000000a9a859424478033fc1fa30000"
-    
+
     check ef.architectures[0].obid.string == "archa000000a9a859424478033fc2fa30000"
     check ef.architectures[0].kind.int == 2
     check ef.architectures[1].obid.string == "archa000000a4d386524405033fc9f670000"

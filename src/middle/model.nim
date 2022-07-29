@@ -77,14 +77,14 @@ type
     cond: string
 
   ForLoop = object
-    
 
   MElementKind* = enum
     mekModule
     mekGenerator
-    mekFSM, mekTruthTable, mekCode
+    mekFSM, mekTruthTable
+    mekCode, mekPartialCode
 
-  MElement* = ref object # MElement
+  MElement* = ref object
     name*: string
     icon*: MIcon
 
@@ -96,9 +96,9 @@ type
       ifCond*: Option[IfCond]
       forLopp*: Option[ForLoop]
 
+    of mekCode, mekPartialCode: discard
     of mekFSM: discard
     of mekTruthTable: discard
-    of mekCode: discard
 
   MTransform* = object
     rotation*: Rotation

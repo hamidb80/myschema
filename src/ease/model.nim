@@ -200,6 +200,7 @@ type
   Process* = ref object
     obid*: Obid
     ident*: HdlIdent
+    properties*: Properties
     geometry*: Geometry
     side*: Side
     kind*: ProcessType
@@ -255,7 +256,7 @@ type
       ident*: HdlIdent
       properties*: Properties
       objStamp*: ObjStamp
-      size*: Size
+      geometry*: Geometry
       generics*: seq[Generic]
       ports*: seq[Port]
       architectures*: seq[Architecture]
@@ -284,6 +285,9 @@ type
     designs*: seq[Library]
     packages*: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
+
+  Visible* = Component or Entity or Process or GenerateBlock
+
 
   # ----------------------------------------
 

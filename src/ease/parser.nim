@@ -408,6 +408,9 @@ func parseProc(processNode: LispNode): Process =
     of "HDL_IDENT":
       result.ident = parseHDLIdent n
 
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
     of "GEOMETRY":
       result.geometry = parseGeometry n
 
@@ -542,7 +545,7 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
       result.ident = parseHDLIdent n
 
     of "GEOMETRY":
-      result.size = parseGeometry(n).pickTuple([2, 3])
+      result.geometry = parseGeometry n
 
     of "GENERIC":
       result.generics.add parseGeneric(n, gkEntity)

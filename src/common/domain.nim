@@ -1,3 +1,4 @@
+import std/[random, strutils]
 import coordination
 
 # types ---
@@ -39,9 +40,17 @@ type
     of ikSingle: discard
 
     of ikIndex:
-      index*: string # TODO actually it's either a parameter/variable or a number
+      index*: string          # TODO actually it's either a parameter/variable or a number
 
     of ikRange:
       direction*: NumberDirection
       indexes*: Slice[string] # TODO this too
 
+
+proc randomHdlIdent*(len = 10): string =
+  result = newStringOfCap len
+
+  result.add sample Letters
+
+  for _ in 1..<len:
+    result.add sample IdentChars

@@ -7,9 +7,6 @@ import ../common/[coordination, errors, domain]
 
 # basics ---
 
-type Element = Component or Process or GenerateBlock
-
-
 func toRotation*(s: Side): Rotation =
   case s.int:
   of 0: r0
@@ -18,13 +15,13 @@ func toRotation*(s: Side): Rotation =
   of 3: r270
   else: err ""
 
-func rotation*(c: Component): Rotation =
+func rotation*[T: Visible](c: T): Rotation =
   toRotation c.side
 
 func position*(p: Port): Point =
   center p.geometry
 
-func flips*[T: Element](element: T): set[Flip] =
+func flips*[T: Visible](element: T): set[Flip] =
   # vertical = 1
   # horizontal = 2
   # both = 3

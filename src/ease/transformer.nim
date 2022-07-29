@@ -10,8 +10,8 @@ import logic
 
 # ------------------------------- sue model -> middle model
 
-func extractNet(net: em.Net): mm.MNet =
-  let temp = toNets net.wires
+func extractNet(wires: seq[Wire]): mm.MNet =
+  let temp = toNets wires
   assert temp.len == 1, fmt"expected len 1 but got: {temp.len}"
   temp[0]
 
@@ -29,6 +29,11 @@ func toLable(fpt: em.FreePlacedText): mm.MLabel =
   toLable em.Label fpt
 
 
+func getTransform[T: Visible](smth: T): MTransform =
+  MTransform(
+    rotation: smth.rotation,
+    flips: smth.flips)
+
 func copyPort(p: MPort, t: MTransform, parentPos: Vector): MPort =
   MPort(
     id: p.id,
@@ -41,9 +46,20 @@ func copyPort(p: MPort, t: MTransform, parentPos: Vector): MPort =
 func toPortDir(m: em.PortMode): mm.MPortDir =
   MPortDir min(int m, 2)
 
-func buildSchema(schema: em.Schematic,
+func extractIcon[T: Visible](smth: T): mm.MIcon =
+  result = mm.MIcon(size: toSize smth.geometry)
+
+  for p in smth.ports:
+    result.ports.add mm.MPort(
+      id: p.identifier,
+      position: p.position - topleft smth.geometry,
+      dir: toPortDir mode p)
+    # TODO add wrapper
+
+proc buildSchema(schema: em.Schematic,
   icon: mm.MIcon,
-  mlk: Table[em.Obid, mm.MElement]
+  mlk: Table[em.Obid, mm.MElement],
+  elements: var Table[string, mm.MElement]
   ): mm.MSchematic =
 
   result = mm.MSchematic(size: toSize bottomRight schema.sheetSize)
@@ -63,24 +79,13 @@ func buildSchema(schema: em.Schematic,
       # wrapper:  # FIXME
     )
 
-  for n in schema.nets:
-    if n.wires.len > 0:
-      result.nets.add extractNet n
-
-    else:
-      # TODO Tagged nets
-      discard
-
   for c in schema.components:
     let
       pid = c.parent.obid
-
-      ro = c.rotation
-      fs = c.flips
-      t = MTransform(rotation: ro, flips: fs)
+      t = getTransform c
 
       geo = c.geometry
-      pos = topLeft rotate(geo, topLeft geo, -ro)
+      pos = topLeft geo
 
       ins = mm.MInstance(
         name: c.ident.name,
@@ -92,22 +97,69 @@ func buildSchema(schema: em.Schematic,
     result.instances.add ins
 
   for pr in schema.processes:
-    discard
+    var el = case pr.kind:
+      of ptProcess:
+        mm.MElement(kind: mekCode)
+
+      of ptStateDiagram:
+        mm.MElement(kind: mekFSM)
+
+      of ptConcurrentStatement:
+        mm.MElement(kind: mekPartialCode)
+
+      of ptTruthTable:
+        mm.MElement(kind: mekTruthTable)
+
+    el.icon = extractIcon pr
+    el.name = randomHdlIdent()
+    elements[el.name] = el
+
+    # instansiate
+    let
+      pos = topleft pr.geometry
+      t = getTransform pr
+
+    result.instances.add mm.MInstance(
+      name: pr.ident.name,
+      position: pos,
+      parent: el,
+      transform: t,
+      ports: el.icon.ports.mapIt copyPort(it, t, pos))
 
   for gb in schema.generateBlocks:
-    discard
+    var el = mm.MElement(kind: mekGenerator)
+    el.icon = extractIcon gb
+    el.name = randomHdlIdent()
+    elements[el.name] = el
+
+    # instansiate
+    let
+      pos = topleft gb.geometry
+      t = getTransform gb
+
+    result.instances.add mm.MInstance(
+      name: gb.ident.name,
+      position: pos,
+      parent: el,
+      transform: t,
+      ports: el.icon.ports.mapIt copyPort(it, t, pos))
+
+  for n in schema.nets:
+    if n.wires.len > 0:
+      var completeWires = n.wires
+
+      for p in n.ports:
+        let conn = p.connection.get
+        completeWires.add conn.position .. p.position
+
+      result.nets.add extractNet completeWires
+
+    else:
+      discard
+
 
   # TODO resolve connections for instance ports
   # TODO Tag
-
-func extractIcon(entity: em.Entity): mm.MIcon =
-  result = mm.MIcon(size: entity.size)
-
-  for p in entity.ports:
-    result.ports.add mm.MPort(
-      id: p.identifier,
-      position: position p,
-      dir: toPortDir mode p)
 
 func initModule(en: em.Entity): mm.MElement =
   mm.MElement(
@@ -116,10 +168,10 @@ func initModule(en: em.Entity): mm.MElement =
     icon: extractIcon en,
   )
 
-func toArch(sch: MSchematic): MArchitecture = 
+func toArch(sch: MSchematic): MArchitecture =
   MArchitecture(kind: makSchema, schema: sch)
 
-func toMiddleMode*(proj: em.Project): mm.MProject =
+proc toMiddleMode*(proj: em.Project): mm.MProject =
   result = mm.MProject()
 
   # TODO generics
@@ -131,15 +183,20 @@ func toMiddleMode*(proj: em.Project): mm.MProject =
 
   for d in proj.designs:
     for en in d.entities:
-      en2mod[en.obid] = initModule en
+      let m = initModule en
+      en2mod[en.obid] = m
       enlook[en.obid] = en
+      result.modules[m.name] = m
 
   # phase 2. convert schematics
   for id, m in en2mod.mpairs:
     for a in enlook[id].architectures:
       case a.kind:
       of amBlockDiagram:
-        m.archs.add toArch buildSchema(a.schematic.get, m.icon, en2mod)
-        result.modules[m.name] = m
+        m.archs.add toArch buildSchema(
+          a.schematic.get,
+          m.icon,
+          en2mod,
+          result.modules)
 
       else: discard
