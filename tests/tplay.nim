@@ -3,7 +3,10 @@ import std/[xmltree, tables, strformat, os]
 import ease/[model as m, transformer, parser]
 import middle/[model, visualizer, svg]
 
-const path = r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\uart\uart.ews"
+const path = 
+  #r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\uart\uart.ews"
+  r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\hex2bin\hex2bin.ews"
+  
 let proj = toMiddleMode parseEws path
 
 removeDir "./temp"

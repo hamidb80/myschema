@@ -9,7 +9,7 @@ const
     fill: initColor(225, 225, 225, 1.0),
     corner: 10,
     width: 10,
-    border: initColor(100, 100, 100, 1.0)
+    border: initColor(100, 100, 100, 1.0) # FIXME if tou pass integer for `alpha`, nim compiler crashes
   )
   processInstanceStyle = ShapeStyle(
     fill: initColor(79, 195, 247, 1.0),
@@ -17,10 +17,6 @@ const
   )
   generatorBlockStyle = ShapeStyle(
     fill: initColor(40, 190, 110, 1.0),
-  )
-  wireStyle = ShapeStyle(
-    width: 10,
-    border: initColor(30, 30, 30, 1.0),
   )
   mainPortStyle = ShapeStyle(
     fill: initColor(100, 200, 100, 1.0),
@@ -31,6 +27,15 @@ const
   tagStyle = ShapeStyle(
     fill: initColor(170, 90, 200, 0.4),
   )
+  wireStyle = ShapeStyle(
+    width: 10,
+    border: initColor(30, 30, 30, 1.0),
+  )
+  busRipperStyle = ShapeStyle(
+    width: 10,
+    border: initColor(30, 80, 200, 1.0),
+  )
+
 
 
 func draw*(container: var XmlNode, p: MPort, style: ShapeStyle) =
@@ -66,7 +71,7 @@ template genGroup(canvas): untyped =
   g
 
 func visualize*(canvas: var XmlNode, schema: MSchematic) =
-  for lbl in schema.lables:
+  for lbl in schema.labels:
     canvas.draw lbl
 
   for n in schema.nets:
@@ -78,6 +83,9 @@ func visualize*(canvas: var XmlNode, schema: MSchematic) =
       for p in n.ports:
         let (x, y) = p.position
         c.add newRect(x-50, y-50, 100, 100, tagStyle)
+
+  for bp in schema.busRippers:
+    canvas.add newLine(bp.position, bp.connection, busRipperStyle)
 
   for p in schema.ports:
     draw canvas, p, mainPortStyle

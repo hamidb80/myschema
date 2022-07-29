@@ -148,9 +148,9 @@ type
     obid*: Obid
     ident*: HdlIdent
     geometry*: Geometry
-    side*: Side
+    side*: BusRipperSide
     label*: Label
-    cbn*: Option[ConnectByName]
+    cbn*: Option[ConnectByName] # TODO figure this out
     destNet*: Net
 
   NetKind* = enum
@@ -172,7 +172,9 @@ type
       wires*: seq[Wire]
       busRippers*: seq[BusRipper]
 
-  Net* = ref object
+  Net* = ref NetImpl
+  
+  NetImpl* = object
     obid*: Obid
 
     case kind*: NetKind:

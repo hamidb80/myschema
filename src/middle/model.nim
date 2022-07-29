@@ -7,7 +7,11 @@ type
     position*: Point
     fontSize*: int
     anchor*: Alignment
-    
+
+  MBusRipper* = ref object
+    # constraint*:
+    source*, dest*: MNet
+    position*, connection*: Point
 
   # TODO bus ripper
   # TODO tag
@@ -44,8 +48,9 @@ type
   MSchematic* = ref object
     ports*: seq[MPort]
     nets*: seq[MNet]
+    busRippers*: seq[MBusRipper]
     instances*: seq[MInstance]
-    lables*: seq[MLabel]
+    labels*: seq[MLabel]
     size*: Size
 
   MArchitectureKind* = enum

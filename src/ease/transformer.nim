@@ -62,16 +62,16 @@ proc buildSchema(schema: em.Schematic,
   elements: var Table[string, mm.MElement]
   ): mm.MSchematic =
 
-
   result = mm.MSchematic(size: toSize bottomRight schema.sheetSize)
-
-  var allPortsMap: Table[ptr em.PortImpl, MPort]
+  var
+    allPortsMap: Table[ptr em.PortImpl, MPort]
+    allNetsMap: Table[ptr em.NetImpl, MNet]
 
   for gr in schema.generics:
     discard
 
   for fpt in schema.freePlacedTexts:
-    result.lables.add toLable fpt
+    result.labels.add toLable fpt
 
   for p in schema.ports:
     let mp = mm.MPort(
@@ -105,7 +105,7 @@ proc buildSchema(schema: em.Schematic,
     for i, p in c.ports:
       allPortsMap[addr p[]] = ins.ports[i]
 
-    result.lables.add toLable c.label
+    result.labels.add toLable c.label
 
   for pr in schema.processes:
     var el = case pr.kind:
@@ -138,11 +138,11 @@ proc buildSchema(schema: em.Schematic,
         ports: el.icon.ports.mapIt copyPort(it, t, pos))
 
     result.instances.add ins
-    
+
     for i, p in pr.ports:
       allPortsMap[addr p[]] = ins.ports[i]
 
-    result.lables.add toLable pr.label
+    result.labels.add toLable pr.label
 
   for gb in schema.generateBlocks:
     var el = mm.MElement(kind: mekGenerator)
@@ -166,10 +166,9 @@ proc buildSchema(schema: em.Schematic,
 
     result.instances.add ins
 
-    result.lables.add toLable gb.label
+    result.labels.add toLable gb.label
 
   for n in schema.nets:
-
     var mn = case n.part.kind:
       of pkTag: MNet(kind: mnkTag)
       of pkWire:
@@ -185,9 +184,23 @@ proc buildSchema(schema: em.Schematic,
       mn.ports.add allPortsMap[addr p[]]
 
     result.nets.add mn
+    allNetsMap[addr n[]] = mn
 
+  for n in schema.nets:
     if n.part.kind == pkWire:
-      result.lables.add toLable n.part.label
+      for bp in n.part.busRippers:
+        let connPos = case bp.side:
+          of brsTopLeft: topLeft bp.geometry
+          of brsTopRight: topRight bp.geometry
+          of brsBottomRight: bottomRight bp.geometry
+          of brsBottomLeft: bottomLeft bp.geometry
+
+        result.busRippers.add MBusRipper(
+          source: allNetsMap[addr n[]],
+          dest: allNetsMap[addr bp.destNet[]],
+          position: center bp.geometry,
+          connection: connPos
+        )
 
 
 func initModule(en: em.Entity): mm.MElement =

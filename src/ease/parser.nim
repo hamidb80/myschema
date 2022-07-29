@@ -221,7 +221,7 @@ func parseHook(busRipperNode: LispNode): BusRipper =
       result.geometry = parseGeometry n
 
     of "SIDE":
-      result.side = parseSide n
+      result.side = BusRipperSide parseInt n
 
     of "LABEL":
       result.label = parseLabel n
