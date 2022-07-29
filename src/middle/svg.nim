@@ -22,7 +22,7 @@ type
 # --- utils
 
 func `$`*(c: Color): string =
-  fmt"rgba({c.r} {c.g} {c.b} {c.a})"
+  fmt"rgba({c.r},{c.g},{c.b},{c.a})"
 
 func initColor*(red, green, blue: ColorRange, alpha: Percent): Color =
   Color(r: red, g: green, b: blue, a: alpha)

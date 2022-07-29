@@ -6,19 +6,21 @@ import svg, model, logic
 
 const
   moduleInstanceStyle = ShapeStyle(
-    fill: initColor(50, 50, 50, 1),
+    fill: initColor(50, 50, 50, 1.0),
   )
   processInstanceStyle = ShapeStyle(
-    fill: initColor(100, 80, 200, 1),
+    fill: initColor(100, 80, 200, 1.0),
+    corner: 40
   )
   generatorBlockStyle = ShapeStyle(
-    fill: initColor(40, 190, 110, 1),
+    fill: initColor(40, 190, 110, 1.0),
   )
   wireStyle = ShapeStyle(
-    border: initColor(30, 30, 30, 1),
+    width: 4,
+    border: initColor(30, 30, 30, 1.0),
   )
   portStyle = ShapeStyle(
-    fill: initColor(200, 30, 30, 1),
+    fill: initColor(200, 30, 30, 1.0),
   )
 
 
@@ -37,7 +39,12 @@ func draw*(container: var XmlNode, ins: MInstance) =
     geo = afterTransform(ins)
     box = toRect geo
 
-  container.add newRect(box.x, box.y, box.w, box.h, moduleInstanceStyle)
+  let style = case ins.parent.kind:
+    of mekModule: moduleInstanceStyle
+    of mekGenerator: generatorBlockStyle
+    else: processInstanceStyle
+
+  container.add newRect(box.x, box.y, box.w, box.h, style)
 
   for p in ins.ports:
     container.add newCircle(p.position.x, p.position.y, 40, portStyle)
