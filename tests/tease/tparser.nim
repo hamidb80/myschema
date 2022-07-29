@@ -1,4 +1,4 @@
-import std/[unittest, os, strtabs, options]
+import std/[unittest, os, tables, options]
 import src/ease/[lisp, model]
 import src/ease/parser {.all.}
 import src/common/[seqs, domain]

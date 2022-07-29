@@ -21,6 +21,9 @@ type
   Geometry* = tuple
     x1, y1, x2, y2: int
 
+  Rect* = tuple
+    x, y, w, h: int
+
 # logic ---
 
 func `+`*(p1, p2: Point): Point =
@@ -110,3 +113,26 @@ func rotate*(geo: Geometry, center: Point, r: Rotation): Geometry =
 
 func move*(g: Geometry, v: Vector): Geometry =
   (g.x1 + v.x, g.y1 + v.y, g.x2 + v.x, g.y2 + v.y)
+
+func toPoint*(s: Size): Point =
+  (s.w, s.h)
+
+func toSize*(p: Point): Size =
+  (p.x, p.y)
+
+func toGeometry*(p: Point): Geometry =
+  (0, 0, p.x, p.y)
+
+func toGeometry*(s: Size): Geometry =
+  toGeometry toPoint s
+  
+func toSize*(g: Geometry): Size =
+  (g.x2 - g.x1, g.y2 - g.y1)
+
+func toRect*(g: Geometry): Rect =
+  let size = toSize g
+  (g.x1, g.y1, size.w, size.h)
+
+func placeAt*(g: Geometry, at: Point): Geometry =
+  let size = toSize g
+  (at.x, at.y, at.x + size.w, at.y + size.h)

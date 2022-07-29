@@ -1,4 +1,4 @@
-import std/[strtabs, options]
+import std/[tables, options]
 import ../common/[coordination, domain]
 
 type
@@ -63,7 +63,7 @@ type
 type
   Obid* = distinct string
 
-  Properties* = StringTableRef
+  Properties* = Table[string, string]
 
   Range* = object
     direction*: NumberDirection

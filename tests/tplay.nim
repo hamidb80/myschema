@@ -1,15 +1,17 @@
-import std/[xmltree, tables]
+import std/[xmltree, tables, strformat, os]
 
-import sue/[parser, transformer]
+import ease/[model, transformer, parser]
 import middle/[visualizer, svg]
 
+const path = r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\uart\uart.ews"
+let proj = toMiddleMode parseEws path
 
-let 
-  s = parseSueProject("./examples/sample", @[])
-  mm = toMiddleModel s
+removeDir "./temp"
+createDir "./temp"
 
-var cnv = newCanvas(-100, -100, 200, 200)
-visualize cnv, mm.modules["wires"].schema
-
-writeFile "play.svg", $cnv
-
+for name, module in proj.modules:
+  if module.schema != nil:
+    let (w, h) = module.schema.size
+    var c = newCanvas(0, 0, w, h)
+    c.visualize module.schema
+    writeFile fmt"./temp/{name}.svg", $c

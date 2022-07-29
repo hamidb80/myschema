@@ -43,6 +43,7 @@ type
     nets*: seq[MNet]
     instances*: seq[MInstance]
     lables*: seq[MLabel]
+    size*: Size
 
   MIcon* = ref object
     ports*: seq[MPort]
@@ -57,7 +58,7 @@ type
     movement*: Vector
     rotation*: Rotation
     flips*: set[Flip]
-    center*: Point
+    pin*: Point
 
   MInstance* = ref object
     name*: string

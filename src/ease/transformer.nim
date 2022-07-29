@@ -1,4 +1,4 @@
-import std/[tables, options, strutils, sequtils]
+import std/[tables, options, strutils, sequtils, strformat]
 
 import ../common/[coordination, domain, seqs]
 
@@ -12,7 +12,7 @@ import logic
 
 func extractNet(net: em.Net): mm.MNet =
   let temp = toNets net.wires
-  assert temp.len == 1
+  assert temp.len == 1, fmt"expected len 1 but got: {temp.len}"
   temp[0]
 
 func findInitialGeometry(): Geometry =
@@ -29,23 +29,23 @@ func toLable(fpt: em.FreePlacedText): mm.MLabel =
   toLable em.Label fpt
 
 func apply(pos: Point, t: MTransform): Point =
-  pos.rotate(t.center, t.rotation) + t.movement
+  pos.rotate(t.pin, t.rotation) + t.movement
 
-func copyPort(p: MPort, t: MTransform): MPort =
+func copyPort(p: MPort, t: MTransform, parentPos: Vector): MPort =
   MPort(
     id: p.id,
     dir: p.dir,
-    position: p.position.apply(t),
+    position: p.position.apply(t) + parentPos,
     refersTo: some p,
     # TODO wrapper:
   )
 
 func buildSchema(schema: em.Schematic,
-  icon: em.Entity,
+  icon: mm.MIcon,
   mlk: Table[em.Obid, mm.MModule]
   ): mm.MSchematic =
 
-  result = mm.MSchematic()
+  result = mm.MSchematic(size: toSize bottomRight schema.sheetSize)
 
   # for gr in schema.generics:
   #   discard
@@ -56,36 +56,44 @@ func buildSchema(schema: em.Schematic,
   for p in schema.ports:
     result.ports.add mm.MPort(
       id: p.identifier,
-      dir: MPortDir p.mode,
+      dir: MPortDir min(2, int p.mode),
       position: p.position,
       refersTo: none MPort, # FIXME refers to icon port
       # wrapper:  # FIXME
     )
 
   for n in schema.nets:
-    result.nets.add extractNet n
+    if n.wires.len > 0:
+      result.nets.add extractNet n
+
+    else:
+      # TODO Tagged nets
+      discard
 
   for c in schema.components:
     let
+      pid = c.parent.obid
+
       ro = c.rotation
       fs = c.flips
       geo = c.geometry
       originalGeo = rotate(geo, topLeft geo, -ro)
       translate = geo.topleft - originalGeo.topleft
-      
+      pos = topLeft originalGeo
+
       t = MTransform(
-        center: geo.center,
+        pin: geo.topleft,
         rotation: ro,
         flips: fs,
         movement: translate)
 
       ins = mm.MInstance(
         name: c.ident.name,
-        parent: mlk[c.parent.obid],
-        position: topLeft originalGeo,
+        parent: mlk[pid],
+        position: pos,
         transform: t,
         # copies ports with new location
-        ports: mlk[c.obid].icon.ports.mapIt copyPort(it, t))
+        ports: mlk[pid].icon.ports.mapIt copyPort(it, t, pos))
 
 
     result.instances.add ins
@@ -105,18 +113,20 @@ func extractIcon(entity: em.Entity): mm.MIcon =
     result.ports.add mm.MPort(
       id: p.identifier,
       position: position p,
-      dir: MPortDir mode p
+      dir: MPortDir min(int mode p, 2)
     )
 
 func initModule(en: em.Entity): mm.MModule =
   # TODO generics
 
   mm.MModule(
-    name: en.name,
+    name: en.ident.name,
     icon: extractIcon en,
   )
 
 func toMiddleMode*(proj: em.Project): mm.MProject =
+  result = mm.MProject()
+
   # phase 1. convert icons
   var
     en2mod: Table[em.Obid, mm.MModule]
@@ -129,4 +139,8 @@ func toMiddleMode*(proj: em.Project): mm.MProject =
 
   # phase 2. convert schematics
   for id, m in en2mod.mpairs:
-    discard
+    for a in enlook[id].architectures:
+      if a.kind == amBlockDiagram:
+        m.schema = buildSchema(a.schematic.get, m.icon, en2mod)
+        result.modules[m.name] = m
+        break

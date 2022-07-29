@@ -89,3 +89,9 @@ iterator points*(net: MNet): Point =
 
   traverseNet net:
     yield nextNode.location
+
+
+func afterTransform*(ins: MInstance): Geometry =
+  toGeometry(ins.parent.icon.size)
+  .rotate((0, 0), ins.transform.rotation)
+  .placeAt(ins.position)
