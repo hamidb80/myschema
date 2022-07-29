@@ -16,8 +16,8 @@ func toMiddleModel*(sch: sm.Schematic): mm.MSchematic =
 func toMiddleModel*(ico: sm.Icon): mm.MIcon =
   discard
 
-func toMiddleModel*(mo: sm.Module): MModule =
-  MModule(
+func toMiddleModel*(mo: sm.Module): MElement =
+  MElement(
     # mo.icon
     name: mo.name,
     schema: toMiddleModel mo.schema

@@ -22,27 +22,28 @@ func findInitialGeometry(): Geometry =
 func toLable(lbl: em.Label): mm.MLabel =
   mm.MLabel(
     position: lbl.position,
-    text: lbl.texts.join "\n"
+    texts: lbl.texts
   )
 
 func toLable(fpt: em.FreePlacedText): mm.MLabel =
   toLable em.Label fpt
 
-func apply(pos: Point, t: MTransform): Point =
-  pos.rotate(t.pin, t.rotation) + t.movement
 
 func copyPort(p: MPort, t: MTransform, parentPos: Vector): MPort =
   MPort(
     id: p.id,
     dir: p.dir,
-    position: p.position.apply(t) + parentPos,
+    position: rotate(p.position, (0, 0), t.rotation) + parentPos,
     refersTo: some p,
     # TODO wrapper:
   )
 
+func toPortDir(m: em.PortMode): mm.MPortDir =
+  MPortDir min(int m, 2)
+
 func buildSchema(schema: em.Schematic,
   icon: mm.MIcon,
-  mlk: Table[em.Obid, mm.MModule]
+  mlk: Table[em.Obid, mm.MElement]
   ): mm.MSchematic =
 
   result = mm.MSchematic(size: toSize bottomRight schema.sheetSize)
@@ -56,7 +57,7 @@ func buildSchema(schema: em.Schematic,
   for p in schema.ports:
     result.ports.add mm.MPort(
       id: p.identifier,
-      dir: MPortDir min(2, int p.mode),
+      dir: toPortDir p.mode,
       position: p.position,
       refersTo: none MPort, # FIXME refers to icon port
       # wrapper:  # FIXME
@@ -76,35 +77,28 @@ func buildSchema(schema: em.Schematic,
 
       ro = c.rotation
       fs = c.flips
-      geo = c.geometry
-      originalGeo = rotate(geo, topLeft geo, -ro)
-      translate = geo.topleft - originalGeo.topleft
-      pos = topLeft originalGeo
+      t = MTransform(rotation: ro, flips: fs)
 
-      t = MTransform(
-        pin: geo.topleft,
-        rotation: ro,
-        flips: fs,
-        movement: translate)
+      geo = c.geometry
+      pos = topLeft rotate(geo, topLeft geo, -ro)
 
       ins = mm.MInstance(
         name: c.ident.name,
         parent: mlk[pid],
         position: pos,
         transform: t,
-        # copies ports with new location
         ports: mlk[pid].icon.ports.mapIt copyPort(it, t, pos))
 
-
     result.instances.add ins
-
-    # TODO resolve connections for component ports
 
   for pr in schema.processes:
     discard
 
   for gb in schema.generateBlocks:
     discard
+
+  # TODO resolve connections for instance ports
+  # TODO Tag
 
 func extractIcon(entity: em.Entity): mm.MIcon =
   result = mm.MIcon(size: entity.size)
@@ -113,23 +107,26 @@ func extractIcon(entity: em.Entity): mm.MIcon =
     result.ports.add mm.MPort(
       id: p.identifier,
       position: position p,
-      dir: MPortDir min(int mode p, 2)
-    )
+      dir: toPortDir mode p)
 
-func initModule(en: em.Entity): mm.MModule =
-  # TODO generics
-
-  mm.MModule(
+func initModule(en: em.Entity): mm.MElement =
+  mm.MElement(
     name: en.ident.name,
+    kind: mekModule,
     icon: extractIcon en,
   )
+
+func toArch(sch: MSchematic): MArchitecture = 
+  MArchitecture(kind: makSchema, schema: sch)
 
 func toMiddleMode*(proj: em.Project): mm.MProject =
   result = mm.MProject()
 
+  # TODO generics
   # phase 1. convert icons
+
   var
-    en2mod: Table[em.Obid, mm.MModule]
+    en2mod: Table[em.Obid, mm.MElement]
     enlook: Table[em.Obid, em.Entity]
 
   for d in proj.designs:
@@ -140,7 +137,9 @@ func toMiddleMode*(proj: em.Project): mm.MProject =
   # phase 2. convert schematics
   for id, m in en2mod.mpairs:
     for a in enlook[id].architectures:
-      if a.kind == amBlockDiagram:
-        m.schema = buildSchema(a.schematic.get, m.icon, en2mod)
+      case a.kind:
+      of amBlockDiagram:
+        m.archs.add toArch buildSchema(a.schematic.get, m.icon, en2mod)
         result.modules[m.name] = m
-        break
+
+      else: discard

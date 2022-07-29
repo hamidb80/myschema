@@ -34,10 +34,10 @@ func newGroup*(children: openArray[XmlNode]): XmlNode =
   result.add children
 
 func newRect*(x, y, w, h: int): XmlNode =
-  <>rect(x = $x, y = $y, width = $w, height = $h, fill="gray")
+  <>rect(x = $x, y = $y, width = $w, height = $h, fill = "gray")
 
 func newCircle*(cx, cy, r: int): XmlNode =
-  <>circle(cx = $cx, cy = $cy, r = $r, fill="red")
+  <>circle(cx = $cx, cy = $cy, r = $r, fill = "red")
 
 func newLine*(head, tail: Point): XmlNode =
   <>line(x1 = $head.x, y1 = $head.y, x2 = $tail.x, y2 = $tail.y,

@@ -3,7 +3,7 @@ import ../common/[coordination, domain]
 
 type
   MLabel* = ref object
-    text*: string
+    texts*: seq[string]
     position*: Point
     # TODO aligment*: Alignment
 
@@ -26,7 +26,6 @@ type
     of wkInstance:
       instance: MInstance
 
-
   MPortDir* = enum
     input, output, inout
     # FIXME ease has buffer
@@ -38,6 +37,7 @@ type
     wrapper*: MWrapper
     refersTo*: Option[MPort]
 
+
   MSchematic* = ref object
     ports*: seq[MPort]
     nets*: seq[MNet]
@@ -45,24 +45,68 @@ type
     lables*: seq[MLabel]
     size*: Size
 
+  MArchitectureKind* = enum
+    makSchema
+    makFSM
+    makTruthTable
+    makCode
+    makExternalCode
+
+  MArchitecture* = ref object
+    case kind*: MArchitectureKind
+    of makSchema:
+      schema*: MSchematic
+
+    of makFSM:
+      discard
+
+    of makTruthTable:
+      discard
+
+    of makCode:
+      discard
+
+    of makExternalCode:
+      discard
+
   MIcon* = ref object
     ports*: seq[MPort]
     size*: Size
 
-  MModule* = ref object
+  IfCond = object
+    cond: string
+
+  ForLoop = object
+    
+
+  MElementKind* = enum
+    mekModule
+    mekGenerator
+    mekFSM, mekTruthTable, mekCode
+
+  MElement* = ref object # MElement
     name*: string
     icon*: MIcon
-    schema*: MSchematic
+
+    case kind*: MElementKind
+    of mekModule:
+      archs*: seq[MArchitecture]
+
+    of mekGenerator:
+      ifCond*: Option[IfCond]
+      forLopp*: Option[ForLoop]
+
+    of mekFSM: discard
+    of mekTruthTable: discard
+    of mekCode: discard
 
   MTransform* = object
-    movement*: Vector
     rotation*: Rotation
     flips*: set[Flip]
-    pin*: Point
 
   MInstance* = ref object
     name*: string
-    parent* {.cursor.}: MModule
+    parent* {.cursor.}: MElement
     ports*: seq[MPort]
     position*: Point
     transform*: MTransform
@@ -75,7 +119,7 @@ type
   MNet* = ref object
     start*: WireGraphNode
 
-  ModuleLookup* = Table[string, MModule]
+  ModuleLookup* = Table[string, MElement]
 
   MProject* = ref object
     modules*: ModuleLookup
