@@ -1,6 +1,6 @@
 import std/[xmltree, tables, strformat, os]
 
-import ease/[model, transformer, parser]
+import ease/[model as m, transformer, parser]
 import middle/[model, visualizer, svg]
 
 const path = r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\uart\uart.ews"
