@@ -26,7 +26,8 @@ type
 
   NumberDirection* = enum
     ndDec = 1
-    ndInc
+    ndInc,
+    ndUnknown # FIXME what
 
   IndetifierKind* = enum
     ikSingle

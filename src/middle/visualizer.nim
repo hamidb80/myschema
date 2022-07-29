@@ -54,6 +54,7 @@ func draw*(container: var XmlNode, ins: MInstance) =
   let
     geo = afterTransform(ins)
     box = toRect geo
+    # box = toRect toGeometry(ins.parent.icon.size) + ins.position
 
   let style = case ins.parent.kind:
     of mekModule: moduleInstanceStyle

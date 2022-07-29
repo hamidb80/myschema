@@ -535,7 +535,7 @@ func parseArch(archDefNode: LispNode): Architecture =
     of "SCHEMATIC":
       result.schematic = some parseDiag n
 
-    of "HDL_FILE", "STATE_MACHINE_V2": discard
+    of "HDL_FILE", "STATE_MACHINE_V2", "TABLE": discard
     else: err fmt"invalid field: {n.ident}"
 
 func parseEnt(entityNode: LispNode, result: var Entity) =
@@ -546,6 +546,9 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
 
     of "OBID":
       result.obid = parseOBID n
+
+    of "SIDE":
+      result.side = parseSide n
 
     of "HDL_IDENT":
       result.ident = parseHDLIdent n
@@ -562,8 +565,8 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
     of "OBJSTAMP":
       result.objStamp = parseObjStamp n
 
-    of "ARCH_DECLARATION", "PACKAGE_USE", "HDL", "SIDE", "EXTERNAL",
-        "DEFAULT_CONFIG", "CONFIG_DECL": discard
+    of "ARCH_DECLARATION", "PACKAGE_USE", "HDL", "EXTERNAL",
+        "DEFAULT_CONFIG", "CONFIG_DECL", "INCLUDE_STATEMENT": discard
     else: err fmt"invalid {n.ident}"
 
 func parseEntityFile(entityFileNode: LispNode): Entity =
@@ -602,7 +605,8 @@ func parseLib(designFileNode: LispNode): Library =
     of "PROPERTIES":
       result.properties = parseProperties n
 
-    of "COMPONENT_LIB", "PACKAGE", "PACKAGE_USE", "VIRTUAL_PACKAGE": discard
+    of "COMPONENT_LIB", "PACKAGE", "PACKAGE_USE", "VIRTUAL_PACKAGE",
+        "TEXT_FILE", "INCLUDE_STATEMENT": discard
     else: err fmt"invalid ident: {n.ident}"
 
 func parseLibDecl(libraryNode: LispNode): Library =
@@ -627,13 +631,13 @@ func parseProj(projectFileNode: LispNode): Project =
     of "PROPERTIES":
       result.properties = parseProperties n
 
-    of "DESIGN":
+    of "DESIGN", "COMPONENT_LIB":
       result.designs.add parseLibDecl n
 
     of "PACKAGE":
       result.packages.add parsePack n
 
-    of "PACKAGE_USE", "EXTERNAL_DOC": discard
+    of "PACKAGE_USE", "EXTERNAL_DOC", "INCLUDE_STATEMENT": discard
     else: err fmt"invalid ident: {n.ident}"
 
 
