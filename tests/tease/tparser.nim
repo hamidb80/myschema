@@ -12,85 +12,85 @@ template lfName(subPath): untyped =
 
 suite "basic":
   test "OBID":
-    check parseOBID(lfName "basic/OBID.eas").string == "filedadas7d987f89"
+    check parseOBID(lfName "OBID.eas").string == "filedadas7d987f89"
 
   test "GEOMETRY":
-    check parseGeometry(lfName "basic/GEOMETRY.eas") == (0, -1, -2, 3)
+    check parseGeometry(lfName "GEOMETRY.eas") == (0, -1, -2, 3)
 
   test "SHEETSIZE":
-    check parseSheetSize(lfName "basic/SHEETSIZE.eas") == (0, 0, 2000, 1000)
+    check parseSheetSize(lfName "SHEETSIZE.eas") == (0, 0, 2000, 1000)
 
   test "INDEX":
-    check parseIndex(lfName "basic/INDEX.eas") == "5"
+    check parseIndex(lfName "INDEX.eas") == "5"
 
   test "POSITION":
-    check parsePosition(lfName "basic/POSITION.eas") == (670, 403)
+    check parsePosition(lfName "POSITION.eas") == (670, 403)
 
   test "SCALE":
-    check parseScale(lfName "basic/SCALE.eas") == 60
+    check parseScale(lfName "SCALE.eas") == 60
 
   test "NAME":
-    check parseName(lfName "basic/NAME.eas") == "me:"
+    check parseName(lfName "NAME.eas") == "me:"
 
   test "PROPERTIES":
-    let pt = parseProperties(lfName "basic/PROPERTIES.eas")
+    let pt = parseProperties(lfName "PROPERTIES.eas")
     check pt.len == 3
     check pt["VHDL_VECTOR"] == "std_logic_vector"
     check pt["VerilogExt"] == "v"
     check pt["VhdlExt"] == "vhd"
 
   test "ALIGNMENT":
-    check parseAligment(lfName "basic/ALIGNMENT.eas").int == 6
+    check parseAligment(lfName "ALIGNMENT.eas").int == 6
 
   test "SIDE":
-    check parseSide(lfName "basic/SIDE.eas").int == 1
+    check parseSide(lfName "SIDE.eas").int == 1
 
   test "COLOR_LINE":
-    check parseColor(lfName "basic/COLOR_LINE.eas").int == 12
+    check parseColor(lfName "COLOR_LINE.eas").int == 12
 
   test "COLOR_FILL":
-    check parseColor(lfName "basic/COLOR_FILL.eas").int == 3
+    check parseColor(lfName "COLOR_FILL.eas").int == 3
 
   test "MODE":
-    check parseMode(lfName "basic/MODE.eas") == 4
+    check parseMode(lfName "MODE.eas") == 4
 
   test "TYPE":
-    check parseType(lfName "basic/TYPE.eas").str == "std_logic"
+    check parseType(lfName "TYPE.eas").str == "std_logic"
 
   test "FORMAT":
-    check parseFormat(lfName "basic/FORMAT.eas") == 129
+    check parseFormat(lfName "FORMAT.eas") == 129
 
   test "ENTITY_ref":
-    let ef = parseEntityRef(lfName "basic/ENTITY_ref.eas")
+    let ef = parseEntityRef(lfName "ENTITY_ref.eas")
     check ef.obid.string == "ent9890eda"
     check ef.libObid.string == "libdsa34d3o"
 
   test "WIRE":
-    check parseWire(lfName "basic/WIRE.eas") == (200, 50)..(250, 50)
+    check parseWire(lfName "WIRE.eas") == (200, 50)..(250, 50)
 
   test "DIRECTION":
-    check parseDirection(lfName "basic/DIRECTION.eas") == ndInc
+    check parseDirection(lfName "DIRECTION.eas") == ndInc
 
   test "TEXT":
-    check parseText(lfName "basic/TEXT.eas") == @["line.1", "line.2", "line.3"]
+    check parseText(lfName "TEXT.eas") == @["line.1", "line.2", "line.3"]
 
 
 suite "compound":
   test "HDL_IDENT_simple":
-    let ident = parseHDLIdent(lfName "compound/HDL_IDENT/simple.eas")
+    let ident = parseHDLIdent(lfName "HDL_IDENT/simple.eas")
     check ident.name == "comp"
 
   test "HDL_IDENT_without_name":
-    let ident = parseHDLIdent(lfName "compound/HDL_IDENT/without_name.eas")
+    let ident = parseHDLIdent(lfName "HDL_IDENT/without_name.eas")
     check ident.name == ""
 
   test "HDL_IDENT_with_attrs":
-    let ident = parseHDLIdent(lfName "compound/HDL_IDENT/with_attrs.eas")
+    let ident = parseHDLIdent(lfName "HDL_IDENT/with_attrs.eas")
     check ident.attributes.mode.get == 1
 
 
   test "LABEL":
-    let l = parseLabel(lfName "compound/LABEL.eas")
+    let l = parseLabel(lfName "LABEL.eas")
 
     check l.position == (2304, 1024)
     check l.scale == 96
@@ -101,33 +101,33 @@ suite "compound":
     check l.texts[0] == "fullSpeedRate"
 
   test "FREE_PLACED_TEXT":
-    let fpt = parseFreePlacedText(lfName "compound/FREE_PLACED_TEXT.eas")
+    let fpt = parseFreePlacedText(lfName "FREE_PLACED_TEXT.eas")
     check fpt.Label.texts == @["Connected to interconnect_mux_slave1-3"]
 
   test "OBJSTAMP":
-    let to = parseObjStamp(lfName "compound/OBJSTAMP.eas")
+    let to = parseObjStamp(lfName "OBJSTAMP.eas")
     check to.designer == "EASE example"
     check to.created == 1086260762
     check to.modified == 1340886594
 
   test "CONSTRAINT_RANGE":
-    let co = parseConstraint lfName "compound/CONSTRAINT/RANGE.eas"
+    let co = parseConstraint lfName "CONSTRAINT/RANGE.eas"
     check co.`range`.direction == ndDec
     check co.`range`.indexes == "HIGH" .. "LOW"
 
   test "CONSTRAINT_INDEX":
-    let co = parseConstraint lfName "compound/CONSTRAINT/INDEX.eas"
+    let co = parseConstraint lfName "CONSTRAINT/INDEX.eas"
     check co.index == "2"
 
   test "ATTRIBUTES":
-    let ao = parseAttributes(lfName "compound/ATTRIBUTES.eas")
+    let ao = parseAttributes(lfName "ATTRIBUTES.eas")
     check ao.mode == some 1
     check ao.kind == some "yo"
     check ao.def_value.get == "3'b011"
     check ao.constraint.get.`range`.indexes.a == "9"
 
   test "CONNECTION":
-    let co = parseNCon lfName "compound/CONNECTION.eas"
+    let co = parseNCon lfName "CONNECTION.eas"
     check co.obid.string == "ncona0a0a056f0f80505c4914b456fa7a454"
     check co.position == (1152, 1280)
     check co.side.int == 2
@@ -149,43 +149,43 @@ suite "compound":
     check po.connection.get.obid.string == connId
 
   test "PORT_eprt":
-    let po = parsePort(lfName "compound/PORT/eprt.eas", eprt)
+    let po = parsePort(lfName "PORT/eprt.eas", eprt)
     checkPort po, "eprta0a0a056f0f80505c4914b45e9a7a454", "new_cy_o", 2328, 1, "new_cy_o((DWIDTH-1)/4:0)"
     check po.ident.attributes.kind.get == "STD_LOGIC_VECTOR"
 
   test "PORT_aprt":
-    let po = parsePort(lfName "compound/PORT/aprt.eas", aprt)
+    let po = parsePort(lfName "PORT/aprt.eas", aprt)
     checkPort po, "aprtf70000101260fb040e4033fc87810000", "HRESP", 664, 1, "HRESP[1:0]"
     checkPortRef po, "eprtf70000101260fb040e4033fc86810000", "ncona0a0a0bc22ebab6449507394b7600000"
 
   test "PORT_cprt":
-    let po = parsePort(lfName "compound/PORT/cprt.eas", cprt)
+    let po = parsePort(lfName "PORT/cprt.eas", cprt)
     checkPort po, "cprtf7000010d4884404803033fcce630000", "HTRANS", 3416, 3, "HTRANS[1:0]"
     check po.properties["SensitivityList"] == "Yes"
     check po.parent.get.obid.string == "eprtf7000010b203330479045600affd1607"
     check po.connection.get.obid.string == "ncona0a0a0bc32ebab64495073947d800000"
 
   test "PORT_pprt":
-    let po = parsePort(lfName "compound/PORT/pprt.eas", pprt)
+    let po = parsePort(lfName "PORT/pprt.eas", pprt)
     checkPort po, "pprtf7000010d90d4304848033fc75f70000", "resetn", 7768, 3, ""
     check po.connection.get.obid.string == "ncona0a0a0bc32ebab64495073949b900000"
 
   test "PORT_gprt":
-    let po = parsePort(lfName "compound/PORT/gprt.eas", gprt)
+    let po = parsePort(lfName "PORT/gprt.eas", gprt)
     checkPort po, "gprta0a0a056f0f80505c4914b455aa7a454", "s_mltplctr", 2008, 1, "s_mltplctr(DWIDTH-1:0)"
     checkPortRef po, "gprta0a0a056f0f80505c4914b454aa7a454", "ncona0a0a056f0f80505c4914b45f6b7a454"
 
   test "PORT_ref_1":
-    let po = parseRefPort(lfName "compound/PORT/ref_1.eas")
+    let po = parseRefPort(lfName "PORT/ref_1.eas")
     check po.obid.string == "cprtabc987acvwv"
 
   test "PORT_ref_2":
-    let po = parsePort(lfName "compound/PORT/ref_2.eas", refprt)
+    let po = parsePort(lfName "PORT/ref_2.eas", refprt)
     check po.obid.string == "cprtf7000010a20333047904560005dd1607"
     check po.name == "HSEL"
 
   test "CBN":
-    let co = parseCbn lfName "compound/CBN.eas"
+    let co = parseCbn lfName "CBN.eas"
     check co.obid.string == "cbna0a0a0bc32ebab64495073946e800000"
     check co.ident.name == "HCLK"
     check co.geometry.x1 == 3256
@@ -194,7 +194,7 @@ suite "compound":
     check co.label.texts == @["HCLK"]
 
   test "BUS_RIPPER":
-    let bo = parseHook lfName "compound/BUS_RIPPER.eas"
+    let bo = parseHook lfName "BUS_RIPPER.eas"
     check bo.obid.string == "hookf7000010a203330479045600dddd1607"
     check bo.ident.attributes.constraint.get.index == "1"
     check bo.geometry.x1 == 10560
@@ -213,12 +213,12 @@ suite "compound":
     check o.label.format == f
 
   test "GENERIC_egen":
-    let go = parseGeneric(lfName "compound/GENERIC/egen.eas", gkEntity)
+    let go = parseGeneric(lfName "GENERIC/egen.eas", gkEntity)
     genericCheck go, "egenf7000010b203330479045600b40e1607", "DATA_PHASE", 1304, 2, 128
     check go.parent.isNone
 
   test "GENERIC_igen":
-    let go = parseGeneric(lfName "compound/GENERIC/igen.eas", gkInstance)
+    let go = parseGeneric(lfName "GENERIC/igen.eas", gkInstance)
     genericCheck go, "igenf7000010f6884404803033fc11730000", "DATA_PHASE", 4760, 3, 129
     check go.parent.get.obid.string == "egenf7000010b203330479045600b40e1607"
 
@@ -236,7 +236,7 @@ suite "complex":
     check o.schematic.obid.string == schid
 
   test "GENERATE_if":
-    let go = parseGenB lfName "complex/GENERATE/if.eas"
+    let go = parseGenB lfName "GENERATE/if.eas"
     check go.properties["IF_CONDITION"] == "mycond"
 
     generate_check go, "genb0c8a108663c39d268903b4d275301dd7", "ifgen_block",
@@ -244,7 +244,7 @@ suite "complex":
         "gprt0c8a1086b7c39d268903b4d246301dd7", gprt, "diag0c8a108663c39d268903b4d265301dd7"
 
   test "GENERATE_for":
-    let go = parseGenB lfName "complex/GENERATE/for.eas"
+    let go = parseGenB lfName "GENERATE/for.eas"
     check go.properties["FOR_LOOP_VAR"] == "iterator_var"
     check go.constraint.get.`range`.indexes.b == "low_range"
 
@@ -253,7 +253,7 @@ suite "complex":
         "gprt0c8a1086a6c39d268903b4d2c5301dd7", gprt, "diag0c8a1086a5c39d268903b4d295301dd7"
 
   test "PROCESS":
-    let po = parseProc lfName "complex/PROCESS.eas"
+    let po = parseProc lfName "PROCESS.eas"
     check po.obid.string == "proca000000a062824244fa033fcc3040000"
     check po.kind.int == 1
     check po.ident.name == "Control"
@@ -264,7 +264,7 @@ suite "complex":
     check po.ports[0].label.format == 65539
 
   test "COMPONENT":
-    let c = parseComp(lfname "complex/COMPONENT.eas")
+    let c = parseComp(lfname "COMPONENT.eas")
 
     check c.obid.string == "comp0c8a100706e3b3a4853033fc44480000"
     check c.ident.name == "u_slavecontroller"
@@ -275,13 +275,13 @@ suite "complex":
     check c.label.texts == @["u_slavecontroller:slavecontroller"]
 
   test "NET_tag":
-    let no = parseNet lfName "complex/NET/tag.eas"
+    let no = parseNet lfName "NET/tag.eas"
     check no.part.kind == pkTag
     check no.part.ports[0].obid.string == "aprtf700001024784404803033fc89630000"
     check no.part.ports[^1].obid.string == "cprtf70000103b5feb040e4033fcd5810000"
 
   test "NET_wire":
-    let no = parseNet lfName "complex/NET/wire.eas"
+    let no = parseNet lfName "NET/wire.eas"
     check no.part.kind == pkWire
     check no.obid.string == "netf7000010a2033304790456008ddd1607"
     check no.part.ports[1].obid.string == "cprtf7000010a203330479045600d7dd1607"
@@ -293,7 +293,7 @@ suite "complex":
 
 suite "file":
   test "PROJECT_FILE":
-    let pf = parseProj lfName "file/PROJECT_FILE.eas"
+    let pf = parseProj lfName "PROJECT_FILE.eas"
     check pf.obid.string == "proj41a0a0a0442cfdc32c4156006e933346"
     check pf.properties["HdlFileEncoding"] == "ASCII"
 
@@ -305,7 +305,7 @@ suite "file":
     check pf.packages[^1].library == "std"
 
   test "DESIGN_FILE":
-    let df = parseLib lfName "file/DESIGN_FILE.eas"
+    let df = parseLib lfName "DESIGN_FILE.eas"
     check df.obid.string == "lib9aef568962fb27a3023079900d800000"
     check df.properties["STAMP_REVISION"] == "Release Candidate 1"
     check df.name == "design"
@@ -313,7 +313,7 @@ suite "file":
     check df.entities[^1].obid.string == "entf70000105f8463e3025033fc59400000"
 
   test "ENTITY_FILE":
-    let ef = parseEntityFile lfName "file/ENTITY_FILE.eas"
+    let ef = parseEntityFile lfName "ENTITY_FILE.eas"
     check ef.obid.string == "enta000000a9a859424478033fcaea30000"
     check ef.properties["STAMP_TOOL"] == "Ease"
     check ef.ident.name == "ram_2k"
