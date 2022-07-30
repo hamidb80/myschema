@@ -13,9 +13,6 @@ type
     source*, dest*: MNet
     position*, connection*: Point
 
-  # TODO bus ripper
-  # TODO tag
-
   WrapperKind* = enum
     wkSchematic
     wkIcon
@@ -43,7 +40,6 @@ type
     rotation*: Rotation
     wrapper*: MWrapper
     refersTo*: Option[MPort]
-
 
   MSchematic* = ref object
     ports*: seq[MPort]

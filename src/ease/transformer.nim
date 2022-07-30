@@ -101,17 +101,18 @@ proc buildSchema(schema: em.Schematic,
     allPortsMap[addr p[]] = mp
 
   block instances:
-    template makeInstance(iname, parentEl, rawPos, rawT): untyped =
+    template makeInstance(iname, parentEl, elGeo, rawT): untyped =
       let
         t = rawT
-        pos = rawPos
+        pos = topLeft elGeo
+        c = center elGeo
 
         translate = translationAfter(
           toGeometry parentEl.icon.size,
           t.rotation)
 
         tFn = (p: Point) =>
-          p.rotate0(t.rotation) + pos - translate
+          (p.rotate0(t.rotation) + pos - translate).flip(c, t.flips)
 
       mm.MInstance(
         name: iname,
@@ -134,7 +135,7 @@ proc buildSchema(schema: em.Schematic,
         ins = makeInstance(
           c.ident.name,
           parent,
-          topLeft c.geometry,
+          c.geometry,
           getTransform c)
 
       result.instances.add ins
@@ -147,10 +148,8 @@ proc buildSchema(schema: em.Schematic,
     for pr in schema.processes:
       let
         el = makeParent(initProcessElement pr, pr)
-        ins = makeInstance(
-          pr.ident.name,
-          el,
-          topleft pr.geometry,
+        ins = makeInstance(pr.ident.name, el,
+          pr.geometry,
           getTransform pr)
 
       result.instances.add ins
@@ -163,10 +162,8 @@ proc buildSchema(schema: em.Schematic,
     for gb in schema.generateBlocks:
       let
         el = makeParent(mm.MElement(kind: mekGenerator), gb)
-        ins = makeInstance(
-          gb.ident.name,
-          el,
-          topleft gb.geometry,
+        ins = makeInstance(gb.ident.name, el,
+          gb.geometry,
           getTransform gb)
 
       for i, p in gb.ports:
@@ -174,7 +171,6 @@ proc buildSchema(schema: em.Schematic,
 
       result.instances.add ins
       result.labels.add toLable gb.label
-
 
   for n in schema.nets:
     var mn = case n.part.kind:
@@ -194,6 +190,7 @@ proc buildSchema(schema: em.Schematic,
     result.nets.add mn
     allNetsMap[addr n[]] = mn
 
+  # bus rippers
   for n in schema.nets:
     if n.part.kind == pkWire:
       for bp in n.part.busRippers:

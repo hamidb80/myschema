@@ -24,3 +24,13 @@ suite "rotation":
     check p2.rotate(c2, r180) == (11, -15)
     check p2.rotate(c2, -r90) == (16, -4)
     check p2.rotate(c2, r90) == (0, -10)
+
+suite "flip":
+  test "flip X":
+    check flip((3, 10), (1, 5), {X}) == (-1, 10)
+
+  test "flip Y":
+    check flip((3, 10), (1, 5), {Y}) == (3, 0)
+
+  test "flip XY":
+    check flip((3, 10), (1, 5), {X, Y}) == (-1, 0)

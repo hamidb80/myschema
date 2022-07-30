@@ -68,7 +68,7 @@ func translationAfter*(geo: Geometry, ro: Rotation): Vector =
   geo.placeAt(P0).rotate(P0, ro).topleft
 
 func getIconTransformer*(iconGeo: Geometry,
-    rotated: Rotation): Transformer = # TODO add flip
+    rotated: Rotation): Transformer =
 
   let
     pin = topLeft iconGeo
