@@ -8,12 +8,11 @@ import ../common/[coordination, errors, domain]
 # basics ---
 
 func toRotation*(s: Side): Rotation =
-  case s.int:
-  of 0: r0
-  of 1: r90
-  of 2: r180
-  of 3: r270
-  else: err ""
+  case s:
+  of sTopToBottom: r0
+  of sRightToLeft: r90
+  of sBottomToTop: r180
+  of sLeftToRight: r270
 
 func rotation*[T: Visible](c: T): Rotation =
   toRotation c.side
@@ -61,29 +60,28 @@ func mode*(p: Port): PortMode =
 type
   Transformer* = proc(p: Point): Point
 
-# size 
+# size
+
+func translationAfter*(geo: Geometry, ro: Rotation): Vector =
+  ## returns a vector that if added to the result,
+  ## it will keep the whole shape at the original top left
+  geo.placeAt(P0).rotate(P0, ro).topleft
 
 func getIconTransformer*(iconGeo: Geometry,
-    rotated: Rotation): Transformer =
-    # TODO add flip 
+    rotated: Rotation): Transformer = # TODO add flip
 
-  let 
+  let
     pin = topLeft iconGeo
-    translate = 
-      iconGeo.placeAt(P0).rotate(P0, -rotated).topleft
+    translate = -translationAfter(iconGeo, -rotated)
 
-  proc transformer(p: Point): Point = 
-    let 
+  proc transformer(p: Point): Point =
+    let
       t1 = p.rotate(pin, -rotated)
-      t2 = t1 - pin
-      t3 = t2 - translate
+      t2 = t1 + translate - pin
 
-    debugEcho "---------- ||"
-    debugEcho p
-    debugEcho t1
-    debugEcho t2
-    debugEcho t3
-
-    t3
+    t2
 
   transformer
+
+func getIconSize*(geo: Geometry, ro: Rotation): Size =
+  toSize rotate(geo, P0, -ro)

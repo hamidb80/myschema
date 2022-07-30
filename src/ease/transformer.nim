@@ -24,36 +24,54 @@ func toLable(lbl: em.Label): mm.MLabel =
 func toLable(fpt: em.FreePlacedText): mm.MLabel =
   toLable em.Label fpt
 
-
 func getTransform[T: Visible](smth: T): MTransform =
   MTransform(
     rotation: smth.rotation,
     flips: smth.flips)
 
-func copyPort(p: MPort, t: MTransform, fn: Transformer): MPort =
+func copyPort(p: MPort, fn: Transformer): MPort =
   MPort(
     id: p.id,
     dir: p.dir,
     position: fn(p.position),
+    refersTo: some p
     # TODO wrapper:
-    refersTo: some p)
+    )
 
 func toPortDir(m: em.PortMode): mm.MPortDir =
   MPortDir min(int m, 2)
 
-func extractIcon[T: Visible](smth: T): mm.MIcon =
-  let ro = toRotation smth.side
-  result = mm.MIcon(size: toSize smth.geometry.rotate(P0, -ro))
+proc extractIcon[T: Visible](smth: T): mm.MIcon =
+  let
+    geo = smth.geometry
+    ro = smth.rotation
+    tr = getIconTransformer(geo, ro)
 
-  let geo = smth.geometry
+  result = mm.MIcon(size: getIconSize(geo, ro))
 
   for p in smth.ports:
     result.ports.add mm.MPort(
       id: p.identifier,
-      position: p.position.rotate(geo.topleft, -ro) - geo.topleft,
+      position: tr(p.position),
       dir: toPortDir mode p)
 
     # TODO add wrapper
+
+proc initProcessElement(pr: Process): MElement =
+  result = case pr.kind:
+  of ptProcess:
+    mm.MElement(kind: mekCode)
+
+  of ptStateDiagram:
+    mm.MElement(kind: mekFSM)
+
+  of ptConcurrentStatement:
+    mm.MElement(kind: mekPartialCode)
+
+  of ptTruthTable:
+    mm.MElement(kind: mekTruthTable)
+
+  result.icon = extractIcon pr
 
 proc buildSchema(schema: em.Schematic,
   icon: mm.MIcon,
@@ -61,7 +79,7 @@ proc buildSchema(schema: em.Schematic,
   elements: var Table[string, mm.MElement]
   ): mm.MSchematic =
 
-  result = mm.MSchematic(size: toSize bottomRight schema.sheetSize)
+  result = mm.MSchematic(size: toSize schema.sheetSize)
   var
     allPortsMap: Table[ptr em.PortImpl, MPort]
     allNetsMap: Table[ptr em.NetImpl, MNet]
@@ -86,18 +104,22 @@ proc buildSchema(schema: em.Schematic,
 
   for c in schema.components:
     let
-      pid = c.parent.obid
-      t = getTransform c
+      parent = mlk[c.parent.obid]
       pos = topLeft c.geometry
-      tr = getIconTransformer(c.geometry, t.rotation)
+      parentGeo = toGeometry parent.icon.size
+      t = getTransform c
 
-    let
+      tr = proc(p: Point): Point =
+        p.rotate0(t.rotation) +
+        pos -
+        translationAfter(parentGeo, t.rotation)
+
       ins = mm.MInstance(
         name: c.ident.name,
-        parent: mlk[pid],
+        parent: parent,
         position: pos,
         transform: t,
-        ports: mlk[pid].icon.ports.mapIt copyPort(it, t, tr))
+        ports: parent.icon.ports.mapIt copyPort(it, tr))
 
     result.instances.add ins
 
@@ -107,35 +129,27 @@ proc buildSchema(schema: em.Schematic,
     result.labels.add toLable c.label
 
   for pr in schema.processes:
-    var el = case pr.kind:
-      of ptProcess:
-        mm.MElement(kind: mekCode)
-
-      of ptStateDiagram:
-        mm.MElement(kind: mekFSM)
-
-      of ptConcurrentStatement:
-        mm.MElement(kind: mekPartialCode)
-
-      of ptTruthTable:
-        mm.MElement(kind: mekTruthTable)
-
-    el.icon = extractIcon pr
+    var el = initProcessElement pr
     el.name = randomHdlIdent()
     elements[el.name] = el
 
     # instansiate
     let
       pos = topleft pr.geometry
+      parentGeo = toGeometry el.icon.size
       t = getTransform pr
+
+      tr = proc(p: Point): Point =
+        p.rotate0(t.rotation) +
+        pos -
+        translationAfter(parentGeo, t.rotation)
 
       ins = mm.MInstance(
         name: pr.ident.name,
         position: pos,
         parent: el,
         transform: t,
-        # ports: el.icon.ports.mapIt copyPort(it, t,)
-        )
+        ports: el.icon.ports.mapIt copyPort(it, tr))
 
     result.instances.add ins
 
@@ -153,13 +167,20 @@ proc buildSchema(schema: em.Schematic,
     # instansiate
     let
       pos = topleft gb.geometry
+      parentGeo = toGeometry el.icon.size
       t = getTransform gb
+
+      tr = proc(p: Point): Point =
+        p.rotate0(t.rotation) +
+        pos -
+        translationAfter(parentGeo, t.rotation)
+
       ins = mm.MInstance(
         name: gb.ident.name,
         position: pos,
         parent: el,
         transform: t,
-        # ports: el.icon.ports.mapIt copyPort(it, t, gb.geometry, pos)
+        ports: el.icon.ports.mapIt copyPort(it, tr)
         )
 
     for i, p in gb.ports:
@@ -203,7 +224,7 @@ proc buildSchema(schema: em.Schematic,
           connection: connPos
         )
 
-func initModule(en: em.Entity): mm.MElement =
+proc initModule(en: em.Entity): mm.MElement =
   mm.MElement(
     name: en.ident.name,
     kind: mekModule,
