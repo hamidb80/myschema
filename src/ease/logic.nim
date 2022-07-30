@@ -2,7 +2,7 @@ import std/[options, tables, strutils, strformat, hashes]
 
 import model
 # import ../middle/model as mm
-import ../common/[coordination, errors, domain]
+import ../common/[coordination, errors, domain, minitable]
 
 
 # basics ---

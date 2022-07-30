@@ -240,7 +240,7 @@ proc toMiddleMode*(proj: em.Project): mm.MProject =
       case a.kind:
       of amBlockDiagram:
         m.archs.add toArch buildSchema(
-          a.schematic.get,
+          a.body.schematic,
           m.icon,
           modernIdMap,
           result.modules)

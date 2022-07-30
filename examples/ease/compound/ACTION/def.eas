@@ -1,0 +1,16 @@
+(ACTION
+  (OBID "acta00000c992bc6c048d9033fc45c60000")
+  (GEOMETRY 2970 1056 3050 1136)
+  (SIDE 0)
+  (LABEL
+    (POSITION 3032 1028)
+    (SCALE 80)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 3)
+    (FORMAT 0)
+    (TEXT "nseq")
+  )
+  (ACTION "laba00000c992bc6c048d9033fcf3c60000")
+  (INDEX 34)
+)

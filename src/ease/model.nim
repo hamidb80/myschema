@@ -91,19 +91,23 @@ type
     Verilog, VHDL
 
   LineKind* = enum
-    straight, curved
+    straight = "TRANS_LINE"
+    curved = "TRANS_SPLINE"
 
   StateKind* = enum
     skRef, skDef
 
-  ConnectionKind = enum
+  ConnectionKind* = enum
     ckRef, ckDef
 
   LinkKind* = enum
     linkRef, linkDef
 
-  LabKind = enum
-    labRef, labDef
+  ActionKind* = enum
+    actRef, actImpl, actDef
+
+  ConditionKind* = enum
+    condRef, condDef
 
   ConnectionNodeKind* = enum
     cnkLink, cnkState
@@ -226,7 +230,7 @@ type
       geometry*: Geometry
       side*: Side
       label*: Label
-      number*: Positive
+      number*: int
       coding*: string
 
   ConnectionNode* = object
@@ -235,7 +239,7 @@ type
       link*: Link
 
     of cnkState:
-      state: State
+      state*: State
 
   Connection* = ref object
     obid*: Obid
@@ -257,9 +261,11 @@ type
     geometry*: Geometry
     side*: Side
     label*: Label
-    priority*: int
+    # priority*: int
+    # async*: bool
     connections*: Slice[Connection]
-    condition*: Lab
+    condition*: Condition
+    action*: Action
     arrow*: Arrow
 
     case kind*: LineKind
@@ -272,7 +278,7 @@ type
   FsmDiagram* = ref object
     obid*: Obid
     sheetSize*: Geometry
-    info*: Global
+    global*: Global
     states*: seq[State]
     transitions*: seq[TransitionLine]
 
@@ -280,12 +286,27 @@ type
     lang*: Language
     lines*: seq[string]
 
-  Lab* = ref object
+  Condition* = ref object
     obid*: Obid
 
-    case kind*: LabKind
-    of labRef: discard
-    of labDef:
+    case kind*: ConditionKind
+    of condRef: discard
+    of condDef:
+      code*: Code
+
+  Action* = ref object
+    obid*: Obid
+
+    case kind*: ActionKind
+    of actRef: discard
+    of actDef:
+      geometry*: Geometry
+      side*: Side
+      label*: Label
+      action*: Action
+      index*: int
+
+    of actImpl:
       name*: string
       mealy*: bool
       moore*: bool
@@ -294,12 +315,12 @@ type
   StateMachineV2* = ref object
     obid*: Obid
     properties*: Properties
-    actions*: seq[Lab]
-    conditions*: seq[Lab]
+    actions*: seq[Action]
+    conditions*: seq[Condition]
     fsm*: FsmDiagram
 
-  Row* = seq[string]
-
+  Cell* = string
+  Row* = seq[Cell]
   TruthTable* = ref object
     obid*: Obid
     properties*: Properties

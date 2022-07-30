@@ -1,0 +1,16 @@
+(ARROW
+  (NUMBER 0)
+  (ARROW_BPOS 1117 1411)
+  (ARROW_MPOS 1184 1344)
+  (ARROW_EPOS 1117 1277)
+  (LABEL
+    (POSITION 1184 1216)
+    (SCALE 80)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 3)
+    (FORMAT 0)
+    (TEXT "Derived:"
+          "(HTRANS == `NONSEQ)")
+  )
+)

@@ -1,3 +1,3 @@
-import tease
-import tsue
-import tcommon
+import tease/tease
+import tsue/tsue
+import tcommon/tcommon

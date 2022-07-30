@@ -414,9 +414,6 @@ func parseComp(componentNode: LispNode): Component =
     of "TYPE", "CONSTRAINT": discard
     else: err fmt"invalid {n.ident}"
 
-func parseTran(lineNode: LispNode): TransitionLine =
-  discard
-
 func detectLanguage(tag: string): Language =
   case tag:
   of "VERILOG_FILE": Verilog
@@ -444,10 +441,50 @@ func parseCode(codeTextNode: LispNode): Code =
     lang: detectLanguage codeTextNode.ident,
     lines: parseText codeTextNode)
 
-func parseLab(labNode: LispNode): Lab =
-  var acc = new Lab
+func parseFsmp(globalNode: LispNode): Global =
+  result = new Global
 
-  for n in labNode:
+  for n in globalNode:
+    case n.ident:
+    of "GEOMETRY":
+      result.geometry = parseGeometry n
+
+    of "LABEL":
+      result.label = parseLabel n
+
+func parseStat(stateNode: LispNode): State =
+  result = State(kind: skDef)
+
+  for n in stateNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
+    of "HDL_IDENT":
+      result.ident = parseHDLIdent n
+
+    of "GEOMETRY":
+      result.geometry = parseGeometry n
+
+    of "SIDE":
+      result.side = parseSide n
+
+    of "LABEL":
+      result.label = parseLabel n
+
+    of "NUMBER":
+      result.number = parseInt n
+
+    of "CODING":
+      result.coding = parseStr n
+
+    else:
+      err fmt"invalid node '{n.ident}' for STATE"
+
+func parseLab(actionNode: LispNode): Action =
+  var acc = Action(kind: actImpl)
+
+  for n in actionNode:
     case n.ident:
     of "OBID":
       acc.obid = parseOBID n
@@ -468,19 +505,171 @@ func parseLab(labNode: LispNode): Lab =
     else:
       err fmt"invalid node '{n.ident}' for lab"
 
-func parseFsmp(globalNode: LispNode): Global =
-  result = new Global
+func parseLab(conditionNode: LispNode): Condition =
+  var acc = new Condition
 
-  for n in globalNode:
+  for n in conditionNode:
     case n.ident:
+    of "OBID":
+      acc.obid = parseOBID n
+
+    of "VERILOG_TEXT", "VHDL_TEXT":
+      acc.code = parseCode(n)
+
+    of "NAME", "MEALY", "MOORE", "SHOW_LABEL": discard
+    else:
+      err fmt"invalid node '{n.ident}' for lab"
+
+func parseActionRef(actionRefNode: LispNode): Action =
+  Action(kind: actRef, obid: parseOBID actionRefNode)
+
+func parseAct(actionNode: LispNode): Action =
+  result = Action(kind: actDef)
+
+  for n in actionNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
     of "GEOMETRY":
       result.geometry = parseGeometry n
+
+    of "SIDE":
+      result.side = parseSide n
 
     of "LABEL":
       result.label = parseLabel n
 
+    of "ACTION":
+      result.action = parseActionRef n
+
+    of "INDEX":
+      result.index = parseInt n
+
+    else:
+      err fmt"invalid node '{n.ident}'"
+
+func toConnectionNode(state: State): ConnectionNode =
+  ConnectionNode(kind: cnkState, state: state)
+
+func toConnectionNode(link: Link): ConnectionNode =
+  ConnectionNode(kind: cnkLink, link: link)
+
+func parseLinkRef(connNode: LispNode): Link =
+  Link(kind: linkRef, obid: parseOBID connNode)
+
+func parseStateRef(connNode: LispNode): State =
+  State(kind: skRef, obid: parseOBID connNode)
+
+func parseConnection(connNode: LispNode): Connection =
+  result = Connection(kind: ckDef)
+
+  for n in connNode:
+    case n.ident:
+    # of "OBID": discard
+    of "GEOMETRY":
+      result.geometry = parseGeometry n
+
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    of "STATE":
+      result.node = toConnectionNode parseStateRef n
+
+    of "LINK":
+      result.node = toConnectionNode parseLinkRef n
+
+    else:
+      err fmt"invalid node '{n.ident}'"
+
+func parseArrow(arrowNode: LispNode): Arrow =
+  for n in arrowNode:
+    case n.ident:
+    of "NUMBER":
+      result.number = parseInt n
+
+    of "ARROW_BPOS":
+      result.points[0] = parsePosition n
+
+    of "ARROW_MPOS":
+      result.points[1] = parsePosition n
+
+    of "ARROW_EPOS":
+      result.points[2] = parsePosition n
+
+    of "LABEL":
+      result.label = parseLabel n
+
+    else:
+      err fmt"invalid node '{n.ident}'"
+
+func parseBezier(bezierNode: LispNode): seq[int] =
+  bezierNode.args.mapIt it.vint
+
+func parsePoints(pointsNode: LispNode): seq[Point] =
+  pointsNode.args.mapIt (it.arg(0).vint, it.arg(1).vint)
+
+func parseConditionRef(connectionRefNode: LispNode): Condition =
+  Condition(kind: condRef, obid: parseOBID connectionRefNode)
+
+func parseTran(lineNode: LispNode): TransitionLine =
+  result = TransitionLine(kind: parseEnum[LineKind](lineNode.ident))
+
+  for n in lineNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
+    of "GEOMETRY":
+      result.geometry = parseGeometry n
+
+    of "SIDE":
+      result.side = parseSide n
+
+    of "FROM_CONN":
+      result.connections.a = parseConnection n
+
+    of "TO_CONN":
+      result.connections.b = parseConnection n
+
+    of "ACTION":
+      result.action = parseAct n
+
+    of "CONDITION":
+      result.condition = parseConditionRef n
+
+    of "ARROW":
+      result.arrow = parseArrow n
+
+    of "BEZIER":
+      result.biezier = parseBezier n
+
+    of "POINTS":
+      result.points = parsePoints n
+
+    of "ASYNC, PRIORITY": discard
+    else:
+      err fmt"invalid node '{n.ident}'"
+
 func parseFsm(fsmDiagramNode: LispNode): FsmDiagram =
-  discard
+  result = new FsmDiagram
+
+  for n in fsmDiagramNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
+    of "SHEETSIZE":
+      result.sheetSize = parseSheetSize n
+
+    of "GLOBAL":
+      result.global = parseFsmp n
+
+    of "STATE":
+      result.states.add parseStat n
+
+    of "TRANS_SPLINE":
+      result.transitions.add parseTran n
 
 func parseFsmx(stateDiagramNode: LispNode): StateMachineV2 =
   result = new StateMachineV2
@@ -494,10 +683,10 @@ func parseFsmx(stateDiagramNode: LispNode): StateMachineV2 =
       result.properties = parseProperties n
 
     of "ACTION":
-      result.actions.add parseLab n
+      result.actions.add parseLab(actionNode = n)
 
     of "CONDITION":
-      result.conditions.add parseLab n
+      result.conditions.add parseLab(conditionNode = n)
 
     of "FSM_DIAGRAM":
       result.fsm = parseFSM n
