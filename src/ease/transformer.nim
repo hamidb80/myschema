@@ -1,4 +1,4 @@
-import std/[tables, options, strutils, sequtils, strformat]
+import std/[tables, options, strutils, sequtils, strformat, sugar]
 
 import ../common/[coordination, domain, seqs]
 
@@ -71,8 +71,6 @@ proc initProcessElement(pr: Process): MElement =
   of ptTruthTable:
     mm.MElement(kind: mekTruthTable)
 
-  result.icon = extractIcon pr
-
 proc buildSchema(schema: em.Schematic,
   icon: mm.MIcon,
   mlk: Table[em.Obid, mm.MElement],
@@ -96,99 +94,87 @@ proc buildSchema(schema: em.Schematic,
       dir: toPortDir p.mode,
       position: p.position,
       refersTo: none MPort, # FIXME refers to icon port
-                            # wrapper:  # FIXME
+                            # TODO wrapper:
     )
 
     result.ports.add mp
     allPortsMap[addr p[]] = mp
 
-  for c in schema.components:
-    let
-      parent = mlk[c.parent.obid]
-      pos = topLeft c.geometry
-      parentGeo = toGeometry parent.icon.size
-      t = getTransform c
+  block instances:
+    template makeInstance(iname, parentEl, rawPos, rawT): untyped =
+      let
+        t = rawT
+        pos = rawPos
 
-      tr = proc(p: Point): Point =
-        p.rotate0(t.rotation) +
-        pos -
-        translationAfter(parentGeo, t.rotation)
+        translate = translationAfter(
+          toGeometry parentEl.icon.size,
+          t.rotation)
 
-      ins = mm.MInstance(
-        name: c.ident.name,
-        parent: parent,
+        tFn = (p: Point) =>
+          p.rotate0(t.rotation) + pos - translate
+
+      mm.MInstance(
+        name: iname,
         position: pos,
+        parent: parentEl,
         transform: t,
-        ports: parent.icon.ports.mapIt copyPort(it, tr))
+        ports: parentEl.icon.ports.mapIt copyPort(it, tFn))
 
-    result.instances.add ins
+    template makeParent(el, easeNode): untyped =
+      var parent = el
+      parent.name = randomHdlIdent()
+      parent.icon = extractIcon easeNode
+      elements[parent.name] = parent
+      parent
 
-    for i, p in c.ports:
-      allPortsMap[addr p[]] = ins.ports[i]
 
-    result.labels.add toLable c.label
+    for c in schema.components:
+      let
+        parent = mlk[c.parent.obid]
+        ins = makeInstance(
+          c.ident.name,
+          parent,
+          topLeft c.geometry,
+          getTransform c)
 
-  for pr in schema.processes:
-    var el = initProcessElement pr
-    el.name = randomHdlIdent()
-    elements[el.name] = el
+      result.instances.add ins
 
-    # instansiate
-    let
-      pos = topleft pr.geometry
-      parentGeo = toGeometry el.icon.size
-      t = getTransform pr
+      for i, p in c.ports:
+        allPortsMap[addr p[]] = ins.ports[i]
 
-      tr = proc(p: Point): Point =
-        p.rotate0(t.rotation) +
-        pos -
-        translationAfter(parentGeo, t.rotation)
+      result.labels.add toLable c.label
 
-      ins = mm.MInstance(
-        name: pr.ident.name,
-        position: pos,
-        parent: el,
-        transform: t,
-        ports: el.icon.ports.mapIt copyPort(it, tr))
+    for pr in schema.processes:
+      let
+        el = makeParent(initProcessElement pr, pr)
+        ins = makeInstance(
+          pr.ident.name,
+          el,
+          topleft pr.geometry,
+          getTransform pr)
 
-    result.instances.add ins
+      result.instances.add ins
 
-    for i, p in pr.ports:
-      allPortsMap[addr p[]] = ins.ports[i]
+      for i, p in pr.ports:
+        allPortsMap[addr p[]] = ins.ports[i]
 
-    result.labels.add toLable pr.label
+      result.labels.add toLable pr.label
 
-  for gb in schema.generateBlocks:
-    var el = mm.MElement(kind: mekGenerator)
-    el.icon = extractIcon gb
-    el.name = randomHdlIdent()
-    elements[el.name] = el
+    for gb in schema.generateBlocks:
+      let
+        el = makeParent(mm.MElement(kind: mekGenerator), gb)
+        ins = makeInstance(
+          gb.ident.name,
+          el,
+          topleft gb.geometry,
+          getTransform gb)
 
-    # instansiate
-    let
-      pos = topleft gb.geometry
-      parentGeo = toGeometry el.icon.size
-      t = getTransform gb
+      for i, p in gb.ports:
+        allPortsMap[addr p[]] = ins.ports[i]
 
-      tr = proc(p: Point): Point =
-        p.rotate0(t.rotation) +
-        pos -
-        translationAfter(parentGeo, t.rotation)
+      result.instances.add ins
+      result.labels.add toLable gb.label
 
-      ins = mm.MInstance(
-        name: gb.ident.name,
-        position: pos,
-        parent: el,
-        transform: t,
-        ports: el.icon.ports.mapIt copyPort(it, tr)
-        )
-
-    for i, p in gb.ports:
-      allPortsMap[addr p[]] = ins.ports[i]
-
-    result.instances.add ins
-
-    result.labels.add toLable gb.label
 
   for n in schema.nets:
     var mn = case n.part.kind:
