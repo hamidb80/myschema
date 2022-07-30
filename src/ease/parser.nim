@@ -416,8 +416,8 @@ func parseComp(componentNode: LispNode): Component =
 
 func detectLanguage(tag: string): Language =
   case tag:
-  of "VERILOG_FILE": Verilog
-  of "VHDL_FILE": VHDL
+  of "VERILOG_FILE", "VERILOG_TEXT": Verilog
+  of "VHDL_FILE", "VHDL_TEXT": VHDL
   else: err fmt"invalid code file: {tag}"
 
 func parseHdlFileImple(fileNode: LispNode, result: var HdlFile) =
@@ -478,43 +478,46 @@ func parseStat(stateNode: LispNode): State =
     of "CODING":
       result.coding = parseStr n
 
+    of "FSM_DIAGRAM":
+      err "what" # i think it's nested 
+
     else:
       err fmt"invalid node '{n.ident}' for STATE"
 
 func parseLab(actionNode: LispNode): Action =
-  var acc = Action(kind: actImpl)
+  result = Action(kind: actImpl)
 
   for n in actionNode:
     case n.ident:
     of "OBID":
-      acc.obid = parseOBID n
+      result.obid = parseOBID n
 
     of "NAME":
-      acc.name = parseName n
+      result.name = parseName n
 
     of "MEALY":
-      acc.mealy = parseBool n
+      result.mealy = parseBool n
 
     of "MOORE":
-      acc.moore = parseBool n
+      result.moore = parseBool n
 
     of "VERILOG_TEXT", "VHDL_TEXT":
-      acc.code = parseCode(n)
+      result.code = parseCode(n)
 
     of "SHOW_LABEL": discard
     else:
       err fmt"invalid node '{n.ident}' for lab"
 
 func parseLab(conditionNode: LispNode): Condition =
-  var acc = new Condition
+  result = Condition(kind: condDef)
 
   for n in conditionNode:
     case n.ident:
     of "OBID":
-      acc.obid = parseOBID n
+      result.obid = parseOBID n
 
     of "VERILOG_TEXT", "VHDL_TEXT":
-      acc.code = parseCode(n)
+      result.code = parseCode(n)
 
     of "NAME", "MEALY", "MOORE", "SHOW_LABEL": discard
     else:
