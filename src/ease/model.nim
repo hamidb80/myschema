@@ -1,5 +1,5 @@
-import std/[tables, options]
-import ../common/[coordination, domain]
+import std/[options]
+import ../common/[coordination, domain, minitable]
 
 ## NOTE: `type` fields is replaced with `kind`
 
@@ -32,7 +32,6 @@ type
     brsBottomLeft
     # 0 1
     # 3 2
-
 
   PortMode* = enum
     pmInput = 1
@@ -96,24 +95,31 @@ type
 
   StateKind* = enum
     skRef, skDef
-  
+
   ConnectionKind = enum
     ckRef, ckDef
 
   LinkKind* = enum
     linkRef, linkDef
 
-  LabKind = enum 
+  LabKind = enum
     labRef, labDef
 
   ConnectionNodeKind* = enum
     cnkLink, cnkState
 
+  BodyKind* = enum
+    bkSchematic
+    bkStateMachine
+    bkTruthTable
+    bkCode
+
+
 # --- type defs
 type
   Obid* = distinct string
 
-  Properties* = Table[string, string]
+  Properties* = MiniTable[string, string]
 
   Range* = object
     direction*: NumberDirection
@@ -209,7 +215,7 @@ type
       side*: Side
       label*: Label
       connection*: Connection
-      
+
   State* = ref object
     obid*: Obid
 
@@ -227,7 +233,7 @@ type
     case kind*: ConnectionNodeKind
     of cnkLink:
       link*: Link
-    
+
     of cnkState:
       state: State
 
@@ -259,7 +265,7 @@ type
     case kind*: LineKind
     of straight:
       points*: seq[Point]
-    
+
     of curved:
       biezier*: seq[int]
 
@@ -272,7 +278,7 @@ type
 
   Code* = ref object
     lang*: Language
-    content*: seq[string]
+    lines*: seq[string]
 
   Lab* = ref object
     obid*: Obid
@@ -330,6 +336,12 @@ type
 
   Port* = ref PortImpl
 
+  HdlFile* = ref object
+    # obid*: Obid
+    name*: string
+    lang*: Language
+    content*: seq[string]
+
   PortImpl* = object
     obid*: Obid
 
@@ -357,6 +369,8 @@ type
     side*: Side
     ports*: seq[Port]
     label*: Label
+    body*: Body
+
 
   Component* = ref object
     obid*: Obid
@@ -382,12 +396,26 @@ type
     ports*: seq[Port]
     nets*: seq[Net]
 
+  Body* = object
+    case kind*: BodyKind
+    of bkCode:
+      file*: HdlFile
+
+    of bkStateMachine:
+      stateMachine*: StateMachineV2
+
+    of bkSchematic:
+      schematic*: Schematic
+
+    of bkTruthTable:
+      truthTable*: TruthTable
+
   Architecture* = ref object
     obid*: Obid
     properties*: Properties
     ident*: HdlIdent
     kind*: ArchitectureKind
-    schematic*: Option[Schematic]
+    body*: Body
 
   Entity* = ref object
     obid*: Obid
@@ -434,7 +462,7 @@ type
 
 # semantics ---------------------------------
 
-import std/hashes
+import std/[hashes]
 
 func `==`*(o1, o2: Obid): bool {.borrow.}
 func hash*(o: Obid): Hash {.borrow.}

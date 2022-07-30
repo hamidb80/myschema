@@ -1,8 +1,20 @@
 import std/[tables, strformat, strutils, os, sequtils, options]
 import lisp, model
-import ../common/[coordination, tuples, errors, domain]
+import ../common/[coordination, tuples, errors, domain, minitable]
 
 # {.experimental: "strictFuncs".}
+
+func toBody(v: TruthTable): Body =
+  Body(kind: bkTruthTable, truthTable: v)
+
+func toBody(v: StateMachineV2): Body =
+  Body(kind: bkStateMachine, stateMachine: v)
+
+func toBody(v: Schematic): Body =
+  Body(kind: bkSchematic, schematic: v)
+
+func toBody(v: HdlFile): Body =
+  Body(kind: bkCode, file: v)
 
 
 func select*(sl: seq[LispNode]): LispNode {.inline.} =
@@ -405,8 +417,32 @@ func parseComp(componentNode: LispNode): Component =
 func parseTran(lineNode: LispNode): TransitionLine =
   discard
 
-func parseCode(lang: Language, textNode: LispNode): Code =
-  Code(lang: lang, content: parseText textNode)
+func detectLanguage(tag: string): Language =
+  case tag:
+  of "VERILOG_FILE": Verilog
+  of "VHDL_FILE": VHDL
+  else: err fmt"invalid code file: {tag}"
+
+func parseHdlFileImple(fileNode: LispNode, result: var HdlFile) =
+  result.lang = detectLanguage fileNode.ident
+
+  for n in fileNode:
+    case n.ident:
+    of "OBID": discard
+    of "NAME":
+      result.name = parseName n
+
+    of "VALUE":
+      result.content = parseText n
+
+func parseHdlFile(hdlFileNode: LispNode): HdlFile =
+  result = new HdlFile
+  parseHdlFileImple hdlFileNode.arg(0), result
+
+func parseCode(codeTextNode: LispNode): Code =
+  Code(
+    lang: detectLanguage codeTextNode.ident,
+    lines: parseText codeTextNode)
 
 func parseLab(labNode: LispNode): Lab =
   var acc = new Lab
@@ -425,11 +461,8 @@ func parseLab(labNode: LispNode): Lab =
     of "MOORE":
       acc.moore = parseBool n
 
-    of "VERILOG_TEXT":
-      acc.code = parseCode(Verilog, n)
-
-    of "VHDL_TEXT":
-      acc.code = parseCode(VHDL, n)
+    of "VERILOG_TEXT", "VHDL_TEXT":
+      acc.code = parseCode(n)
 
     of "SHOW_LABEL": discard
     else:
@@ -440,12 +473,12 @@ func parseFsmp(globalNode: LispNode): Global =
 
   for n in globalNode:
     case n.ident:
-    of "GEOMETRY": 
+    of "GEOMETRY":
       result.geometry = parseGeometry n
 
     of "LABEL":
-      result.label = parseLabel n 
-      
+      result.label = parseLabel n
+
 func parseFsm(fsmDiagramNode: LispNode): FsmDiagram =
   discard
 
@@ -484,7 +517,7 @@ func parseCell(cell: LispNode): string =
 func parseTHdr(header: LispNode): string =
   parseCell header
 
-proc parseTRow(row: LispNode): Row =
+func parseTRow(row: LispNode): Row =
   for n in row:
     case n.ident:
     of "OBID": discard
@@ -544,13 +577,13 @@ func parseProc(processNode: LispNode): Process =
       result.ports.add parsePort(n, pprt)
 
     of "TABLE":
-      discard
+      result.body = toBody parseTtab n
 
     of "STATE_MACHINE_V2":
-      discard
+      result.body = toBody parseFsmx n
 
     of "HDL_FILE":
-      discard
+      result.body = toBody parseHdlFile n
 
     else: err "invalid"
 
@@ -649,17 +682,16 @@ func parseArch(archDefNode: LispNode): Architecture =
       result.properties = parseProperties n
 
     of "SCHEMATIC":
-      result.schematic = some parseDiag n
+      result.body = toBody parseDiag n
 
-    # TODO
     of "TABLE":
-      discard
+      result.body = toBody parseTtab n
 
     of "STATE_MACHINE_V2":
-      discard
+      result.body = toBody parseFsmx n
 
     of "HDL_FILE":
-      discard
+      result.body = toBody parseHdlFile n
 
     else: err fmt"invalid field: {n.ident}"
 
@@ -822,7 +854,7 @@ func resolve(proj: var Project) =
       for a in e.architectures:
         case a.kind:
         of amBlockDiagram:
-          let s = a.schematic.get
+          let s = a.body.schematic
 
           for p in s.ports:
             portMap[p.obid] = p
@@ -852,7 +884,7 @@ func resolve(proj: var Project) =
 
       for a in e.architectures:
         if a.kind == amBlockDiagram:
-          let s = a.schematic.get
+          let s = a.body.schematic
 
           for c in s.components:
             c.parent = entityMap[c.parent.obid]

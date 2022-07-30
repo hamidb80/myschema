@@ -1,4 +1,4 @@
-import std/[options, tables, strutils, strformat]
+import std/[options, tables, strutils, strformat, hashes]
 
 import model
 # import ../middle/model as mm
