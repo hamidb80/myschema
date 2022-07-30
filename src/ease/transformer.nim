@@ -15,10 +15,6 @@ func extractNet(wires: seq[Wire]): mm.MNet =
   assert temp.len == 1, fmt"expected len 1 but got: {temp.len}"
   temp[0]
 
-func findInitialGeometry(): Geometry =
-  discard
-
-
 func toLable(lbl: em.Label): mm.MLabel =
   mm.MLabel(
     position: lbl.position,
@@ -34,29 +30,29 @@ func getTransform[T: Visible](smth: T): MTransform =
     rotation: smth.rotation,
     flips: smth.flips)
 
-func copyPort(p: MPort, t: MTransform, parentPos: Vector): MPort =
+func copyPort(p: MPort, t: MTransform, fn: Transformer): MPort =
   MPort(
     id: p.id,
     dir: p.dir,
-    position: rotate(p.position, (0, 0), t.rotation) + parentPos,
-    refersTo: some p,
+    position: fn(p.position),
     # TODO wrapper:
-  )
+    refersTo: some p)
 
 func toPortDir(m: em.PortMode): mm.MPortDir =
   MPortDir min(int m, 2)
 
 func extractIcon[T: Visible](smth: T): mm.MIcon =
   let ro = toRotation smth.side
+  result = mm.MIcon(size: toSize smth.geometry.rotate(P0, -ro))
 
-  result = mm.MIcon(size: toSize smth.geometry.rotate((0, 0), -ro))
+  let geo = smth.geometry
 
   for p in smth.ports:
     result.ports.add mm.MPort(
       id: p.identifier,
-      position: rotate((p.position - topleft smth.geometry), (0, 0), -ro) -
-          smth.geometry.placeAt((0, 0)).rotate((0, 0), -ro).topLeft,
+      position: p.position.rotate(geo.topleft, -ro) - geo.topleft,
       dir: toPortDir mode p)
+
     # TODO add wrapper
 
 proc buildSchema(schema: em.Schematic,
@@ -92,16 +88,16 @@ proc buildSchema(schema: em.Schematic,
     let
       pid = c.parent.obid
       t = getTransform c
+      pos = topLeft c.geometry
+      tr = getIconTransformer(c.geometry, t.rotation)
 
-      geo = c.geometry
-      pos = topLeft geo
-
+    let
       ins = mm.MInstance(
         name: c.ident.name,
         parent: mlk[pid],
         position: pos,
         transform: t,
-        ports: mlk[pid].icon.ports.mapIt copyPort(it, t, pos))
+        ports: mlk[pid].icon.ports.mapIt copyPort(it, t, tr))
 
     result.instances.add ins
 
@@ -138,7 +134,8 @@ proc buildSchema(schema: em.Schematic,
         position: pos,
         parent: el,
         transform: t,
-        ports: el.icon.ports.mapIt copyPort(it, t, pos))
+        # ports: el.icon.ports.mapIt copyPort(it, t,)
+        )
 
     result.instances.add ins
 
@@ -162,7 +159,8 @@ proc buildSchema(schema: em.Schematic,
         position: pos,
         parent: el,
         transform: t,
-        ports: el.icon.ports.mapIt copyPort(it, t, pos))
+        # ports: el.icon.ports.mapIt copyPort(it, t, gb.geometry, pos)
+        )
 
     for i, p in gb.ports:
       allPortsMap[addr p[]] = ins.ports[i]
@@ -204,7 +202,6 @@ proc buildSchema(schema: em.Schematic,
           position: center bp.geometry,
           connection: connPos
         )
-
 
 func initModule(en: em.Entity): mm.MElement =
   mm.MElement(

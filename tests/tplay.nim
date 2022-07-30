@@ -9,11 +9,11 @@ const path =
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\mc8051\mc8051.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\pump\pump.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\roundrobin\roundrobin.ews"
-  r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\system09\system09.ews"
+  # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\system09\system09.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\microprocessor\microprocessor.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\usb_hs\usbhostslave.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\amba.ews"
-  # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\rotate_test.ews"
+  r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\rotate_test.ews"
   
 let proj = toMiddleMode parseEws path
 
@@ -28,7 +28,7 @@ for name, el in proj.modules:
       case a.kind:
       of makSchema:
         let (w, h) = a.schema.size
-        var c = newCanvas(0, 0, w, h)
+        var c = newCanvas(-400, -400, w, h)
         c.visualize a.schema
         writeFile fmt"./temp/{name}.svg", $c
 

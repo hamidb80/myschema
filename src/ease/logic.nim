@@ -56,3 +56,34 @@ func identifier*(p: Port): Identifier =
 
 func mode*(p: Port): PortMode =
   PortMode p.ident.attributes.mode.get
+
+
+type
+  Transformer* = proc(p: Point): Point
+
+# size 
+
+func getIconTransformer*(iconGeo: Geometry,
+    rotated: Rotation): Transformer =
+    # TODO add flip 
+
+  let 
+    pin = topLeft iconGeo
+    translate = 
+      iconGeo.placeAt(P0).rotate(P0, -rotated).topleft
+
+  proc transformer(p: Point): Point = 
+    let 
+      t1 = p.rotate(pin, -rotated)
+      t2 = t1 - pin
+      t3 = t2 - translate
+
+    debugEcho "---------- ||"
+    debugEcho p
+    debugEcho t1
+    debugEcho t2
+    debugEcho t3
+
+    t3
+
+  transformer

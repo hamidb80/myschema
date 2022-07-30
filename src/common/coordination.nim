@@ -43,15 +43,13 @@ func `-`*(r: Rotation): Rotation =
   of r180: r180
   of r270: r90
 
-func rotate0_unit(p: Point): Point =
-  ## rotate `p` 90 degrees around (0, 0)
-  (-p.y, p.x)
-
-func rotate0(p: Point, r: Rotation): Point =
+func rotate0*(p: Point, r: Rotation): Point =
   ## rotate `p` around (0, 0) `r` degrees
-  result = p
-  for d in countup(90, r.int, 90):
-    result = rotate0_unit p
+  case r:
+  of r0: p
+  of r90: (-p.y, p.x)
+  of r180: (-p.x, -p.y)
+  of r270: (p.y, -p.x)
 
 func rotate*(p, center: Point, r: Rotation): Point =
   ## rptates `p` around `center``r` degrees
@@ -139,3 +137,5 @@ func toRect*(g: Geometry): Rect =
 func placeAt*(g: Geometry, at: Point): Geometry =
   let size = toSize g
   (at.x, at.y, at.x + size.w, at.y + size.h)
+
+const P0* = (0,0)
