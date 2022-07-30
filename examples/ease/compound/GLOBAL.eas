@@ -1,0 +1,20 @@
+(GLOBAL
+  (OBID "fsmpf70000103760fb040e4033fc2a810000")
+  (GEOMETRY 168 168 232 232)
+  (LABEL
+    (POSITION 264 168)
+    (SCALE 80)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 0)
+    (FORMAT 129)
+    (TEXT "FSM Properties:"
+          "Clock : HCLK (Rising edge)"
+          "State assignment : Binary"
+          "State decoding : Case construct"
+          "Actions on transitions : Clocked"
+          "Actions on states : Clocked"
+          "State port : state_reg"
+          "")
+  )
+)

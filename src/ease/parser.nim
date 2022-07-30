@@ -201,7 +201,7 @@ func parseCbn(cbnNode: LispNode): ConnectByName =
       result.label = parseLabel n
 
     of "TYPE":
-      result.kind = CbnType parseType(n).vint
+      result.kind = CbnKind parseType(n).vint
 
     else:
       err "invalid field"
@@ -234,8 +234,8 @@ func parseHook(busRipperNode: LispNode): BusRipper =
 
     else: err "invalid"
 
-func parseNCon(connectionNode: LispNode): Connection =
-  result = new Connection
+func parseNCon(connectionNode: LispNode): PointConnection =
+  result = new PointConnection
 
   for n in connectionNode:
     case n.ident:
@@ -338,7 +338,6 @@ func parseNet(netNode: LispNode): Net =
           pkWire
           # err fmt"part is already full: {result.obid.string}"
 
-
 func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
   result = Generic(kind: gkind) # FIXME `scriptfunction` complains here
 
@@ -403,6 +402,115 @@ func parseComp(componentNode: LispNode): Component =
     of "TYPE", "CONSTRAINT": discard
     else: err fmt"invalid {n.ident}"
 
+func parseTran(lineNode: LispNode): TransitionLine =
+  discard
+
+func parseCode(lang: Language, textNode: LispNode): Code =
+  Code(lang: lang, content: parseText textNode)
+
+func parseLab(labNode: LispNode): Lab =
+  var acc = new Lab
+
+  for n in labNode:
+    case n.ident:
+    of "OBID":
+      acc.obid = parseOBID n
+
+    of "NAME":
+      acc.name = parseName n
+
+    of "MEALY":
+      acc.mealy = parseBool n
+
+    of "MOORE":
+      acc.moore = parseBool n
+
+    of "VERILOG_TEXT":
+      acc.code = parseCode(Verilog, n)
+
+    of "VHDL_TEXT":
+      acc.code = parseCode(VHDL, n)
+
+    of "SHOW_LABEL": discard
+    else:
+      err fmt"invalid node '{n.ident}' for lab"
+
+func parseFsmp(globalNode: LispNode): Global =
+  result = new Global
+
+  for n in globalNode:
+    case n.ident:
+    of "GEOMETRY": 
+      result.geometry = parseGeometry n
+
+    of "LABEL":
+      result.label = parseLabel n 
+      
+func parseFsm(fsmDiagramNode: LispNode): FsmDiagram =
+  discard
+
+func parseFsmx(stateDiagramNode: LispNode): StateMachineV2 =
+  result = new StateMachineV2
+
+  for n in stateDiagramNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    of "ACTION":
+      result.actions.add parseLab n
+
+    of "CONDITION":
+      result.conditions.add parseLab n
+
+    of "FSM_DIAGRAM":
+      result.fsm = parseFSM n
+
+    else:
+      err fmt"invalid node '{n.ident}' for STATE_MACHINE_V2"
+
+func parseCell(cell: LispNode): string =
+  for n in cell:
+    case n.ident:
+    of "LABEL":
+      let txts = n.parseLabel.texts
+      return
+        if txts.len == 0: ""
+        else: txts[0]
+
+func parseTHdr(header: LispNode): string =
+  parseCell header
+
+proc parseTRow(row: LispNode): Row =
+  for n in row:
+    case n.ident:
+    of "OBID": discard
+    of "CELL": result.add parseCell n
+    else: err fmt"invalid node {n.ident} for ROW"
+
+func parseTtab(truthTableNode: LispNode): TruthTable =
+  result = new TruthTable
+
+  for n in truthTableNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+
+    of "HEADER":
+      result.headers.add parseTHdr n
+
+    of "ROW":
+      result.rows.add parseTRow n
+
+    of "PROPERTIES":
+      result.properties = parseProperties n
+
+    else:
+      err fmt"invalid node {n.ident} for TABLE"
+
 func parseProc(processNode: LispNode): Process =
   result = new Process
 
@@ -424,7 +532,7 @@ func parseProc(processNode: LispNode): Process =
       result.side = parseSide n
 
     of "TYPE":
-      result.kind = ProcessType (parseType n).vint
+      result.kind = ProcessKind (parseType n).vint
 
     of "LABEL":
       result.label = parseLabel n
@@ -435,7 +543,15 @@ func parseProc(processNode: LispNode): Process =
     of "PORT":
       result.ports.add parsePort(n, pprt)
 
-    of "STATE_MACHINE_V2", "TABLE", "HDL_FILE": discard
+    of "TABLE":
+      discard
+
+    of "STATE_MACHINE_V2":
+      discard
+
+    of "HDL_FILE":
+      discard
+
     else: err "invalid"
 
 func parseDiag(schematicNode: LispNode): Schematic
@@ -467,7 +583,7 @@ func parseGenB(generateNode: LispNode): GenerateBlock =
       result.label = parseLabel n
 
     of "TYPE":
-      result.kind = GenerateBlockType parseType(n).vint
+      result.kind = GenerateBlockKind parseType(n).vint
 
     of "PORT":
       result.ports.add parsePort(n, gprt)
@@ -524,7 +640,7 @@ func parseArch(archDefNode: LispNode): Architecture =
       result.obid = parseOBID n
 
     of "TYPE":
-      result.kind = ArchitectureMode n.parseInt
+      result.kind = ArchitectureKind n.parseInt
 
     of "HDL_IDENT":
       result.ident = parseHDLIdent n
@@ -535,7 +651,16 @@ func parseArch(archDefNode: LispNode): Architecture =
     of "SCHEMATIC":
       result.schematic = some parseDiag n
 
-    of "HDL_FILE", "STATE_MACHINE_V2", "TABLE": discard
+    # TODO
+    of "TABLE":
+      discard
+
+    of "STATE_MACHINE_V2":
+      discard
+
+    of "HDL_FILE":
+      discard
+
     else: err fmt"invalid field: {n.ident}"
 
 func parseEnt(entityNode: LispNode, result: var Entity) =

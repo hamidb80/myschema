@@ -1,31 +1,10 @@
 import std/[tables, options]
 import ../common/[coordination, domain]
 
+## NOTE: `type` fields is replaced with `kind`
+
+# --- enums
 type
-  ProcessType* = enum
-    ptProcess = 1
-    ptStateDiagram = 2
-    ptConcurrentStatement = 3
-    ptTruthTable = 5
-
-  GenerateBlockType* = enum
-    gbtForGenerate = 1
-    gbtIfGenerate
-
-  PortMode* = enum
-    pmInput = 1
-    pmOutput
-    pmInout
-    pmBuffer
-    pmUnknown
-
-  ArchitectureMode* = enum
-    amBlockDiagram = 1 # Schema
-    amHDLFile          # HDL code
-    amStateDiagram     # FSM
-    amTableDiagram     # truth table
-    amExternalHDLFIle  # HDL code
-
   EaseColor* = enum
     ncBlack1, ncBlack2, ncBlack3, ncBlack4, ncBlack5, ncBlack6, ncBlack7, ncBlack8
     ncGray1, ncGray2, ncGray3, ncGray4, ncSmokeWhite, ncWhite, ncYellow, ncOrange1
@@ -54,13 +33,83 @@ type
     # 0 1
     # 3 2
 
-  CbnType* = enum
+
+  PortMode* = enum
+    pmInput = 1
+    pmOutput
+    pmInout
+    pmBuffer
+    pmUnknown
+
+  CbnKind* = enum
     ctConnectByName
     ctConnectByValue
     ctIntentionallyOpen
 
-## NOTE: `type` fields is replaced with`kind`
+  ArchitectureKind* = enum
+    amBlockDiagram = 1 # Schema
+    amHDLFile          # HDL code
+    amStateDiagram     # FSM
+    amTableDiagram     # truth table
+    amExternalHDLFIle  # HDL code
 
+  ProcessKind* = enum
+    ptProcess
+    ptStateDiagram
+    ptConcurrentStatement
+    ptTruthTable
+
+  GenerateBlockKind* = enum
+    gbtForGenerate = 1
+    gbtIfGenerate
+
+  ConstraintKind* = enum
+    ckIndex, ckRange
+
+  GenerateKind* = enum
+    ifGen, forGen
+
+  GenericKind* = enum
+    gkRef, gkEntity, gkInstance
+
+  NetKind* = enum
+    netRef, netDef
+
+  PartKind* = enum
+    pkTag, pkWire
+
+  PortKind* = enum
+    refprt
+    eprt, pprt, aprt, cprt, gprt
+
+  EntityKind* = enum
+    ekRef, ekDecl, ekDef
+
+  LibraryKind* = enum
+    lkDecl, lkDef
+
+  Language* = enum
+    Verilog, VHDL
+
+  LineKind* = enum
+    straight, curved
+
+  StateKind* = enum
+    skRef, skDef
+  
+  ConnectionKind = enum
+    ckRef, ckDef
+
+  LinkKind* = enum
+    linkRef, linkDef
+
+  LabKind = enum 
+    labRef, labDef
+
+  ConnectionNodeKind* = enum
+    cnkLink, cnkState
+
+# --- type defs
 type
   Obid* = distinct string
 
@@ -69,9 +118,6 @@ type
   Range* = object
     direction*: NumberDirection
     indexes*: Slice[string]
-
-  ConstraintKind* = enum
-    ckIndex, ckRange
 
   Constraint* = object
     case kind*: ConstraintKind
@@ -108,14 +154,11 @@ type
 
   ConnectByName* = ref object # AKA CBN
     obid*: Obid
-    kind*: CbnType
+    kind*: CbnKind
     ident*: HdlIdent
     geometry*: Geometry
     side*: Side
     label*: Label
-
-  GenericKind* = enum
-    gkRef, gkEntity, gkInstance
 
   Generic* = ref object ## entity generic
     obid*: Obid
@@ -130,9 +173,6 @@ type
       label*: Label
       parent*: Option[Generic]
 
-  GenerateKind* = enum
-    ifGen, forGen
-
   GenerateBlock* = ref object
     obid*: Obid
     ident*: HdlIdent
@@ -142,7 +182,7 @@ type
     label*: Label
     constraint*: Option[Constraint]
     ports*: seq[Port]
-    kind*: GenerateBlockType
+    kind*: GenerateBlockKind
     schematic*: Schematic
 
   BusRipper* = ref object
@@ -154,13 +194,111 @@ type
     cbn*: Option[ConnectByName] # TODO figure this out
     destNet*: Net
 
-  NetKind* = enum
-    netRef, netDef
+  Global* = ref object
+    geometry*: Geometry
+    label*: Label
 
-  # FIXME add part1#cbn and part2
+  Link* = ref object
+    obid*: Obid
 
-  PartKind* = enum
-    pkTag, pkWire
+    case kind*: LinkKind
+    of linkRef: discard
+    of linkDef:
+      ident*: HdlIdent
+      geometry*: Geometry
+      side*: Side
+      label*: Label
+      connection*: Connection
+      
+  State* = ref object
+    obid*: Obid
+
+    case kind*: StateKind
+    of skRef: discard
+    of skDef:
+      ident*: HdlIdent
+      geometry*: Geometry
+      side*: Side
+      label*: Label
+      number*: Positive
+      coding*: string
+
+  ConnectionNode* = object
+    case kind*: ConnectionNodeKind
+    of cnkLink:
+      link*: Link
+    
+    of cnkState:
+      state: State
+
+  Connection* = ref object
+    obid*: Obid
+
+    case kind*: ConnectionKind
+    of ckRef: discard
+    of ckDef:
+      properties*: Properties
+      geometry*: Geometry
+      node*: ConnectionNode
+
+  Arrow* = ref object
+    number*: int
+    points*: array[3, Point]
+    label*: Label
+
+  TransitionLine* = ref object
+    obid*: Obid
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+    priority*: int
+    connections*: Slice[Connection]
+    condition*: Lab
+    arrow*: Arrow
+
+    case kind*: LineKind
+    of straight:
+      points*: seq[Point]
+    
+    of curved:
+      biezier*: seq[int]
+
+  FsmDiagram* = ref object
+    obid*: Obid
+    sheetSize*: Geometry
+    info*: Global
+    states*: seq[State]
+    transitions*: seq[TransitionLine]
+
+  Code* = ref object
+    lang*: Language
+    content*: seq[string]
+
+  Lab* = ref object
+    obid*: Obid
+
+    case kind*: LabKind
+    of labRef: discard
+    of labDef:
+      name*: string
+      mealy*: bool
+      moore*: bool
+      code*: Code
+
+  StateMachineV2* = ref object
+    obid*: Obid
+    properties*: Properties
+    actions*: seq[Lab]
+    conditions*: seq[Lab]
+    fsm*: FsmDiagram
+
+  Row* = seq[string]
+
+  TruthTable* = ref object
+    obid*: Obid
+    properties*: Properties
+    headers*: seq[string]
+    rows*: seq[Row]
 
   Part* = ref object
     obid*: Obid
@@ -174,7 +312,7 @@ type
       busRippers*: seq[BusRipper]
 
   Net* = ref NetImpl
-  
+
   NetImpl* = object
     obid*: Obid
 
@@ -182,18 +320,13 @@ type
     of netRef: discard
     of netDef:
       ident*: HdlIdent
-      part*: Part
+      part*: Part # FIXME convert to seq[PART] / in system09 example
 
-
-  Connection* = ref object
+  PointConnection* = ref object
     obid*: Obid
     position*: Point # AKA geometry
     side*: Side
     label*: Label
-
-  PortKind* = enum
-    refprt
-    eprt, pprt, aprt, cprt, gprt
 
   Port* = ref PortImpl
 
@@ -211,19 +344,19 @@ type
       side*: Side
       label*: Label
       cbn*: Option[ConnectByName]
-      connection*: Option[Connection]
+      connection*: Option[PointConnection]
       parent*: Option[Port]
 
   Process* = ref object
     obid*: Obid
+    kind*: ProcessKind
     ident*: HdlIdent
     properties*: Properties
+    sensitivityList*: bool
     geometry*: Geometry
     side*: Side
-    kind*: ProcessType
-    label*: Label
-    sensitivityList*: bool
     ports*: seq[Port]
+    label*: Label
 
   Component* = ref object
     obid*: Obid
@@ -253,11 +386,8 @@ type
     obid*: Obid
     properties*: Properties
     ident*: HdlIdent
-    kind*: ArchitectureMode
+    kind*: ArchitectureKind
     schematic*: Option[Schematic]
-
-  EntityKind* = enum
-    ekRef, ekDecl, ekDef
 
   Entity* = ref object
     obid*: Obid
@@ -278,10 +408,6 @@ type
       generics*: seq[Generic]
       ports*: seq[Port]
       architectures*: seq[Architecture]
-
-
-  LibraryKind* = enum
-    lkDecl, lkDef
 
   Library* = ref object
     obid*: Obid
@@ -306,8 +432,7 @@ type
 
   Visible* = Component or Entity or Process or GenerateBlock
 
-
-  # ----------------------------------------
+# semantics ---------------------------------
 
 import std/hashes
 

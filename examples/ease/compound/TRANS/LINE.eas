@@ -1,0 +1,45 @@
+(TRANS_LINE
+  (OBID "tran0c8a10077534f3a4841033fc92370000")
+  (GEOMETRY 896 2048 1920 2048)
+  (SIDE 0)
+  (LABEL
+    (POSITION 896 2048)
+    (SCALE 80)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 4)
+    (FORMAT 0)
+  )
+  (PRIORITY -1)
+  (FROM_CONN
+    (OBID "fsmc0c8a10077534f3a4841033fca2370000")
+    (GEOMETRY 888 2040 904 2056)
+    (LINK "fsml0c8a10079b04f3a4841033fc3a270000")
+  )
+  (TO_CONN
+    (OBID "fsmc0c8a10077534f3a4841033fcb2370000")
+    (GEOMETRY 1912 2040 1928 2056)
+    (STATE "stat0c8a10079e14f3a4841033fcfd270000")
+  )
+  (ARROW
+    (NUMBER 0)
+    (ARROW_BPOS 1341 2115)
+    (ARROW_MPOS 1408 2048)
+    (ARROW_EPOS 1341 1981)
+    (LABEL
+      (POSITION 1408 1920)
+      (SCALE 80)
+      (COLOR_LINE 0)
+      (SIDE 3)
+      (ALIGNMENT 3)
+      (FORMAT 0)
+      (TEXT "Derived:"
+            "(PIDByte[3:0] == `IN) && "
+            "(USBEndPControlRegCopy [`ENDPOINT_READY_BIT] == 1'b1)")
+    )
+  )
+  (POINTS
+    (POINT 896 2048)
+    (POINT 1920 2048)
+  )
+)

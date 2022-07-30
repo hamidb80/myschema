@@ -13,8 +13,8 @@ const path =
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\microprocessor\microprocessor.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\usb_hs\usbhostslave.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\amba.ews"
-  r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\rotate_test.ews"
-  
+  r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\rotate_test.ews" # TODO add visual testing like this
+
 let proj = toMiddleMode parseEws path
 
 removeDir "./temp"

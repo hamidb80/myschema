@@ -203,6 +203,7 @@ suite "compound":
     check bo.destNet.obid.string == "netf7000010a203330479045600eddd1607"
     check (issome bo.cbn) and bo.cbn.get.obid.string == "cbn0c8ab227dda8fd2644b4b4d295f4cf40"
 
+  test "": discard # fsm table 
 
   template genericCheck(o, id, nm, xxx, s, f): untyped =
     check o.obid.string == id

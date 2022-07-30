@@ -1,0 +1,14 @@
+(ACTION
+  (OBID "laba00000c992bc6c048d9033fc44c60000")
+  (NAME "def")
+  (MEALY 1)
+  (MOORE 1)
+  (SHOW_LABEL 1)
+  (VERILOG_TEXT "HBUSREQ <= 1'b0;    "
+                "HTRANS <= `IDLE;    "
+                "HADDR <= 32'd0;     "
+                "HWRITE <= `AHB_READ;"
+                "HSIZE <= `AHB_BYTE; "
+                "HBURST <= `SINGLE;  "
+                "bus_error <= 1'b0;	")
+)

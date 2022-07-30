@@ -1,0 +1,8 @@
+(CONDITION
+  (OBID "laba00000c992bc6c048d9033fca4c60000")
+  (NAME "")
+  (MEALY 0)
+  (MOORE 0)
+  (SHOW_LABEL 0)
+  (VERILOG_TEXT "HREADY == 1'b1")
+)
