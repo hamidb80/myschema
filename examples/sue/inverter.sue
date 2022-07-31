@@ -1,0 +1,72 @@
+# SUE version MMI_SUE3.3
+
+proc SCHEMATIC_inverter args {
+  call_use_keyword $args {{name inverter} {demorgan 0}}
+
+  make global -name gnd -origin {550 400}
+  make global -orient RY -name vdd -origin {550 160}
+  make nmos -W WN -L LN -origin {550 360}
+  make pmos -W WP -L LP -origin {550 200}
+  make input -name in -origin {450 280}
+  make output -name out -origin {570 280}
+  make $name -origin {750 280}
+  make_wire 470 200 490 200
+  make_wire 470 360 490 360
+  make_wire 450 280 470 280
+  make_wire 470 280 470 360
+  make_wire 470 280 470 200
+  make_wire 550 280 570 280
+  make_wire 550 280 550 240
+  make_wire 550 280 550 320
+  make_text -origin {430 80} -text {Inverter Primitive}
+  make_line 420 100 590 100
+}
+
+proc ICON_inverter args {
+  icon_generator $args {{demorgan 0 binary} {bubble_only 0 binary}}
+
+  icon_setup $args {{origin {0 0}} {orient R0} {name {}} {M {}} {WP 2} {LP lp_min} {WN 1} {LN ln_min} {delay 0}}
+
+  icon_property -origin {-70 50} -type user -name name
+  icon_property -origin {-70 70} -type user -name M
+  icon_property -origin {-70 90} -type user -name WP -default 2
+  icon_property -origin {-70 110} -type user -name LP -default lp_min
+  icon_property -origin {-70 130} -type user -name WN -default 1
+  icon_property -origin {-70 150} -type user -name LN -default ln_min
+  icon_property -origin {-70 170} -type user -name delay -default 0
+
+  icon_property -origin {-90 210} -type fixed -name verilog \
+	-text {not \#$delay [unique_name "" $name inv]\($out, $in\)\;}
+
+  if {$bubble_only} {
+    # draw only the bubble.  Useful to put in from on other gates
+    icon_term -type input -origin {-10 0} -name in
+    icon_term -type output -origin {10 0} -name out
+
+    icon_arc -10 -10 10 10 -start 0 -extent 359
+    icon_property -origin {10 -20} -text {$WP/$WN} -anchor e
+
+  } else {
+    icon_term -type input -origin {-30 0} -name in
+    icon_term -type output -origin {50 0} -name out
+
+    if {!$demorgan} {
+      # normal
+      icon_line -30 -30 -30 30 30 0 -30 -30
+      icon_arc 30 -10 50 10 -start 0 -extent 359
+      icon_property -origin {-20 -20} \
+	  -text {P:$WP[if {$LP != "lp_min"} {list /$LP}]}
+      icon_property -origin {-20 20} \
+	  -text {N:$WN[if {$LN != "ln_min"} {list /$LN}]}
+    } else {
+      # demorgan
+      icon_line -10 -30 -10 30 50 0 -10 -30
+      icon_arc -30 -10 -10 10 -start 0 -extent 359
+      icon_property -origin {0 -20} \
+	  -text {P:$WP[if {$LP != "lp_min"} {list /$LP}]}
+      icon_property -origin {0 20} \
+	  -text {N:$WN[if {$LN != "ln_min"} {list /$LN}]}
+    }
+  }
+}
+

@@ -94,14 +94,14 @@ type
 
   MPort* = ref object
     position*: Point
-    # wrapper*: MWrapper
+    # TOOD wrapper*: MWrapper
 
     case kind*: MportKind
     of mpOriginal:
       id*: MIdentifier
       dir*: MPortDir
 
-    of mpCopy:      
+    of mpCopy:
       parent*: MPort
 
   MSchematic* = ref object
@@ -172,7 +172,7 @@ type
   MParameter* = ref object
     name*: string
     kind*: string
-    default*:Option[MTokenGroup]
+    default*: Option[MTokenGroup]
 
   MArg* = ref object
     parameter*: MParameter
