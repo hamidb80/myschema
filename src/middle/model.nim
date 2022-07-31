@@ -9,7 +9,6 @@ type
 
   MPortDir* = enum
     input, output, inout
-    # FIXME ease has buffer
 
   MArchitectureKind* = enum
     makSchema
@@ -41,14 +40,13 @@ type
     source*, dest*: MNet
     position*, connection*: Point
 
-  ETokenGroup* = seq[MToken]
+  MTokenGroup* = seq[MToken]
 
   MTokenKind* = enum
     mtkOpenPar, mtkClosePar
     mtkOpenBracket, mtkCloseBracket
-    mtkOperator
-    mtkLiteral
-    mtkSymbol
+    mtkNumberLiteral, mtkStringLiteral
+    mtkSymbol, mtkOperator
 
   MToken* = object
     case kind*: MTokenKind
@@ -56,7 +54,7 @@ type
     of mtkOperator:
       operator*: string
 
-    of mtkLiteral:
+    of mtkStringLiteral, mtkNumberLiteral:
       content*: string
 
     of mtkSymbol:
@@ -84,11 +82,11 @@ type
     case kind*: MIndetifierKind
     of mikSingle: discard
     of mikIndex:
-      index*: ETokenGroup
+      index*: MTokenGroup
 
     of mikRange:
       direction*: NumberDirection
-      indexes*: Slice[ETokenGroup]
+      indexes*: Slice[MTokenGroup]
 
 
   MPort* = ref object
@@ -113,9 +111,11 @@ type
       schema*: MSchematic
 
     of makFSM:
+      # fsm*:
       discard
 
     of makTruthTable:
+      # truthTable*:
       discard
 
     of makCode:
@@ -129,12 +129,12 @@ type
     size*: Size
 
   IfCond = object
-    cond: ETokenGroup
+    cond: MTokenGroup
 
   ForLoop = object
     varname: string
     dir: NumberDirection
-    slice: Slice[ETokenGroup]
+    slice: Slice[MTokenGroup]
 
 
   MParamsLookup* = MiniTable[string, MParameter]
@@ -143,11 +143,10 @@ type
     name*: string
     icon*: MIcon
     parameters*: MParamsLookup
+    archs*: seq[MArchitecture]
 
     case kind*: MElementKind
-    of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable:
-      archs*: seq[MArchitecture]
-
+    of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable: discard
     of mekGenerator:
       ifCond*: Option[IfCond]
       forLopp*: Option[ForLoop]
@@ -167,13 +166,13 @@ type
   MParameter* = ref object
     name*: string
     kind*: string
-    default*: ETokenGroup
+    default*: MTokenGroup
 
   MArg* = ref object
     parameter*: MParameter
-    value*: Option[ETokenGroup]
+    value*: Option[MTokenGroup]
 
-  WireGraphNode* = ref object        # AKA Net
+  WireGraphNode* = ref object
     location*: Point
     connections*: seq[WireGraphNode] # only forward connections
 

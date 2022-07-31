@@ -1,7 +1,7 @@
-import std/[tables]
+import std/[tables, strutils, strformat]
 
 import model
-import ../common/[coordination, domain, seqs]
+import ../common/[coordination, domain, seqs, errors]
 
 # import ../ease/model as em
 
@@ -98,4 +98,103 @@ func afterTransform*(ins: MInstance): Geometry =
   .rotate((0, 0), ins.transform.rotation)
   .placeAt(ins.position)
 
+const
+  EOS = '\0'
+  Operators = {'+', '-', '&', '!', '?', '|', '/', ':', ','}
 
+type LexerState = enum
+  lsInitial
+  lsString, lsNumber
+  lsOperator, lsSymbol
+
+func toMTokenKind(ch: char): MTokenKind =
+  case ch:
+  of '(': mtkOpenPar
+  of ')': mtkClosePar
+  of '[': mtkOpenBracket
+  of ']': mtkCloseBracket
+  else: err "invalid char"
+
+func lexCode*(s: string): MTokenGroup =
+  var
+    capture = -1
+    i = 0
+    state = lsInitial
+    isEscaped = false
+
+  while i <= s.len:
+    let ch =
+      if i == s.len: EOS
+      else: s[i]
+
+    debugEcho (i, ch, state)
+
+    case state:
+    of lsInitial:
+      case ch:
+      of Whitespace, EOS: discard
+      of Digits:
+        capture = i
+        state = lsNumber
+
+      of Letters, '`':
+        capture = i
+        state = lsSymbol
+
+      of '"':
+        capture = i+1
+        state = lsString
+
+      of Operators:
+        capture = i
+        state = lsOperator
+
+      of '(', ')', '[', ']':
+        result.add MToken(kind: toMTokenKind ch)
+
+      else:
+        err fmt"invalid char: {ch}"
+
+    of lsString:
+      if ch == '"' and not isEscaped:
+        result.add MToken(kind: mtkStringLiteral, content: s[capture ..< i])
+        reset state
+
+      else:
+        isEscaped =
+          if ch == '\\':
+            if isEscaped: false
+            else: true
+          else: false
+
+    of lsNumber:
+      case ch:
+      of Digits, '\'', 'h', 'b', 'x', 'd', '.': discard
+      else:
+        result.add MToken(kind: mtkNumberLiteral, content: s[capture ..< i])
+        reset state
+        dec i
+
+    of lsOperator:
+      case ch:
+      of Operators: discard
+      else:
+        result.add MToken(kind: mtkOperator, operator: s[capture ..< i])
+        reset state
+        dec i
+
+    of lsSymbol:
+      case ch:
+      of IdentChars: discard
+      else:
+        result.add MToken(kind: mtkSymbol, sym: s[capture ..< i])
+        reset state
+        dec i
+
+    inc i
+
+
+import print
+
+when isMainModule:
+  print lexCode "(11) + 3'b001 - Slama[1:22] && \"hello\""
