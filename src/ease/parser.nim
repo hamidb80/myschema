@@ -571,7 +571,7 @@ func parseConnection(connNode: LispNode): Connection =
 
   for n in connNode:
     case n.ident:
-    # of "OBID": discard
+    of "OBID": discard
     of "GEOMETRY":
       result.geometry = parseGeometry n
 
@@ -588,6 +588,8 @@ func parseConnection(connNode: LispNode): Connection =
       err fmt"invalid node '{n.ident}'"
 
 func parseArrow(arrowNode: LispNode): Arrow =
+  result = new Arrow
+
   for n in arrowNode:
     case n.ident:
     of "NUMBER":
@@ -652,7 +654,7 @@ func parseTran(lineNode: LispNode): TransitionLine =
     of "POINTS":
       result.points = parsePoints n
 
-    of "ASYNC, PRIORITY": discard
+    of "ASYNC", "PRIORITY", "LABEL": discard
     else:
       err fmt"invalid node '{n.ident}'"
 

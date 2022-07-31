@@ -43,6 +43,17 @@ func copyPort(p: MPort, fn: Transformer): MPort =
 func toPortDir(m: em.PortMode): mm.MPortDir =
   MPortDir min(int m, 2)
 
+func toMIdent(id: Identifier): MIdentifier =
+  case id.kind:
+  of ikSingle: MIdentifier(kind: mikSingle, name: id.name)
+
+  of ikIndex: MIdentifier(kind: mikIndex, name: id.name,
+      index: lexCode id.index)
+
+  of ikRange: MIdentifier(kind: mikRange, name: id.name,
+    direction: id.direction,
+    indexes: (lexCode id.indexes.b)..(lexCode id.indexes.b), )
+
 proc extractIcon[T: Visible](smth: T): mm.MIcon =
   let
     geo = smth.geometry
@@ -53,12 +64,15 @@ proc extractIcon[T: Visible](smth: T): mm.MIcon =
 
   for p in smth.ports:
     result.ports.add mm.MPort(
-      id: p.identifier,
+      id: toMIdent p.identifier,
       position: tr(p.position),
       dir: toPortDir mode p)
 
     # TODO add wrapper
 
+func lexCode(s: Option[string]): Option[MTokenGroup] =
+  if isSome s:
+    result= some lexCode s.get
 
 func extractParams(en: Entity): MParamsLookup =
   for g in en.generics:
@@ -68,14 +82,14 @@ func extractParams(en: Entity): MParamsLookup =
 
     result[name] = MParameter(
       name: name,
-      kind: ga.kind.get,
-      default: ga.defValue.get)
+      kind: ga.kind.get(""),
+      default: lexCode ga.defValue)
 
 func extractArgs(cp: Component, lookup: MParamsLookup): seq[MArg] =
   for ag in cp.generics:
     result.add MArg(
       parameter: lookup[ag.ident.name],
-      value: ag.actValue)
+      value: lexCode ag.actValue)
 
 proc initProcessElement(pr: Process): MElement =
   result = case pr.kind:
@@ -109,7 +123,7 @@ proc buildSchema(schema: em.Schematic,
 
   for p in schema.ports:
     let mp = mm.MPort(
-      id: p.identifier,
+      id: toMIdent p.identifier,
       dir: toPortDir p.mode,
       position: p.position,
       refersTo: none MPort, # FIXME refers to icon port
@@ -236,9 +250,9 @@ func toArch(sch: MSchematic): MArchitecture =
 
 # func toArch()
 
-# TODO extract cbn for bus ripper
+# TODO extract cbn for bus ripper :: it may not have `dest` bus
 
-proc toMiddleMode*(proj: em.Project): mm.MProject =
+proc toMiddleModel*(proj: em.Project): mm.MProject =
   result = mm.MProject()
 
   var
@@ -264,13 +278,13 @@ proc toMiddleMode*(proj: em.Project): mm.MProject =
             result.modules)
 
         of amHDLFile:
-          new MArchitecture
+          MArchitecture(kind: makTruthTable)
 
         of amStateDiagram:
-          new MArchitecture
+          MArchitecture(kind: makTruthTable)
 
         of amTableDiagram:
-          new MArchitecture
+          MArchitecture(kind: makTruthTable)
 
         of amExternalHDLFIle:
           err "not implemented"

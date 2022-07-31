@@ -166,7 +166,7 @@ type
   MParameter* = ref object
     name*: string
     kind*: string
-    default*: MTokenGroup
+    default*:Option[MTokenGroup]
 
   MArg* = ref object
     parameter*: MParameter

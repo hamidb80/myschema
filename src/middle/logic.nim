@@ -127,8 +127,6 @@ func lexCode*(s: string): MTokenGroup =
       if i == s.len: EOS
       else: s[i]
 
-    debugEcho (i, ch, state)
-
     case state:
     of lsInitial:
       case ch:

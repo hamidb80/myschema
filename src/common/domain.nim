@@ -27,7 +27,7 @@ type
   NumberDirection* = enum
     ndDec = 1
     ndInc
-    ndStop
+    ndStop # like in range 0 .. 0
 
 
 proc randomHdlIdent*(len = 10): string =
