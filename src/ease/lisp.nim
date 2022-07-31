@@ -31,7 +31,7 @@ type
 
 
 func toLispNode*(s: string): LispNode =
-  LispNode(kind: lnkString, str: s.unescape())
+  LispNode(kind: lnkString, str: s.unescape("", ""))
 
 func toLispNode*(ln: LispNode): LispNode = ln
 
@@ -142,7 +142,7 @@ func `$`*(n: LispNode): string =
   case n.kind:
   of lnkInt: $n.vint
   of lnkFloat: $n.vfloat
-  of lnkString: '"' & n.str & '"'
+  of lnkString: n.str.escape
   of lnkSymbol: n.name
   of lnkList: '(' & n.children.join(" ") & ')'
 

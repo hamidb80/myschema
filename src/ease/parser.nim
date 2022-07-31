@@ -908,8 +908,7 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
       result.geometry = parseGeometry n
 
     of "GENERIC":
-      let g = parseGeneric(n, gkEntity)
-      result.generics[g.obid] = g
+      result.generics.add parseGeneric(n, gkEntity)
 
     of "PORT":
       result.ports.add parsePort(n, eprt)

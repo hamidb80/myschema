@@ -1,5 +1,5 @@
 import std/[tables, options]
-import ../common/[coordination, domain]
+import ../common/[coordination, domain, minitable]
 
 type
   WrapperKind* = enum
@@ -94,9 +94,12 @@ type
 
   ForLoop = object
 
+  MParamsLookup* = MiniTable[string, MParameter]
+
   MElement* = ref object
     name*: string
     icon*: MIcon
+    parameters*: MParamsLookup
 
     case kind*: MElementKind
     of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable:
@@ -113,21 +116,19 @@ type
   MInstance* = ref object
     name*: string
     parent* {.cursor.}: MElement
+    args*: seq[MArg]
     ports*: seq[MPort]
     position*: Point
     transform*: MTransform
 
-  Value* = object
-    kind*: string
-    content*: string
-
   MParameter* = ref object
     name*: string
-    default*: Value
+    kind*: string
+    default*: string
 
   MArg* = ref object
     parameter*: MParameter
-    value*: Value
+    value*: Option[string]
 
   WireGraphNode* = ref object        # AKA Net
     location*: Point

@@ -140,7 +140,7 @@ type
     mode*: Option[int]
     kind*: Option[string]
     constraint*: Option[Constraint]
-    def_value*: Option[string]
+    defValue*: Option[string]
     # TODO add ACT_VALUE
 
   HdlIdent* = ref object
@@ -455,7 +455,7 @@ type
       side*: Side
       objStamp*: ObjStamp
       geometry*: Geometry
-      generics*: MiniTable[Obid, Generic]
+      generics*: seq[Generic]
       ports*: seq[Port]
       architectures*: seq[Architecture]
 

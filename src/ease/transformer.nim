@@ -57,25 +57,23 @@ proc extractIcon[T: Visible](smth: T): mm.MIcon =
 
     # TODO add wrapper
 
-func toValue(k, c: string): Value =
-  Value(kind: k, content: c)
 
-func extractGenericInfo(gi: HdlIdent): tuple[key: string, val: Value] =
-  (gi.name,
-    toValue(
-      gi.attributes.kind.get,
-      gi.attributes.def_value.get))
+func extractParams(en: Entity): MParamsLookup =
+  for g in en.generics:
+    let
+      name = g.ident.name
+      ga = g.ident.attributes
 
-func extractParams(en: Entity): seq[MParameter] =
-  for pg in en.generics:
-    let gi = extractGenericInfo pg.value.ident
-    result.add MParameter(name: gi.key, default: gi.value)
+    result[name] = MParameter(
+      name: name,
+      kind: ga.kind.get,
+      default: ga.defValue.get)
 
-func extractArgs(cp: var Component): seq[MArg] =
-  for ag in mitems cp.generics:
-    ag.parent = some cp.parent.generics[ag.parent.get.obid]
-    let gi = extractGenericInfo ag.ident
-    result.add MArg(name: gi.key, value: gi.value)
+func extractArgs(cp: Component, lookup: MParamsLookup): seq[MArg] =
+  for ag in cp.generics:
+    result.add MArg(
+      parameter: lookup[ag.ident.name],
+      value: ag.actValue)
 
 proc initProcessElement(pr: Process): MElement =
   result = case pr.kind:
@@ -102,8 +100,8 @@ proc buildSchema(schema: em.Schematic,
     allPortsMap: Table[ptr em.PortImpl, MPort]
     allNetsMap: Table[ptr em.NetImpl, MNet]
 
-  for gr in schema.generics:
-    discard
+  # for gr in schema.generics:
+  #   discard
 
   for fpt in schema.freePlacedTexts:
     result.labels.add toLable fpt
@@ -121,7 +119,7 @@ proc buildSchema(schema: em.Schematic,
     allPortsMap[addr p[]] = mp
 
   block instances:
-    template makeInstance(iname, parentEl, elGeo, rawT): untyped =
+    template makeInstance(iname, parentEl, elGeo, rawT, argsSeq): untyped =
       let
         t = rawT
         pos = topLeft elGeo
@@ -139,6 +137,7 @@ proc buildSchema(schema: em.Schematic,
         position: pos,
         parent: parentEl,
         transform: t,
+        args: argsSeq,
         ports: parentEl.icon.ports.mapIt copyPort(it, tFn))
 
     template makeParent(el, easeNode): untyped =
@@ -152,11 +151,9 @@ proc buildSchema(schema: em.Schematic,
     for c in schema.components:
       let
         parent = mlk[c.parent.obid]
-        ins = makeInstance(
-          c.ident.name,
-          parent,
-          c.geometry,
-          getTransform c)
+        ins = makeInstance(c.ident.name, parent, c.geometry,
+          getTransform c,
+          extractArgs(c, parent.parameters))
 
       result.instances.add ins
 
@@ -168,9 +165,8 @@ proc buildSchema(schema: em.Schematic,
     for pr in schema.processes:
       let
         el = makeParent(initProcessElement pr, pr)
-        ins = makeInstance(pr.ident.name, el,
-          pr.geometry,
-          getTransform pr)
+        ins = makeInstance(pr.ident.name, el, pr.geometry,
+          getTransform pr, @[])
 
       result.instances.add ins
 
@@ -182,9 +178,8 @@ proc buildSchema(schema: em.Schematic,
     for gb in schema.generateBlocks:
       let
         el = makeParent(mm.MElement(kind: mekGenerator), gb)
-        ins = makeInstance(gb.ident.name, el,
-          gb.geometry,
-          getTransform gb)
+        ins = makeInstance(gb.ident.name, el, gb.geometry,
+          getTransform gb, @[])
 
       for i, p in gb.ports:
         allPortsMap[addr p[]] = ins.ports[i]
@@ -232,6 +227,7 @@ proc initModule(en: em.Entity): mm.MElement =
     name: en.ident.name,
     kind: mekModule,
     icon: extractIcon en,
+    parameters: extractParams en
   )
 
 func toArch(sch: MSchematic): MArchitecture =
