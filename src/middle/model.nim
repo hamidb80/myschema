@@ -29,11 +29,10 @@ type
 
 
 type
-  MLabel* = ref object
+  MText* = ref object
     texts*: seq[string]
     position*: Point
     fontSize*: int
-    anchor*: Alignment
 
   MBusRipper* = ref object
     # constraint*:
@@ -109,7 +108,7 @@ type
     nets*: seq[MNet]
     busRippers*: seq[MBusRipper]
     instances*: seq[MInstance]
-    labels*: seq[MLabel]
+    labels*: seq[MText]
     size*: Size
 
   MArchitecture* = ref object

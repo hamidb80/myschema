@@ -15,14 +15,14 @@ func extractNet(wires: seq[Wire]): mm.MNet =
   assert temp.len == 1, fmt"expected len 1 but got: {temp.len}"
   temp[0]
 
-func toLable(lbl: em.Label): mm.MLabel =
-  mm.MLabel(
+func toText(lbl: em.Label): mm.MText =
+  mm.MText(
     position: lbl.position,
     texts: lbl.texts
   )
 
-func toLable(fpt: em.FreePlacedText): mm.MLabel =
-  toLable em.Label fpt
+func toText(fpt: em.FreePlacedText): mm.MText =
+  toText em.Label fpt
 
 func getTransform[T: Visible](smth: T): MTransform =
   MTransform(
@@ -123,7 +123,7 @@ proc buildSchema(schema: em.Schematic,
 
 
   for fpt in schema.freePlacedTexts:
-    result.labels.add toLable fpt
+    result.labels.add toText fpt
 
   for p in schema.ports:
     let mp = mm.MPort(
@@ -175,7 +175,7 @@ proc buildSchema(schema: em.Schematic,
       for i, p in c.ports:
         allPortsMap[addr p[]] = ins.ports[i]
 
-      result.labels.add toLable c.label
+      result.labels.add toText c.label
 
     for pr in schema.processes:
       let
@@ -188,7 +188,7 @@ proc buildSchema(schema: em.Schematic,
       for i, p in pr.ports:
         allPortsMap[addr p[]] = ins.ports[i]
 
-      result.labels.add toLable pr.label
+      result.labels.add toText pr.label
 
     for gb in schema.generateBlocks:
       let
@@ -200,7 +200,7 @@ proc buildSchema(schema: em.Schematic,
         allPortsMap[addr p[]] = ins.ports[i]
 
       result.instances.add ins
-      result.labels.add toLable gb.label
+      result.labels.add toText gb.label
 
   for n in schema.nets:
     var mn = case n.part.kind:

@@ -45,7 +45,7 @@ func draw*(container: var XmlNode, net: MNet) =
   for sg in net.segments:
     container.add newLine(sg.a, sg.b, wireStyle)
 
-func draw*(container: var XmlNode, label: MLabel) =
+func draw*(container: var XmlNode, label: MText) =
   container.add newTextBox(
     label.position.x, label.position.y,
     label.texts, FontStyle(size: 120))

@@ -141,7 +141,6 @@ type
     kind*: Option[string]
     constraint*: Option[Constraint]
     defValue*: Option[string]
-    # TODO add ACT_VALUE
 
   HdlIdent* = ref object
     name*: string
