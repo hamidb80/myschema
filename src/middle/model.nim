@@ -34,8 +34,21 @@ type
     position*: Point
     fontSize*: int
 
+  MSBusSelectKind* = enum
+    mbsSingle, mbsIndex, mbsSlice
+
+  MSBusSelect* = ref object
+    case kind*: MSBusSelectKind
+    of mbsSingle: discard # consider "?" when selecting single wire
+    of mbsIndex:
+      index*: MTokenGroup
+
+    of mbsSlice:
+      dir*: NumberDirection
+      slice*: Slice[MTokenGroup]
+
   MBusRipper* = ref object
-    # constraint*:
+    select*: MSBusSelect
     source*, dest*: MNet
     position*, connection*: Point
 
@@ -134,15 +147,20 @@ type
     ports*: seq[MPort]
     size*: Size
 
-  IfCond = object
-    cond: MTokenGroup
-
-  ForLoop = object
-    varname: string
-    dir: NumberDirection
-    slice: Slice[MTokenGroup]
-
   MParamsLookup* = MiniTable[string, MParameter]
+
+  GenerateInfoKind* = enum
+    gikIf, gikFor
+
+  GenerateInfo* = object
+    case kind*: GenerateInfoKind
+    of gikIf:
+      cond*: MTokenGroup
+
+    of gikFor:
+      varname*: string
+      dir*: NumberDirection
+      slice*: Slice[MTokenGroup]
 
   MElement* = ref object
     name*: string
@@ -153,8 +171,8 @@ type
     case kind*: MElementKind
     of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable: discard
     of mekGenerator:
-      ifCond*: Option[IfCond]
-      forLopp*: Option[ForLoop]
+      info*: GenerateInfo
+
 
   MTransform* = object
     rotation*: Rotation

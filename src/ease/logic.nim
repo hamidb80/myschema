@@ -73,6 +73,12 @@ func identifier*(p: Port): Identifier =
 func mode*(p: Port): PortMode =
   PortMode p.ident.attributes.mode.get
 
+func getIfCond*(gb: GenerateBlock): string =
+  gb.properties["IF_CONDITION"]
+
+func getForInfo*(gb: GenerateBlock): tuple[ident: string, `range`: Range] =
+  (gb.properties["FOR_LOOP_VAR"], gb.ident.attributes.constraint.get.`range`)
+
 func translationAfter*(geo: Geometry, ro: Rotation): Vector =
   ## returns a vector that if added to the result,
   ## it will keep the whole shape at the original top left

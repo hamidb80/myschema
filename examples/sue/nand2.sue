@@ -1,0 +1,115 @@
+# This is an example generator of a cmos nand gate.
+# This example also changes the defaults of the icon based on
+# the generator inputs.
+
+proc SCHEMATIC_nand2 args {
+  call_use_keyword $args {{ninputs 2} {name nand2} {demorgan 0}}
+
+  set x 0
+  set y 0
+  for {set i 0} {$i < $ninputs} {incr i} {
+    make global -origin "$x -140" -orient RY -name vdd
+    make pmos -origin "$x -100" -W WP
+    make_wire $x -60 $x -50
+    if {$i > 0} {
+      make_wire -60 $y [expr $x -60] $y
+      make_wire 0 [expr $y-60] 0 [expr $y-40]
+    } else {
+      make_wire $x -40 $x -50
+    }
+    make_wire [expr $x-60] -100 [expr $x-60] $y
+    make_wire $x -50 [incr x 160] -50
+    make input -origin "-100 $y" -name "in$i"
+    make_wire -100 $y -60 $y
+    make nmos -origin "0 $y" -W WN
+    incr y 100
+  }
+
+  make global -origin "0 [expr $y - 60]" -name gnd
+
+  make $name -origin "$x [expr $y - 100]"
+  make output -origin "$x -50" -name out
+}
+
+proc ICON_nand2 args {
+  # This line is needed for all generators
+  icon_generator $args {{ninputs 2} {demorgan 0 binary}}
+
+  set WNdefault [expr $ninputs * 1]
+
+  # If you want defaults to change, must do it here.
+  icon_setup $args "{origin {0 0}} {orient R0} {name {}} {M {}} [list [list WN $WNdefault]] {WP 2} {delay 0}"
+
+  # don't let the user go too crazy
+  if {$ninputs < 2 || $ninputs > 50} {
+    error "ERROR: \"ninputs\" out of bounds in GENERATOR nand2"
+  }
+
+  if {$ninputs == 2} {
+    set top -20
+    set step 40
+  } elseif {$ninputs == 2*(floor($ninputs/2))} {
+    # even
+    set top [expr 10 - 20 * $ninputs/2]
+    set step 20
+  } else {
+    # odd
+    set top [expr -20 * ($ninputs - 1)/2]
+    set step 20
+  }
+  set terms ""
+  set term_vars ""
+  for {set i 0} {$i < $ninputs} {incr i} {
+    set y [expr $top + $i * $step]
+    icon_term -type input -origin "-20 $y" -name in$i
+    lappend terms in$i
+    lappend term_vars \$in$i
+
+    if {$demorgan} {
+      icon_arc -20 [expr $y - 10] 0 [expr $y + 10] -start 0 -extent 359
+    }
+  }
+		
+  icon_term -type output -origin {70 0} -name out
+
+  icon_property -origin {20 100} -type user -name name
+  icon_property -origin {20 120} -type user -name M
+  icon_property -origin {20 140} -type user -name WP -default 2
+  icon_property -origin {20 160} -type user -name WN -default $WNdefault
+  icon_property -origin {20 180} -type user -name delay -default 0
+
+  icon_property -origin {0 220} -type fixed -name verilog -text \
+      "assign \\\#\$delay \$out = !([join $term_vars { && }])\\\;"
+
+  if {!$demorgan} {
+    if {$ninputs > 4} {
+      icon_line -20 $top -20 [expr $top + ($ninputs - 1) * $step]
+    }
+
+    icon_property -origin {-10 -20} -label {P:$WP}
+    icon_property -origin {-10 20} -label {N:$WN}
+    icon_property -origin {-17 -22} -label F -size small
+
+    icon_arc 50 -10 70 10 -start 0 -extent 359
+
+    icon_arc -20 -30 50 30 -start 277 -extent 166
+    icon_line 20 -30 -20 -30 -20 30 20 30
+
+  } else { 
+    # demorgan
+    if {$ninputs > 4} {
+      icon_line 0 $top 0 -30
+      icon_line 0 30 0 [expr $top + ($ninputs - 1) * $step]
+    }
+
+    icon_property -origin {10 -20} -label {P:$WP}
+    icon_property -origin {10 20} -label {N:$WN}
+    icon_property -origin {3 -22} -label F -size small
+
+    icon_arc -30 -30 80 110 -start 35 -extent 50
+    icon_arc -18 -30 2 30 -start 270 -extent 180
+    icon_line -8 -30 30 -30
+    icon_line -8 30 30 30
+    icon_arc -30 -110 80 30 -start 275 -extent 50
+  }
+}

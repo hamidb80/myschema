@@ -70,15 +70,42 @@ func lexCode(s: Option[string]): Option[MTokenGroup] =
   if isSome s:
     result = some lexCode s.get
 
+func getBusSelect*(br: BusRipper): MSBusSelect =
+  let
+    cn = br.ident.attributes.constraint.get
+    r = cn.`range`
+    i = r.indexes
+
+  case cn.kind:
+  of ckIndex:
+    if cn.index == "?":
+      MSBusSelect(kind: mbsSingle)
+    else:
+      MSBusSelect(kind: mbsIndex, index: lexCode cn.index)
+
+  of ckRange:
+    MSBusSelect(kind: mbsSlice,
+      dir: r.direction,
+      slice: (i.a.lexCode .. i.b.lexCode))
+
+
+func extractGenerateBlockInfo(gb: GenerateBlock): GenerateInfo =
+  case gb.kind:
+  of gbtForGenerate:
+    GenerateInfo(kind: gikIf, cond: lexCode getIfCond gb)
+
+  of gbtIfGenerate:
+    let
+      gi = getForInfo gb
+      ii = gi.`range`.indexes
+
+    GenerateInfo(kind: gikFor,
+        varname: gi.ident,
+        dir: gi.`range`.direction,
+        slice: (ii.a.lexCode .. ii.b.lexCode))
+
 func makeGenerator(gb: GenerateBlock): MElement =
-  result = MElement(kind: mekGenerator)
-  # gb.properties["FOR_LOOP_VAR"] = my_symbol
-  # gb.properties["IF_CONDITION"] == "(c_impl_mul /= 1)"
-
-  # gb.constraint.get.`range`
-  # (DIRECTION 1)
-  # (RANGE "high_range" "low_range")
-
+  result = MElement(kind: mekGenerator, info: extractGenerateBlockInfo gb)
 
 func extractParams(en: Entity): MParamsLookup =
   for g in en.generics:
@@ -231,6 +258,7 @@ proc buildSchema(schema: em.Schematic,
           of brsBottomLeft: bottomLeft bp.geometry
 
         result.busRippers.add MBusRipper(
+          select: getBusSelect bp,
           source: allNetsMap[addr n[]],
           dest: allNetsMap[addr bp.destNet[]],
           position: center bp.geometry,
