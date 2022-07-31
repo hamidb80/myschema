@@ -87,9 +87,6 @@ type
   LibraryKind* = enum
     lkDecl, lkDef
 
-  Language* = enum
-    Verilog, VHDL
-
   LineKind* = enum
     straight = "TRANS_LINE"
     curved = "TRANS_SPLINE"
@@ -358,7 +355,6 @@ type
   Port* = ref PortImpl
 
   HdlFile* = ref object
-    # obid*: Obid
     name*: string
     lang*: Language
     content*: seq[string]

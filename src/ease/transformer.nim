@@ -103,7 +103,7 @@ func extractGenerateBlockInfo(gb: GenerateBlock): GenerateInfo =
 
   of gbtIfGenerate:
     GenerateInfo(kind: gikIf, cond: lexCode getIfCond gb)
-    
+
 func makeGenerator(gb: GenerateBlock): MElement =
   result = MElement(kind: mekGenerator, info: extractGenerateBlockInfo gb)
 
@@ -138,7 +138,16 @@ proc initProcessElement(pr: Process): MElement =
   of ptTruthTable:
     mm.MElement(kind: mekTruthTable)
 
-proc buildSchema(schema: em.Schematic,
+proc initModule(en: em.Entity): mm.MElement =
+  mm.MElement(
+    name: en.ident.name,
+    kind: mekModule,
+    icon: extractIcon en,
+    parameters: extractParams en
+  )
+
+
+proc buildSchema(schema: sink em.Schematic,
   mlk: Table[em.Obid, mm.MElement],
   elements: var Table[string, mm.MElement]
   ): mm.MSchematic =
@@ -265,20 +274,28 @@ proc buildSchema(schema: em.Schematic,
           connection: connPos
         )
 
-proc initModule(en: em.Entity): mm.MElement =
-  mm.MElement(
-    name: en.ident.name,
-    kind: mekModule,
-    icon: extractIcon en,
-    parameters: extractParams en
-  )
+func buildTruthTable(tt: sink TruthTable): MTruthTable =
+  MTruthTable(headers: tt.headers, rows: tt.rows)
 
-func toArch(sch: MSchematic): MArchitecture =
+func buildCodeFile(hf: sink HdlFile): MCodeFile =
+  MCodeFile(name: hf.name, content: hf.content.join "\n")
+
+func buildFsm(stateMachine: sink StateMachineV2): MFsm =
+  discard
+
+
+func toArch(sch: sink MSchematic): MArchitecture =
   MArchitecture(kind: makSchema, schema: sch)
 
-# func toArch()
+func toArch(tt: sink MTruthTable): MArchitecture =
+  MArchitecture(kind: makTruthTable, truthTable: tt)
 
-# TODO extract cbn for bus ripper :: it may not have `dest` bus
+func toArch(cf: sink MCodeFile): MArchitecture =
+  MArchitecture(kind: makCode, file: cf)
+
+func toArch(f: sink MFsm): MArchitecture =
+  MArchitecture(kind: makFsm, fsm: f)
+
 
 proc toMiddleModel*(proj: em.Project): mm.MProject =
   result = mm.MProject()
@@ -306,13 +323,16 @@ proc toMiddleModel*(proj: em.Project): mm.MProject =
             result.modules)
 
         of amHDLFile:
-          MArchitecture(kind: makTruthTable)
+          toArch buildCodeFile a.body.file
 
-        of amStateDiagram:
-          MArchitecture(kind: makTruthTable)
+        of amStateDiagram: # FSM
+          toArch buildFsm a.body.stateMachine
 
         of amTableDiagram:
-          MArchitecture(kind: makTruthTable)
+          toArch buildTruthTable a.body.truthTable
 
         of amExternalHDLFIle:
           err "not implemented"
+
+
+# TODO extract cbn for bus ripper :: it may not have `dest` bus

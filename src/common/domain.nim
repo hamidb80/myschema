@@ -29,6 +29,9 @@ type
     ndInc
     ndStop # like in range 0 .. 0
 
+  Language* = enum
+    Verilog, VHDL
+
 
 proc randomHdlIdent*(len = 10): string =
   result = newStringOfCap len

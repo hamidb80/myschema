@@ -72,7 +72,9 @@ type
     of mtkSymbol:
       sym*: string
 
-  MTruthTable* = seq[seq[string]]
+  MTruthTable* = object
+    headers*: seq[string]
+    rows*: seq[seq[string]]
 
   MWrapper* = object
     case kind*: WrapperKind
@@ -124,24 +126,25 @@ type
     labels*: seq[MText]
     size*: Size
 
+  MCodeFile* = object
+    name*: string
+    content*: string
+
+  MFsm* = ref object
+
   MArchitecture* = ref object
     case kind*: MArchitectureKind
     of makSchema:
       schema*: MSchematic
 
-    of makFSM:
-      # fsm*:
-      discard
-
     of makTruthTable:
-      # truthTable*:
-      discard
+      truthTable*: MTruthTable
 
-    of makCode:
-      discard
+    of makFSM:
+      fsm*: MFsm
 
-    of makExternalCode:
-      discard
+    of makCode, makExternalCode:
+      file*: MCodeFile
 
   MIcon* = ref object
     ports*: seq[MPort]
@@ -172,7 +175,6 @@ type
     of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable: discard
     of mekGenerator:
       info*: GenerateInfo
-
 
   MTransform* = object
     rotation*: Rotation
