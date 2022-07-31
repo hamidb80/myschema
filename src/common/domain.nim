@@ -26,8 +26,8 @@ type
 
   NumberDirection* = enum
     ndDec = 1
-    ndInc,
-    ndUnknown # FIXME what
+    ndInc
+    ndStop
 
 
 proc randomHdlIdent*(len = 10): string =

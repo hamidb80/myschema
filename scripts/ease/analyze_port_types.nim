@@ -59,7 +59,7 @@ proc goFind(node: LispNode, path: Path) =
 
     for a in node.args:
       if a.matchCaller "TYPE":
-        `type` = $a
+        `type` = dump a
       elif a.matchCaller "CONSTRAINT":
         hasSlice = true
 
@@ -86,13 +86,15 @@ proc goFind(node: LispNode, path: Path) =
 
   uniqIdentsRepeat[value].total.inc
 
-  # if parent == "PROCESS" and value == "FREE_PLACED_TEXT":
-  #   echo ">> ", lastPath
-  #   jump()
 
   if node.kind == lnkList:
     if node.ident == "ACT_VALUE":
       actvals.incl node.arg(0).str
+
+    # if node.ident == "DIRECTION":
+    #   if node.arg(0).vint == 3:
+    #     echo ">> ", lastPath
+    #     jump()
 
     for s in node:
       let id = newId node

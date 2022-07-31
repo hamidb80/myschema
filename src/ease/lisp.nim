@@ -1,4 +1,4 @@
-import std/[strutils, macros, options]
+import std/[sequtils, strutils, macros, options]
 
 type
   LispNodeKind* = enum
@@ -138,27 +138,27 @@ func parseLisp*(code: string): seq[LispNode] =
   discard parseLisp(unsafeAddr code, 0, result)
 
 
-func `$`*(n: LispNode): string =
+func dump*(n: LispNode): string =
   case n.kind:
   of lnkInt: $n.vint
   of lnkFloat: $n.vfloat
   of lnkString: n.str.escape
   of lnkSymbol: n.name
-  of lnkList: '(' & n.children.join(" ") & ')'
+  of lnkList: '(' & n.children.map(dump).join(" ") & ')'
 
 func pretty*(n: LispNode, indentSize = 2): string =
   case n.kind:
   of lnkList:
     if n.children.len == 0: "()"
     else:
-      var acc = "(" & $n.children[0]
+      var acc = "(" & dump n.children[0]
 
       for c in n.children[1..^1]:
         acc &= "\n" & pretty(c, indentSize).indent indentSize
 
       acc & ")\n"
 
-  else: $n
+  else: dump n
 
 
 func ident*(n: LispNode): string =
