@@ -31,7 +31,7 @@ type
 
 
 func toLispNode*(s: string): LispNode =
-  LispNode(kind: lnkString, str: s)
+  LispNode(kind: lnkString, str: s.unescape())
 
 func toLispNode*(ln: LispNode): LispNode = ln
 

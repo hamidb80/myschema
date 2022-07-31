@@ -376,7 +376,9 @@ func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
     of "GENERIC":
       result.parent = some Generic(kind: gkRef, obid: parseOBID n)
 
-    of "ACT_VALUE": discard
+    of "ACT_VALUE":
+      result.actValue = some parseStr n
+
     else: err fmt"invalid field {n.ident}"
 
 func parseComp(componentNode: LispNode): Component =
@@ -479,7 +481,7 @@ func parseStat(stateNode: LispNode): State =
       result.coding = parseStr n
 
     of "FSM_DIAGRAM":
-      err "what" # i think it's nested 
+      err "what" # i think it's nested
 
     else:
       err fmt"invalid node '{n.ident}' for STATE"
@@ -906,7 +908,8 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
       result.geometry = parseGeometry n
 
     of "GENERIC":
-      result.generics.add parseGeneric(n, gkEntity)
+      let g = parseGeneric(n, gkEntity)
+      result.generics[g.obid] = g
 
     of "PORT":
       result.ports.add parsePort(n, eprt)
@@ -1027,13 +1030,11 @@ func resolve(proj: var Project) =
   ##   entity ref
   ##   ports ref
   ##
-  ## generic +++++++++++
 
   var
     entityMap: Table[Obid, Entity]
     portMap: Table[Obid, Port]
     netMap: Table[Obid, Net]
-    # TODO generic
 
   # phase 1. finding
   for d in proj.designs:

@@ -1,6 +1,6 @@
 import std/[tables, options, strutils, sequtils, strformat, sugar]
 
-import ../common/[coordination, domain, seqs]
+import ../common/[coordination, domain, seqs, minitable]
 
 import model as em
 import ../middle/model as mm
@@ -56,6 +56,26 @@ proc extractIcon[T: Visible](smth: T): mm.MIcon =
       dir: toPortDir mode p)
 
     # TODO add wrapper
+
+func toValue(k, c: string): Value =
+  Value(kind: k, content: c)
+
+func extractGenericInfo(gi: HdlIdent): tuple[key: string, val: Value] =
+  (gi.name,
+    toValue(
+      gi.attributes.kind.get,
+      gi.attributes.def_value.get))
+
+func extractParams(en: Entity): seq[MParameter] =
+  for pg in en.generics:
+    let gi = extractGenericInfo pg.value.ident
+    result.add MParameter(name: gi.key, default: gi.value)
+
+func extractArgs(cp: var Component): seq[MArg] =
+  for ag in mitems cp.generics:
+    ag.parent = some cp.parent.generics[ag.parent.get.obid]
+    let gi = extractGenericInfo ag.ident
+    result.add MArg(name: gi.key, value: gi.value)
 
 proc initProcessElement(pr: Process): MElement =
   result = case pr.kind:

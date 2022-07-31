@@ -60,8 +60,6 @@ func mode*(p: Port): PortMode =
 type
   Transformer* = proc(p: Point): Point
 
-# size
-
 func translationAfter*(geo: Geometry, ro: Rotation): Vector =
   ## returns a vector that if added to the result,
   ## it will keep the whole shape at the original top left

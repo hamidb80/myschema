@@ -3,6 +3,8 @@ import std/[tables]
 import model
 import ../common/[coordination, domain, seqs]
 
+import ../ease/model
+
 
 # utils ---
 
@@ -95,3 +97,4 @@ func afterTransform*(ins: MInstance): Geometry =
   toGeometry(ins.parent.icon.size)
   .rotate((0, 0), ins.transform.rotation)
   .placeAt(ins.position)
+

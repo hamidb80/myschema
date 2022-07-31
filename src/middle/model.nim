@@ -2,6 +2,34 @@ import std/[tables, options]
 import ../common/[coordination, domain]
 
 type
+  WrapperKind* = enum
+    wkSchematic
+    wkIcon
+    wkInstance
+
+  MPortDir* = enum
+    input, output, inout
+    # FIXME ease has buffer
+
+  MArchitectureKind* = enum
+    makSchema
+    makFSM
+    makTruthTable
+    makCode
+    makExternalCode
+
+  MElementKind* = enum
+    mekModule
+    mekGenerator
+    mekFSM, mekTruthTable
+    mekCode, mekPartialCode
+
+  MNetKind* = enum
+    mnkWire
+    mnkTag
+
+
+type
   MLabel* = ref object
     texts*: seq[string]
     position*: Point
@@ -13,11 +41,6 @@ type
     source*, dest*: MNet
     position*, connection*: Point
 
-  WrapperKind* = enum
-    wkSchematic
-    wkIcon
-    wkInstance
-
   MWrapper* = object
     case kind*: WrapperKind
     of wkSchematic:
@@ -28,10 +51,6 @@ type
 
     of wkInstance:
       instance: MInstance
-
-  MPortDir* = enum
-    input, output, inout
-    # FIXME ease has buffer
 
   MPort* = ref object
     id*: Identifier
@@ -48,13 +67,6 @@ type
     instances*: seq[MInstance]
     labels*: seq[MLabel]
     size*: Size
-
-  MArchitectureKind* = enum
-    makSchema
-    makFSM
-    makTruthTable
-    makCode
-    makExternalCode
 
   MArchitecture* = ref object
     case kind*: MArchitectureKind
@@ -82,27 +94,17 @@ type
 
   ForLoop = object
 
-  MElementKind* = enum
-    mekModule
-    mekGenerator
-    mekFSM, mekTruthTable
-    mekCode, mekPartialCode
-
   MElement* = ref object
     name*: string
     icon*: MIcon
 
     case kind*: MElementKind
-    of mekModule:
+    of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable:
       archs*: seq[MArchitecture]
 
     of mekGenerator:
       ifCond*: Option[IfCond]
       forLopp*: Option[ForLoop]
-
-    of mekCode, mekPartialCode: discard
-    of mekFSM: discard
-    of mekTruthTable: discard
 
   MTransform* = object
     rotation*: Rotation
@@ -115,14 +117,21 @@ type
     position*: Point
     transform*: MTransform
 
+  Value* = object
+    kind*: string
+    content*: string
+
+  MParameter* = ref object
+    name*: string
+    default*: Value
+
+  MArg* = ref object
+    parameter*: MParameter
+    value*: Value
 
   WireGraphNode* = ref object        # AKA Net
     location*: Point
     connections*: seq[WireGraphNode] # only forward connections
-
-  MNetKind* = enum
-    mnkWire
-    mnkTag
 
   MNet* = ref object
     ports*: seq[MPort]

@@ -182,6 +182,7 @@ type
       side*: Side
       label*: Label
       parent*: Option[Generic]
+      actValue*: Option[string]
 
   GenerateBlock* = ref object
     obid*: Obid
@@ -454,7 +455,7 @@ type
       side*: Side
       objStamp*: ObjStamp
       geometry*: Geometry
-      generics*: seq[Generic]
+      generics*: MiniTable[Obid, Generic]
       ports*: seq[Port]
       architectures*: seq[Architecture]
 
