@@ -198,7 +198,7 @@ type
     geometry*: Geometry
     side*: BusRipperSide
     label*: Label
-    cbn*: Option[ConnectByName] # TODO figure this out
+    cbn*: Option[ConnectByName]
     destNet*: Net
 
   Global* = ref object
@@ -282,6 +282,8 @@ type
   Code* = ref object
     lang*: Language
     lines*: seq[string]
+
+  Slave* = ref object
 
   Condition* = ref object
     obid*: Obid

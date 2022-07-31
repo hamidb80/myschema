@@ -438,11 +438,6 @@ func parseHdlFile(hdlFileNode: LispNode): HdlFile =
   result = new HdlFile
   parseHdlFileImple hdlFileNode.arg(0), result
 
-func parseCode(codeTextNode: LispNode): Code =
-  Code(
-    lang: detectLanguage codeTextNode.ident,
-    lines: parseText codeTextNode)
-
 func parseFsmp(globalNode: LispNode): Global =
   result = new Global
 
@@ -485,45 +480,6 @@ func parseStat(stateNode: LispNode): State =
 
     else:
       err fmt"invalid node '{n.ident}' for STATE"
-
-func parseLab(actionNode: LispNode): Action =
-  result = Action(kind: actImpl)
-
-  for n in actionNode:
-    case n.ident:
-    of "OBID":
-      result.obid = parseOBID n
-
-    of "NAME":
-      result.name = parseName n
-
-    of "MEALY":
-      result.mealy = parseBool n
-
-    of "MOORE":
-      result.moore = parseBool n
-
-    of "VERILOG_TEXT", "VHDL_TEXT":
-      result.code = parseCode(n)
-
-    of "SHOW_LABEL": discard
-    else:
-      err fmt"invalid node '{n.ident}' for lab"
-
-func parseLab(conditionNode: LispNode): Condition =
-  result = Condition(kind: condDef)
-
-  for n in conditionNode:
-    case n.ident:
-    of "OBID":
-      result.obid = parseOBID n
-
-    of "VERILOG_TEXT", "VHDL_TEXT":
-      result.code = parseCode(n)
-
-    of "NAME", "MEALY", "MOORE", "SHOW_LABEL": discard
-    else:
-      err fmt"invalid node '{n.ident}' for lab"
 
 func parseActionRef(actionRefNode: LispNode): Action =
   Action(kind: actRef, obid: parseOBID actionRefNode)
@@ -658,6 +614,9 @@ func parseTran(lineNode: LispNode): TransitionLine =
     else:
       err fmt"invalid node '{n.ident}'"
 
+func parseSlav(slaveNode: LispNode): Slave =
+  discard
+
 func parseFsm(fsmDiagramNode: LispNode): FsmDiagram =
   result = new FsmDiagram
 
@@ -675,8 +634,12 @@ func parseFsm(fsmDiagramNode: LispNode): FsmDiagram =
     of "STATE":
       result.states.add parseStat n
 
+    of "SLAVE":
+      result.slaves.add parseSlav n
+
     of "TRANS_SPLINE":
       result.transitions.add parseTran n
+
 
 func parseFsmx(stateDiagramNode: LispNode): StateMachineV2 =
   result = new StateMachineV2
@@ -689,14 +652,13 @@ func parseFsmx(stateDiagramNode: LispNode): StateMachineV2 =
     of "PROPERTIES":
       result.properties = parseProperties n
 
-    of "ACTION":
-      result.actions.add parseLab(actionNode = n)
-
-    of "CONDITION":
-      result.conditions.add parseLab(conditionNode = n)
-
     of "FSM_DIAGRAM":
       result.fsm = parseFSM n
+
+    of "ACTION", "CONDITION":
+      discard
+      # result.actions.add parseLab(actionNode = n)
+      # result.conditions.add parseLab(conditionNode = n)
 
     else:
       err fmt"invalid node '{n.ident}' for STATE_MACHINE_V2"

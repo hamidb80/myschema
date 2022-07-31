@@ -1,0 +1,50 @@
+(SLAVE
+  (OBID "slavf700001049dc6e260bd2b4d28e1226e3")
+  (HDL_IDENT
+    (NAME "vvvvvvvvv")
+    (USERNAME 1)
+  )
+  (GEOMETRY 3456 896 4096 1280)
+  (SIDE 0)
+  (LABEL
+    (POSITION 3776 1024)
+    (SCALE 96)
+    (COLOR_LINE 0)
+    (SIDE 3)
+    (ALIGNMENT 4)
+    (FORMAT 1)
+    (TEXT "vvvvvvvvv")
+  )
+  (STATE_MACHINE_V2
+    (OBID "fsmxf700001049dc6e260bd2b4d29e1226e3")
+    (PROPERTIES
+      (PROPERTY "TL_FSM_STATEENCODING" "1")
+    )
+    (FSM_DIAGRAM
+      (OBID "fsmf700001049dc6e260bd2b4d27e1226e3")
+      (PROPERTIES
+        (PROPERTY "SheetInfoFontSize" "8")
+      )
+      (SHEETSIZE 0 0 6400 4266)
+      (GLOBAL
+        (OBID "fsmpf700001049dc6e260bd2b4d2ae1226e3")
+        (GEOMETRY 168 168 232 232)
+        (LABEL
+          (POSITION 296 168)
+          (SCALE 80)
+          (COLOR_LINE 0)
+          (SIDE 3)
+          (ALIGNMENT 0)
+          (FORMAT 129)
+          (TEXT "FSM Properties:"
+                "Clock :  (Rising edge)"
+                "State assignment : Enumerate"
+                "State decoding : Case construct"
+                "Actions on transitions : Combinational"
+                "Actions on states : Combinational"
+                "")
+        )
+      )
+    )
+  )
+)
