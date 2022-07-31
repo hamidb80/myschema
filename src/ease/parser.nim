@@ -481,11 +481,8 @@ func parseStat(stateNode: LispNode): State =
     else:
       err fmt"invalid node '{n.ident}' for STATE"
 
-func parseActionRef(actionRefNode: LispNode): Action =
-  Action(kind: actRef, obid: parseOBID actionRefNode)
-
 func parseAct(actionNode: LispNode): Action =
-  result = Action(kind: actDef)
+  result = new Action
 
   for n in actionNode:
     case n.ident:
@@ -501,11 +498,11 @@ func parseAct(actionNode: LispNode): Action =
     of "LABEL":
       result.label = parseLabel n
 
-    of "ACTION":
-      result.action = parseActionRef n
-
     of "INDEX":
       result.index = parseInt n
+
+    of "ACTION":
+      discard
 
     else:
       err fmt"invalid node '{n.ident}'"
@@ -572,9 +569,6 @@ func parseBezier(bezierNode: LispNode): seq[int] =
 func parsePoints(pointsNode: LispNode): seq[Point] =
   pointsNode.args.mapIt (it.arg(0).vint, it.arg(1).vint)
 
-func parseConditionRef(connectionRefNode: LispNode): Condition =
-  Condition(kind: condRef, obid: parseOBID connectionRefNode)
-
 func parseTran(lineNode: LispNode): TransitionLine =
   result = TransitionLine(kind: parseEnum[LineKind](lineNode.ident))
 
@@ -598,9 +592,6 @@ func parseTran(lineNode: LispNode): TransitionLine =
     of "ACTION":
       result.action = parseAct n
 
-    of "CONDITION":
-      result.condition = parseConditionRef n
-
     of "ARROW":
       result.arrow = parseArrow n
 
@@ -610,7 +601,7 @@ func parseTran(lineNode: LispNode): TransitionLine =
     of "POINTS":
       result.points = parsePoints n
 
-    of "ASYNC", "PRIORITY", "LABEL": discard
+    of "CONDITION", "ASYNC", "PRIORITY", "LABEL": discard
     else:
       err fmt"invalid node '{n.ident}'"
 

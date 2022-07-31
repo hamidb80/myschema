@@ -100,12 +100,6 @@ type
   LinkKind* = enum
     linkRef, linkDef
 
-  ActionKind* = enum
-    actRef, actImpl, actDef
-
-  ConditionKind* = enum
-    condRef, condDef
-
   ConnectionNodeKind* = enum
     cnkLink, cnkState
 
@@ -258,10 +252,7 @@ type
     geometry*: Geometry
     side*: Side
     label*: Label
-    # priority*: int
-    # async*: bool
     connections*: Slice[Connection]
-    condition*: Condition
     action*: Action
     arrow*: Arrow
 
@@ -277,45 +268,21 @@ type
     sheetSize*: Geometry
     global*: Global
     states*: seq[State]
+    slaves*: seq[Slave]
     transitions*: seq[TransitionLine]
-
-  Code* = ref object
-    lang*: Language
-    lines*: seq[string]
 
   Slave* = ref object
 
-  Condition* = ref object
-    obid*: Obid
-
-    case kind*: ConditionKind
-    of condRef: discard
-    of condDef:
-      code*: Code
-
   Action* = ref object
     obid*: Obid
-
-    case kind*: ActionKind
-    of actRef: discard
-    of actDef:
-      geometry*: Geometry
-      side*: Side
-      label*: Label
-      action*: Action
-      index*: int
-
-    of actImpl:
-      name*: string
-      mealy*: bool
-      moore*: bool
-      code*: Code
+    geometry*: Geometry
+    side*: Side
+    label*: Label
+    index*: int
 
   StateMachineV2* = ref object
     obid*: Obid
     properties*: Properties
-    actions*: seq[Action]
-    conditions*: seq[Condition]
     fsm*: FsmDiagram
 
   Cell* = string
