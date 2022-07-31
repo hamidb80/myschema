@@ -34,9 +34,10 @@ var
   uniqPortTypes: HashSet[string]
   uniqIdentsRepeat: Table[string, tuple[fields: CountTable[string], total: int]]
   uniqIdentParent: Table[string, HashSet[string]]
+  actvals: HashSet[string]
   lastPath: string
 
-func newId(node: LispNode): string = 
+func newId(node: LispNode): string =
   case node.ident:
   of "PORT":
     let sub = node.findNode(it.matchCaller "OBID")
@@ -46,7 +47,7 @@ func newId(node: LispNode): string =
     else:
       "PORT"
 
-  else: 
+  else:
     node.ident
 
 
@@ -84,12 +85,15 @@ proc goFind(node: LispNode, path: Path) =
     uniqIdentsRepeat[value] = (initCountTable[string](), 0)
 
   uniqIdentsRepeat[value].total.inc
-  
+
   # if parent == "PROCESS" and value == "FREE_PLACED_TEXT":
   #   echo ">> ", lastPath
   #   jump()
 
   if node.kind == lnkList:
+    if node.ident == "ACT_VALUE":
+      actvals.incl node.arg(0).str
+
     for s in node:
       let id = newId node
       goFind s, path & id
@@ -107,3 +111,4 @@ when isMainModule:
 
   echo uniqIdentsRepeat["GENERIC"]
   print uniqIdentParent["GENERIC"]
+  print actvals

@@ -1,6 +1,6 @@
 import std/[tables, options, strutils, sequtils, strformat, sugar]
 
-import ../common/[coordination, domain, seqs, minitable]
+import ../common/[coordination, domain, seqs, minitable, errors]
 
 import model as em
 import ../middle/model as mm
@@ -30,6 +30,8 @@ func getTransform[T: Visible](smth: T): MTransform =
     flips: smth.flips)
 
 func copyPort(p: MPort, fn: Transformer): MPort =
+  # FIXME extract cbn from parent ports
+
   MPort(
     id: p.id,
     dir: p.dir,
@@ -90,7 +92,6 @@ proc initProcessElement(pr: Process): MElement =
     mm.MElement(kind: mekTruthTable)
 
 proc buildSchema(schema: em.Schematic,
-  icon: mm.MIcon,
   mlk: Table[em.Obid, mm.MElement],
   elements: var Table[string, mm.MElement]
   ): mm.MSchematic =
@@ -233,6 +234,10 @@ proc initModule(en: em.Entity): mm.MElement =
 func toArch(sch: MSchematic): MArchitecture =
   MArchitecture(kind: makSchema, schema: sch)
 
+# func toArch()
+
+# TODO extract cbn for bus ripper
+
 proc toMiddleMode*(proj: em.Project): mm.MProject =
   result = mm.MProject()
 
@@ -253,12 +258,22 @@ proc toMiddleMode*(proj: em.Project): mm.MProject =
   # phase 2. convert schematics
   for id, m in modernIdMap.mpairs:
     for a in originalIdMap[id].architectures:
-      case a.kind:
-      of amBlockDiagram:
-        m.archs.add toArch buildSchema(
-          a.body.schematic,
-          m.icon,
-          modernIdMap,
-          result.modules)
+      m.archs.add:
+        case a.kind:
+        of amBlockDiagram:
+          toArch buildSchema(
+            a.body.schematic,
+            modernIdMap,
+            result.modules)
 
-      else: discard
+        of amHDLFile:
+          new MArchitecture
+
+        of amStateDiagram:
+          new MArchitecture
+
+        of amTableDiagram:
+          new MArchitecture
+
+        of amExternalHDLFIle:
+          err "not implemented"

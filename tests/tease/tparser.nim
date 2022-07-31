@@ -203,7 +203,7 @@ suite "compound":
     check bo.destNet.obid.string == "netf7000010a203330479045600eddd1607"
     check (issome bo.cbn) and bo.cbn.get.obid.string == "cbn0c8ab227dda8fd2644b4b4d295f4cf40"
 
-  test "": discard # fsm table 
+  test "": discard # fsm table
 
   template genericCheck(o, id, nm, xxx, s, f): untyped =
     check o.obid.string == id
@@ -219,8 +219,8 @@ suite "compound":
 
   test "GENERIC_igen":
     let go = parseGeneric(lfName "GENERIC/igen.eas", gkInstance)
-    genericCheck go, "igenf7000010f6884404803033fc11730000", "DATA_PHASE", 4760, 3, 129
-    check go.parent.get.obid.string == "egenf7000010b203330479045600b40e1607"
+    genericCheck go, "igena0a0a056f0f80505c4914b4527b7a454", "DWIDTH", 3224, 3, 129
+    check go.parent.get.obid.string == "egena0a0a056f0f80505c4914b455f87a454"
 
 
 suite "complex":
@@ -289,6 +289,21 @@ suite "complex":
     check no.part.wires[0] == (4416, 3712) .. (10624, 3712)
     check no.part.wires[^1] == (10624, 9536) .. (10624, 10560)
     check no.part.busRippers[^1].destNet.obid.string == "netf7000010a203330479045600cddd1607"
+
+  test "TABLE":
+    let to = parseTtab lfName "TABLE.eas"
+    check to.obid.string == "ttaba000000a7ed2e254835033fc48560000"
+    check to.headers == @["HADDRESS", "HSEL"]
+    check to.rows == @[
+      @["`Slave6", "8'b10000000"],
+      @["`Slave5", "8'b01000000"],
+      @["`Slave4", "8'b00100000"],
+      @["`Slave3", "8'b00010000"],
+      @["`Slave2", "8'b00001000"],
+      @["`Slave1", "8'b00000100"],
+      @["`Slave10", "8'b00000010"],
+      @["", "8'b00000001"],
+    ]
 
 
 suite "file":
