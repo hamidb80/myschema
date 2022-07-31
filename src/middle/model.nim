@@ -88,14 +88,21 @@ type
       direction*: NumberDirection
       indexes*: Slice[MTokenGroup]
 
+  MportKind* = enum
+    mpOriginal
+    mpCopy
 
   MPort* = ref object
-    id*: MIdentifier
-    dir*: MPortDir
     position*: Point
-    rotation*: Rotation
-    wrapper*: MWrapper
-    refersTo*: Option[MPort]
+    # wrapper*: MWrapper
+
+    case kind*: MportKind
+    of mpOriginal:
+      id*: MIdentifier
+      dir*: MPortDir
+
+    of mpCopy:      
+      parent*: MPort
 
   MSchematic* = ref object
     ports*: seq[MPort]
@@ -135,7 +142,6 @@ type
     varname: string
     dir: NumberDirection
     slice: Slice[MTokenGroup]
-
 
   MParamsLookup* = MiniTable[string, MParameter]
 

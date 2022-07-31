@@ -33,12 +33,9 @@ func copyPort(p: MPort, fn: Transformer): MPort =
   # FIXME extract cbn from parent ports
 
   MPort(
-    id: p.id,
-    dir: p.dir,
+    kind: mpCopy,
     position: fn(p.position),
-    refersTo: some p
-    # TODO wrapper:
-    )
+    parent: p)
 
 func toPortDir(m: em.PortMode): mm.MPortDir =
   MPortDir min(int m, 2)
@@ -64,15 +61,24 @@ proc extractIcon[T: Visible](smth: T): mm.MIcon =
 
   for p in smth.ports:
     result.ports.add mm.MPort(
+      kind: mpOriginal,
       id: toMIdent p.identifier,
       position: tr(p.position),
       dir: toPortDir mode p)
 
-    # TODO add wrapper
-
 func lexCode(s: Option[string]): Option[MTokenGroup] =
   if isSome s:
-    result= some lexCode s.get
+    result = some lexCode s.get
+
+func makeGenerator(gb: GenerateBlock): MElement =
+  result = MElement(kind: mekGenerator)
+  # gb.properties["FOR_LOOP_VAR"] = my_symbol
+  # gb.properties["IF_CONDITION"] == "(c_impl_mul /= 1)"
+
+  # gb.constraint.get.`range`
+  # (DIRECTION 1)
+  # (RANGE "high_range" "low_range")
+
 
 func extractParams(en: Entity): MParamsLookup =
   for g in en.generics:
@@ -115,20 +121,14 @@ proc buildSchema(schema: em.Schematic,
     allPortsMap: Table[ptr em.PortImpl, MPort]
     allNetsMap: Table[ptr em.NetImpl, MNet]
 
-  # for gr in schema.generics:
-  #   discard
 
   for fpt in schema.freePlacedTexts:
     result.labels.add toLable fpt
 
   for p in schema.ports:
     let mp = mm.MPort(
-      id: toMIdent p.identifier,
-      dir: toPortDir p.mode,
-      position: p.position,
-      refersTo: none MPort, # FIXME refers to icon port
-                            # TODO wrapper:
-    )
+      kind: mpCopy,
+      position: p.position)
 
     result.ports.add mp
     allPortsMap[addr p[]] = mp
@@ -192,7 +192,7 @@ proc buildSchema(schema: em.Schematic,
 
     for gb in schema.generateBlocks:
       let
-        el = makeParent(mm.MElement(kind: mekGenerator), gb)
+        el = makeParent(makeGenerator gb, gb)
         ins = makeInstance(gb.ident.name, el, gb.geometry,
           getTransform gb, @[])
 
