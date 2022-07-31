@@ -1,8 +1,26 @@
 import std/[options, tables, strutils, strformat]
 
 import model
-# import ../middle/model as mm
 import ../common/[coordination, errors, domain, minitable]
+
+
+type
+  Transformer* = proc(p: Point): Point
+
+  IndetifierKind* = enum
+    ikSingle, ikIndex, ikRange
+
+  Identifier* = object
+    name*: string
+
+    case kind*: IndetifierKind
+    of ikSingle: discard
+    of ikIndex:
+      index*: string
+
+    of ikRange:
+      direction*: NumberDirection
+      indexes*: Slice[string]
 
 
 # basics ---
@@ -33,7 +51,6 @@ func flips*[T: Visible](element: T): set[Flip] =
   of 3: {X, Y}
   else: err fmt"invalid Flip code: '{f}'"
 
-
 func identifier*(p: Port): Identifier =
   let cn = p.ident.attributes.constraint
 
@@ -55,10 +72,6 @@ func identifier*(p: Port): Identifier =
 
 func mode*(p: Port): PortMode =
   PortMode p.ident.attributes.mode.get
-
-
-type
-  Transformer* = proc(p: Point): Point
 
 func translationAfter*(geo: Geometry, ro: Rotation): Vector =
   ## returns a vector that if added to the result,

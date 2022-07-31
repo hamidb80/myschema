@@ -241,9 +241,6 @@ func toArch(sch: MSchematic): MArchitecture =
 proc toMiddleMode*(proj: em.Project): mm.MProject =
   result = mm.MProject()
 
-  # TODO generics
-  # phase 1. convert icons
-
   var
     modernIdMap: Table[em.Obid, mm.MElement]
     originalIdMap: Table[em.Obid, em.Entity]

@@ -41,6 +41,29 @@ type
     source*, dest*: MNet
     position*, connection*: Point
 
+  ETokenGroup* = seq[MToken]
+
+  MTokenKind* = enum
+    mtkOpenPar, mtkClosePar
+    mtkOpenBracket, mtkCloseBracket
+    mtkOperator
+    mtkLiteral
+    mtkSymbol
+
+  MToken* = object
+    case kind*: MTokenKind
+    of mtkOpenPar, mtkClosePar, mtkOpenBracket, mtkCloseBracket: discard
+    of mtkOperator:
+      operator*: string
+
+    of mtkLiteral:
+      content*: string
+
+    of mtkSymbol:
+      sym*: string
+
+  MTruthTable* = seq[seq[string]]
+
   MWrapper* = object
     case kind*: WrapperKind
     of wkSchematic:
@@ -52,8 +75,24 @@ type
     of wkInstance:
       instance: MInstance
 
+  MIndetifierKind* = enum
+    mikSingle, mikIndex, mikRange
+
+  MIdentifier* = object
+    name*: string
+
+    case kind*: MIndetifierKind
+    of mikSingle: discard
+    of mikIndex:
+      index*: ETokenGroup
+
+    of mikRange:
+      direction*: NumberDirection
+      indexes*: Slice[ETokenGroup]
+
+
   MPort* = ref object
-    id*: Identifier
+    id*: MIdentifier
     dir*: MPortDir
     position*: Point
     rotation*: Rotation
@@ -90,9 +129,13 @@ type
     size*: Size
 
   IfCond = object
-    cond: string
+    cond: ETokenGroup
 
   ForLoop = object
+    varname: string
+    dir: NumberDirection
+    slice: Slice[ETokenGroup]
+
 
   MParamsLookup* = MiniTable[string, MParameter]
 
@@ -124,11 +167,11 @@ type
   MParameter* = ref object
     name*: string
     kind*: string
-    default*: string
+    default*: ETokenGroup
 
   MArg* = ref object
     parameter*: MParameter
-    value*: Option[string]
+    value*: Option[ETokenGroup]
 
   WireGraphNode* = ref object        # AKA Net
     location*: Point

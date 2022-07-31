@@ -393,7 +393,6 @@ type
     label*: Label
     body*: Body
 
-
   Component* = ref object
     obid*: Obid
     ident*: HdlIdent

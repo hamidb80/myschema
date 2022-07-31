@@ -3,8 +3,12 @@ import std/[tables]
 import model
 import ../common/[coordination, domain, seqs]
 
-import ../ease/model
+# import ../ease/model as em
 
+
+type
+  NetLookup = Table[Point, seq[Point]]
+  Segment* = Slice[Point]
 
 # utils ---
 
@@ -19,8 +23,6 @@ func addBoth[T](lookup: var Table[T, seq[T]], v1, v2: T) {.inline.} =
   lookup.safeAdd v2, v1
 
 # net extract ---
-
-type NetLookup = Table[Point, seq[Point]]
 
 func collectImpl(last: WireGraphNode, ntlkp: var NetLookup) =
   let loc = last.location
@@ -62,7 +64,6 @@ func toNets*(wires: seq[Wire]): seq[MNet] =
     if netGraph[leaf].len > 0:
       result.add collect(leaf, netGraph)
 
-# traversal ---
 
 template traverseNet(net, body): untyped {.dirty.} =
   var nstack: seq[tuple[node: WireGraphNode, connIndex: int]] = @[(net.start, 0)]
@@ -80,7 +81,6 @@ template traverseNet(net, body): untyped {.dirty.} =
       inc nstack.last.connIndex
       nstack.add (nextNode, 0)
 
-type Segment* = Slice[Point]
 
 iterator segments*(net: MNet): Segment =
   traverseNet net:
@@ -97,4 +97,5 @@ func afterTransform*(ins: MInstance): Geometry =
   toGeometry(ins.parent.icon.size)
   .rotate((0, 0), ins.transform.rotation)
   .placeAt(ins.position)
+
 

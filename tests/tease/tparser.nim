@@ -305,6 +305,8 @@ suite "complex":
       @["", "8'b00000001"],
     ]
 
+  test "":
+    discard
 
 suite "file":
   test "PROJECT_FILE":
