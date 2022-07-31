@@ -93,10 +93,8 @@ iterator points*(net: MNet): Point =
     yield nextNode.location
 
 
-func afterTransform*(ins: MInstance): Geometry =
-  toGeometry(ins.parent.icon.size)
-  .rotate((0, 0), ins.transform.rotation)
-  .placeAt(ins.position)
+func afterTransform*(icon: MIcon, ro: Rotation, pos: Point): Geometry =
+  toGeometry(icon.size).rotate(P0, ro).placeAt(pos)
 
 const
   EOS = '\0'

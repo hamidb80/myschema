@@ -92,18 +92,18 @@ func getBusSelect*(br: BusRipper): MSBusSelect =
 func extractGenerateBlockInfo(gb: GenerateBlock): GenerateInfo =
   case gb.kind:
   of gbtForGenerate:
-    GenerateInfo(kind: gikIf, cond: lexCode getIfCond gb)
-
-  of gbtIfGenerate:
     let
       gi = getForInfo gb
       ii = gi.`range`.indexes
 
     GenerateInfo(kind: gikFor,
-        varname: gi.ident,
-        dir: gi.`range`.direction,
-        slice: (ii.a.lexCode .. ii.b.lexCode))
+      varname: gi.ident,
+      dir: gi.`range`.direction,
+      slice: (ii.a.lexCode .. ii.b.lexCode))
 
+  of gbtIfGenerate:
+    GenerateInfo(kind: gikIf, cond: lexCode getIfCond gb)
+    
 func makeGenerator(gb: GenerateBlock): MElement =
   result = MElement(kind: mekGenerator, info: extractGenerateBlockInfo gb)
 
@@ -176,7 +176,7 @@ proc buildSchema(schema: em.Schematic,
 
       mm.MInstance(
         name: iname,
-        position: pos,
+        geometry: afterTransform(parentEl.icon, t.rotation, pos),
         parent: parentEl,
         transform: t,
         args: argsSeq,

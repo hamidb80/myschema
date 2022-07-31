@@ -51,15 +51,13 @@ func draw*(container: var XmlNode, label: MText) =
     label.texts, FontStyle(size: 120))
 
 func draw*(container: var XmlNode, ins: MInstance) =
-  let
-    geo = afterTransform(ins)
-    box = toRect geo
-    # box = toRect toGeometry(ins.parent.icon.size) + ins.position
-
-  let style = case ins.parent.kind:
-    of mekModule: moduleInstanceStyle
-    of mekGenerator: generatorBlockStyle
-    else: processInstanceStyle
+  let 
+    box = toRect ins.geometry
+    style = 
+      case ins.parent.kind:
+      of mekModule: moduleInstanceStyle
+      of mekGenerator: generatorBlockStyle
+      else: processInstanceStyle
 
   container.add newRect(box.x, box.y, box.w, box.h, style)
 

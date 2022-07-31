@@ -183,7 +183,7 @@ type
     parent* {.cursor.}: MElement
     args*: seq[MArg]
     ports*: seq[MPort]
-    position*: Point
+    geometry*: Geometry
     transform*: MTransform
 
   MParameter* = ref object
