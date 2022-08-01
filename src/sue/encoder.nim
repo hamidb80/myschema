@@ -1,17 +1,17 @@
-import std/[os, tables, sequtils, strutils, strformat, times, sugar]
+import std/[os, tables, sequtils, strutils, strformat, times]
 import ../common/[coordination, domain]
 import model, lexer
 
 
-type LabelContext = enum
-  lcIcon, lcSchematic
+type EncodeContext = enum
+  ecIcon, ecSchematic
 
-
-func toToken*(p: Point): SueToken =
-  toToken '{' & $p.x & ' ' & $p.y & '}'
 
 template toOption(f, val): untyped =
   SueOption(flag: f, value: toToken val)
+
+func toToken*(p: Point): SueToken =
+  toToken '{' & $p.x & ' ' & $p.y & '}'
 
 func `$`*(o: Orient): string =
   $o.rotation & join toseq o.flips
@@ -28,16 +28,20 @@ func speardPoints(points: seq[Point]): seq[int] =
     result.add p.y
 
 
-func encode(l: Line): SueExpression =
+func encode(l: Line, ctx: EncodeContext): SueExpression =
   case l.kind:
   of straight:
+    let cmd = case ctx:
+      of ecIcon: scIconLine
+      of ecSchematic: scMakeLine
+
     SueExpression(
-      command: scMakeLine,
+      command: cmd,
       args: l.points.speardPoints.map(toToken))
 
   of arc:
     SueExpression(
-      command: scMakeLine,
+      command: scIconArc,
       args: @[l.head.x, l.head.y, l.tail.x, l.tail.y].map(toToken),
       options: @[
         toOption(sfStart, l.start),
@@ -50,6 +54,11 @@ func encode(w: Wire): SueExpression =
     args: @[w.a.x, w.a.y, w.b.x, w.b.y].map toToken,
   )
 
+func encode(arg: Argument): SueOption =
+  SueOption(flag: sfCustom,
+    field: arg.name,
+    value: toToken arg.value)
+
 func encode(i: Instance): SueExpression =
   SueExpression(
     command: scMake,
@@ -57,14 +66,13 @@ func encode(i: Instance): SueExpression =
     options: @[
       toOption(sfName, i.name),
       toOption(sfOrigin, i.location),
-      toOption(sfOrient, $i.orient)
-    ],
+      toOption(sfOrient, $i.orient),
+    ] & map(i.args, encode),
   )
 
-
-func encode(l: Label, ctx: LabelContext): SueExpression =
+func encode(l: Label, ctx: EncodeContext): SueExpression =
   case ctx:
-  of lcIcon:
+  of ecIcon:
     SueExpression(
       command: scIconProperty,
       options: @[
@@ -74,7 +82,7 @@ func encode(l: Label, ctx: LabelContext): SueExpression =
       ]
     )
 
-  of lcSchematic:
+  of ecSchematic:
     SueExpression(
       command: scMakeText,
       options: @[
@@ -94,12 +102,33 @@ func encode(p: Port): SueExpression =
     ],
   )
 
-func dump(a: Architecture): string =
-  case a.kind:
-  of akFile: a.file.content
-  of akSchematic:
+func toSueFile(sch: Schematic, ico: Icon): SueFile =
+  result = new SueFile
 
-    ""
+  # --- icon
+
+  for p in ico.ports:
+    result.icon.add encode p
+    result.icon.add encode(Label(
+      content: p.name,
+      location: p.location,
+      anchor: c,
+      size: fzStandard
+    ), ecIcon)
+
+  for l in ico.lines:
+    result.icon.add encode(l, ecIcon)
+
+  # --- schematic
+
+  for ins in sch.instances:
+    result.schematic.add encode ins
+
+  for w in sch.wires:
+    result.schematic.add encode w
+
+  for l in sch.labels:
+    result.schematic.add encode(l, ecSchematic)
 
 proc genTclIndex(proj: Project): string =
   let now = $gettime().tounix()
@@ -117,12 +146,14 @@ proc genTclIndex(proj: Project): string =
 
 proc writeProject*(proj: Project, dest: string) =
   for name, module in proj.modules:
-    let
-      a = module.arch
-      fname =
-        case a.kind:
-        of akSchematic: name & ".sue"
-        of akFile: name
+    if not module.isTemporary:
+      let
+        a = module.arch
+        (fname, content) =
+          case a.kind:
+          of akSchematic: (name & ".sue", dump toSueFile(a.schema, module.icon))
+          of akFile: (name, a.file.content)
 
-    writeFile dest / fname, dump a
-    writeFile dest / "tclindex", genTclIndex proj
+      writeFile dest / fname, content
+
+  writeFile dest / "tclindex", genTclIndex proj

@@ -169,4 +169,5 @@ func toSue*(proj: mm.MProject): sm.Project =
 
   for name, mmdl in proj.modules:
     let a = mmdl.archs.choose
+    debugEcho ">> ", name
     lkp[name].arch = toSue(a, lkp)

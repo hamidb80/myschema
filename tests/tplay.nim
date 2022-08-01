@@ -1,7 +1,9 @@
-import std/[xmltree, tables, strformat, os]
+import std/[os]
 
-import ease/[model as m, transformer, parser]
-import middle/[model, visualizer, svg]
+import ease/[transformer, parser]
+import middle/[visualizer]
+import sue/[transformer, encoder]
+
 
 const path =
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\uart\uart.ews"
@@ -16,23 +18,14 @@ const path =
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\amba.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\rotate_test.ews" # TODO add visual testing like this
 
-let proj = toMiddleModel parseEws path
+proc createDirs(dirs: varargs[string]) =
+  for dir in dirs:
+    createDir dir
 
-removeDir "./temp"
-createDir "./temp"
+when isMainModule:
+  removeDir "./temp"
+  createDirs "./temp", "./temp/sue", "./temp/svg"
 
-for name, el in proj.modules:
-  case el.kind:
-
-  of mekModule:
-    for a in el.archs:
-      case a.kind:
-      of makSchema:
-        debugEcho (a.kind, el.name)
-        let (w, h) = a.schema.size
-        var c = newCanvas(-400, -400, w, h)
-        c.visualize a.schema
-        writeFile fmt"./temp/{name}.svg", $c
-
-      else: discard
-  else: discard
+  let proj = toMiddleModel parseEws path
+  proj.toSVG "./temp/svg/"
+  proj.toSue.writeProject "./temp/sue/"

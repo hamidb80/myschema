@@ -1,7 +1,5 @@
-import std/[xmltree] # , browser
-
+import std/[tables, xmltree, os]
 import ../common/[coordination]
-
 import svg, model, logic
 
 const
@@ -38,22 +36,22 @@ const
 
 
 
-func draw*(container: var XmlNode, p: MPort, style: ShapeStyle) =
+func draw(container: var XmlNode, p: MPort, style: ShapeStyle) =
   container.add newCircle(p.position.x, p.position.y, 40, style)
 
-func draw*(container: var XmlNode, net: MNet) =
+func draw(container: var XmlNode, net: MNet) =
   for sg in net.segments:
     container.add newLine(sg.a, sg.b, wireStyle)
 
-func draw*(container: var XmlNode, label: MText) =
+func draw(container: var XmlNode, label: MText) =
   container.add newTextBox(
     label.position.x, label.position.y,
     label.texts, FontStyle(size: 120))
 
-func draw*(container: var XmlNode, ins: MInstance) =
-  let 
+func draw(container: var XmlNode, ins: MInstance) =
+  let
     box = toRect ins.geometry
-    style = 
+    style =
       case ins.parent.kind:
       of mekModule: moduleInstanceStyle
       of mekGenerator: generatorBlockStyle
@@ -69,7 +67,7 @@ template genGroup(canvas): untyped =
   canvas.add g
   g
 
-func visualize*(canvas: var XmlNode, schema: MSchematic) =
+func visualize(canvas: var XmlNode, schema: MSchematic) =
   for n in schema.nets:
     case n.kind:
     of mnkWire:
@@ -92,3 +90,19 @@ func visualize*(canvas: var XmlNode, schema: MSchematic) =
   for lbl in schema.texts:
     canvas.draw lbl
 
+proc toSVG*(proj: MProject, dest: string) =
+  for name, el in proj.modules:
+    case el.kind:
+
+    of mekModule:
+      for a in el.archs:
+        case a.kind:
+        of makSchema:
+          debugEcho (a.kind, el.name)
+          let (w, h) = a.schema.size
+          var c = newCanvas(-400, -400, w, h)
+          c.visualize a.schema
+          writeFile dest / name & ".svg", $c
+
+        else: discard
+    else: discard
