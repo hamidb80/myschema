@@ -118,7 +118,7 @@ func extractParams(en: Entity): MParamsLookup =
 
     result[name] = MParameter(
       name: name,
-      kind: ga.kind.get(""),
+      kind: ga.kind,
       default: lexCode ga.defValue)
 
 func extractArgs(cp: Component, lookup: MParamsLookup): seq[MArg] =
@@ -151,6 +151,7 @@ proc initModule(en: em.Entity): mm.MElement =
   )
 
 proc buildSchema(schema: sink em.Schematic,
+  icon: MIcon,
   mlk: Table[em.Obid, mm.MElement],
   elements: var Table[string, mm.MElement]
   ): mm.MSchematic =
@@ -165,9 +166,12 @@ proc buildSchema(schema: sink em.Schematic,
     result.texts.add toText fpt
 
   for p in schema.ports:
-    let mp = mm.MPort(
+    let
+      mid = toMIdent(p.identifier)
+      mp = mm.MPort(
       kind: mpCopy,
-      position: p.position)
+      position: p.position,
+      parent: icon.ports.search((it) => mid == it.id))
 
     result.ports.add mp
     allPortsMap[addr p[]] = mp
@@ -318,6 +322,7 @@ proc toMiddleModel*(proj: em.Project): mm.MProject =
         of amBlockDiagram:
           toArch buildSchema(
             a.body.schematic,
+            m.icon,
             modernIdMap,
             result.modules)
 
@@ -332,6 +337,5 @@ proc toMiddleModel*(proj: em.Project): mm.MProject =
 
         of amExternalHDLFIle:
           err "not implemented"
-
 
 # TODO extract cbn for bus ripper :: it may not have `dest` bus

@@ -89,6 +89,6 @@ func visualize*(canvas: var XmlNode, schema: MSchematic) =
   for ins in schema.instances:
     draw genGroup canvas, ins
 
-  for lbl in schema.labels:
+  for lbl in schema.texts:
     canvas.draw lbl
 

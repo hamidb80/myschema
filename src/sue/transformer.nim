@@ -1,4 +1,4 @@
-import std/[tables, sequtils, strformat]
+import std/[tables, sequtils, strformat, strutils]
 
 import ../common/[coordination, errors, seqs, domain]
 
@@ -6,7 +6,7 @@ import model as sm
 import ../middle/model as mm
 
 import logic
-import ../middle/logic
+import ../middle/logic as ml
 
 
 func toMiddleModel*(sch: sm.Schematic): mm.MSchematic =
@@ -78,6 +78,9 @@ func buildIcon(ico: MIcon): Icon =
     size: ico.size,
     lines: @[toLine toGeometry ico.size])
 
+func toSue(tr: MTransform): Orient =
+  Orient(rotation: tr.rotation, flips: tr.flips)
+
 func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
   result = new Schematic
 
@@ -87,22 +90,40 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
 
   for p in sch.ports:
     result.instances.add Instance(
-      location: p.position,
-      name: toSue p.parent.id)
+      name: toSue p.parent.id,
+      parent: lookup[$p.parent.dir],
+      location: p.position)
 
   for br in sch.busRippers:
-    discard
+    result.instances.add Instance(
+      name: toSue br.select,
+      parent: lookup["name_net"],
+      location: br.position)
+
+    result.wires.add br.position .. br.connection
 
   for t in sch.texts:
-    discard
+    result.labels.add Label(
+      location: t.position,
+      size: fzStandard,
+      content: t.texts.join "\n")
 
   for ins in sch.instances:
-    discard
+    let
+      m = lookup[ins.parent.name]
+      loc =
+        ins.geometry.topleft -
+        m.icon.size.toGeometry.rotate(P0, ins.transform.rotation).topleft
 
+    result.instances.add Instance(
+      name: ins.name,
+      parent: m,
+      args: @[], # TODO
+      location: loc,
+      orient: toSue ins.transform)
 
 func toSue(tt: MTruthTable): Schematic =
   result = new Schematic
-
 
 func toSue(arch: MArchitecture, lookup: ModuleLookUp): Architecture =
   case arch.kind:
@@ -110,8 +131,7 @@ func toSue(arch: MArchitecture, lookup: ModuleLookUp): Architecture =
   of makTruthTable: toArch toSue arch.truthTable
   of makCode, makExternalCode: toArch arch.file
 
-
-func tempModule(): Icon =
+func tempModule(): Module =
   Module(
     kind: mkCtx,
     isTemporary: true,
@@ -124,21 +144,20 @@ func tempModule(): Icon =
     size: (1, 1),
   ))
 
-const preDefinedModules = toTable {
-  "input": tempModule(),
-  "inout": tempModule(),
-  "output": tempModule(),
-  "name_net": tempModule(),
-  # "global": ## TODO for open ports
-}
-
-func toSue(proj: mm.MProject): sm.Project =
-  var lkp: ModuleLookUp = preDefinedModules
+func toSue*(proj: mm.MProject): sm.Project =
+  var lkp = toTable {
+    "input": tempModule(),
+    "inout": tempModule(),
+    "output": tempModule(),
+    "name_net": tempModule(),
+    # "global": ## TODO for open ports
+  }
 
   for name, mmdl in proj.modules:
     lkp[name] = Module(
       kind: mkCtx,
       name: name,
+      params: @[], # TODO
       icon: buildIcon mmdl.icon
     )
 

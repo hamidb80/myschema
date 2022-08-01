@@ -1,3 +1,5 @@
+
+
 func remove*[T](s: var seq[T], v: T) =
   let i = s.find(v)
 
@@ -15,3 +17,10 @@ template last*(s): untyped = s[^1]
 
 func shoot*(s: var seq) =
   s.del s.high
+
+func search*[T](s: openArray[T], check: proc(item: T): bool): T =
+  for i in s:
+    if check i:
+      return i
+
+  raise newException(ValueError, "not found")

@@ -1,5 +1,6 @@
 import std/[tables]
 import ../common/[coordination, domain]
+import lexer
 
 type
   FontSize* = enum
@@ -53,7 +54,7 @@ type
   Schematic* = ref object
     instances*: seq[Instance]
     wires*: seq[Wire]
-    texts*: seq[Label]
+    labels*: seq[Label]
 
   ModuleKind* = enum
     mkRef # instance
@@ -71,7 +72,6 @@ type
     of akFile:
       file*: MCodeFile
 
-
   Module* = ref object
     name*: string
 
@@ -81,12 +81,23 @@ type
     of mkCtx:
       icon*: Icon
       arch*: Architecture
+      params*: seq[Parameter]
       isTemporary*: bool # do not generate file for these modules
+
+  Parameter* = object
+    name*: string
+    defaultValue*: string
+
+  Argument* = object
+    name*: string
+    value*: string
+
 
   Instance* = ref object
     name*: string
     parent* {.cursor.}: Module
     location*: Point
+    args*: seq[Argument]
     orient*: Orient
 
   ModuleLookUp* = Table[string, Module]

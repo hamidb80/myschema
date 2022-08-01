@@ -61,10 +61,8 @@ type
     mtkSymbol, mtkOperator
 
   MToken* = object
-    case kind*: MTokenKind
-    of mtkOpenPar, mtkClosePar, mtkOpenBracket, mtkCloseBracket: discard
-    of mtkStringLiteral, mtkNumberLiteral, mtkOperator, mtkSymbol:
-      content*: string
+    kind*: MTokenKind
+    content*: string
 
   MTruthTable* = object
     headers*: seq[string]
@@ -160,7 +158,7 @@ type
 
   MParameter* = ref object
     name*: string
-    kind*: string
+    kind*: Option[string]
     default*: Option[MTokenGroup]
 
   MArg* = ref object
