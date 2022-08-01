@@ -1,6 +1,6 @@
-import std/[tables, sequtils, strformat, strutils]
+import std/[tables, sequtils, strformat, strutils, sugar, options]
 
-import ../common/[coordination, errors, seqs, domain]
+import ../common/[coordination, seqs, minitable]
 
 import model as sm
 import ../middle/model as mm
@@ -65,7 +65,7 @@ func iconPortLabel(p: Port): Label =
     size: fzStandard)
 
 func toLine(g: Geometry): Line =
-  Line(kind: straight, points: @(points g))
+  Line(kind: straight, points: points(g) & @[g.topleft])
 
 func buildIcon(ico: MIcon): Icon =
   let
@@ -154,12 +154,18 @@ func toSue*(proj: mm.MProject): sm.Project =
   }
 
   for name, mmdl in proj.modules:
+
+    let myParams = collect:
+      for p in values mmdl.parameters:
+        Parameter(
+          name: p.name,
+          defaultValue: map(p.defaultValue, toSue))
+
     lkp[name] = Module(
       kind: mkCtx,
       name: name,
-      params: @[], # TODO
-      icon: buildIcon mmdl.icon
-    )
+      params: myParams,
+      icon: buildIcon mmdl.icon)
 
   for name, mmdl in proj.modules:
     let a = mmdl.archs.choose

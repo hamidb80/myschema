@@ -1,6 +1,5 @@
-import std/[tables]
+import std/[tables, options]
 import ../common/[coordination, domain]
-import lexer
 
 type
   FontSize* = enum
@@ -86,7 +85,7 @@ type
 
   Parameter* = object
     name*: string
-    defaultValue*: string
+    defaultValue*: Option[string]
 
   Argument* = object
     name*: string

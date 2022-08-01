@@ -71,8 +71,8 @@ func bottomLeft*(geo: Geometry): Point =
 func bottomRight*(geo: Geometry): Point =
   (geo.x2, geo.y2)
 
-func points*(geo: Geometry): array[4, Point] =
-  [topLeft geo, topRight geo, bottomRight geo, bottomLeft geo]
+func points*(geo: Geometry): seq[Point] =
+  @[topLeft geo, topRight geo, bottomRight geo, bottomLeft geo]
 
 func area*(ps: seq[Point]): Geometry =
   var

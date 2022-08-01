@@ -119,7 +119,7 @@ func extractParams(en: Entity): MParamsLookup =
     result[name] = MParameter(
       name: name,
       kind: ga.kind,
-      default: lexCode ga.defValue)
+      defaultValue: lexCode ga.defValue)
 
 func extractArgs(cp: Component, lookup: MParamsLookup): seq[MArg] =
   for ag in cp.generics:

@@ -159,7 +159,7 @@ type
   MParameter* = ref object
     name*: string
     kind*: Option[string]
-    default*: Option[MTokenGroup]
+    defaultValue*: Option[MTokenGroup]
 
   MArg* = ref object
     parameter*: MParameter
