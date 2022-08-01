@@ -98,7 +98,7 @@ func afterTransform*(icon: MIcon, ro: Rotation, pos: Point): Geometry =
 
 const
   EOS = '\0'
-  Operators = {'+', '-', '&', '!', '?', '|', '/', ':', ','}
+  Operators = {'+', '-', '&', '!', '?', '|', '/', ':', ',', '=', '<', '>'}
 
 type LexerState = enum
   lsInitial
@@ -137,7 +137,7 @@ func lexCode*(s: string): MTokenGroup =
         capture = i
         state = lsSymbol
 
-      of '"':
+      of '"', '\'':
         capture = i+1
         state = lsString
 
@@ -149,10 +149,10 @@ func lexCode*(s: string): MTokenGroup =
         result.add MToken(kind: toMTokenKind ch)
 
       else:
-        err fmt"invalid char: {ch}"
+        err fmt"invalid char: {ch}, {s}"
 
     of lsString:
-      if ch == '"' and not isEscaped:
+      if ch in {'"', '\''} and not isEscaped:
         result.add MToken(kind: mtkStringLiteral, content: s[capture ..< i])
         reset state
 
@@ -165,7 +165,7 @@ func lexCode*(s: string): MTokenGroup =
 
     of lsNumber:
       case ch:
-      of Digits, '\'', 'h', 'b', 'x', 'd', '.': discard
+      of Digits, '\'', '#', 'z', 'h', 'b', 'x', 'd', '.': discard
       else:
         result.add MToken(kind: mtkNumberLiteral, content: s[capture ..< i])
         reset state

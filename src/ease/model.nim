@@ -53,10 +53,12 @@ type
     amExternalHDLFIle  # HDL code
 
   ProcessKind* = enum
-    ptProcess
-    ptStateDiagram
-    ptConcurrentStatement
-    ptTruthTable
+    ptProcess = 1
+    ptStateDiagram 
+    ptConcurrentStatement 
+    ptInitialConstruct
+    ptTruthTable 
+    ptSpecifyBlock
 
   GenerateBlockKind* = enum
     gbtForGenerate = 1
@@ -223,6 +225,8 @@ type
       label*: Label
       number*: int
       coding*: string
+      fsm*: Option[FsmDiagram]
+      slave*: Option[Slave]
 
   ConnectionNode* = object
     case kind*: ConnectionNodeKind
@@ -271,7 +275,19 @@ type
     slaves*: seq[Slave]
     transitions*: seq[TransitionLine]
 
+  SlaveKind* = enum
+    slvRef, slvDef
+
   Slave* = ref object
+    obid*: Obid
+
+    case kind*: SlaveKind
+    of slvRef: discard
+    of slvDef:
+      ident*: HdlIdent
+      geometry*: Geometry
+      stateMachine*: StateMachineV2
+
 
   Action* = ref object
     obid*: Obid

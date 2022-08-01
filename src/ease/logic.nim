@@ -77,7 +77,7 @@ func getIfCond*(gb: GenerateBlock): string =
   gb.properties["IF_CONDITION"]
 
 func getForInfo*(gb: GenerateBlock): tuple[ident: string, `range`: Range] =
-  (gb.properties["FOR_LOOP_VAR"], gb.ident.attributes.constraint.get.`range`)
+  (gb.properties["FOR_LOOP_VAR"], gb.constraint.get.`range`)
 
 func translationAfter*(geo: Geometry, ro: Rotation): Vector =
   ## returns a vector that if added to the result,

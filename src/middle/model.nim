@@ -130,7 +130,13 @@ type
     name*: string
     content*: string
 
+  # MState* = ref object
+
   MFsm* = ref object
+  #   states*: seq[MState]
+  #   slaves*: seq[Slave]
+  #   transitions*: seq[MTransition]
+  #   texts*: seq[MText]
 
   MArchitecture* = ref object
     case kind*: MArchitectureKind

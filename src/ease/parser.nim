@@ -436,7 +436,10 @@ func parseHdlFileImple(fileNode: LispNode, result: var HdlFile) =
 
 func parseHdlFile(hdlFileNode: LispNode): HdlFile =
   result = new HdlFile
-  parseHdlFileImple hdlFileNode.arg(0), result
+  if hdlFileNode.len == 2:
+    parseHdlFileImple hdlFileNode.arg(0), result
+
+func parseFsm(fsmDiagramNode: LispNode): FsmDiagram
 
 func parseFsmp(globalNode: LispNode): Global =
   result = new Global
@@ -475,9 +478,13 @@ func parseStat(stateNode: LispNode): State =
     of "CODING":
       result.coding = parseStr n
 
-    of "FSM_DIAGRAM":
-      err "what" # i think it's nested
+    of "FSM_DIAGRAM": # hiraky state
+      result.fsm = some parseFsm n
 
+    of "SLAVE":
+      result.slave = some Slave(kind: slvRef, obid: parseOBID n)
+
+    of "ACTION", "PROPERTIES":  discard
     else:
       err fmt"invalid node '{n.ident}' for STATE"
 
@@ -605,8 +612,28 @@ func parseTran(lineNode: LispNode): TransitionLine =
     else:
       err fmt"invalid node '{n.ident}'"
 
+func parseFsmx(stateDiagramNode: LispNode): StateMachineV2
+
 func parseSlav(slaveNode: LispNode): Slave =
-  discard
+  result = Slave(kind: slvDef)
+
+  for n in slaveNode:
+    case n.ident:
+    of "OBID":
+      result.obid = parseOBID n
+    
+    of "HDL_IDENT":
+      result.ident = parseHDLIdent n
+
+    of "GEOMETRY":
+      result.geometry = parseGeometry n
+    
+    of "STATE_MACHINE_V2":
+      result.stateMachine = parseFsmx n
+
+    of "LABEL", "SIDE": discard
+    else:
+      err fmt"invalid node {n.ident}"
 
 func parseFsm(fsmDiagramNode: LispNode): FsmDiagram =
   result = new FsmDiagram
@@ -628,9 +655,8 @@ func parseFsm(fsmDiagramNode: LispNode): FsmDiagram =
     of "SLAVE":
       result.slaves.add parseSlav n
 
-    of "TRANS_SPLINE":
+    of "TRANS_SPLINE", "TRANS_LINE":
       result.transitions.add parseTran n
-
 
 func parseFsmx(stateDiagramNode: LispNode): StateMachineV2 =
   result = new StateMachineV2

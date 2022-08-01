@@ -71,10 +71,7 @@ func lexCode(s: Option[string]): Option[MTokenGroup] =
     result = some lexCode s.get
 
 func getBusSelect*(br: BusRipper): MSBusSelect =
-  let
-    cn = br.ident.attributes.constraint.get
-    r = cn.`range`
-    i = r.indexes
+  let cn = br.ident.attributes.constraint.get
 
   case cn.kind:
   of ckIndex:
@@ -84,6 +81,10 @@ func getBusSelect*(br: BusRipper): MSBusSelect =
       MSBusSelect(kind: mbsIndex, index: lexCode cn.index)
 
   of ckRange:
+    let
+      r = cn.`range`
+      i = r.indexes
+
     MSBusSelect(kind: mbsSlice,
       dir: r.direction,
       slice: (i.a.lexCode .. i.b.lexCode))
@@ -132,11 +133,12 @@ proc initProcessElement(pr: Process): MElement =
   of ptStateDiagram:
     mm.MElement(kind: mekFSM)
 
-  of ptConcurrentStatement:
+  of ptConcurrentStatement, ptInitialConstruct, ptSpecifyBlock:
     mm.MElement(kind: mekPartialCode)
 
   of ptTruthTable:
     mm.MElement(kind: mekTruthTable)
+
 
 proc initModule(en: em.Entity): mm.MElement =
   mm.MElement(
@@ -145,7 +147,6 @@ proc initModule(en: em.Entity): mm.MElement =
     icon: extractIcon en,
     parameters: extractParams en
   )
-
 
 proc buildSchema(schema: sink em.Schematic,
   mlk: Table[em.Obid, mm.MElement],
