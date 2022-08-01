@@ -7,6 +7,9 @@ type EncodeContext = enum
   ecIcon, ecSchematic
 
 
+func quoted(s: string): string =
+  '{' & s & '}'
+
 template toOption(f, val): untyped =
   SueOption(flag: f, value: toToken val)
 
@@ -14,7 +17,7 @@ func toToken*(p: Point): SueToken =
   toToken '{' & $p.x & ' ' & $p.y & '}'
 
 func `$`*(o: Orient): string =
-  $o.rotation & join toseq o.flips
+  'R' & $o.rotation.int & join toseq o.flips
 
 func `$`(pd: PortDir): string =
   case pd:
@@ -27,6 +30,7 @@ func speardPoints(points: seq[Point]): seq[int] =
     result.add p.x
     result.add p.y
 
+# TODO add params
 
 func encode(l: Line, ctx: EncodeContext): SueExpression =
   case l.kind:
@@ -62,9 +66,9 @@ func encode(arg: Argument): SueOption =
 func encode(i: Instance): SueExpression =
   SueExpression(
     command: scMake,
-    args: @[totoken i.parent.name],
+    args: @[toToken i.parent.name],
     options: @[
-      toOption(sfName, i.name),
+      toOption(sfName, quoted i.name),
       toOption(sfOrigin, i.location),
       toOption(sfOrient, $i.orient),
     ] & map(i.args, encode),
@@ -78,7 +82,7 @@ func encode(l: Label, ctx: EncodeContext): SueExpression =
       options: @[
         toOption(sfOrigin, l.location),
         toOption(sfAnchor, $l.anchor),
-        toOption(sfLabel, l.content)
+        toOption(sfLabel, quoted l.content)
       ]
     )
 
@@ -88,7 +92,7 @@ func encode(l: Label, ctx: EncodeContext): SueExpression =
       options: @[
         toOption(sfOrigin, l.location),
         toOption(sfAnchor, $l.anchor),
-        toOption(sfText, l.content)
+        toOption(sfText, quoted l.content)
       ]
     )
 
@@ -97,13 +101,13 @@ func encode(p: Port): SueExpression =
     command: scMake,
     args: @[toToken $p.kind],
     options: @[
-      toOption(sfName, p.name),
+      toOption(sfName, quoted p.name),
       toOption(sfOrigin, p.location)
     ],
   )
 
-func toSueFile(sch: Schematic, ico: Icon): SueFile =
-  result = new SueFile
+func toSueFile(name: string, sch: Schematic, ico: Icon): SueFile =
+  result = SueFile(name: name)
 
   # --- icon
 
@@ -151,7 +155,7 @@ proc writeProject*(proj: Project, dest: string) =
         a = module.arch
         (fname, content) =
           case a.kind:
-          of akSchematic: (name & ".sue", dump toSueFile(a.schema, module.icon))
+          of akSchematic: (name & ".sue", dump toSueFile(name, a.schema, module.icon))
           of akFile: (name, a.file.content)
 
       writeFile dest / fname, content

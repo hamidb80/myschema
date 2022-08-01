@@ -94,7 +94,11 @@ iterator points*(net: MNet): Point =
 
 
 func choose*(archs: seq[MArchitecture]): MArchitecture =
-  discard
+  result = archs[0]
+
+  for a in archs:
+    if a.kind == makSchema:
+      result = a
 
 func afterTransform*(icon: MIcon, ro: Rotation, pos: Point): Geometry =
   toGeometry(icon.size).rotate(P0, ro).placeAt(pos)

@@ -85,8 +85,14 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
   result = new Schematic
 
   for n in sch.nets:
-    for w in segments n:
-      result.wires.add w
+    case n.kind:
+    of mnkWire:
+      for w in segments n:
+        result.wires.add w
+    
+    else: 
+      discard
+      
 
   for p in sch.ports:
     result.instances.add Instance(
@@ -115,6 +121,8 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
         ins.geometry.topleft -
         m.icon.size.toGeometry.rotate(P0, ins.transform.rotation).topleft
 
+
+
     result.instances.add Instance(
       name: ins.name,
       parent: m,
@@ -131,8 +139,9 @@ func toSue(arch: MArchitecture, lookup: ModuleLookUp): Architecture =
   of makTruthTable: toArch toSue arch.truthTable
   of makCode, makExternalCode: toArch arch.file
 
-func tempModule(): Module =
+func tempModule(n: string): Module =
   Module(
+    name: n,
     kind: mkCtx,
     isTemporary: true,
     icon: Icon(
@@ -145,11 +154,12 @@ func tempModule(): Module =
   ))
 
 func toSue*(proj: mm.MProject): sm.Project =
-  var lkp = toTable {
-    "input": tempModule(),
-    "inout": tempModule(),
-    "output": tempModule(),
-    "name_net": tempModule(),
+  result = new Project
+  result.modules = toTable {
+    "input": tempModule("input"),
+    "inout": tempModule("inout"),
+    "output": tempModule("output"),
+    "name_net": tempModule("name_net"),
     # "global": ## TODO for open ports
   }
 
@@ -161,7 +171,7 @@ func toSue*(proj: mm.MProject): sm.Project =
           name: p.name,
           defaultValue: map(p.defaultValue, toSue))
 
-    lkp[name] = Module(
+    result.modules[name] = Module(
       kind: mkCtx,
       name: name,
       params: myParams,
@@ -169,5 +179,5 @@ func toSue*(proj: mm.MProject): sm.Project =
 
   for name, mmdl in proj.modules:
     let a = mmdl.archs.choose
-    debugEcho ">> ", name
-    lkp[name].arch = toSue(a, lkp)
+    result.modules[name].arch = toSue(a, result.modules)
+

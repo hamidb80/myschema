@@ -79,7 +79,8 @@ type
     lsExprCmd, lsExprArgs, lsExprFlag, lsExprValue
 
   ProcKinds = enum
-    pkSchematic, pkIcon
+    pkSchematic = "SCHEMATIC"
+    pkIcon = "ICON"
 
 
 using
@@ -146,7 +147,7 @@ func `[]`*(se: SueExpression, f: SueFlag): SueToken =
     if o.flag == f:
       return o.value
 
-  err fmt"flag '{f}' not found" 
+  err fmt"flag '{f}' not found"
 
 func find*(se: SueExpression, f: SueFlag): Option[SueToken] =
   for o in se.options:
@@ -343,14 +344,14 @@ func dump*(expr: SueExpression): string =
 func dump*(sf: SueFile): string =
   var lines = @[fmt "# SUE version {SueVersion}\n"]
 
-  template addProc(exprWrapper, args): untyped =
-    lines.add "proc ICON_" & sf.name & " {args} {"
+  template addProc(procKind, exprWrapper, args): untyped =
+    lines.add "proc $#_$# {args} {" % [$procKind, sf.name]
     for expr in exprWrapper:
       lines.add dump expr
     lines.add "}\n"
 
-  addProc sf.schematic, "{}"
+  addProc pkSchematic, sf.schematic, "{}"
   if sf.icon.len != 0:
-    addProc sf.icon, "args"
+    addProc pkIcon, sf.icon, "args"
 
   lines.join "\n"

@@ -70,7 +70,7 @@ func lexCode(s: Option[string]): Option[MTokenGroup] =
   if isSome s:
     result = some lexCode s.get
 
-func getBusSelect*(br: BusRipper): MIdentifier =
+func getBusSelect*(br: BusRipper, net: Net): MIdentifier =
   let cn = br.ident.attributes.constraint.get
 
   result =
@@ -90,7 +90,7 @@ func getBusSelect*(br: BusRipper): MIdentifier =
         direction: r.direction,
         indexes: (i.a.lexCode .. i.b.lexCode))
 
-  result.name = br.ident.name
+  result.name = net.ident.name
 
 func extractGenerateBlockInfo(gb: GenerateBlock): GenerateInfo =
   case gb.kind:
@@ -142,6 +142,15 @@ proc initProcessElement(pr: Process): MElement =
     mm.MElement(kind: mekTruthTable)
 
 
+func toArch(sch: sink MSchematic): MArchitecture =
+  MArchitecture(kind: makSchema, schema: sch)
+
+func toArch(tt: sink MTruthTable): MArchitecture =
+  MArchitecture(kind: makTruthTable, truthTable: tt)
+
+func toArch(cf: sink MCodeFile): MArchitecture =
+  MArchitecture(kind: makCode, file: cf)
+
 proc initModule(en: em.Entity): mm.MElement =
   mm.MElement(
     name: en.ident.name,
@@ -150,7 +159,8 @@ proc initModule(en: em.Entity): mm.MElement =
     parameters: extractParams en
   )
 
-proc buildSchema(schema: sink em.Schematic,
+proc buildSchema(moduleName: string,
+  schema: sink em.Schematic,
   icon: MIcon,
   mlk: Table[em.Obid, mm.MElement],
   elements: var Table[string, mm.MElement]
@@ -198,10 +208,12 @@ proc buildSchema(schema: sink em.Schematic,
         args: argsSeq,
         ports: parentEl.icon.ports.mapIt copyPort(it, tFn))
 
-    template makeParent(el, easeNode): untyped =
+    template makeParent(el, ico, arch): untyped =
+      let yourName{.inject.} = moduleName & "_" & randomHdlIdent()
       var parent = el
-      parent.name = el.name & "_" & randomHdlIdent()
-      parent.icon = extractIcon easeNode
+      parent.name = yourName
+      parent.icon = ico
+      parent.archs = @[arch]
       elements[parent.name] = parent
       parent
 
@@ -222,7 +234,7 @@ proc buildSchema(schema: sink em.Schematic,
 
     for pr in schema.processes:
       let
-        el = makeParent(initProcessElement pr, pr)
+        el = makeParent(initProcessElement pr, extractIcon pr, toArch MSchematic()) # FIXME
         ins = makeInstance(pr.ident.name, el, pr.geometry,
           getTransform pr, @[])
 
@@ -235,7 +247,8 @@ proc buildSchema(schema: sink em.Schematic,
 
     for gb in schema.generateBlocks:
       let
-        el = makeParent(makeGenerator gb, gb)
+        ico = extractIcon gb
+        el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName, gb.schematic, ico, mlk, elements))
         ins = makeInstance(gb.ident.name, el, gb.geometry,
           getTransform gb, @[])
 
@@ -274,7 +287,7 @@ proc buildSchema(schema: sink em.Schematic,
           of brsBottomLeft: bottomLeft bp.geometry
 
         result.busRippers.add MBusRipper(
-          select: getBusSelect bp,
+          select: getBusSelect( bp, n),
           source: allNetsMap[addr n[]],
           dest: allNetsMap[addr bp.destNet[]],
           position: center bp.geometry,
@@ -289,16 +302,6 @@ func buildCodeFile(hf: sink HdlFile): MCodeFile =
 
 func buildFsm(stateMachine: sink StateMachineV2): MSchematic =
   result = mm.MSchematic()
-
-func toArch(sch: sink MSchematic): MArchitecture =
-  MArchitecture(kind: makSchema, schema: sch)
-
-func toArch(tt: sink MTruthTable): MArchitecture =
-  MArchitecture(kind: makTruthTable, truthTable: tt)
-
-func toArch(cf: sink MCodeFile): MArchitecture =
-  MArchitecture(kind: makCode, file: cf)
-
 
 proc toMiddleModel*(proj: em.Project): mm.MProject =
   result = mm.MProject()
@@ -320,7 +323,7 @@ proc toMiddleModel*(proj: em.Project): mm.MProject =
       m.archs.add:
         case a.kind:
         of amBlockDiagram:
-          toArch buildSchema(
+          toArch buildSchema(m.name,
             a.body.schematic,
             m.icon,
             modernIdMap,
