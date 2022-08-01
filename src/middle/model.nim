@@ -8,14 +8,12 @@ type
     wkInstance
 
   MPortDir* = enum
-    input, output, inout
+    mpdInput, mpdOutput, mpdInout
 
   MArchitectureKind* = enum
     makSchema
-    makFSM
     makTruthTable
-    makCode
-    makExternalCode
+    makCode, makExternalCode
 
   MElementKind* = enum
     mekModule
@@ -34,21 +32,23 @@ type
     position*: Point
     fontSize*: int
 
-  MSBusSelectKind* = enum
-    mbsSingle, mbsIndex, mbsSlice
+  MIndetifierKind* = enum
+    mikSingle, mikIndex, mikRange
 
-  MSBusSelect* = ref object
-    case kind*: MSBusSelectKind
-    of mbsSingle: discard # consider "?" when selecting single wire
-    of mbsIndex:
+  MIdentifier* = object
+    name*: string
+
+    case kind*: MIndetifierKind
+    of mikSingle: discard
+    of mikIndex:
       index*: MTokenGroup
 
-    of mbsSlice:
-      dir*: NumberDirection
-      slice*: Slice[MTokenGroup]
+    of mikRange:
+      direction*: NumberDirection
+      indexes*: Slice[MTokenGroup]
 
   MBusRipper* = ref object
-    select*: MSBusSelect
+    select*: MIdentifier
     source*, dest*: MNet
     position*, connection*: Point
 
@@ -63,14 +63,8 @@ type
   MToken* = object
     case kind*: MTokenKind
     of mtkOpenPar, mtkClosePar, mtkOpenBracket, mtkCloseBracket: discard
-    of mtkOperator:
-      operator*: string
-
-    of mtkStringLiteral, mtkNumberLiteral:
+    of mtkStringLiteral, mtkNumberLiteral, mtkOperator, mtkSymbol:
       content*: string
-
-    of mtkSymbol:
-      sym*: string
 
   MTruthTable* = object
     headers*: seq[string]
@@ -86,21 +80,6 @@ type
 
     of wkInstance:
       instance: MInstance
-
-  MIndetifierKind* = enum
-    mikSingle, mikIndex, mikRange
-
-  MIdentifier* = object
-    name*: string
-
-    case kind*: MIndetifierKind
-    of mikSingle: discard
-    of mikIndex:
-      index*: MTokenGroup
-
-    of mikRange:
-      direction*: NumberDirection
-      indexes*: Slice[MTokenGroup]
 
   MportKind* = enum
     mpOriginal
@@ -123,20 +102,8 @@ type
     nets*: seq[MNet]
     busRippers*: seq[MBusRipper]
     instances*: seq[MInstance]
-    labels*: seq[MText]
+    texts*: seq[MText]
     size*: Size
-
-  MCodeFile* = object
-    name*: string
-    content*: string
-
-  # MState* = ref object
-
-  MFsm* = ref object
-  #   states*: seq[MState]
-  #   slaves*: seq[Slave]
-  #   transitions*: seq[MTransition]
-  #   texts*: seq[MText]
 
   MArchitecture* = ref object
     case kind*: MArchitectureKind
@@ -145,9 +112,6 @@ type
 
     of makTruthTable:
       truthTable*: MTruthTable
-
-    of makFSM:
-      fsm*: MFsm
 
     of makCode, makExternalCode:
       file*: MCodeFile
@@ -215,9 +179,9 @@ type
     of mnkWire:
       start*: WireGraphNode
 
-  ModuleLookup* = Table[string, MElement]
+  MModuleLookup* = Table[string, MElement]
 
   MProject* = ref object
-    modules*: ModuleLookup
+    modules*: MModuleLookup
 
 # FIXME in `transformer.nim` types with the same name cause gcc error

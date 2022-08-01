@@ -126,7 +126,7 @@ func toGeometry*(p: Point): Geometry =
 
 func toGeometry*(s: Size): Geometry =
   toGeometry toPoint s
-  
+
 func toSize*(g: Geometry): Size =
   (g.x2 - g.x1, g.y2 - g.y1)
 

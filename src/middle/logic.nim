@@ -93,6 +93,9 @@ iterator points*(net: MNet): Point =
     yield nextNode.location
 
 
+func choose*(archs: seq[MArchitecture]): MArchitecture =
+  discard
+
 func afterTransform*(icon: MIcon, ro: Rotation, pos: Point): Geometry =
   toGeometry(icon.size).rotate(P0, ro).placeAt(pos)
 
@@ -112,6 +115,15 @@ func toMTokenKind(ch: char): MTokenKind =
   of '[': mtkOpenBracket
   of ']': mtkCloseBracket
   else: err "invalid char"
+
+func `$`*(tkn: MToken): string =
+  case tkn.kind:
+  of mtkOpenPar: "("
+  of mtkClosePar: ")"
+  of mtkOpenBracket: "["
+  of mtkCloseBracket: "]"
+  of mtkOperator, mtkNumberLiteral, mtkSymbol: tkn.content
+  of mtkStringLiteral: '"' & tkn.content & '"'
 
 func lexCode*(s: string): MTokenGroup =
   var
@@ -175,7 +187,7 @@ func lexCode*(s: string): MTokenGroup =
       case ch:
       of Operators: discard
       else:
-        result.add MToken(kind: mtkOperator, operator: s[capture ..< i])
+        result.add MToken(kind: mtkOperator, content: s[capture ..< i])
         reset state
         dec i
 
@@ -183,7 +195,7 @@ func lexCode*(s: string): MTokenGroup =
       case ch:
       of IdentChars: discard
       else:
-        result.add MToken(kind: mtkSymbol, sym: s[capture ..< i])
+        result.add MToken(kind: mtkSymbol, content: s[capture ..< i])
         reset state
         dec i
 

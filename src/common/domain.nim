@@ -32,6 +32,10 @@ type
   Language* = enum
     Verilog, VHDL
 
+  MCodeFile* = object
+    name*: string
+    content*: string
+
 
 proc randomHdlIdent*(len = 10): string =
   result = newStringOfCap len

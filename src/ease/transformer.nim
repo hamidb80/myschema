@@ -70,25 +70,27 @@ func lexCode(s: Option[string]): Option[MTokenGroup] =
   if isSome s:
     result = some lexCode s.get
 
-func getBusSelect*(br: BusRipper): MSBusSelect =
+func getBusSelect*(br: BusRipper): MIdentifier =
   let cn = br.ident.attributes.constraint.get
 
-  case cn.kind:
-  of ckIndex:
-    if cn.index == "?":
-      MSBusSelect(kind: mbsSingle)
-    else:
-      MSBusSelect(kind: mbsIndex, index: lexCode cn.index)
+  result =
+    case cn.kind:
+    of ckIndex:
+      if cn.index == "?":
+        MIdentifier(kind: mikSingle)
+      else:
+        MIdentifier(kind: mikIndex, index: lexCode cn.index)
 
-  of ckRange:
-    let
-      r = cn.`range`
-      i = r.indexes
+    of ckRange:
+      let
+        r = cn.`range`
+        i = r.indexes
 
-    MSBusSelect(kind: mbsSlice,
-      dir: r.direction,
-      slice: (i.a.lexCode .. i.b.lexCode))
+      MIdentifier(kind: mikRange,
+        direction: r.direction,
+        indexes: (i.a.lexCode .. i.b.lexCode))
 
+  result.name = br.ident.name
 
 func extractGenerateBlockInfo(gb: GenerateBlock): GenerateInfo =
   case gb.kind:
@@ -160,7 +162,7 @@ proc buildSchema(schema: sink em.Schematic,
 
 
   for fpt in schema.freePlacedTexts:
-    result.labels.add toText fpt
+    result.texts.add toText fpt
 
   for p in schema.ports:
     let mp = mm.MPort(
@@ -194,7 +196,7 @@ proc buildSchema(schema: sink em.Schematic,
 
     template makeParent(el, easeNode): untyped =
       var parent = el
-      parent.name = randomHdlIdent()
+      parent.name = el.name & "_" & randomHdlIdent()
       parent.icon = extractIcon easeNode
       elements[parent.name] = parent
       parent
@@ -212,7 +214,7 @@ proc buildSchema(schema: sink em.Schematic,
       for i, p in c.ports:
         allPortsMap[addr p[]] = ins.ports[i]
 
-      result.labels.add toText c.label
+      result.texts.add toText c.label
 
     for pr in schema.processes:
       let
@@ -225,7 +227,7 @@ proc buildSchema(schema: sink em.Schematic,
       for i, p in pr.ports:
         allPortsMap[addr p[]] = ins.ports[i]
 
-      result.labels.add toText pr.label
+      result.texts.add toText pr.label
 
     for gb in schema.generateBlocks:
       let
@@ -237,7 +239,7 @@ proc buildSchema(schema: sink em.Schematic,
         allPortsMap[addr p[]] = ins.ports[i]
 
       result.instances.add ins
-      result.labels.add toText gb.label
+      result.texts.add toText gb.label
 
   for n in schema.nets:
     var mn = case n.part.kind:
@@ -281,9 +283,8 @@ func buildTruthTable(tt: sink TruthTable): MTruthTable =
 func buildCodeFile(hf: sink HdlFile): MCodeFile =
   MCodeFile(name: hf.name, content: hf.content.join "\n")
 
-func buildFsm(stateMachine: sink StateMachineV2): MFsm =
-  discard
-
+func buildFsm(stateMachine: sink StateMachineV2): MSchematic =
+  result = mm.MSchematic()
 
 func toArch(sch: sink MSchematic): MArchitecture =
   MArchitecture(kind: makSchema, schema: sch)
@@ -293,9 +294,6 @@ func toArch(tt: sink MTruthTable): MArchitecture =
 
 func toArch(cf: sink MCodeFile): MArchitecture =
   MArchitecture(kind: makCode, file: cf)
-
-func toArch(f: sink MFsm): MArchitecture =
-  MArchitecture(kind: makFsm, fsm: f)
 
 
 proc toMiddleModel*(proj: em.Project): mm.MProject =
@@ -323,11 +321,11 @@ proc toMiddleModel*(proj: em.Project): mm.MProject =
             modernIdMap,
             result.modules)
 
-        of amHDLFile:
-          toArch buildCodeFile a.body.file
-
         of amStateDiagram: # FSM
           toArch buildFsm a.body.stateMachine
+
+        of amHDLFile:
+          toArch buildCodeFile a.body.file
 
         of amTableDiagram:
           toArch buildTruthTable a.body.truthTable

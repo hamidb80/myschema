@@ -24,7 +24,7 @@ type
     size*: FontSize
 
   PortDir* = enum
-    input, output, inout
+    pdInput, pdOutput, pdInout
 
   Port* = ref object
     kind*: PortDir
@@ -47,6 +47,7 @@ type
     ports*: seq[Port]
     labels*: seq[Label]
     lines*: seq[Line]
+    size*: Size
     # properties*: for Generics
 
   Schematic* = ref object
@@ -58,14 +59,29 @@ type
     mkRef # instance
     mkCtx
 
+  ArchitectureKind* = enum
+    akSchematic
+    akFile
+
+  Architecture* = object
+    case kind*: ArchitectureKind
+    of akSchematic:
+      schema*: Schematic
+
+    of akFile:
+      file*: MCodeFile
+
+
   Module* = ref object
     name*: string
 
     case kind*: ModuleKind
     of mkRef: discard
+    # of mkPreDefined:
     of mkCtx:
       icon*: Icon
-      schema*: Schematic
+      arch*: Architecture
+      isTemporary*: bool # do not generate file for these modules
 
   Instance* = ref object
     name*: string
