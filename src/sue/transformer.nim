@@ -1,6 +1,6 @@
-import std/[tables, sequtils, strformat, strutils, sugar, options]
+import std/[tables, strformat, sequtils, strutils, options]
 
-import ../common/[coordination, seqs, minitable]
+import ../common/[coordination, seqs, minitable, domain]
 
 import model as sm
 import ../middle/model as mm
@@ -8,11 +8,9 @@ import ../middle/model as mm
 import logic
 import ../middle/logic as ml
 
-
 func toMiddleModel*(sch: sm.SSchematic): mm.MSchematic =
   mm.MSchematic(
-    nets: toNets sch.wires
-  )
+    nets: toNets sch.wires)
 
 func toMiddleModel*(ico: sm.Icon): mm.MIcon =
   discard
@@ -40,6 +38,12 @@ func toSue(gt: MTokenGroup): string =
       case t.kind:
       of mtkSymbol: '$' & $t
       else: $t
+
+func toSue(tr: MTransform): Orient =
+  Orient(rotation: tr.rotation, flips: tr.flips)
+
+func toSue(a: MArg): Argument =
+  Argument(name: a.parameter.name, value: toSue a.value.get)
 
 func toSue(id: MIdentifier): string =
   case id.kind:
@@ -81,8 +85,20 @@ func buildIcon(ico: MIcon): Icon =
     size: ico.size,
     lines: @[toLine toGeometry ico.size])
 
-func toSue(tr: MTransform): Orient =
-  Orient(rotation: tr.rotation, flips: tr.flips)
+# func
+
+func addIconPorts(s: var SSchematic, ico: Icon, lookup: ModuleLookUp) =
+  for p in ico.ports:
+    s.instances.add Instance(
+      name: p.name,
+      parent: lookup[$p.kind],
+      location: p.location)
+
+func toArch*(sch: SSchematic): Architecture =
+  Architecture(kind: akSchematic, schema: sch)
+
+func toArch*(f: MCodeFile): Architecture =
+  Architecture(kind: akFile, schema: SSchematic(), file: f)
 
 func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
   result = new SSchematic
@@ -124,12 +140,10 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
         ins.geometry.topleft -
         m.icon.size.toGeometry.rotate(P0, ins.transform.rotation).topleft
 
-
-
     result.instances.add Instance(
       name: ins.name,
       parent: m,
-      args: @[], # TODO
+      args: ins.args.filterIt(it.value.issome).map(toSue), # TODO
       location: loc,
       orient: toSue ins.transform)
 
@@ -137,8 +151,8 @@ func toSue(tt: MTruthTable): SSchematic =
   result = new SSchematic
 
   const
-    w = 200
-    h = 100
+    W = 200
+    H = 100
 
   var y, x = 0
 
@@ -146,32 +160,38 @@ func toSue(tt: MTruthTable): SSchematic =
     Label(
       content: c,
       location: (x, y),
-      anchor: e,
+      anchor: w,
       size: fzStandard)
 
   template makeLine(y): untyped =
     Line(kind: straight,
-      points: @[(0, y), (tt.headers.len * w, y)])
+      points: @[(0, y), (tt.headers.len * W, y)])
 
 
   for h in tt.headers:
     result.labels.add makeLabel h
-    inc x, w
+    inc x, W
 
   for r in tt.rows:
     reset x
-    inc y, h
     result.lines.add makeLine y
+    inc y, H
 
     for cell in r:
-      inc x, w
       result.labels.add makeLabel cell
+      inc x, W
 
-func toSue(arch: MArchitecture, lookup: ModuleLookUp): Architecture =
-  case arch.kind:
-  of makSchema: toArch toSue(arch.schema, lookup)
-  of makTruthTable: toArch toSue arch.truthTable
-  of makCode, makExternalCode: toArch arch.file
+func toSue(arch: MArchitecture, ico: Icon,
+  lookup: ModuleLookUp, m: Module): Architecture =
+
+  result = case arch.kind:
+    of makSchema: toArch toSue(arch.schema, lookup)
+    of makTruthTable: toArch toSue(arch.truthTable)
+    of makCode, makExternalCode: toArch(arch.file)
+
+  if arch.kind != makSchema:
+    result.schema.addIconPorts ico, lookup
+
 
 func tempModule(n: string): Module =
   Module(
@@ -214,5 +234,6 @@ func toSue*(proj: mm.MProject): sm.Project =
       params: myParams,
       icon: buildIcon mmdl.icon)
 
-  for name, mmdl in proj.modules:
-    result.modules[name].arch = toSue(mmdl.arch, result.modules)
+  for name, mmdl in mpairs proj.modules:
+    var m = result.modules[name]
+    m.arch = toSue(mmdl.arch, m.icon, result.modules, m)

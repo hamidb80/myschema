@@ -1,6 +1,6 @@
 import std/[os, tables, sequtils, strutils, strformat, times, options]
 import ../common/[coordination, domain]
-import model, lexer
+import model, lexer, logic
 
 
 type EncodeContext = enum
@@ -18,12 +18,6 @@ func toToken*(p: Point): SueToken =
 
 func `$`*(o: Orient): string =
   'R' & $o.rotation.int & join toseq o.flips
-
-func `$`(pd: PortDir): string =
-  case pd:
-  of pdInput: "input"
-  of pdOutput: "output"
-  of pdInout: "inout"
 
 func speardPoints(points: seq[Point]): seq[int] =
   for p in points:

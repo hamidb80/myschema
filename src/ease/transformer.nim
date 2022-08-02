@@ -40,10 +40,11 @@ func copyPort(p: MPort, fn: Transformer): MPort =
 func toPortDir(m: em.PortMode): mm.MPortDir =
   case m:
   of pmInput: mpdInput
-  of pmOutput: mpdInput
-  of pmInout: mpdInout
-  of pmBuffer: mpdOutput
-  of pmVirtual: err "Ease/virtualRecord -> Middle/PORT_TYPE is not implemented"
+  of pmOutput: mpdOutput
+  of pmInout, pmBuffer: mpdInout
+  of pmVirtual:
+    debugecho "Ease/virtualRecord -> Middle/PORT_TYPE is converted to `inout`"
+    mpdInout
 
 func toMIdent(id: Identifier): MIdentifier =
   result = case id.kind:
