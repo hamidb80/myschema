@@ -137,6 +137,9 @@ func toMiddle(hf: sink HdlFile): MCodeFile =
 func toMiddle(stateMachine: sink StateMachineV2): MSchematic =
   result = mm.MSchematic()
 
+  
+
+
 func toArch(sch: sink MSchematic): MArchitecture =
   MArchitecture(kind: makSchema, schema: sch)
 

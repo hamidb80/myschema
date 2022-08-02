@@ -54,10 +54,10 @@ type
 
   ProcessKind* = enum
     ptProcess = 1
-    ptStateDiagram 
-    ptConcurrentStatement 
+    ptStateDiagram
+    ptConcurrentStatement
     ptInitialConstruct
-    ptTruthTable 
+    ptTruthTable
     ptSpecifyBlock
 
   GenerateBlockKind* = enum

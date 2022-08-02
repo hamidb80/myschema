@@ -50,7 +50,7 @@ type
     size*: Size
     # properties*: for Generics
 
-  Schematic* = ref object
+  SSchematic* = ref object
     instances*: seq[Instance]
     wires*: seq[Wire]
     labels*: seq[Label]
@@ -67,7 +67,7 @@ type
   Architecture* = object
     case kind*: ArchitectureKind
     of akSchematic:
-      schema*: Schematic
+      schema*: SSchematic
 
     of akFile:
       file*: MCodeFile

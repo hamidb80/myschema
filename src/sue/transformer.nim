@@ -9,7 +9,7 @@ import logic
 import ../middle/logic as ml
 
 
-func toMiddleModel*(sch: sm.Schematic): mm.MSchematic =
+func toMiddleModel*(sch: sm.SSchematic): mm.MSchematic =
   mm.MSchematic(
     nets: toNets sch.wires
   )
@@ -80,8 +80,8 @@ func buildIcon(ico: MIcon): Icon =
 func toSue(tr: MTransform): Orient =
   Orient(rotation: tr.rotation, flips: tr.flips)
 
-func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
-  result = new Schematic
+func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
+  result = new SSchematic
 
   for n in sch.nets:
     case n.kind:
@@ -129,8 +129,8 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
       location: loc,
       orient: toSue ins.transform)
 
-func toSue(tt: MTruthTable): Schematic =
-  result = new Schematic
+func toSue(tt: MTruthTable): SSchematic =
+  result = new SSchematic
 
   const
     w = 200

@@ -1,7 +1,7 @@
 import ../common/[domain]
 import model
 
-func toArch*(sch: Schematic): Architecture =
+func toArch*(sch: SSchematic): Architecture =
   Architecture(kind: akSchematic, schema: sch)
 
 func toArch*(f: MCodeFile): Architecture =

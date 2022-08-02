@@ -14,7 +14,7 @@ template toOption(f, val): untyped =
   SueOption(flag: f, value: toToken val)
 
 func toToken*(p: Point): SueToken =
-  toToken '{' & $p.x & ' ' & $p.y & '}'
+  toToken "{$# $#}" % [$p.x, $p.y]
 
 func `$`*(o: Orient): string =
   'R' & $o.rotation.int & join toseq o.flips
@@ -106,7 +106,7 @@ func encode(p: Port): SueExpression =
     ],
   )
 
-func toSueFile(name: string, sch: Schematic, ico: Icon): SueFile =
+func toSueFile(name: string, sch: sink SSchematic, ico: sink Icon): SueFile =
   result = SueFile(name: name)
 
   # --- icon
@@ -137,6 +137,7 @@ func toSueFile(name: string, sch: Schematic, ico: Icon): SueFile =
   for l in sch.lines:
     result.schematic.add encode(l, ecSchematic)
 
+
 proc genTclIndex(proj: Project): string =
   let now = $gettime().tounix()
   var
@@ -151,16 +152,20 @@ proc genTclIndex(proj: Project): string =
   linesAcc.add fmt"""set mtimes {timesAcc.join " "}"""
   linesAcc.join "\n"
 
+
+let xxx = SSchematic(labels: @[]) # FIXME causes error in LISP!
+
 proc writeProject*(proj: Project, dest: string) =
   for name, module in proj.modules:
     if not module.isTemporary:
-      let
-        a = module.arch
-        (fname, content) =
-          case a.kind:
-          of akSchematic: (name & ".sue", dump toSueFile(name, a.schema, module.icon))
-          of akFile: (name, a.file.content)
+      let a = module.arch
 
-      writeFile dest / fname, content
+      case a.kind:
+      of akSchematic:
+        writeFile dest / name & ".sue", dump toSueFile(name, a.schema, module.icon)
+
+      of akFile:
+        writeFile dest / name & ".sue", dump toSueFile(name, xxx, module.icon)
+        writeFile dest / name & ".v", a.file.content
 
   writeFile dest / "tclindex", genTclIndex proj
