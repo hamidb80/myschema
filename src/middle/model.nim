@@ -19,7 +19,7 @@ type
     mekModule
     mekGenerator
     mekFSM, mekTruthTable
-    mekCode, mekPartialCode
+    mekCode
 
   MNetKind* = enum
     mnkWire
@@ -140,7 +140,7 @@ type
     arch*: MArchitecture
 
     case kind*: MElementKind
-    of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable: discard
+    of mekModule, mekCode, mekFSM, mekTruthTable: discard
     of mekGenerator:
       info*: GenerateInfo
 

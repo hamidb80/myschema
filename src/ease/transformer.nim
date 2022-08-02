@@ -127,20 +127,15 @@ func extractArgs(cp: Component, lookup: MParamsLookup): seq[MArg] =
       parameter: lookup[ag.ident.name],
       value: lexCode ag.actValue)
 
-proc initProcessElement(pr: Process): MElement =
-  result = case pr.kind:
-  of ptProcess:
-    mm.MElement(kind: mekCode)
 
-  of ptStateDiagram:
-    mm.MElement(kind: mekFSM)
+func toMiddle(tt: sink TruthTable): MTruthTable =
+  MTruthTable(headers: tt.headers, rows: tt.rows)
 
-  of ptConcurrentStatement, ptInitialConstruct, ptSpecifyBlock:
-    mm.MElement(kind: mekPartialCode)
+func toMiddle(hf: sink HdlFile): MCodeFile =
+  MCodeFile(name: hf.name, content: hf.content.join "\n")
 
-  of ptTruthTable:
-    mm.MElement(kind: mekTruthTable)
-
+func toMiddle(stateMachine: sink StateMachineV2): MSchematic =
+  result = mm.MSchematic()
 
 func toArch(sch: sink MSchematic): MArchitecture =
   MArchitecture(kind: makSchema, schema: sch)
@@ -151,6 +146,23 @@ func toArch(tt: sink MTruthTable): MArchitecture =
 func toArch(cf: sink MCodeFile): MArchitecture =
   MArchitecture(kind: makCode, file: cf)
 
+func toMElementKind(prk: ProcessKind): MElementKind =
+  case prk:
+  of ptProcess, ptConcurrentStatement, ptInitialConstruct,
+      ptSpecifyBlock: mekCode
+  of ptStateDiagram: mekFSM
+  of ptTruthTable: mekTruthTable
+
+func toArch(pr: Process): MArchitecture =
+  case toMElementKind pr.kind:
+  of mekTruthTable: toArch toMiddle pr.body.truthTable
+  of mekCode: toArch toMiddle pr.body.file
+  of mekFSM: toArch toMiddle pr.body.stateMachine
+  else: err "impossible"
+
+proc initProcessElement(pr: Process): MElement =
+  mm.MElement(kind: toMElementKind pr.kind, arch: toArch pr)
+
 proc initModule(en: em.Entity): mm.MElement =
   mm.MElement(
     name: en.ident.name,
@@ -158,9 +170,6 @@ proc initModule(en: em.Entity): mm.MElement =
     icon: extractIcon en,
     parameters: extractParams en
   )
-
-# func makeArch(pr: Process): Body =
-
 
 proc buildSchema(moduleName: string,
   schema: sink em.Schematic,
@@ -237,8 +246,7 @@ proc buildSchema(moduleName: string,
 
     for pr in schema.processes:
       let
-        el = makeParent(initProcessElement pr, extractIcon pr,
-            toArch MSchematic()) # FIXME
+        el = makeParent(initProcessElement pr, extractIcon pr, toArch pr) # FIXME
         ins = makeInstance(pr.ident.name, el, pr.geometry,
           getTransform pr, @[])
 
@@ -296,17 +304,7 @@ proc buildSchema(moduleName: string,
           source: allNetsMap[addr n[]],
           dest: allNetsMap[addr bp.destNet[]],
           position: center bp.geometry,
-          connection: connPos
-        )
-
-func buildTruthTable(tt: sink TruthTable): MTruthTable =
-  MTruthTable(headers: tt.headers, rows: tt.rows)
-
-func buildCodeFile(hf: sink HdlFile): MCodeFile =
-  MCodeFile(name: hf.name, content: hf.content.join "\n")
-
-func buildFsm(stateMachine: sink StateMachineV2): MSchematic =
-  result = mm.MSchematic()
+          connection: connPos)
 
 func choose(sa: seq[Architecture]): Architecture =
   result = sa[0]
@@ -315,7 +313,7 @@ func choose(sa: seq[Architecture]): Architecture =
     if i.kind == amBlockDiagram:
       result = i
 
-proc toMiddleModel*(proj: em.Project): mm.MProject =
+proc toMiddle*(proj: em.Project): mm.MProject =
   result = mm.MProject()
 
   var
@@ -341,14 +339,13 @@ proc toMiddleModel*(proj: em.Project): mm.MProject =
           result.modules)
 
       of amStateDiagram: # FSM
-        toArch buildFsm a.body.stateMachine
+        toArch toMiddle a.body.stateMachine
 
       of amHDLFile:
-        toArch buildCodeFile a.body.file
+        toArch toMiddle a.body.file
 
       of amTableDiagram:
-        err "what"
-        toArch buildTruthTable a.body.truthTable
+        toArch toMiddle a.body.truthTable
 
       of amExternalHDLFIle:
         err "not implemented"

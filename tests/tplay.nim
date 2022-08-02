@@ -26,6 +26,6 @@ when isMainModule:
   removeDir "./temp"
   createDirs "./temp", "./temp/sue", "./temp/svg"
 
-  let proj = toMiddleModel parseEws path
+  let proj = toMiddle parseEws path
   proj.toSVG "./temp/svg/"
   proj.toSue.writeProject "./temp/sue/"
