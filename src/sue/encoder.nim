@@ -112,27 +112,15 @@ func encode(params: seq[Parameter], ctx: EncodeContext): SueExpression =
     ]
   )
 
-func encode(p: Port, ctx: EncodeContext): SueExpression =
-  case ctx:
-  of ecIcon:
-    SueExpression(
-      command: scIconTerm,
-      options: @[
-        toOption(sfType, $p.kind),
-        toOption(sfName, quoted p.name),
-        toOption(sfOrigin, p.location)
-      ],
-    )
-
-  of ecSchematic:
-    SueExpression(
-      command: scMake,
-      args: @[toToken $p.kind],
-      options: @[
-        toOption(sfName, quoted p.name),
-        toOption(sfOrigin, p.location)
-      ],
-    )
+func encode(p: Port): SueExpression =
+  SueExpression(
+    command: scIconTerm,
+    options: @[
+      toOption(sfType, $p.kind),
+      toOption(sfName, quoted p.name),
+      toOption(sfOrigin, p.location)
+    ],
+  )
 
 func toSueFile(m: sink Module): SueFile =
   result = SueFile(name: m.name)
@@ -142,7 +130,7 @@ func toSueFile(m: sink Module): SueFile =
   result.icon.add encode(m.params, ecIcon)
 
   for p in m.icon.ports:
-    result.icon.add encode(p, ecIcon)
+    result.icon.add encode p
 
   for l in m.icon.labels:
     result.icon.add encode(l, ecIcon)
