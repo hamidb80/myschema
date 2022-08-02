@@ -1,4 +1,4 @@
-import std/[os, tables, sequtils, strutils, strformat, times]
+import std/[os, tables, sequtils, strutils, strformat, times, options]
 import ../common/[coordination, domain]
 import model, lexer
 
@@ -30,7 +30,6 @@ func speardPoints(points: seq[Point]): seq[int] =
     result.add p.x
     result.add p.y
 
-# TODO add params
 
 func encode(l: Line, ctx: EncodeContext): SueExpression =
   case l.kind:
@@ -96,6 +95,23 @@ func encode(l: Label, ctx: EncodeContext): SueExpression =
       ]
     )
 
+func encode(param: Parameter): string =
+  if issome param.defaultValue:
+    "{$# $#}" % [param.name, dump toToken param.defaultValue.get]
+  else:
+    "{$#}" % param.name
+
+func encode(params: seq[Parameter], ctx: EncodeContext): SueExpression =
+  SueExpression(
+    command: if ctx == ecIcon: scIconSetup
+      else: scCallUseKeyword,
+
+    args: @[
+      toTokenRaw "$args",
+      toTokenRaw "{$#}" % params.map(encode).join " "
+    ]
+  )
+
 func encode(p: Port): SueExpression =
   SueExpression(
     command: scMake,
@@ -106,35 +122,36 @@ func encode(p: Port): SueExpression =
     ],
   )
 
-func toSueFile(name: string, sch: sink SSchematic, ico: sink Icon): SueFile =
-  result = SueFile(name: name)
+func toSueFile(m: sink Module): SueFile =
+  result = SueFile(name: m.name)
 
   # --- icon
 
-  for p in ico.ports:
-    result.icon.add encode p
-    result.icon.add encode(Label(
-      content: p.name,
-      location: p.location,
-      anchor: c,
-      size: fzStandard
-    ), ecIcon)
+  result.icon.add encode(m.params, ecIcon)
 
-  for l in ico.lines:
+  for p in m.icon.ports:
+    result.icon.add encode p
+    
+  for l in m.icon.labels:
+    result.icon.add encode(l, ecIcon)
+
+  for l in m.icon.lines:
     result.icon.add encode(l, ecIcon)
 
   # --- schematic
 
-  for ins in sch.instances:
+  result.schematic.add encode(m.params, ecSchematic)
+
+  for ins in m.arch.schema.instances:
     result.schematic.add encode ins
 
-  for w in sch.wires:
+  for w in m.arch.schema.wires:
     result.schematic.add encode w
 
-  for l in sch.labels:
+  for l in m.arch.schema.labels:
     result.schematic.add encode(l, ecSchematic)
 
-  for l in sch.lines:
+  for l in m.arch.schema.lines:
     result.schematic.add encode(l, ecSchematic)
 
 proc genTclIndex(proj: Project): string =
@@ -154,14 +171,9 @@ proc genTclIndex(proj: Project): string =
 proc writeProject*(proj: Project, dest: string) =
   for name, module in proj.modules:
     if not module.isTemporary:
-      let a = module.arch
+      writeFile dest / name & ".sue", dump toSueFile module
 
-      case a.kind:
-      of akSchematic:
-        writeFile dest / name & ".sue", dump toSueFile(name, a.schema, module.icon)
-
-      of akFile:
-        writeFile dest / name & ".sue", dump toSueFile(name, new SSchematic, module.icon)
-        writeFile dest / name, a.file.content
+      if module.arch.kind == akFile:
+        writeFile dest / name, module.arch.file.content
 
   writeFile dest / "tclindex", genTclIndex proj

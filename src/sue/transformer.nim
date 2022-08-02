@@ -18,10 +18,7 @@ func toMiddleModel*(ico: sm.Icon): mm.MIcon =
   discard
 
 func toMiddleModel*(mo: sm.Module): MElement =
-  MElement(
-    name: mo.name,
-    # icon:
-  )
+  MElement(name: mo.name)
 
 func toMiddleModel*(proj: sm.Project): mm.MProject =
   result = new mm.MProject
@@ -69,11 +66,18 @@ func toLine(g: Geometry): Line =
 func buildIcon(ico: MIcon): Icon =
   let
     myPorts = ico.ports.map(iconPort)
+
+    defaultLabels = @[Label(
+      content: "$name",
+      location: (0, -20),
+      anchor: e,
+      size: fzStandard)]
+
     myLabels = myPorts.map(iconPortLabel)
 
   Icon(
     ports: myPorts,
-    labels: myLabels,
+    labels: defaultLabels & myLabels,
     size: ico.size,
     lines: @[toLine toGeometry ico.size])
 
@@ -193,12 +197,11 @@ func toSue*(proj: mm.MProject): sm.Project =
   }
 
   for name, mmdl in proj.modules:
-
-    let myParams = collect:
-      for p in values mmdl.parameters:
-        Parameter(
-          name: p.name,
-          defaultValue: map(p.defaultValue, toSue))
+    var myParams = @[Parameter(name: "name", defaultValue: some "")]
+    for p in values mmdl.parameters:
+      myParams.add Parameter(
+        name: p.name,
+        defaultValue: map(p.defaultValue, toSue))
 
     result.modules[name] = Module(
       kind: mkCtx,

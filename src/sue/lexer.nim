@@ -26,20 +26,18 @@ type
     of sttCurlyOpen, sttCurlyClose, sttNewLine:
       discard
 
-
   SueCommand* = enum
     scMake = "make"
     scGenerate = "generate"
     scMakeWire = "make_wire"
     scMakeLine = "make_line"
     scMakeText = "make_text"
+    scCallUseKeyword = "call_use_keyword"
     scIconSetup = "icon_setup"
     scIconTerm = "icon_term"
     scIconProperty = "icon_property"
     scIconLine = "icon_line"
     scIconArc = "icon_arc"
-    scCallUseKeyword = "call_use_keyword"
-
 
   SueFlag* = enum
     sfLabel = "-label"
@@ -107,8 +105,14 @@ func isNumbic(s: string): bool =
 
   true
 
+func toTokenRaw*(s: string): SueToken =
+  SueToken(kind: sttLiteral, strval: s)
+
 func toToken*(s: string): SueToken =
-  if isNumbic s:
+  if s.len == 0:
+    SueToken(kind: sttString)
+
+  elif isNumbic s:
     SueToken(kind: sttNumber, intval: s.parseInt)
 
   else:

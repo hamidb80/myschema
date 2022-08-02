@@ -65,12 +65,16 @@ type
     akFile
 
   Architecture* = object
-    case kind*: ArchitectureKind
-    of akSchematic:
-      schema*: SSchematic
+    schema*: SSchematic
 
+    case kind*: ArchitectureKind
+    of akSchematic: discard
     of akFile:
       file*: MCodeFile
+
+  Parameter* = object
+    name*: string
+    defaultValue*: Option[string]
 
   Module* = ref object
     name*: string
@@ -84,14 +88,9 @@ type
       params*: seq[Parameter]
       isTemporary*: bool # do not generate file for these modules
 
-  Parameter* = object
-    name*: string
-    defaultValue*: Option[string]
-
   Argument* = object
     name*: string
     value*: string
-
 
   Instance* = ref object
     name*: string
