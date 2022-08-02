@@ -71,7 +71,7 @@ func buildIcon(ico: MIcon): Icon =
       content: "$name",
       location: (0, -20),
       anchor: e,
-      size: fzStandard)]
+      size: fzLarge)]
 
     myLabels = myPorts.map(iconPortLabel)
 
@@ -197,7 +197,12 @@ func toSue*(proj: mm.MProject): sm.Project =
   }
 
   for name, mmdl in proj.modules:
-    var myParams = @[Parameter(name: "name", defaultValue: some "")]
+    var myParams = @[
+      Parameter(name: "name", defaultValue: some ""),
+      Parameter(name: "origin", defaultValue: some "{0 0}"),
+      Parameter(name: "orient", defaultValue: some "R0"),
+    ]
+
     for p in values mmdl.parameters:
       myParams.add Parameter(
         name: p.name,

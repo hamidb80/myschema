@@ -38,7 +38,7 @@ type
     pmOutput
     pmInout
     pmBuffer
-    pmUnknown
+    pmVirtual
 
   CbnKind* = enum
     ctConnectByName

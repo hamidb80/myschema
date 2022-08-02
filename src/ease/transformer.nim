@@ -38,18 +38,25 @@ func copyPort(p: MPort, fn: Transformer): MPort =
     parent: p)
 
 func toPortDir(m: em.PortMode): mm.MPortDir =
-  MPortDir min(int m, 2)
+  case m:
+  of pmInput: mpdInput
+  of pmOutput: mpdInput
+  of pmInout: mpdInout
+  of pmBuffer: mpdOutput
+  of pmVirtual: err "Ease/virtualRecord -> Middle/PORT_TYPE is not implemented"
 
 func toMIdent(id: Identifier): MIdentifier =
-  case id.kind:
-  of ikSingle: MIdentifier(kind: mikSingle, name: id.name)
+  result = case id.kind:
+    of ikSingle: MIdentifier(kind: mikSingle)
 
-  of ikIndex: MIdentifier(kind: mikIndex, name: id.name,
-      index: lexCode id.index)
+    of ikIndex: MIdentifier(kind: mikIndex,
+        index: lexCode id.index)
 
-  of ikRange: MIdentifier(kind: mikRange, name: id.name,
-    direction: id.direction,
-    indexes: (lexCode id.indexes.b)..(lexCode id.indexes.b), )
+    of ikRange: MIdentifier(kind: mikRange,
+        direction: id.direction,
+        indexes: (lexCode id.indexes.a) .. (lexCode id.indexes.b), )
+
+  result.name = id.name
 
 proc extractIcon[T: Visible](smth: T): mm.MIcon =
   let
