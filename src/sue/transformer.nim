@@ -85,7 +85,6 @@ func buildIcon(ico: MIcon): Icon =
     size: ico.size,
     lines: @[toLine toGeometry ico.size])
 
-# func
 
 func addIconPorts(s: var SSchematic, ico: Icon, lookup: ModuleLookUp) =
   for p in ico.ports:
@@ -143,7 +142,7 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
     result.instances.add Instance(
       name: ins.name,
       parent: m,
-      args: ins.args.filterIt(it.value.issome).map(toSue), # TODO
+      args: ins.args.filterIt(it.value.issome).map(toSue),
       location: loc,
       orient: toSue ins.transform)
 
@@ -172,14 +171,17 @@ func toSue(tt: MTruthTable): SSchematic =
     result.labels.add makeLabel h
     inc x, W
 
+  inc y, H
+  result.lines.add makeLine y
+
   for r in tt.rows:
     reset x
-    result.lines.add makeLine y
-    inc y, H
 
     for cell in r:
       result.labels.add makeLabel cell
       inc x, W
+
+    inc y, H
 
 func toSue(arch: MArchitecture, ico: Icon,
   lookup: ModuleLookUp, m: Module): Architecture =

@@ -18,8 +18,7 @@ func extractNet(wires: seq[Wire]): mm.MNet =
 func toText(lbl: em.Label): mm.MText =
   mm.MText(
     position: lbl.position,
-    texts: lbl.texts
-  )
+    texts: lbl.texts)
 
 func toText(fpt: em.FreePlacedText): mm.MText =
   toText em.Label fpt
@@ -198,10 +197,16 @@ proc buildSchema(moduleName: string,
   for p in schema.ports:
     let
       mid = toMIdent(p.identifier)
+      c = p.cbn
+      io = c.issome and c.get.kind == ctIntentionallyOpen
+      val = c.map (it) => it.ident.name
+
       mp = mm.MPort(
-      kind: mpCopy,
-      position: p.position,
-      parent: icon.ports.search((it) => mid == it.id))
+        kind: mpCopy,
+        position: p.position,
+        isOpen: io,
+        assignedValue: val,
+        parent: icon.ports.search((it) => mid == it.id))
 
     result.ports.add mp
     allPortsMap[addr p[]] = mp
@@ -250,8 +255,6 @@ proc buildSchema(moduleName: string,
       for i, p in c.ports:
         allPortsMap[addr p[]] = ins.ports[i]
 
-      result.texts.add toText c.label
-
     for pr in schema.processes:
       let
         el = makeParent(initProcessElement pr, extractIcon pr, toArch pr) # FIXME
@@ -262,8 +265,6 @@ proc buildSchema(moduleName: string,
 
       for i, p in pr.ports:
         allPortsMap[addr p[]] = ins.ports[i]
-
-      result.texts.add toText pr.label
 
     for gb in schema.generateBlocks:
       let
@@ -277,7 +278,6 @@ proc buildSchema(moduleName: string,
         allPortsMap[addr p[]] = ins.ports[i]
 
       result.instances.add ins
-      result.texts.add toText gb.label
 
   for n in schema.nets:
     var mn = case n.part.kind:

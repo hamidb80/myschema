@@ -351,7 +351,7 @@ func dump*(sf: SueFile): string =
   var lines = @[fmt "# SUE version {SueVersion}\n"]
 
   template addProc(procKind, exprWrapper, args): untyped =
-    lines.add "proc $#_$# {args} {" % [$procKind, sf.name]
+    lines.add "proc $#_$# args {" % [$procKind, sf.name]
     for expr in exprWrapper:
       lines.add dump expr
     lines.add "}\n"

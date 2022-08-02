@@ -94,6 +94,8 @@ type
 
     of mpCopy:
       parent*: MPort
+      isOpen*: bool
+      assignedValue*: Option[string]
 
   MSchematic* = ref object
     ports*: seq[MPort]
