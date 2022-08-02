@@ -159,6 +159,9 @@ proc initModule(en: em.Entity): mm.MElement =
     parameters: extractParams en
   )
 
+# func makeArch(pr: Process): Body =
+
+
 proc buildSchema(moduleName: string,
   schema: sink em.Schematic,
   icon: MIcon,
@@ -208,12 +211,12 @@ proc buildSchema(moduleName: string,
         args: argsSeq,
         ports: parentEl.icon.ports.mapIt copyPort(it, tFn))
 
-    template makeParent(el, ico, arch): untyped =
+    template makeParent(el, ico, a): untyped =
       let yourName{.inject.} = moduleName & "_" & randomHdlIdent()
       var parent = el
       parent.name = yourName
       parent.icon = ico
-      parent.archs = @[arch]
+      parent.arch = a
       elements[parent.name] = parent
       parent
 
@@ -234,7 +237,8 @@ proc buildSchema(moduleName: string,
 
     for pr in schema.processes:
       let
-        el = makeParent(initProcessElement pr, extractIcon pr, toArch MSchematic()) # FIXME
+        el = makeParent(initProcessElement pr, extractIcon pr,
+            toArch MSchematic()) # FIXME
         ins = makeInstance(pr.ident.name, el, pr.geometry,
           getTransform pr, @[])
 
@@ -248,7 +252,8 @@ proc buildSchema(moduleName: string,
     for gb in schema.generateBlocks:
       let
         ico = extractIcon gb
-        el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName, gb.schematic, ico, mlk, elements))
+        el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName,
+            gb.schematic, ico, mlk, elements))
         ins = makeInstance(gb.ident.name, el, gb.geometry,
           getTransform gb, @[])
 
@@ -287,7 +292,7 @@ proc buildSchema(moduleName: string,
           of brsBottomLeft: bottomLeft bp.geometry
 
         result.busRippers.add MBusRipper(
-          select: getBusSelect( bp, n),
+          select: getBusSelect(bp, n),
           source: allNetsMap[addr n[]],
           dest: allNetsMap[addr bp.destNet[]],
           position: center bp.geometry,
@@ -302,6 +307,13 @@ func buildCodeFile(hf: sink HdlFile): MCodeFile =
 
 func buildFsm(stateMachine: sink StateMachineV2): MSchematic =
   result = mm.MSchematic()
+
+func choose(sa: seq[Architecture]): Architecture =
+  result = sa[0]
+
+  for i in sa:
+    if i.kind == amBlockDiagram:
+      result = i
 
 proc toMiddleModel*(proj: em.Project): mm.MProject =
   result = mm.MProject()
@@ -319,26 +331,26 @@ proc toMiddleModel*(proj: em.Project): mm.MProject =
 
   # phase 2. convert schematics
   for id, m in modernIdMap.mpairs:
-    for a in originalIdMap[id].architectures:
-      m.archs.add:
-        case a.kind:
-        of amBlockDiagram:
-          toArch buildSchema(m.name,
-            a.body.schematic,
-            m.icon,
-            modernIdMap,
-            result.modules)
+    let a = choose originalIdMap[id].architectures
+    m.arch = case a.kind:
+      of amBlockDiagram:
+        toArch buildSchema(m.name,
+          a.body.schematic,
+          m.icon,
+          modernIdMap,
+          result.modules)
 
-        of amStateDiagram: # FSM
-          toArch buildFsm a.body.stateMachine
+      of amStateDiagram: # FSM
+        toArch buildFsm a.body.stateMachine
 
-        of amHDLFile:
-          toArch buildCodeFile a.body.file
+      of amHDLFile:
+        toArch buildCodeFile a.body.file
 
-        of amTableDiagram:
-          toArch buildTruthTable a.body.truthTable
+      of amTableDiagram:
+        err "what"
+        toArch buildTruthTable a.body.truthTable
 
-        of amExternalHDLFIle:
-          err "not implemented"
+      of amExternalHDLFIle:
+        err "not implemented"
 
 # TODO extract cbn for bus ripper :: it may not have `dest` bus

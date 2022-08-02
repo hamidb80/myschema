@@ -38,6 +38,8 @@ type
     scIconProperty = "icon_property"
     scIconLine = "icon_line"
     scIconArc = "icon_arc"
+    scCallUseKeyword = "call_use_keyword"
+
 
   SueFlag* = enum
     sfLabel = "-label"

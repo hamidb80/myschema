@@ -137,7 +137,7 @@ type
     name*: string
     icon*: MIcon
     parameters*: MParamsLookup
-    archs*: seq[MArchitecture]
+    arch*: MArchitecture
 
     case kind*: MElementKind
     of mekModule, mekCode, mekPartialCode, mekFSM, mekTruthTable: discard

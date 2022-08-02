@@ -134,6 +134,9 @@ func toSueFile(name: string, sch: Schematic, ico: Icon): SueFile =
   for l in sch.labels:
     result.schematic.add encode(l, ecSchematic)
 
+  for l in sch.lines:
+    result.schematic.add encode(l, ecSchematic)
+
 proc genTclIndex(proj: Project): string =
   let now = $gettime().tounix()
   var

@@ -93,16 +93,16 @@ func visualize(canvas: var XmlNode, schema: MSchematic) =
 proc toSVG*(proj: MProject, dest: string) =
   for name, el in proj.modules:
     case el.kind:
-
     of mekModule:
-      for a in el.archs:
-        case a.kind:
-        of makSchema:
-          debugEcho (a.kind, el.name)
-          let (w, h) = a.schema.size
-          var c = newCanvas(-400, -400, w, h)
-          c.visualize a.schema
-          writeFile dest / name & ".svg", $c
+      let a = el.arch
 
-        else: discard
+      case el.arch.kind:
+      of makSchema:
+        debugEcho (a.kind, el.name)
+        let (w, h) = a.schema.size
+        var c = newCanvas(-400, -400, w, h)
+        c.visualize a.schema
+        writeFile dest / name & ".svg", $c
+
+      else: discard
     else: discard

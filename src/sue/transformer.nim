@@ -21,7 +21,6 @@ func toMiddleModel*(mo: sm.Module): MElement =
   MElement(
     name: mo.name,
     # icon:
-    archs: @[],
   )
 
 func toMiddleModel*(proj: sm.Project): mm.MProject =
@@ -89,10 +88,10 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
     of mnkWire:
       for w in segments n:
         result.wires.add w
-    
-    else: 
+
+    else:
       discard
-      
+
 
   for p in sch.ports:
     result.instances.add Instance(
@@ -133,6 +132,37 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): Schematic =
 func toSue(tt: MTruthTable): Schematic =
   result = new Schematic
 
+  const
+    w = 200
+    h = 100
+
+  var y, x = 0
+
+  proc makeLabel(c: string): Label =
+    Label(
+      content: c,
+      location: (x, y),
+      anchor: e,
+      size: fzStandard)
+
+  proc makeLine(y: int): Line =
+    Line(kind: straight,
+      points: @[(0, y), (tt.headers.len * w, y)])
+
+
+  for h in tt.headers:
+    result.labels.add makeLabel h
+    inc x, w
+
+  for r in tt.rows:
+    reset x
+    inc y, h
+    result.lines.add makeLine y
+
+    for cell in r:
+      inc x, w
+      result.labels.add makeLabel cell
+
 func toSue(arch: MArchitecture, lookup: ModuleLookUp): Architecture =
   case arch.kind:
   of makSchema: toArch toSue(arch.schema, lookup)
@@ -150,8 +180,7 @@ func tempModule(n: string): Module =
           kind: pdInout,
           location: (0, 0))
     ],
-    size: (1, 1),
-  ))
+      size: (1, 1)))
 
 func toSue*(proj: mm.MProject): sm.Project =
   result = new Project
@@ -178,6 +207,4 @@ func toSue*(proj: mm.MProject): sm.Project =
       icon: buildIcon mmdl.icon)
 
   for name, mmdl in proj.modules:
-    let a = mmdl.archs.choose
-    result.modules[name].arch = toSue(a, result.modules)
-
+    result.modules[name].arch = toSue(mmdl.arch, result.modules)

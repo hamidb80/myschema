@@ -54,6 +54,7 @@ type
     instances*: seq[Instance]
     wires*: seq[Wire]
     labels*: seq[Label]
+    lines*: seq[Line]
 
   ModuleKind* = enum
     mkRef # instance
