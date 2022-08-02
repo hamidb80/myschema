@@ -67,8 +67,14 @@ proc extractIcon[T: Visible](smth: T): mm.MIcon =
       dir: toPortDir mode p)
 
 func lexCode(s: Option[string]): Option[MTokenGroup] =
-  if isSome s:
-    result = some lexCode s.get
+  map s, lexCode
+
+func toMElementKind(prk: ProcessKind): MElementKind =
+  case prk:
+  of ptProcess, ptConcurrentStatement, ptInitialConstruct,
+      ptSpecifyBlock: mekCode
+  of ptStateDiagram: mekFSM
+  of ptTruthTable: mekTruthTable
 
 func getBusSelect*(br: BusRipper, net: Net): MIdentifier =
   let cn = br.ident.attributes.constraint.get
@@ -137,8 +143,6 @@ func toMiddle(hf: sink HdlFile): MCodeFile =
 func toMiddle(stateMachine: sink StateMachineV2): MSchematic =
   result = mm.MSchematic()
 
-  
-
 
 func toArch(sch: sink MSchematic): MArchitecture =
   MArchitecture(kind: makSchema, schema: sch)
@@ -148,13 +152,6 @@ func toArch(tt: sink MTruthTable): MArchitecture =
 
 func toArch(cf: sink MCodeFile): MArchitecture =
   MArchitecture(kind: makCode, file: cf)
-
-func toMElementKind(prk: ProcessKind): MElementKind =
-  case prk:
-  of ptProcess, ptConcurrentStatement, ptInitialConstruct,
-      ptSpecifyBlock: mekCode
-  of ptStateDiagram: mekFSM
-  of ptTruthTable: mekTruthTable
 
 func toArch(pr: Process): MArchitecture =
   case toMElementKind pr.kind:

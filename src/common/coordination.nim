@@ -86,10 +86,10 @@ func area*(ps: seq[Point]): Geometry =
   (xs.min, ys.min, xs.max, ys.max)
 
 
-func flip_y(p: Point): Point =
+func flipY(p: Point): Point =
   (p.x, -p.y)
 
-func flip_x(p: Point): Point =
+func flipX(p: Point): Point =
   (-p.x, p.y)
 
 template applyFlip(fn, p, c): untyped =
@@ -100,8 +100,8 @@ func flip*(p, c: Point, flips: set[Flip]): Point =
 
   for f in flips:
     result = case f:
-      of X: applyFlip flip_x, result, c
-      of Y: applyFlip flip_y, result, c
+      of X: applyFlip flipX, result, c
+      of Y: applyFlip flipY, result, c
 
 
 import std/sequtils

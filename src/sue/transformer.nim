@@ -138,14 +138,14 @@ func toSue(tt: MTruthTable): SSchematic =
 
   var y, x = 0
 
-  proc makeLabel(c: string): Label =
+  template makeLabel(c): untyped =
     Label(
       content: c,
       location: (x, y),
       anchor: e,
       size: fzStandard)
 
-  proc makeLine(y: int): Line =
+  template makeLine(y): untyped =
     Line(kind: straight,
       points: @[(0, y), (tt.headers.len * w, y)])
 

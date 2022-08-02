@@ -137,7 +137,6 @@ func toSueFile(name: string, sch: sink SSchematic, ico: sink Icon): SueFile =
   for l in sch.lines:
     result.schematic.add encode(l, ecSchematic)
 
-
 proc genTclIndex(proj: Project): string =
   let now = $gettime().tounix()
   var
@@ -149,11 +148,8 @@ proc genTclIndex(proj: Project): string =
     linesAcc.add fmt"set auto_index(SCHEMATIC_{name}) [list source [file join $dir {name}.sue]]"
     timesAcc.add "{$# $#}" % [name, now]
 
-  linesAcc.add fmt"""set mtimes {timesAcc.join " "}"""
+  linesAcc.add "set mtimes {$#}" % timesAcc.join(" ")
   linesAcc.join "\n"
-
-
-let xxx = SSchematic(labels: @[]) # FIXME causes error in LISP!
 
 proc writeProject*(proj: Project, dest: string) =
   for name, module in proj.modules:
@@ -165,7 +161,7 @@ proc writeProject*(proj: Project, dest: string) =
         writeFile dest / name & ".sue", dump toSueFile(name, a.schema, module.icon)
 
       of akFile:
-        writeFile dest / name & ".sue", dump toSueFile(name, xxx, module.icon)
-        writeFile dest / name & ".v", a.file.content
+        writeFile dest / name & ".sue", dump toSueFile(name, new SSchematic, module.icon)
+        writeFile dest / name, a.file.content
 
   writeFile dest / "tclindex", genTclIndex proj
