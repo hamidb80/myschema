@@ -187,7 +187,7 @@ func toSue(arch: MArchitecture, ico: Icon,
   lookup: ModuleLookUp, m: Module): Architecture =
 
   result = case arch.kind:
-    of makSchema: toArch toSue(arch.schema, lookup)
+    of makSchema, makFSM: toArch toSue(arch.schema, lookup)
     of makTruthTable: toArch toSue(arch.truthTable)
     of makCode, makExternalCode: toArch(arch.file)
 

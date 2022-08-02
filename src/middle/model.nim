@@ -12,7 +12,7 @@ type
 
   MArchitectureKind* = enum
     makSchema
-    makTruthTable
+    makTruthTable, makFSM
     makCode, makExternalCode
 
   MElementKind* = enum
@@ -107,7 +107,7 @@ type
 
   MArchitecture* = ref object
     case kind*: MArchitectureKind
-    of makSchema:
+    of makSchema, makFSM:
       schema*: MSchematic
 
     of makTruthTable:

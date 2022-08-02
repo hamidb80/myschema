@@ -151,8 +151,9 @@ func toMiddle(stateMachine: sink StateMachineV2): MSchematic =
   result = mm.MSchematic()
 
 
-func toArch(sch: sink MSchematic): MArchitecture =
-  MArchitecture(kind: makSchema, schema: sch)
+func toArch(sch: sink MSchematic, m: MArchitectureKind): MArchitecture =
+  result = MArchitecture(kind: m)
+  result.schema = sch
 
 func toArch(tt: sink MTruthTable): MArchitecture =
   MArchitecture(kind: makTruthTable, truthTable: tt)
@@ -164,7 +165,7 @@ func toArch(pr: Process): MArchitecture =
   case toMElementKind pr.kind:
   of mekTruthTable: toArch toMiddle pr.body.truthTable
   of mekCode: toArch toMiddle pr.body.file
-  of mekFSM: toArch toMiddle pr.body.stateMachine
+  of mekFSM: toArch(toMiddle pr.body.stateMachine, makFSM)
   else: err "impossible"
 
 proc initProcessElement(pr: Process): MElement =
@@ -175,8 +176,7 @@ proc initModule(en: em.Entity): mm.MElement =
     name: en.ident.name,
     kind: mekModule,
     icon: extractIcon en,
-    parameters: extractParams en
-  )
+    parameters: extractParams en)
 
 proc buildSchema(moduleName: string,
   schema: sink em.Schematic,
@@ -234,7 +234,7 @@ proc buildSchema(moduleName: string,
         ports: parentEl.icon.ports.mapIt copyPort(it, tFn))
 
     template makeParent(el, ico, a): untyped =
-      let yourName{.inject.} = moduleName & "_" & randomHdlIdent()
+      let yourName {.inject.} = moduleName & "_" & randomHdlIdent()
       var parent = el
       parent.name = yourName
       parent.icon = ico
@@ -269,8 +269,8 @@ proc buildSchema(moduleName: string,
     for gb in schema.generateBlocks:
       let
         ico = extractIcon gb
-        el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName,
-            gb.schematic, ico, mlk, elements))
+        el = makeParent(makeGenerator gb, ico, toArch(buildSchema(yourName,
+            gb.schematic, ico, mlk, elements), makSchema))
         ins = makeInstance(gb.ident.name, el, gb.geometry,
           getTransform gb, @[])
 
@@ -340,14 +340,14 @@ proc toMiddle*(proj: em.Project): mm.MProject =
     let a = choose originalIdMap[id].architectures
     m.arch = case a.kind:
       of amBlockDiagram:
-        toArch buildSchema(m.name,
+        toArch(buildSchema(m.name,
           a.body.schematic,
           m.icon,
           modernIdMap,
-          result.modules)
+          result.modules), makSchema)
 
       of amStateDiagram: # FSM
-        toArch toMiddle a.body.stateMachine
+        toArch(toMiddle a.body.stateMachine, makFSM)
 
       of amHDLFile:
         toArch toMiddle a.body.file

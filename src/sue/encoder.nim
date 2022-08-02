@@ -67,6 +67,9 @@ func encode(i: Instance): SueExpression =
     ] & map(i.args, encode),
   )
 
+# FIXME variable icon labels shoud be in this format
+# icon_property -origin {-50 70} -type user -name VAR
+
 func encode(l: Label, ctx: EncodeContext): SueExpression =
   case ctx:
   of ecIcon:
