@@ -1,4 +1,4 @@
-import std/[tables, strformat, sequtils, strutils, options]
+import std/[tables, sequtils, strutils, options]
 
 import ../common/[coordination, seqs, minitable, domain]
 
@@ -45,19 +45,13 @@ func toSue(tr: MTransform): Orient =
 func toSue(a: MArg): Argument =
   Argument(name: a.parameter.name, value: toSue a.value.get)
 
-func toSue(id: MIdentifier): string =
-  case id.kind:
-  of mikSingle: id.name
-  of mikIndex: fmt"{id.name}[{toSue id.index}]"
-  of mikRange: fmt"{id.name}[{toSue id.indexes.a}:{toSue id.indexes.b}]"
-
 func toLine(g: Geometry): Line =
   Line(kind: straight, points: points(g) & @[g.topleft])
 
 func iconPort(p: MPort): Port =
   Port(
     kind: toSue p.dir,
-    name: toSue p.id,
+    name: dump p.id,
     location: p.position)
 
 func toLabel(p: Port): Label =
@@ -74,21 +68,20 @@ func toProperty(p: Parameter): IconProperty =
     defaultValue: p.defaultValue)
 
 
-func buildIcon(ico: MIcon, params: seq[Parameter]): Icon =
+func buildIcon(name: string, ico: MIcon, params: seq[Parameter]): Icon =
   let
     myPorts = ico.ports.map(iconPort)
-    nameLabel = Label(
-      content: "$name",
-      location: (0, -20),
-      anchor: e,
+    defaultLabel = Label(
+      content: name,
+      location: ico.size.toGeometry.center,
+      anchor: c,
       size: fzLarge)
 
   Icon(
     ports: myPorts,
     properties: params.map(toProperty),
     size: ico.size,
-
-    labels: @[nameLabel] & myPorts.map(toLabel),
+    labels: @[defaultLabel] & myPorts.map(toLabel),
     lines: @[toLine toGeometry ico.size])
 
 
@@ -113,26 +106,40 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
   for n in sch.nets:
     case n.kind:
+    of mnkTag:
+      for p in n.ports:
+        result.instances.add Instance(
+          name: dump p.parent.id,
+          parent: lookup["name_net"],
+          location: p.position)
+
     of mnkWire:
       for w in segments n:
         result.wires.add w
 
-    else:
-      discard
-
   for p in sch.ports:
     result.instances.add Instance(
-      name: toSue p.parent.id,
+      name: dump p.parent.id,
       parent: lookup[$p.parent.dir],
       location: p.position)
 
   for br in sch.busRippers:
-    result.instances.add Instance(
-      name: toSue br.select,
-      parent: lookup["name_net"],
-      location: br.position)
+    # --- visual elements
+    result.instances.add [
+      Instance(
+        name: dump(br.source.ports[0].parent.id, true),
+        parent: lookup["name_net"],
+        location: br.position),
+
+      Instance(
+        name: dump(br.select, true),
+        parent: lookup["name_net"],
+        location: br.connection)]
 
     result.wires.add br.position .. br.connection
+
+    # --- conceptuals ...
+
 
   for t in sch.texts:
     result.labels.add Label(
@@ -222,6 +229,7 @@ func toSue*(proj: mm.MProject): sm.Project =
     "inout": tempModule("inout"),
     "output": tempModule("output"),
     "name_net": tempModule("name_net"),
+    "name_net_s": tempModule("name_net_s"),
     # "global": ## TODO for open ports
   }
 
@@ -241,7 +249,7 @@ func toSue*(proj: mm.MProject): sm.Project =
       kind: mkCtx,
       name: name,
       params: myParams,
-      icon: buildIcon(mmdl.icon, myParams))
+      icon: buildIcon(name, mmdl.icon, myParams))
 
   for name, mmdl in mpairs proj.modules:
     var m = result.modules[name]

@@ -177,6 +177,7 @@ type
     case kind*: MNetKind
     of mnkTag: discard
     of mnkWire:
+      # busRippers*: seq[MBusRipper]
       start*: WireGraphNode
 
   MModuleLookup* = Table[string, MElement]

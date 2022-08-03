@@ -8,10 +8,16 @@ type
     r*, g*, b*: ColorRange
     a*: Percent
 
+  TextAnchor* = enum
+    taStart = "start"
+    taMiddle = "middle"
+    taEnd = "end"
+
   FontStyle* = object
     family*: string
     size*: float
     color*: Color
+    anchor*: TextAnchor
 
   ShapeStyle* = object
     width*: float  # AKA strokeWidth
@@ -65,5 +71,8 @@ func newPartialText(sentence: string): XmlNode =
   <>tspan(newText(sentence))
 
 func newTextBox*(x, y: int, sentences: seq[string], font: FontStyle): XmlNode =
-  result = <>text(x = $x, y = $y, font-size = $font.size)
+  result = <>text(x = $x, y = $y,
+      font-size = $font.size,
+      text-anchor = $font.anchor)
+
   result.add sentences.map(newPartialText)

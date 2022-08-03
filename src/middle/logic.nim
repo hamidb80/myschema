@@ -92,7 +92,6 @@ iterator points*(net: MNet): Point =
   traverseNet net:
     yield nextNode.location
 
-
 func choose*(archs: seq[MArchitecture]): MArchitecture =
   result = archs[0]
 
@@ -120,6 +119,7 @@ func toMTokenKind(ch: char): MTokenKind =
   of ']': mtkCloseBracket
   else: err "invalid char"
 
+
 func `$`*(tkn: MToken): string =
   case tkn.kind:
   of mtkOpenPar: "("
@@ -128,6 +128,20 @@ func `$`*(tkn: MToken): string =
   of mtkCloseBracket: "]"
   of mtkOperator, mtkNumberLiteral, mtkSymbol: tkn.content
   of mtkStringLiteral: '"' & tkn.content & '"'
+
+func `$`*(mtg: MTokenGroup): string =
+  join mtg
+
+func dump*(id: MIdentifier, ignoreName = false): string =
+  let customizedName =
+    if ignoreName: ""
+    else: id.name
+
+  case id.kind:
+  of mikSingle: id.name
+  of mikIndex: fmt"{customizedName}[{id.index}]"
+  of mikRange: fmt"{customizedName}[{id.indexes.a}:{id.indexes.b}]"
+
 
 func lexCode*(s: string): MTokenGroup =
   var

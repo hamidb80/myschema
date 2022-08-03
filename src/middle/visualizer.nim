@@ -7,33 +7,49 @@ const
     fill: initColor(225, 225, 225, 1.0),
     corner: 10,
     width: 10,
-    border: initColor(100, 100, 100, 1.0) # FIXME if tou pass integer for `alpha`, nim compiler crashes
-  )
+    border: initColor(100, 100, 100, 1.0)) # FIXME if tou pass integer for `alpha`, nim compiler crashes
+
   processInstanceStyle = ShapeStyle(
     fill: initColor(79, 195, 247, 1.0),
-    corner: 40
-  )
+    corner: 40)
+
   generatorBlockStyle = ShapeStyle(
-    fill: initColor(40, 190, 110, 1.0),
-  )
+    fill: initColor(40, 190, 110, 1.0), )
+
   mainPortStyle = ShapeStyle(
-    fill: initColor(100, 200, 100, 1.0),
-  )
+    fill: initColor(100, 200, 100, 1.0), )
+
   insportStyle = ShapeStyle(
-    fill: initColor(200, 100, 100, 1.0),
-  )
+    fill: initColor(200, 100, 100, 1.0), )
+
   tagStyle = ShapeStyle(
-    fill: initColor(170, 90, 200, 0.4),
-  )
+    fill: initColor(170, 90, 200, 0.4), )
+
   wireStyle = ShapeStyle(
     width: 10,
-    border: initColor(30, 30, 30, 1.0),
-  )
+    border: initColor(30, 30, 30, 1.0), )
+
+  darkBlue = initColor(30, 80, 200, 1.0)
+
   busRipperStyle = ShapeStyle(
     width: 10,
-    border: initColor(30, 80, 200, 1.0),
-  )
+    border: darkBlue,
+    fill: darkBlue)
 
+  verySmall = FontStyle(
+    family: "tahoma",
+    size: 80,
+    anchor: taStart)
+
+  small = FontStyle(
+    family: "tahoma",
+    size: 120,
+    anchor: taStart)
+
+  large = FontStyle(
+    family: "tahoma",
+    size: 200,
+    anchor: taMiddle)
 
 
 func draw(container: var XmlNode, p: MPort, style: ShapeStyle) =
@@ -57,10 +73,24 @@ func draw(container: var XmlNode, ins: MInstance) =
       of mekGenerator: generatorBlockStyle
       else: processInstanceStyle
 
+    c = center ins.geometry
+    tl = topleft ins.geometry
+
   container.add newRect(box.x, box.y, box.w, box.h, style)
+  container.add newTextBox(tl.x, tl.y, @[ins.name], small)
+  container.add newTextBox(c.x, c.y, @[ins.parent.name], large)
 
   for p in ins.ports:
     container.draw p, insportStyle
+
+func draw(container: var XmlNode, bp: MBusRipper) =
+  container.add newTextBox(bp.position.x, bp.position.y, @[dump bp.source.ports[0].parent.id], verySmall)
+  container.add newCircle(bp.position.x, bp.position.y, 20, busRipperStyle)
+  
+  container.add newTextBox(bp.connection.x, bp.connection.y, @[dump bp.select], verySmall)
+  container.add newCircle(bp.connection.x, bp.connection.y, 10, busRipperStyle)
+
+  container.add newLine(bp.position, bp.connection, busRipperStyle)
 
 template genGroup(canvas): untyped =
   var g = newGroup([])
@@ -79,7 +109,7 @@ func visualize(canvas: var XmlNode, schema: MSchematic) =
         c.add newRect(x-50, y-50, 100, 100, tagStyle)
 
   for bp in schema.busRippers:
-    canvas.add newLine(bp.position, bp.connection, busRipperStyle)
+    canvas.draw bp
 
   for p in schema.ports:
     draw canvas, p, mainPortStyle
