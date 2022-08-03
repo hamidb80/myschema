@@ -51,47 +51,56 @@ func toSue(id: MIdentifier): string =
   of mikIndex: fmt"{id.name}[{toSue id.index}]"
   of mikRange: fmt"{id.name}[{toSue id.indexes.a}:{toSue id.indexes.b}]"
 
+func toLine(g: Geometry): Line =
+  Line(kind: straight, points: points(g) & @[g.topleft])
+
 func iconPort(p: MPort): Port =
   Port(
     kind: toSue p.dir,
     name: toSue p.id,
     location: p.position)
 
-func iconPortLabel(p: Port): Label =
+func toLabel(p: Port): Label =
   Label(
     content: p.name,
     location: p.location,
     anchor: c,
     size: fzStandard)
 
-func toLine(g: Geometry): Line =
-  Line(kind: straight, points: points(g) & @[g.topleft])
+func toProperty(p: Parameter): IconProperty =
+  IconProperty(
+    kind: ipUser,
+    name: p.name,
+    defaultValue: p.defaultValue)
 
-func buildIcon(ico: MIcon): Icon =
+
+func buildIcon(ico: MIcon, params: seq[Parameter]): Icon =
   let
     myPorts = ico.ports.map(iconPort)
-
-    defaultLabels = @[Label(
+    nameLabel = Label(
       content: "$name",
       location: (0, -20),
       anchor: e,
-      size: fzLarge)]
-
-    myLabels = myPorts.map(iconPortLabel)
+      size: fzLarge)
 
   Icon(
     ports: myPorts,
-    labels: defaultLabels & myLabels,
+    properties: params.map(toProperty),
     size: ico.size,
+
+    labels: @[nameLabel] & myPorts.map(toLabel),
     lines: @[toLine toGeometry ico.size])
 
 
 func addIconPorts(s: var SSchematic, ico: Icon, lookup: ModuleLookUp) =
+  var y = 0
   for p in ico.ports:
     s.instances.add Instance(
       name: p.name,
       parent: lookup[$p.kind],
-      location: p.location)
+      location: (-100, y))
+
+    inc y, 100
 
 func toArch*(sch: SSchematic): Architecture =
   Architecture(kind: akSchematic, schema: sch)
@@ -110,7 +119,6 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
     else:
       discard
-
 
   for p in sch.ports:
     result.instances.add Instance(
@@ -204,8 +212,7 @@ func tempModule(n: string): Module =
       ports: @[
         Port(
           kind: pdInout,
-          location: (0, 0))
-    ],
+          location: (0, 0))],
       size: (1, 1)))
 
 func toSue*(proj: mm.MProject): sm.Project =
@@ -219,11 +226,11 @@ func toSue*(proj: mm.MProject): sm.Project =
   }
 
   for name, mmdl in proj.modules:
-    var myParams = @[
-      Parameter(name: "name", defaultValue: some ""),
-      Parameter(name: "origin", defaultValue: some "{0 0}"),
-      Parameter(name: "orient", defaultValue: some "R0"),
-    ]
+    var
+      myParams = @[
+        Parameter(name: "name", defaultValue: some "{}"),
+        Parameter(name: "origin", defaultValue: some "{0 0}"),
+        Parameter(name: "orient", defaultValue: some "R0")]
 
     for p in values mmdl.parameters:
       myParams.add Parameter(
@@ -234,7 +241,7 @@ func toSue*(proj: mm.MProject): sm.Project =
       kind: mkCtx,
       name: name,
       params: myParams,
-      icon: buildIcon mmdl.icon)
+      icon: buildIcon(mmdl.icon, myParams))
 
   for name, mmdl in mpairs proj.modules:
     var m = result.modules[name]

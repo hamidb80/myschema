@@ -43,12 +43,22 @@ type
     of straight:
       points*: seq[Point]
 
+  IconPropertyKind* = enum
+    ipFixed = "fixed" # static
+    ipUser = "user"   # dynamic
+
+  IconProperty* = object
+    kind*: IconPropertyKind
+    name*: string
+    location*: Point
+    defaultValue*: Option[string]
+
   Icon* = ref object
     ports*: seq[Port]
-    labels*: seq[Label]
     lines*: seq[Line]
     size*: Size
-    # properties*: for Generics
+    labels*: seq[Label]
+    properties*: seq[IconProperty]
 
   SSchematic* = ref object
     instances*: seq[Instance]
@@ -81,11 +91,11 @@ type
 
     case kind*: ModuleKind
     of mkRef: discard
-    # of mkPreDefined:
     of mkCtx:
       icon*: Icon
       arch*: Architecture
       params*: seq[Parameter]
+      isGenerator*: bool
       isTemporary*: bool # do not generate file for these modules
 
   Argument* = object

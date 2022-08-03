@@ -1,8 +1,8 @@
 import std/[os]
 
-import ease/[transformer, parser]
-import middle/[visualizer]
-import sue/[transformer, encoder]
+import src/ease/[transformer, parser]
+import src/middle/[visualizer]
+import src/sue/[transformer, encoder]
 
 
 const path =

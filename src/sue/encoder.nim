@@ -1,4 +1,4 @@
-import std/[os, tables, sequtils, strutils, strformat, times, options]
+import std/[os, tables, sequtils, setutils, strutils, strformat, times, options]
 import ../common/[coordination, domain]
 import model, lexer, logic
 
@@ -8,7 +8,20 @@ type EncodeContext = enum
 
 
 func quoted(s: string): string =
-  '{' & s & '}'
+  if s.contains {' ', '[', ']', '{', '}'}:
+    '{' & s & '}'
+  else:
+    s
+
+func normalize(o: Orient): Orient =
+  ## R180 is invalid rotation, you should use RXY instead
+
+  if o.rotation == r180:
+    Orient(
+      rotation: r0,
+      flips: complement o.flips)
+
+  else: o
 
 template toOption(f, val): untyped =
   SueOption(flag: f, value: toToken val)
@@ -63,12 +76,9 @@ func encode(i: Instance): SueExpression =
     options: @[
       toOption(sfName, quoted i.name),
       toOption(sfOrigin, i.location),
-      toOption(sfOrient, $i.orient),
+      toOption(sfOrient, $i.orient.normalize),
     ] & map(i.args, encode),
   )
-
-# FIXME variable icon labels shoud be in this format
-# icon_property -origin {-50 70} -type user -name VAR
 
 func encode(l: Label, ctx: EncodeContext): SueExpression =
   case ctx:
@@ -78,9 +88,7 @@ func encode(l: Label, ctx: EncodeContext): SueExpression =
       options: @[
         toOption(sfOrigin, l.location),
         toOption(sfAnchor, $l.anchor),
-        toOption(sfLabel, quoted l.content)
-      ]
-    )
+        toOption(sfLabel, quoted l.content)])
 
   of ecSchematic:
     SueExpression(
@@ -88,11 +96,9 @@ func encode(l: Label, ctx: EncodeContext): SueExpression =
       options: @[
         toOption(sfOrigin, l.location),
         toOption(sfAnchor, $l.anchor),
-        toOption(sfText, quoted l.content)
-      ]
-    )
+        toOption(sfText, quoted l.content)])
 
-func encode(param: Parameter): string =
+func inlineEncode(param: Parameter): string =
   if issome param.defaultValue:
     "{$# $#}" % [param.name, dump toToken param.defaultValue.get]
   else:
@@ -105,9 +111,7 @@ func encode(params: seq[Parameter], ctx: EncodeContext): SueExpression =
 
     args: @[
       toTokenRaw "$args",
-      toTokenRaw "{$#}" % params.map(encode).join " "
-    ]
-  )
+      toTokenRaw "{$#}" % params.map(inlineEncode).join " "])
 
 func encode(p: Port): SueExpression =
   SueExpression(
@@ -115,16 +119,28 @@ func encode(p: Port): SueExpression =
     options: @[
       toOption(sfType, $p.kind),
       toOption(sfName, quoted p.name),
-      toOption(sfOrigin, p.location)
-    ],
-  )
+      toOption(sfOrigin, p.location)])
+
+func encode(p: IconProperty): SueExpression =
+  result = SueExpression(
+    command: scIconProperty,
+    options: @[
+      toOption(sfOrigin, p.location),
+      toOption(sfType, $p.kind),
+      toOption(sfName, p.name)])
+
+  if issome p.defaultValue:
+    result.options.add toOption(sfDefault, quoted p.defaultValue.get)
 
 func toSueFile(m: sink Module): SueFile =
   result = SueFile(name: m.name)
 
   # --- icon
-
   result.icon.add encode(m.params, ecIcon)
+
+  for p in m.icon.properties:
+    if p.name notin ["origin", "orient"]:
+      result.icon.add encode p
 
   for p in m.icon.ports:
     result.icon.add encode p
@@ -136,7 +152,6 @@ func toSueFile(m: sink Module): SueFile =
     result.icon.add encode(l, ecIcon)
 
   # --- schematic
-
   result.schematic.add encode(m.params, ecSchematic)
 
   for ins in m.arch.schema.instances:
