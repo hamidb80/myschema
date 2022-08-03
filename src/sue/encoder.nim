@@ -29,8 +29,16 @@ template toOption(f, val): untyped =
 func toToken*(p: Point): SueToken =
   toToken "{$# $#}" % [$p.x, $p.y]
 
+func `$`*(flips: set[Flip]): string =
+  join toseq flips
+
 func `$`*(o: Orient): string =
-  'R' & $o.rotation.int & join toseq o.flips
+  ## R0XY => RXY
+  if o.rotation == r0:
+    if o.flips.card == 0: "R0"
+    else: 'R' & $o.flips
+  else:
+    'R' & $o.rotation.int & $o.flips
 
 func speardPoints(points: seq[Point]): seq[int] =
   for p in points:
