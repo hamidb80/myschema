@@ -156,9 +156,6 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
     block directInputs: # detect busRppers that contain both input and output shcematic input
       for (p, n) in findDriectInputs br:
         if p notin seenPorts:
-          # assert p.position in n.connections, "$# not in $#" % [$p.position,
-          #   $n.connections.keys.toseq]
-
           seenPorts.add p
 
           let
@@ -173,6 +170,9 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
               of vdWest: Orient(rotation: r180)
               of vdNorth: Orient(rotation: -r90)
               of vdSouth: Orient(rotation: r90)
+
+          n.connections.removeBoth lastPos, nextNode
+          n.connections.addBoth buffIn, nextNode
 
           p.position = buffIn
           result.instances.add Instance(

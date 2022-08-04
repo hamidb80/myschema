@@ -160,7 +160,7 @@ func `-`*(vd: VectorDirection): VectorDirection =
 
 func toUnitPoint*(vd: VectorDirection): Point =
   case vd:
-  of vdEast: (0, +1)
-  of vdWest: (0, -1)
-  of vdNorth: (+1, 0)
-  of vdSouth: (-1, 0)
+  of vdEast: (+1, 0)
+  of vdWest: (-1, 0)
+  of vdNorth: (0, +1)
+  of vdSouth: (0, -1)
