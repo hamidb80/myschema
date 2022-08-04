@@ -116,27 +116,9 @@ func findDriectInputs(br: MBusRipper): seq[tuple[port: MPort, net: MNet]] =
   if not hasOutput:
     reset result
 
-func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
+proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
   result = new SSchematic
 
-  for n in sch.nets:
-    case n.kind:
-    of mnkTag:
-      for p in n.ports:
-        result.instances.add Instance(
-          name: dump p.parent.id,
-          parent: lookup["name_net"],
-          location: p.position)
-
-    of mnkWire:
-      for w in segments n:
-        result.wires.add w
-
-  for p in sch.ports:
-    result.instances.add Instance(
-      name: dump p.parent.id,
-      parent: lookup[$p.parent.dir],
-      location: p.position)
 
   var seenPorts: seq[MPort]
   for br in sch.busRippers:
@@ -144,7 +126,7 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
     result.instances.add [
       Instance(
-        name: dump(anotherId,true),
+        name: dump(anotherId, true),
         parent: lookup["name_net"],
         location: br.position),
 
@@ -167,8 +149,7 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
             vdir = toUnitPoint dir
             buffOut = portPos
             buffIn = portPos - vdir * 20
-            newPos = portPos - vdir * 40
-
+            newPos = portPos - vdir * 200
             o =
               case dir:
               of vdEast: Orient()
@@ -176,16 +157,36 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
               of vdNorth: Orient(rotation: -r90)
               of vdSouth: Orient(rotation: r90)
 
-          n.connections.removeBoth portPos, nextNode
-          n.connections.addBoth buffOut, nextNode
-          n.connections.addBoth newPos, buffIn
-          p.position = newPos
+          result.wires.add newPos .. buffIn
+
+          p.position = newPos 
 
           result.instances.add Instance(
-            name: "helper",
+            name: "hepler_" & randomHdlIdent(),
             orient: o,
             parent: lookup["buffer0"],
             location: buffIn)
+
+          # assert false, $(p.position, buffIn, buffOut)
+
+  for n in sch.nets:
+    case n.kind:
+    of mnkTag:
+      for p in n.ports:
+        result.instances.add Instance(
+          name: dump p.parent.id,
+          parent: lookup["name_net"],
+          location: p.position)
+
+    of mnkWire:
+      for w in segments n:
+        result.wires.add w
+
+  for p in sch.ports:
+    result.instances.add Instance(
+      name: dump p.parent.id,
+      parent: lookup[$p.parent.dir],
+      location: p.position)
 
   for t in sch.texts:
     result.labels.add Label(
@@ -244,7 +245,7 @@ func toSue(tt: MTruthTable): SSchematic =
 
     inc y, H
 
-func toSue(arch: MArchitecture, ico: Icon,
+proc toSue(arch: MArchitecture, ico: Icon,
   lookup: ModuleLookUp, m: Module): Architecture =
 
   result = case arch.kind:
@@ -268,7 +269,7 @@ func inoutModule(n: string): Module =
           location: (0, 0))],
       size: (1, 1)))
 
-func toSue*(proj: mm.MProject): sm.Project =
+proc toSue*(proj: mm.MProject): sm.Project =
   result = new Project
   result.modules = toTable {
     "input": inoutModule("input"),
