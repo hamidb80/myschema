@@ -26,6 +26,9 @@ suite "rotation":
     check p2.rotate(c2, r90) == (0, -10)
 
 suite "flip":
+  test "flip nothing":
+    check flip((3, 10), (1, 5), {}) == (3, 10)
+
   test "flip X":
     check flip((3, 10), (1, 5), {X}) == (-1, 10)
 

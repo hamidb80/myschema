@@ -49,7 +49,8 @@ func toSue(a: MArg): Argument =
   Argument(name: a.parameter.name, value: toSue a.value.get)
 
 func toLine(g: Geometry): Line =
-  Line(kind: straight, points: points(g) & @[g.topleft])
+  let ps = points g
+  Line(kind: straight, points: ps & ps[0])
 
 func iconPort(p: MPort): Port =
   Port(

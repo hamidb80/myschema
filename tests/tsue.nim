@@ -1,1 +1,1 @@
-import tparser, tlexer, ttransformer
+import tsue/[tparser, tlexer, ttransformer]

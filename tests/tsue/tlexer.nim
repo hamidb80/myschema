@@ -1,5 +1,5 @@
-import sue/[lexer]
+import src/sue/[lexer]
 
 
-let l = lexSue readFile "./examples/sue/eg1.sue"
+let l = lexSue readFile "./examples/sue/lexer.sue"
 echo dump l
