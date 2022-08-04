@@ -119,7 +119,6 @@ func findDriectInputs(br: MBusRipper): seq[tuple[port: MPort, net: MNet]] =
 proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
   result = new SSchematic
 
-
   var seenPorts: seq[MPort]
   for br in sch.busRippers:
     let anotherId = br.source.ports.search((p) => not p.isSliced).parent.id
@@ -147,7 +146,6 @@ proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
             nextNode = n.connections[portPos][0]
             dir = detectDir(portPos .. nextNode)
             vdir = toUnitPoint dir
-            buffOut = portPos
             buffIn = portPos - vdir * 20
             newPos = portPos - vdir * 200
             o =
@@ -159,7 +157,7 @@ proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
           result.wires.add newPos .. buffIn
 
-          p.position = newPos 
+          p.position = newPos
 
           result.instances.add Instance(
             name: "hepler_" & randomHdlIdent(),
@@ -172,11 +170,33 @@ proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
   for n in sch.nets:
     case n.kind:
     of mnkTag:
+      # var
+      #   hasInput = false
+      #   hasOutput = false
+
+      # for p in n.ports:
+      #   case p.parent.dir:
+      #   of mpdInput:
+      #     hasInput = true
+
+      #   of mpdOutput:
+      #     hasOutput = true
+
+      #   else: discard
+
       for p in n.ports:
-        result.instances.add Instance(
-          name: dump p.parent.id,
-          parent: lookup["name_net"],
-          location: p.position)
+        let
+          # ppos = p.parent.position
+          # edge = whichEdge(ppos, p.wrapperIcon.size.toGeometry)
+          # vd = toUnitPoint edge
+          # outPos = ppos + vd *  
+          # outPos = ppos + vd * 50
+          ins = Instance(
+            name: dump p.parent.id,
+            parent: lookup["name_net"],
+            location: p.position)
+
+        result.instances.add ins
 
     of mnkWire:
       for w in segments n:

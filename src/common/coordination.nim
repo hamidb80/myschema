@@ -164,3 +164,10 @@ func toUnitPoint*(vd: VectorDirection): Point =
   of vdWest: (-1, 0)
   of vdNorth: (0, +1)
   of vdSouth: (0, -1)
+
+func whichEdge*(p: Point, geo: Geometry): VectorDirection =
+  if p.x == geo.x1: vdWest
+  elif p.x == geo.x2: vdEast
+  elif p.y == geo.y1: vdNorth
+  elif p.y == geo.y2: vdSouth
+  else: raise newException(ValueError, "offside")

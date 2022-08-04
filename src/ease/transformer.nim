@@ -74,6 +74,7 @@ proc extractIcon[T: Visible](smth: T): mm.MIcon =
       wrapperKind: wkIcon,
       id: toMIdent p.identifier,
       position: tr(p.position),
+      wrapperIcon: result,
       dir: toPortDir mode p)
 
 func lexCode(s: Option[string]): Option[MTokenGroup] =

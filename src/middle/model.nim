@@ -81,6 +81,7 @@ type
     of mpOriginal:
       id*: MIdentifier
       dir*: MPortDir
+      wrapperIcon*: MIcon
 
     of mpCopy:
       parent*: MPort
