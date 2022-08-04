@@ -163,7 +163,8 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
             nextNode = n.connections[lastPos][0]
             dir = detectDir(lastPos .. nextNode)
             vdir = toUnitPoint dir
-            buffIn = lastPos - vdir * 20
+            buffOut = lastPos - vdir * 20
+            buffIn = lastPos - vdir * 40
             o =
               case dir:
               of vdEast: Orient()
@@ -172,13 +173,13 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
               of vdSouth: Orient(rotation: r90)
 
           n.connections.removeBoth lastPos, nextNode
-          n.connections.addBoth buffIn, nextNode
+          n.connections.addBoth buffOut, nextNode
 
           p.position = buffIn
           result.instances.add Instance(
             name: "helper",
             orient: o,
-            parent: lookup["buffer"],
+            parent: lookup["buffer00"],
             location: buffIn)
 
 
@@ -270,7 +271,7 @@ func toSue*(proj: mm.MProject): sm.Project =
     "inout": inoutModule("inout"),
     "output": inoutModule("output"),
     "name_net": inoutModule("name_net"),
-    "buffer": inoutModule("buffer")}
+    "buffer0": inoutModule("buffer0")}
 
   for name, mmdl in proj.modules:
     var

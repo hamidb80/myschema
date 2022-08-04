@@ -1,6 +1,6 @@
 import std/[tables, options, strutils, sequtils, strformat, sugar]
 
-import ../common/[coordination, domain, seqs, minitable, errors]
+import ../common/[coordination, domain, seqs, minitable, errors, graph]
 
 import model as em
 import ../middle/model as mm
@@ -30,14 +30,13 @@ func getTransform[T: Visible](smth: T): MTransform =
     rotation: smth.rotation,
     flips: smth.flips)
 
-func copyPort(p: MPort, fn: Transformer): MPort =
-  # TODO extract cbn from parent ports
-
+func copyPort(pinstance: Port, pparent: MPort): MPort =
   MPort(
     kind: mpCopy,
     wrapperKind: wkInstance,
-    position: fn(p.position),
-    parent: p)
+    position: pinstance.position,
+    isSliced: "NET_SLICE" in pinstance.properties,
+    parent: pparent)
 
 func toPortDir(m: em.PortMode): mm.MPortDir =
   case m:
@@ -183,6 +182,22 @@ proc initModule(en: em.Entity): mm.MElement =
     icon: extractIcon en,
     parameters: extractParams en)
 
+
+func netSlice2MIdent(mg: MTokenGroup): MIdentifier =
+  if mg.len == 1:
+    MIdentifier(kind: mikIndex, index: mg)
+  else:
+    assert mg.len == 5
+    assert mg[0].kind == mtkOpenBracket
+    assert mg[4].kind == mtkCloseBracket
+    assert mg[2] == MToken(kind: mtkOperator, content: ":")
+    MIdentifier(kind: mikRange, indexes: @[mg[1]] .. @[mg[3]])
+
+func id(n: MNet): MIdentifier =
+  for p in n.ports:
+    if not p.isSliced:
+      return p.parent.id
+
 proc buildSchema(moduleName: string,
   schema: sink em.Schematic,
   icon: MIcon,
@@ -194,6 +209,7 @@ proc buildSchema(moduleName: string,
   var
     allPortsMap: Table[ptr em.PortImpl, MPort]
     allNetsMap: Table[ptr em.NetImpl, MNet]
+    connectionBusRippers: seq[(MBusRipper, MPort)]
 
 
   for fpt in schema.freePlacedTexts:
@@ -217,26 +233,34 @@ proc buildSchema(moduleName: string,
     allPortsMap[addr p[]] = mp
 
   block instances:
-    template makeInstance(iname, parentEl, elGeo, rawT, argsSeq): untyped =
+    template makeInstance(el, parentEl, t, argsSeq): untyped =
       let
-        t = rawT
-        pos = topLeft elGeo
-        c = center elGeo
+        iname = el.ident.name
+        myPorts = collect newseq:
+          for i in 0 .. el.ports.high:
+            let 
+              instancePort = el.ports[i]
+              p = copyPort(instancePort, parentEl.icon.ports[i])
 
-        translate = translationAfter(
-          toGeometry parentEl.icon.size,
-          t.rotation)
+            if p.isSliced:
+              let 
+                pos = instancePort.position
+                b  = MBusRipper(
+                  select: netSlice2MIdent lexCode instancePort.properties["NET_SLICE"],
+                  source: nil, dest: nil,
+                  position: pos, connection: pos)
 
-        tFn = (p: Point) =>
-          (p.rotate0(t.rotation) + pos - translate).flip(c, t.flips)
+              connectionBusRippers.add (b, p)
+
+            p
 
       mm.MInstance(
         name: iname,
-        geometry: afterTransform(parentEl.icon, t.rotation, pos),
+        geometry: el.geometry,
         parent: parentEl,
         transform: t,
         args: argsSeq,
-        ports: parentEl.icon.ports.mapIt copyPort(it, tFn))
+        ports: myPorts)
 
     template makeParent(el, ico, a): untyped =
       let yourName {.inject.} = moduleName & "_" & randomHdlIdent()
@@ -247,11 +271,10 @@ proc buildSchema(moduleName: string,
       elements[parent.name] = parent
       parent
 
-
     for c in schema.components:
       let
         parent = mlk[c.parent.obid]
-        ins = makeInstance(c.ident.name, parent, c.geometry,
+        ins = makeInstance(c, parent,
           getTransform c,
           extractArgs(c, parent.parameters))
 
@@ -263,7 +286,7 @@ proc buildSchema(moduleName: string,
     for pr in schema.processes:
       let
         el = makeParent(initProcessElement pr, extractIcon pr, toArch pr) # FIXME
-        ins = makeInstance(pr.ident.name, el, pr.geometry,
+        ins = makeInstance(pr, el,
           getTransform pr, @[])
 
       result.instances.add ins
@@ -276,7 +299,7 @@ proc buildSchema(moduleName: string,
         ico = extractIcon gb
         el = makeParent(makeGenerator gb, ico, toArch(buildSchema(yourName,
             gb.schematic, ico, mlk, elements), makSchema))
-        ins = makeInstance(gb.ident.name, el, gb.geometry,
+        ins = makeInstance(gb, el,
           getTransform gb, @[])
 
       for i, p in gb.ports:
@@ -297,13 +320,14 @@ proc buildSchema(moduleName: string,
         extractNet completeWires
 
     for p in n.part.ports:
-      mn.ports.add allPortsMap[addr p[]]
+      var mp = allPortsMap[addr p[]]
+      mn.ports.add mp
+      mp.nets.add mn
 
     result.nets.add mn
     allNetsMap[addr n[]] = mn
 
-  # bus rippers
-  for n in schema.nets:
+  for n in schema.nets: # bus rippers
     if n.part.kind == pkWire:
       for bp in n.part.busRippers:
         let connPos = case bp.side:
@@ -320,8 +344,34 @@ proc buildSchema(moduleName: string,
           connection: connPos)
 
         result.busRippers.add myBr
-        myBr.source.connectedBusRippers.add myBr
-        myBr.dest.connectedBusRippers.add myBr
+        myBr.source.busRippers.add myBr
+        myBr.dest.busRippers.add myBr
+
+  for (b, p) in connectionBusRippers:
+    assert p.nets.len == 1
+    let n = p.nets[0]
+    b.source = n
+    b.dest = n
+    result.busRippers.add b
+    n.busRippers.add b
+    b.select = n.id
+    
+    let
+      lastPos = p.position
+      nextNode = n.connections[lastPos][0]
+      dir = detectDir(lastPos .. nextNode)
+      vdir = toUnitPoint dir
+      buffOut = lastPos + vdir * 20
+      buffIn = lastPos + vdir * 40
+
+    n.connections.removeBoth lastPos, nextNode
+    n.connections.addBoth lastPos, buffIn
+    n.connections.addBoth buffIn, buffOut
+    n.connections.addBoth buffOut, nextNode
+
+    b.position = buffOut
+    b.connection = buffIn
+    
 
 
 func choose(sa: seq[Architecture]): Architecture =

@@ -97,7 +97,7 @@ iterator allNets*(br: MBusRipper): MNet =
     for n in [last.source, last.dest]:
       if n notin seen:
         yield n
-        bstack.add n.connectedBusRippers
+        bstack.add n.busrippers
         seen.add n
 
 
@@ -112,3 +112,14 @@ func detectDir*(w: Wire): VectorDirection =
 
   else:
     err "invalid wire"
+
+
+func `==`*(mi1, mi2: MIdentifier): bool =
+  if mi1.kind == mi2.kind:
+    if mi1.name == mi2.name:
+      case mi1.kind:
+      of mikSingle: true
+      of mikIndex: mi1.index == mi2.index
+      of mikRange: mi1.indexes == mi2.indexes
+    else: false
+  else: false

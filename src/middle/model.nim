@@ -85,6 +85,9 @@ type
       parent*: MPort
       isOpen*: bool
       assignedValue*: Option[string]
+      isSliced*:  bool
+      nets*: seq[MNet]
+
 
   MSchematic* = ref object
     ports*: seq[MPort]
@@ -164,7 +167,7 @@ type
     case kind*: MNetKind
     of mnkTag: discard
     of mnkWire:
-      connectedBusRippers*: seq[MBusRipper]
+      busRippers*: seq[MBusRipper]
       connections*: NetLookup
 
   MModuleLookup* = Table[string, MElement]

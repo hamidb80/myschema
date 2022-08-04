@@ -118,13 +118,3 @@ func lexCode*(s: string): MTokenGroup =
         dec i
 
     inc i
-
-func `==`*(mi1, mi2: MIdentifier): bool =
-  if mi1.kind == mi2.kind:
-    if mi1.name == mi2.name:
-      case mi1.kind:
-      of mikSingle: true
-      of mikIndex: mi1.index == mi2.index
-      of mikRange: mi1.indexes == mi2.indexes
-    else: false
-  else: false
