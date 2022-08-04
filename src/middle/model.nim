@@ -184,5 +184,3 @@ type
 
   MProject* = ref object
     modules*: MModuleLookup
-
-# FIXME in `transformer.nim` types with the same name cause gcc error

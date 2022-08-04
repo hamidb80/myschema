@@ -7,7 +7,7 @@ const
     fill: initColor(225, 225, 225, 1.0),
     corner: 10,
     width: 10,
-    border: initColor(100, 100, 100, 1.0)) # FIXME if tou pass integer for `alpha`, nim compiler crashes
+    border: initColor(100, 100, 100, 1.0))
 
   processInstanceStyle = ShapeStyle(
     fill: initColor(79, 195, 247, 1.0),

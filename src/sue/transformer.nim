@@ -84,7 +84,6 @@ func buildIcon(name: string, ico: MIcon, params: seq[Parameter]): Icon =
     labels: @[defaultLabel] & myPorts.map(toLabel),
     lines: @[toLine toGeometry ico.size])
 
-
 func addIconPorts(s: var SSchematic, ico: Icon, lookup: ModuleLookUp) =
   var y = 0
   for p in ico.ports:
