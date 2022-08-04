@@ -11,7 +11,7 @@ bin           = @["ews_sue"]
 # Dependencies
 
 requires "nim >= 1.6.6"
-requires "print"
+
 
 task gensvg, "generates example file":
   exec "nim -d:danger r ./tests/tplay.nim"

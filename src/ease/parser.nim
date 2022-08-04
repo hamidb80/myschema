@@ -1075,7 +1075,7 @@ func resolve(proj: var Project) =
 
 
 proc parseEws*(dir: string): Project =
-  doAssert dir.endsWith ".ews", fmt"the workspace directory name must end with .ews"
+  doAssert dir.endsWith ".ews", fmt"the workspace directory name must ends with .ews"
   let dbDir = dir / "ease.db"
 
 

@@ -1,7 +1,8 @@
-import std/[macros]
+from std/macros import error
+import std/[os]
 
-import sue/parser as sp
-import ease/parser as ep
+import ease/[transformer as et, parser]
+import sue/[transformer as st, encoder]
 
 
 static:
@@ -10,4 +11,22 @@ static:
 
 
 when isMainModule:
-  echo "Hi!"
+  if paramCount() == 2: 
+    let 
+      ews = paramStr(1)
+      dest = paramStr(2)
+
+    debugEcho "ews project: ", ews
+    debugEcho "destination: ", dest
+
+    debugEcho "-- PARSING .eas FILES ..."
+    let proj = toMiddle parseEws ews
+    debugEcho "-- CONVERTING TO .sue ..."
+    proj.toSue.writeProject dest
+    debugEcho "-- DONE!"
+
+    
+  else: echo """
+USAGE:
+  app.exe <PROJECT.ews::folder> <dest::folder>
+"""

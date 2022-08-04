@@ -188,7 +188,13 @@ proc genTclIndex(proj: Project): string =
   linesAcc.add "set mtimes {$#}" % timesAcc.join(" ")
   linesAcc.join "\n"
 
+
+const b = readfile "./elements/buffer0.sue"
 proc writeProject*(proj: Project, dest: string) =
+
+  writeFile dest / "buffer0.sue", b
+
+
   for name, module in proj.modules:
     if not module.isTemporary:
       let fname = dest / name & ".sue"
