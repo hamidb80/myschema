@@ -179,7 +179,7 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
           result.instances.add Instance(
             name: "helper",
             orient: o,
-            parent: lookup["buffer00"],
+            parent: lookup["buffer0"],
             location: buffIn)
 
 
