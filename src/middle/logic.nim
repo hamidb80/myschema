@@ -123,3 +123,8 @@ func `==`*(mi1, mi2: MIdentifier): bool =
       of mikRange: mi1.indexes == mi2.indexes
     else: false
   else: false
+
+func id*(n: MNet): MIdentifier =
+  for p in n.ports:
+    if not p.isSliced:
+      return p.parent.id

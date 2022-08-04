@@ -193,11 +193,6 @@ func netSlice2MIdent(mg: MTokenGroup): MIdentifier =
     assert mg[2] == MToken(kind: mtkOperator, content: ":")
     MIdentifier(kind: mikRange, indexes: @[mg[1]] .. @[mg[3]])
 
-func id(n: MNet): MIdentifier =
-  for p in n.ports:
-    if not p.isSliced:
-      return p.parent.id
-
 proc buildSchema(moduleName: string,
   schema: sink em.Schematic,
   icon: MIcon,
@@ -365,11 +360,10 @@ proc buildSchema(moduleName: string,
       buffIn = lastPos + vdir * 40
 
     n.connections.removeBoth lastPos, nextNode
-    n.connections.addBoth lastPos, buffIn
     n.connections.addBoth buffIn, buffOut
     n.connections.addBoth buffOut, nextNode
-
-    b.position = buffOut
+    
+    b.position = buffIn
     b.connection = buffIn
     
 

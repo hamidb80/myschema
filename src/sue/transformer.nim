@@ -142,7 +142,7 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
   for br in sch.busRippers:
     result.instances.add [
       Instance(
-        name: dump(br.source.ports[0].parent.id, true),
+        name: dump(br.source.id, true),
         parent: lookup["name_net"],
         location: br.position),
 
@@ -174,14 +174,13 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
           n.connections.removeBoth lastPos, nextNode
           n.connections.addBoth buffOut, nextNode
-
           p.position = buffIn
+
           result.instances.add Instance(
             name: "helper",
             orient: o,
             parent: lookup["buffer0"],
             location: buffIn)
-
 
   for t in sch.texts:
     result.labels.add Label(
