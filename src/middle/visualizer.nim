@@ -129,7 +129,6 @@ proc toSVG*(proj: MProject, dest: string) =
 
       case el.arch.kind:
       of makSchema:
-        debugEcho (a.kind, el.name)
         let (w, h) = a.schema.size
         var c = newCanvas(-400, -400, w, h)
         c.visualize a.schema

@@ -1,6 +1,6 @@
-import std/[tables, sequtils, strutils, options]
+import std/[tables, sequtils, strutils, strformat, options]
 
-import ../common/[coordination, seqs, minitable, domain]
+import ../common/[coordination, seqs, minitable, domain, graph]
 
 import model as sm
 import ../middle/model as mm
@@ -98,11 +98,23 @@ func addIconPorts(s: var SSchematic, ico: Icon, lookup: ModuleLookUp) =
 
     inc y, 100
 
-func toArch(sch: SSchematic): Architecture =
-  Architecture(kind: akSchematic, schema: sch)
+func findDriectInputs(br: MBusRipper): seq[tuple[port: MPort, net: MNet]] =
+  var hasOutput = false
 
-func toArch(f: MCodeFile): Architecture =
-  Architecture(kind: akFile, schema: SSchematic(), file: f)
+  for n in br.allNets:
+    for p in n.ports:
+      if p.wrapperKind == wkSchematic:
+        case p.parent.dir:
+        of mpdOutput:
+          hasOutput = true
+
+        of mpdInput:
+          result.add (p, n)
+
+        else: discard
+
+  if not hasOutput:
+    reset result
 
 func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
   result = new SSchematic
@@ -126,8 +138,8 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
       parent: lookup[$p.parent.dir],
       location: p.position)
 
+  var seenPorts: seq[MPort]
   for br in sch.busRippers:
-    # --- visual elements
     result.instances.add [
       Instance(
         name: dump(br.source.ports[0].parent.id, true),
@@ -141,7 +153,33 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
     result.wires.add br.position .. br.connection
 
-    # --- conceptuals ...
+    block directInputs: # detect busRppers that contain both input and output shcematic input
+      for (p, n) in findDriectInputs br:
+        if p notin seenPorts:
+          # assert p.position in n.connections, "$# not in $#" % [$p.position,
+          #   $n.connections.keys.toseq]
+
+          seenPorts.add p
+
+          let
+            lastPos = p.position
+            nextNode = n.connections[lastPos][0]
+            dir = detectDir(lastPos .. nextNode)
+            vdir = toUnitPoint dir
+            buffIn = lastPos - vdir * 20
+            o =
+              case dir:
+              of vdEast: Orient()
+              of vdWest: Orient(rotation: r180)
+              of vdNorth: Orient(rotation: -r90)
+              of vdSouth: Orient(rotation: r90)
+
+          p.position = buffIn
+          result.instances.add Instance(
+            name: "helper",
+            orient: o,
+            parent: lookup["buffer"],
+            location: buffIn)
 
 
   for t in sch.texts:
@@ -213,7 +251,7 @@ func toSue(arch: MArchitecture, ico: Icon,
     result.schema.addIconPorts ico, lookup
 
 
-func tempModule(n: string): Module =
+func inoutModule(n: string): Module =
   Module(
     name: n,
     kind: mkCtx,
@@ -228,13 +266,11 @@ func tempModule(n: string): Module =
 func toSue*(proj: mm.MProject): sm.Project =
   result = new Project
   result.modules = toTable {
-    "input": tempModule("input"),
-    "inout": tempModule("inout"),
-    "output": tempModule("output"),
-    "name_net": tempModule("name_net"),
-    "name_net_s": tempModule("name_net_s"),
-    # "global": ## TODO for open ports
-  }
+    "input": inoutModule("input"),
+    "inout": inoutModule("inout"),
+    "output": inoutModule("output"),
+    "name_net": inoutModule("name_net"),
+    "buffer": inoutModule("buffer")}
 
   for name, mmdl in proj.modules:
     var
@@ -256,4 +292,5 @@ func toSue*(proj: mm.MProject): sm.Project =
 
   for name, mmdl in mpairs proj.modules:
     var m = result.modules[name]
+    debugEcho "finalizing module sue: ", name
     m.arch = toSue(mmdl.arch, m.icon, result.modules, m)

@@ -1,22 +1,8 @@
 import std/[tables, sugar, sets]
 
 import model
-import ../common/[coordination, domain, seqs]
+import ../common/[coordination, domain, seqs, errors, graph]
 
-
-# utils ---
-
-func safeAdd[K, V](lookup: var Table[K, seq[V]], k: K, v: V) {.inline.} =
-  lookup.withValue k, list:
-    list[].add v
-  do:
-    lookup[k] = @[v]
-
-func addBoth[T](lookup: var Table[T, seq[T]], v1, v2: T) {.inline.} =
-  lookup.safeAdd v1, v2
-  lookup.safeAdd v2, v1
-
-# net extract ---
 
 func collectImpl(
   cur: Point,
@@ -100,3 +86,29 @@ func `$`*(pd: MPortDir): string =
   of mpdoutput: "output"
   of mpdinout: "inout"
 
+iterator allNets*(br: MBusRipper): MNet =
+  var
+    seen: seq[MNet]
+    bstack = @[br]
+
+  while not isEmpty bstack:
+    let last = bstack.pop
+
+    for n in [last.source, last.dest]:
+      if n notin seen:
+        yield n
+        bstack.add n.connectedBusRippers
+        seen.add n
+
+
+func detectDir*(w: Wire): VectorDirection =
+  if w.a.x == w.b.x: # horizobtal
+    if w.a.y > w.b.y: vdSouth
+    else: vdNorth
+
+  elif w.a.y == w.b.y: # horizobtal
+    if w.a.x > w.b.x: vdWest
+    else: vdEast
+
+  else:
+    err "invalid wire"

@@ -484,7 +484,7 @@ func parseStat(stateNode: LispNode): State =
     of "SLAVE":
       result.slave = some Slave(kind: slvRef, obid: parseOBID n)
 
-    of "ACTION", "PROPERTIES":  discard
+    of "ACTION", "PROPERTIES": discard
     else:
       err fmt"invalid node '{n.ident}' for STATE"
 
@@ -621,13 +621,13 @@ func parseSlav(slaveNode: LispNode): Slave =
     case n.ident:
     of "OBID":
       result.obid = parseOBID n
-    
+
     of "HDL_IDENT":
       result.ident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
-    
+
     of "STATE_MACHINE_V2":
       result.stateMachine = parseFsmx n
 
@@ -987,8 +987,8 @@ func resolve(genb: var GenerateBlock) =
 
   for p in genb.schematic.ports:
     let
-      pg_obid = p.parent.get.obid
-      pg = portMap[pg_obid]
+      pgObid = p.parent.get.obid
+      pg = portMap[pgObid]
 
     p.parent = some pg
     pg.parent = some p
@@ -1085,7 +1085,9 @@ proc parseEws*(dir: string): Project =
     d = parseLib select parseLisp readFile libdir / "library.eas"
 
     for e in mitems d.entities:
-      e = parseEntityFile select parseLisp readfile libdir / e.obid.string & ".eas"
+      let fname = libdir / e.obid.string & ".eas"
+      debugEcho "parseing eas: ", fname
+      e = parseEntityFile select parseLisp readfile fname
 
 
   resolve result

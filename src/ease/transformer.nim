@@ -31,10 +31,11 @@ func getTransform[T: Visible](smth: T): MTransform =
     flips: smth.flips)
 
 func copyPort(p: MPort, fn: Transformer): MPort =
-  # FIXME extract cbn from parent ports
+  # TODO extract cbn from parent ports
 
   MPort(
     kind: mpCopy,
+    wrapperKind: wkInstance,
     position: fn(p.position),
     parent: p)
 
@@ -71,6 +72,7 @@ proc extractIcon[T: Visible](smth: T): mm.MIcon =
   for p in smth.ports:
     result.ports.add mm.MPort(
       kind: mpOriginal,
+      wrapperKind: wkIcon,
       id: toMIdent p.identifier,
       position: tr(p.position),
       dir: toPortDir mode p)
@@ -170,6 +172,7 @@ func toArch(pr: Process): MArchitecture =
   of mekFSM: toArch(toMiddle pr.body.stateMachine, makFSM)
   else: err "impossible"
 
+
 proc initProcessElement(pr: Process): MElement =
   mm.MElement(kind: toMElementKind pr.kind, arch: toArch pr)
 
@@ -199,13 +202,13 @@ proc buildSchema(moduleName: string,
   for p in schema.ports:
     let
       mid = toMIdent(p.identifier)
-      c = p.cbn
-      io = c.issome and c.get.kind == ctIntentionallyOpen
-      val = c.map (it) => it.ident.name
+      io = p.cbn.issome and p.cbn.get.kind == ctIntentionallyOpen
+      val = p.cbn.map (it) => it.ident.name
 
       mp = mm.MPort(
         kind: mpCopy,
         position: p.position,
+        wrapperKind: wkSchematic,
         isOpen: io,
         assignedValue: val,
         parent: icon.ports.search((it) => mid == it.id))
@@ -309,12 +312,17 @@ proc buildSchema(moduleName: string,
           of brsBottomRight: bottomRight bp.geometry
           of brsBottomLeft: bottomLeft bp.geometry
 
-        result.busRippers.add MBusRipper(
+        let myBr = MBusRipper(
           select: getBusSelect(bp, n),
           source: allNetsMap[addr n[]],
           dest: allNetsMap[addr bp.destNet[]],
           position: center bp.geometry,
           connection: connPos)
+
+        result.busRippers.add myBr
+        myBr.source.connectedBusRippers.add myBr
+        myBr.dest.connectedBusRippers.add myBr
+
 
 func choose(sa: seq[Architecture]): Architecture =
   result = sa[0]
@@ -359,5 +367,3 @@ proc toMiddle*(proj: em.Project): mm.MProject =
 
       of amExternalHDLFIle:
         err "not implemented"
-
-# TODO extract cbn for bus ripper :: it may not have `dest` bus

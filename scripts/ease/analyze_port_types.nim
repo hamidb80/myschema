@@ -91,11 +91,6 @@ proc goFind(node: LispNode, path: Path) =
     if node.ident == "ACT_VALUE":
       actvals.incl node.arg(0).str
 
-    # if node.ident == "DIRECTION":
-    #   if node.arg(0).vint == 3:
-    #     echo ">> ", lastPath
-    #     jump()
-
     for s in node:
       let id = newId node
       goFind s, path & id

@@ -1,15 +1,13 @@
 import std/[tables, os, strformat, strutils, sequtils, options]
 import ../common/[errors, coordination, tuples, domain]
-import lexer, model
+import lexer, model, logic
 
-
-# -- options
 
 func parsePortType*(s: string): PortDir =
   case s:
-  of "input": input
-  of "output": output
-  of "inout": inout
+  of "input": pdInput
+  of "output": pdOutput
+  of "inout": pdInout
   else: err fmt"not a port type: {s}"
 
 func parseFlip(s: string): set[Flip] =
@@ -48,7 +46,6 @@ func parseOrient(s: string): Orient =
 func parseOrigin*(s: string): Point =
   s.split(" ").map(parseInt).toTuple(2)
 
-# -- experssions
 
 func getOrigin(expr: SueExpression): Point =
   parseOrigin expr[sfOrigin].strval
@@ -124,10 +121,9 @@ func parseMakeText*(expr: SueExpression): Label =
     anchor: anchor,
     size: size)
 
-# -- groups
 
-func parseSchematic(se: seq[SueExpression]): Schematic =
-  result = new Schematic
+func parseSchematic(se: seq[SueExpression]): SSchematic =
+  result = new SSchematic
 
   for expr in se:
     case expr.command:
@@ -138,7 +134,7 @@ func parseSchematic(se: seq[SueExpression]): Schematic =
       result.wires.add parseWire expr
 
     of scMakeText:
-      result.texts.add parseMakeText expr
+      result.labels.add parseMakeText expr
 
     of scMakeLine: discard
     of scGenerate: err "'generate' is not implemented"
@@ -161,14 +157,7 @@ func parseIcon(se: seq[SueExpression]): Icon =
     else:
       err fmt"invalid command in icon: {expr.command}"
 
-func resolve(proj: var Project) =
-  # resolve module instances
-  for _, m in mpairs proj.modules:
-    for ins in mitems m.schema.instances:
-      ins.parent = proj.modules[ins.parent.name]
 
-
-# import print
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())
 
@@ -179,11 +168,9 @@ proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
         name: sf.name,
         kind: mkCtx,
         icon: parseIcon(sf.icon),
-        schema: parseSchematic(sf.schematic))
+        arch: toArch parseSchematic(sf.schematic))
 
   walkSue mainDir
 
   for d in lookupDirs:
     walkSue d
-
-  resolve result

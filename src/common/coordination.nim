@@ -24,7 +24,13 @@ type
   Rect* = tuple
     x, y, w, h: int
 
-# logic ---
+  VectorDirection* = enum
+    vdNorth
+    vdEast
+    vdSouth
+    vdWest
+
+
 
 func `+`*(p1, p2: Point): Point =
   ((p1.x + p2.x), (p1.y + p2.y))
@@ -34,6 +40,10 @@ func `-`*(p: Point): Point =
 
 func `-`*(p1, p2: Point): Point =
   p1 + -p2
+
+
+proc `*`*(p: Vector, n: int): Vector =
+  (p.x * n, p.y * n)
 
 
 func `-`*(r: Rotation): Rotation =
@@ -114,7 +124,7 @@ func `+`*(g: Geometry, v: Vector): Geometry =
 
 func `-`*(g: Geometry, v: Vector): Geometry =
   g + -v
-  
+
 func toPoint*(s: Size): Point =
   (s.w, s.h)
 
@@ -138,4 +148,19 @@ func placeAt*(g: Geometry, at: Point): Geometry =
   let size = toSize g
   (at.x, at.y, at.x + size.w, at.y + size.h)
 
-const P0* = (0,0)
+const P0* = (0, 0)
+
+
+func `-`*(vd: VectorDirection): VectorDirection =
+  case vd:
+  of vdEast: vdWest
+  of vdWest: vdEast
+  of vdNorth: vdSouth
+  of vdSouth: vdNorth
+
+func toUnitPoint*(vd: VectorDirection): Point =
+  case vd:
+  of vdEast: (0, +1)
+  of vdWest: (0, -1)
+  of vdNorth: (+1, 0)
+  of vdSouth: (-1, 0)

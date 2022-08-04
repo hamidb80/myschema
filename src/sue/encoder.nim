@@ -191,7 +191,9 @@ proc genTclIndex(proj: Project): string =
 proc writeProject*(proj: Project, dest: string) =
   for name, module in proj.modules:
     if not module.isTemporary:
-      writeFile dest / name & ".sue", dump toSueFile module
+      let fname = dest / name & ".sue"
+      debugEcho "writing ", fname
+      writeFile fname, dump toSueFile module
 
       if module.arch.kind == akFile:
         writeFile dest / name, module.arch.file.content

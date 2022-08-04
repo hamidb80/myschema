@@ -1,10 +1,11 @@
 import std/[tables, options]
-import ../common/[coordination, domain, minitable]
+import ../common/[coordination, domain, minitable, graph]
+
 
 type
   WrapperKind* = enum
-    wkSchematic
     wkIcon
+    wkSchematic
     wkInstance
 
   MPortDir* = enum
@@ -24,7 +25,6 @@ type
   MNetKind* = enum
     mnkWire
     mnkTag
-
 
 type
   MText* = ref object
@@ -68,24 +68,13 @@ type
     headers*: seq[string]
     rows*: seq[seq[string]]
 
-  MWrapper* = object
-    case kind*: WrapperKind
-    of wkSchematic:
-      schematic: MSchematic
-
-    of wkIcon:
-      icon: MIcon
-
-    of wkInstance:
-      instance: MInstance
-
   MportKind* = enum
     mpOriginal
     mpCopy
 
   MPort* = ref object
     position*: Point
-    # TOOD wrapper*: MWrapper
+    wrapperKind*: WrapperKind
 
     case kind*: MportKind
     of mpOriginal:
@@ -167,12 +156,15 @@ type
     parameter*: MParameter
     value*: Option[MTokenGroup]
 
-  MNet* = ref object
+  MNet* = ref MNetImpl
+
+  MNetImpl* = object
     ports*: seq[MPort]
 
     case kind*: MNetKind
     of mnkTag: discard
     of mnkWire:
+      connectedBusRippers*: seq[MBusRipper]
       connections*: NetLookup
 
   MModuleLookup* = Table[string, MElement]
@@ -180,6 +172,5 @@ type
   MProject* = ref object
     modules*: MModuleLookup
 
-
-  NetLookup* = Table[Point, seq[Point]]
+  NetLookup* = Graph[Point]
   Segment* = Slice[Point]

@@ -26,6 +26,9 @@ when isMainModule:
   removeDir "./temp"
   createDirs "./temp", "./temp/sue", "./temp/svg"
 
+  debugEcho "parsing ..."
   let proj = toMiddle parseEws path
+  debugEcho "generating svg ..."
   proj.toSVG "./temp/svg/"
+  debugEcho "final conversion ..."
   proj.toSue.writeProject "./temp/sue/"
