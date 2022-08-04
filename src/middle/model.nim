@@ -51,6 +51,7 @@ type
     select*: MIdentifier
     source*, dest*: MNet
     position*, connection*: Point
+    isSpecial*: bool # for debug
 
   MTokenGroup* = seq[MToken]
 

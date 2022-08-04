@@ -42,7 +42,6 @@ func dump*(id: MIdentifier, ignoreName = false): string =
   of mikIndex: fmt"{customizedName}[{id.index}]"
   of mikRange: fmt"{customizedName}[{id.indexes.a}:{id.indexes.b}]"
 
-
 func lexCode*(s: string): MTokenGroup =
   var
     capture = -1

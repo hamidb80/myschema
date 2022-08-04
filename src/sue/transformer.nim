@@ -1,4 +1,4 @@
-import std/[tables, sequtils, strutils, strformat, options]
+import std/[tables, sequtils, strutils, strformat, options, sugar]
 
 import ../common/[coordination, seqs, minitable, domain, graph]
 
@@ -140,9 +140,11 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
   var seenPorts: seq[MPort]
   for br in sch.busRippers:
+    let anotherId = br.source.ports.search((p) => not p.isSliced).parent.id
+
     result.instances.add [
       Instance(
-        name: dump(br.source.id, true),
+        name: dump(anotherId,true),
         parent: lookup["name_net"],
         location: br.position),
 
@@ -159,12 +161,14 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
           seenPorts.add p
 
           let
-            lastPos = p.position
-            nextNode = n.connections[lastPos][0]
-            dir = detectDir(lastPos .. nextNode)
+            portPos = p.position
+            nextNode = n.connections[portPos][0]
+            dir = detectDir(portPos .. nextNode)
             vdir = toUnitPoint dir
-            buffOut = lastPos - vdir * 20
-            buffIn = lastPos - vdir * 40
+            buffOut = portPos
+            buffIn = portPos - vdir * 20
+            newPos = portPos - vdir * 40
+
             o =
               case dir:
               of vdEast: Orient()
@@ -172,9 +176,10 @@ func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
               of vdNorth: Orient(rotation: -r90)
               of vdSouth: Orient(rotation: r90)
 
-          n.connections.removeBoth lastPos, nextNode
+          n.connections.removeBoth portPos, nextNode
           n.connections.addBoth buffOut, nextNode
-          p.position = buffIn
+          n.connections.addBoth newPos, buffIn
+          p.position = newPos
 
           result.instances.add Instance(
             name: "helper",

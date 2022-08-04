@@ -233,16 +233,18 @@ proc buildSchema(moduleName: string,
         iname = el.ident.name
         myPorts = collect newseq:
           for i in 0 .. el.ports.high:
-            let 
+            let
               instancePort = el.ports[i]
               p = copyPort(instancePort, parentEl.icon.ports[i])
 
             if p.isSliced:
-              let 
+              let
                 pos = instancePort.position
-                b  = MBusRipper(
-                  select: netSlice2MIdent lexCode instancePort.properties["NET_SLICE"],
+                b = MBusRipper(
+                  select: netSlice2MIdent lexCode instancePort.properties[
+                      "NET_SLICE"],
                   source: nil, dest: nil,
+                  isSpecial: true,
                   position: pos, connection: pos)
 
               connectionBusRippers.add (b, p)
@@ -349,23 +351,21 @@ proc buildSchema(moduleName: string,
     b.dest = n
     result.busRippers.add b
     n.busRippers.add b
-    b.select = n.id
-    
-    let
-      lastPos = p.position
-      nextNode = n.connections[lastPos][0]
-      dir = detectDir(lastPos .. nextNode)
-      vdir = toUnitPoint dir
-      buffOut = lastPos + vdir * 20
-      buffIn = lastPos + vdir * 40
 
-    n.connections.removeBoth lastPos, nextNode
-    n.connections.addBoth buffIn, buffOut
-    n.connections.addBoth buffOut, nextNode
-    
-    b.position = buffIn
-    b.connection = buffIn
-    
+    let
+      portPos = p.position
+      nextNode = n.connections[portPos][0]
+      dir = detectDir(portPos .. nextNode)
+      vdir = toUnitPoint dir
+      close = portPos + vdir * 20
+      far = portPos + vdir * 40
+
+    n.connections.removeBoth portPos, nextNode
+    n.connections.addBoth portPos, close
+    n.connections.addBoth close, far
+
+    b.connection = close
+    b.position = far
 
 
 func choose(sa: seq[Architecture]): Architecture =
