@@ -1,7 +1,7 @@
-import std/[tables, strutils, strformat, sugar, sets]
+import std/[tables, sugar, sets]
 
 import model
-import ../common/[coordination, domain, seqs, errors]
+import ../common/[coordination, domain, seqs]
 
 
 # utils ---
@@ -31,7 +31,6 @@ func collectImpl(
 
     for n in g:
       collectImpl n, seen, globalNetLookup, localNetLookup
-
 
 func collect(
   head: Point,

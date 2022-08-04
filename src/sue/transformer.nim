@@ -97,10 +97,10 @@ func addIconPorts(s: var SSchematic, ico: Icon, lookup: ModuleLookUp) =
 
     inc y, 100
 
-func toArch*(sch: SSchematic): Architecture =
+func toArch(sch: SSchematic): Architecture =
   Architecture(kind: akSchematic, schema: sch)
 
-func toArch*(f: MCodeFile): Architecture =
+func toArch(f: MCodeFile): Architecture =
   Architecture(kind: akFile, schema: SSchematic(), file: f)
 
 func toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
