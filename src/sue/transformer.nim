@@ -8,6 +8,9 @@ import ../middle/model as mm
 import logic
 import ../middle/logic as ml
 
+import ../middle/expr
+
+
 func toMiddleModel*(sch: sm.SSchematic): mm.MSchematic =
   mm.MSchematic(
     nets: toNets sch.wires)

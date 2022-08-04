@@ -1,6 +1,7 @@
 import std/[tables, xmltree, os]
 import ../common/[coordination]
 import svg, model, logic
+import expr
 
 const
   moduleInstanceStyle = ShapeStyle(

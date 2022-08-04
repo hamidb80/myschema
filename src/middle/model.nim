@@ -167,20 +167,19 @@ type
     parameter*: MParameter
     value*: Option[MTokenGroup]
 
-  WireGraphNode* = ref object
-    location*: Point
-    connections*: seq[WireGraphNode] # only forward connections
-
   MNet* = ref object
     ports*: seq[MPort]
 
     case kind*: MNetKind
     of mnkTag: discard
     of mnkWire:
-      # busRippers*: seq[MBusRipper]
-      start*: WireGraphNode
+      connections*: NetLookup
 
   MModuleLookup* = Table[string, MElement]
 
   MProject* = ref object
     modules*: MModuleLookup
+
+
+  NetLookup* = Table[Point, seq[Point]]
+  Segment* = Slice[Point]

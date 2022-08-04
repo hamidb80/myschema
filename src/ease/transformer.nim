@@ -8,6 +8,8 @@ import ../middle/model as mm
 import ../middle/logic as mlogic
 import logic
 
+import ../middle/expr
+
 # ------------------------------- sue model -> middle model
 
 func extractNet(wires: seq[Wire]): mm.MNet =

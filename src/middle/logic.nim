@@ -1,14 +1,8 @@
-import std/[tables, strutils, strformat]
+import std/[tables, strutils, strformat, sugar, sets]
 
 import model
 import ../common/[coordination, domain, seqs, errors]
 
-# import ../ease/model as em
-
-
-type
-  NetLookup = Table[Point, seq[Point]]
-  Segment* = Slice[Point]
 
 # utils ---
 
@@ -24,73 +18,71 @@ func addBoth[T](lookup: var Table[T, seq[T]], v1, v2: T) {.inline.} =
 
 # net extract ---
 
-func collectImpl(last: WireGraphNode, ntlkp: var NetLookup) =
-  let loc = last.location
-  var conns = addr ntlkp[loc]
+func collectImpl(
+  cur: Point,
+  seen: var HashSet[Point],
+  globalNetLookup: NetLookup,
+  localNetLookup: var NetLookup) =
 
-  for p in conns[]:
-    ntlkp[p].remove loc # remove it from other way of relation
+  if cur notin seen:
+    seen.incl cur
+    let g = globalNetLookup[cur]
+    localNetLookup[cur] = g
 
-    var newNode = WireGraphNode(location: p)
-    collectImpl newNode, ntlkp
-    last.connections.add newNode
+    for n in g:
+      collectImpl n, seen, globalNetLookup, localNetLookup
 
-  clear conns[]
 
-func collect(head: Point, ntlkp: var NetLookup): MNet =
-  var head = WireGraphNode(location: head)
-  result = MNet(kind: mnkWire, start: head)
-  collectImpl head, ntlkp
+func collect(
+  head: Point,
+  seen: var HashSet[Point],
+  ntlkp: var NetLookup): MNet =
+
+  result = MNet(kind: mnkWire)
+  collectImpl head, seen, ntlkp, result.connections
 
 func toNets*(wires: seq[Wire]): seq[MNet] =
   ## detects wire groups by generating a 2-way connection table
 
   var netGraph: NetLookup
-
   for w in wires:
     netGraph.addBoth w.a, w.b
 
-  # ---
+  let leaves = collect newseq: # the nodes that have only 1 connection
+    for nn, conns in netGraph:
+      if conns.len == 1:
+        nn
 
-  var leaves: seq[Point]
-
-  for nn, conns in netGraph:
-    if conns.len == 1:
-      leaves.add nn
-
-  # ---
-
+  var seen = initHashSet[Point]()
   for leaf in leaves:
-    if netGraph[leaf].len > 0:
-      result.add collect(leaf, netGraph)
+    if leaf notin seen:
+      result.add collect(leaf, seen, netGraph)
 
+func pick(nlkp: NetLookup): Point =
+  for p in nlkp.keys:
+    return p
 
 template traverseNet(net, body): untyped {.dirty.} =
-  var nstack: seq[tuple[node: WireGraphNode, connIndex: int]] = @[(net.start, 0)]
+  var
+    seen = initHashSet[Point]()
+    pStack: seq[Point] = @[pick net.connections]
 
-  while not isEmpty nstack:
-    let (lastNode, i) = nstack.last
+  while not isEmpty pStack:
+    let last = pStack.pop
 
-    if i == lastNode.connections.len:
-      shoot nstack
+    if last notin seen:
+      let conns = net.connections[last]
+      pStack.add conns
 
-    else:
-      let nextNode = lastNode.connections[i]
-      body
+      for next in conns:
+        body
 
-      inc nstack.last.connIndex
-      nstack.add (nextNode, 0)
-
+      seen.incl last
 
 iterator segments*(net: MNet): Segment =
   traverseNet net:
-    yield lastNode.location .. nextNode.location
+    yield last .. next
 
-iterator points*(net: MNet): Point =
-  yield net.start.location
-
-  traverseNet net:
-    yield nextNode.location
 
 func choose*(archs: seq[MArchitecture]): MArchitecture =
   result = archs[0]
@@ -102,135 +94,10 @@ func choose*(archs: seq[MArchitecture]): MArchitecture =
 func afterTransform*(icon: MIcon, ro: Rotation, pos: Point): Geometry =
   toGeometry(icon.size).rotate(P0, ro).placeAt(pos)
 
-const
-  EOS = '\0'
-  Operators = {'+', '-', '&', '!', '?', '|', '/', ':', ',', '=', '<', '>'}
-
-type LexerState = enum
-  lsInitial
-  lsString, lsNumber
-  lsOperator, lsSymbol
-
-func toMTokenKind(ch: char): MTokenKind =
-  case ch:
-  of '(': mtkOpenPar
-  of ')': mtkClosePar
-  of '[': mtkOpenBracket
-  of ']': mtkCloseBracket
-  else: err "invalid char"
-
-
-func `$`*(tkn: MToken): string =
-  case tkn.kind:
-  of mtkOpenPar: "("
-  of mtkClosePar: ")"
-  of mtkOpenBracket: "["
-  of mtkCloseBracket: "]"
-  of mtkOperator, mtkNumberLiteral, mtkSymbol: tkn.content
-  of mtkStringLiteral: '"' & tkn.content & '"'
-
-func `$`*(mtg: MTokenGroup): string =
-  join mtg
-
-func dump*(id: MIdentifier, ignoreName = false): string =
-  let customizedName =
-    if ignoreName: ""
-    else: id.name
-
-  case id.kind:
-  of mikSingle: id.name
-  of mikIndex: fmt"{customizedName}[{id.index}]"
-  of mikRange: fmt"{customizedName}[{id.indexes.a}:{id.indexes.b}]"
-
-
-func lexCode*(s: string): MTokenGroup =
-  var
-    capture = -1
-    i = 0
-    state = lsInitial
-    isEscaped = false
-
-  while i <= s.len:
-    let ch =
-      if i == s.len: EOS
-      else: s[i]
-
-    case state:
-    of lsInitial:
-      case ch:
-      of Whitespace, EOS: discard
-      of Digits:
-        capture = i
-        state = lsNumber
-
-      of Letters, '`':
-        capture = i
-        state = lsSymbol
-
-      of '"', '\'':
-        capture = i+1
-        state = lsString
-
-      of Operators:
-        capture = i
-        state = lsOperator
-
-      of '(', ')', '[', ']':
-        result.add MToken(kind: toMTokenKind ch)
-
-      else:
-        err fmt"invalid char: {ch}, {s}"
-
-    of lsString:
-      if ch in {'"', '\''} and not isEscaped:
-        result.add MToken(kind: mtkStringLiteral, content: s[capture ..< i])
-        reset state
-
-      else:
-        isEscaped =
-          if ch == '\\':
-            if isEscaped: false
-            else: true
-          else: false
-
-    of lsNumber:
-      case ch:
-      of Digits, '\'', '#', 'z', 'h', 'b', 'x', 'd', '.': discard
-      else:
-        result.add MToken(kind: mtkNumberLiteral, content: s[capture ..< i])
-        reset state
-        dec i
-
-    of lsOperator:
-      case ch:
-      of Operators: discard
-      else:
-        result.add MToken(kind: mtkOperator, content: s[capture ..< i])
-        reset state
-        dec i
-
-    of lsSymbol:
-      case ch:
-      of IdentChars: discard
-      else:
-        result.add MToken(kind: mtkSymbol, content: s[capture ..< i])
-        reset state
-        dec i
-
-    inc i
-
-func `==`*(mi1, mi2: MIdentifier): bool =
-  if mi1.kind == mi2.kind:
-    if mi1.name == mi2.name:
-      case mi1.kind:
-      of mikSingle: true
-      of mikIndex: mi1.index == mi2.index
-      of mikRange: mi1.indexes == mi2.indexes
-    else: false
-  else: false
 
 func `$`*(pd: MPortDir): string =
   case pd:
   of mpdinput: "input"
   of mpdoutput: "output"
   of mpdinout: "inout"
+
