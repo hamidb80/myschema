@@ -972,114 +972,12 @@ func parseProj(projectFileNode: LispNode): Project =
     of "PACKAGE_USE", "EXTERNAL_DOC", "INCLUDE_STATEMENT": discard
     else: err fmt"invalid ident: {n.ident}"
 
-
-func resolve(genb: var GenerateBlock) =
-  ## resolves port references inside generate block
-  ##
-  ## generate def ports are referd to schematic port
-  ## generate boy ports are refered to def port :-/
-  ## 2 way connection
-
-  var portMap: Table[Obid, Port]
-
-  for p in genb.ports:
-    portMap[p.obid] = p
-
-  for p in genb.schematic.ports:
-    let
-      pgObid = p.parent.get.obid
-      pg = portMap[pgObid]
-
-    p.parent = some pg
-    pg.parent = some p
-
-func resolve(proj: var Project) =
-  ## there are several types of resolving:
-  ## schema:
-  ##   ports <- refers to ports from entity def
-  ##
-  ## process:
-  ##   ports
-  ##
-  ## net/part2:
-  ##   port
-  ##   BusRipper:
-  ##     destination net
-  ##
-  ## component:
-  ##   entity ref
-  ##   ports ref
-  ##
-
-  var
-    entityMap: Table[Obid, Entity]
-    portMap: Table[Obid, Port]
-    netMap: Table[Obid, Net]
-
-  # phase 1. finding
-  for d in proj.designs:
-    for e in d.entities:
-      entityMap[e.obid] = e
-
-      for p in e.ports:
-        portMap[p.obid] = p
-
-      for a in e.architectures:
-        case a.kind:
-        of amBlockDiagram:
-          let s = a.body.schematic
-
-          for p in s.ports:
-            portMap[p.obid] = p
-
-          for n in s.nets:
-            netMap[n.obid] = n
-
-          for c in s.components:
-            for p in c.ports:
-              portMap[p.obid] = p
-
-          for pr in s.processes:
-            for p in pr.ports:
-              portMap[p.obid] = p
-
-          for gb in mitems s.generateBlocks:
-            resolve gb
-
-            for p in gb.ports:
-              portMap[p.obid] = p
-
-        else: discard
-
-  # phasw 2. resolving
-  for d in proj.designs:
-    for e in d.entities:
-
-      for a in e.architectures:
-        if a.kind == amBlockDiagram:
-          let s = a.body.schematic
-
-          for c in s.components:
-            c.parent = entityMap[c.parent.obid]
-
-            for p in c.ports:
-              p.parent = some portMap[p.parent.get.obid]
-
-          for n in s.nets:
-            if n.part.kind == pkWire:
-              for br in n.part.busRippers:
-                br.destNet = netMap[br.destNet.obid]
-
-            for p in mitems n.part.ports:
-              p = portMap[p.obid]
-
-
 proc parseEws*(dir: string): Project =
-  doAssert dir.endsWith ".ews", fmt"the workspace directory name must ends with .ews"
+  doAssert dir.strip(leading = false, chars = {'/'}).endsWith ".ews", fmt"the workspace directory name must ends with .ews"
   let dbDir = dir / "ease.db"
 
-
   result = parseProj select parseLisp readfile dbDir / "project.eas"
+
   for d in mitems result.designs:
     let libdir = dbDir / d.obid.string
     d = parseLib select parseLisp readFile libdir / "library.eas"
@@ -1088,6 +986,3 @@ proc parseEws*(dir: string): Project =
       let fname = libdir / e.obid.string & ".eas"
       debugEcho "parseing eas: ", fname
       e = parseEntityFile select parseLisp readfile fname
-
-
-  resolve result

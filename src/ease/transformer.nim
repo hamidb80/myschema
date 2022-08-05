@@ -12,18 +12,18 @@ import ../middle/expr
 
 # ------------------------------- sue model -> middle model
 
-func extractNet(wires: seq[Wire]): mm.MNet =
+func extractNet(wires: seq[Wire]): MNet =
   let temp = toNets wires
   assert temp.len == 1, fmt"expected len 1 but got: {temp.len}"
   temp[0]
 
-func toText(lbl: em.Label): mm.MText =
-  mm.MText(
+func toText(lbl: Label): MText =
+  MText(
     position: lbl.position,
     texts: lbl.texts)
 
-func toText(fpt: em.FreePlacedText): mm.MText =
-  toText em.Label fpt
+func toText(fpt: FreePlacedText): MText =
+  toText Label fpt
 
 func getTransform[T: Visible](smth: T): MTransform =
   MTransform(
@@ -38,7 +38,7 @@ func copyPort(pinstance: Port, pparent: MPort): MPort =
     isSliced: "NET_SLICE" in pinstance.properties,
     parent: pparent)
 
-func toPortDir(m: em.PortMode): mm.MPortDir =
+func toPortDir(m: PortMode): MPortDir =
   case m:
   of pmInput: mpdInput
   of pmOutput: mpdOutput
@@ -60,16 +60,16 @@ func toMIdent(id: Identifier): MIdentifier =
 
   result.name = id.name
 
-proc extractIcon[T: Visible](smth: T): mm.MIcon =
+proc extractIcon[T: Visible](smth: T): MIcon =
   let
     geo = smth.geometry
     ro = smth.rotation
     tr = getIconTransformer(geo, ro)
 
-  result = mm.MIcon(size: getIconSize(geo, ro))
+  result = MIcon(size: getIconSize(geo, ro))
 
   for p in smth.ports:
-    result.ports.add mm.MPort(
+    result.ports.add MPort(
       kind: mpOriginal,
       wrapperKind: wkIcon,
       id: toMIdent p.identifier,
@@ -152,11 +152,11 @@ func toMiddle(hf: sink HdlFile): MCodeFile =
   MCodeFile(name: hf.name, content: hf.content.join "\n")
 
 func toMiddle(stateMachine: sink StateMachineV2): MSchematic =
-  result = mm.MSchematic()
+  result = MSchematic()
 
 
-func toArch(sch: sink MSchematic, m: MArchitectureKind): MArchitecture =
-  result = MArchitecture(kind: m)
+func toArch(sch: sink MSchematic): MArchitecture =
+  result = MArchitecture(kind: makSchema)
   result.schema = sch
 
 func toArch(tt: sink MTruthTable): MArchitecture =
@@ -169,15 +169,15 @@ func toArch(pr: Process): MArchitecture =
   case toMElementKind pr.kind:
   of mekTruthTable: toArch toMiddle pr.body.truthTable
   of mekCode: toArch toMiddle pr.body.file
-  of mekFSM: toArch(toMiddle pr.body.stateMachine, makFSM)
+  of mekFSM: toArch toMiddle pr.body.stateMachine
   else: err "impossible"
 
 
 proc initProcessElement(pr: Process): MElement =
-  mm.MElement(kind: toMElementKind pr.kind, arch: toArch pr)
+  MElement(kind: toMElementKind pr.kind, arch: toArch pr)
 
-proc initModule(en: em.Entity): mm.MElement =
-  mm.MElement(
+proc initModule(en: Entity): MElement =
+  MElement(
     name: en.ident.name,
     kind: mekModule,
     icon: extractIcon en,
@@ -195,16 +195,17 @@ func netSlice2MIdent(mg: MTokenGroup): MIdentifier =
     MIdentifier(kind: mikRange, indexes: @[mg[1]] .. @[mg[3]])
 
 proc buildSchema(moduleName: string,
-  schema: sink em.Schematic,
+  schema: sink Schematic,
   icon: MIcon,
-  mlk: Table[em.Obid, mm.MElement],
-  elements: var Table[string, mm.MElement]
-  ): mm.MSchematic =
+  mlk: Table[Obid, MElement],
+  elements: var Table[string, MElement]
+  ): MSchematic =
 
-  result = mm.MSchematic(size: toSize schema.sheetSize)
+  result = MSchematic(size: toSize schema.sheetSize)
+
   var
-    allPortsMap: Table[ptr em.PortImpl, MPort]
-    allNetsMap: Table[ptr em.NetImpl, MNet]
+    allPortsMap: Table[Obid, MPort]
+    allNetsMap: Table[Obid, MNet]
     connectionBusRippers: seq[(MBusRipper, MPort)]
 
 
@@ -217,7 +218,7 @@ proc buildSchema(moduleName: string,
       io = p.cbn.issome and p.cbn.get.kind == ctIntentionallyOpen
       val = p.cbn.map (it) => it.ident.name
 
-      mp = mm.MPort(
+      mp = MPort(
         kind: mpCopy,
         position: p.position,
         wrapperKind: wkSchematic,
@@ -226,7 +227,7 @@ proc buildSchema(moduleName: string,
         parent: icon.ports.search((it) => mid == it.id))
 
     result.ports.add mp
-    allPortsMap[addr p[]] = mp
+    # allPortsMap[addr p[]] = mp
 
   block instances:
     template makeInstance(el, parentEl, t, argsSeq): untyped =
@@ -252,7 +253,7 @@ proc buildSchema(moduleName: string,
 
             p
 
-      mm.MInstance(
+      MInstance(
         name: iname,
         geometry: el.geometry,
         parent: parentEl,
@@ -278,8 +279,8 @@ proc buildSchema(moduleName: string,
 
       result.instances.add ins
 
-      for i, p in c.ports:
-        allPortsMap[addr p[]] = ins.ports[i]
+      # for i, p in c.ports:
+      #   allPortsMap[addr p[]] = ins.ports[i]
 
     for pr in schema.processes:
       let
@@ -289,19 +290,20 @@ proc buildSchema(moduleName: string,
 
       result.instances.add ins
 
-      for i, p in pr.ports:
-        allPortsMap[addr p[]] = ins.ports[i]
+      # for i, p in pr.ports:
+      #   allPortsMap[addr p[]] = ins.ports[i]
 
     for gb in schema.generateBlocks:
       let
         ico = extractIcon gb
-        el = makeParent(makeGenerator gb, ico, toArch(buildSchema(yourName,
-            gb.schematic, ico, mlk, elements), makSchema))
+        el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName,
+            gb.schematic, ico, mlk, elements))
+
         ins = makeInstance(gb, el,
           getTransform gb, @[])
 
-      for i, p in gb.ports:
-        allPortsMap[addr p[]] = ins.ports[i]
+      # for i, p in gb.ports:
+      #   allPortsMap[addr p[]] = ins.ports[i]
 
       result.instances.add ins
 
@@ -317,13 +319,13 @@ proc buildSchema(moduleName: string,
 
         extractNet completeWires
 
-    for p in n.part.ports:
-      var mp = allPortsMap[addr p[]]
-      mn.ports.add mp
-      mp.nets.add mn
+    # for p in n.part.ports:
+    #   var mp = allPortsMap[addr p[]]
+    #   mn.ports.add mp
+    #   mp.nets.add mn
 
     result.nets.add mn
-    allNetsMap[addr n[]] = mn
+    # allNetsMap[addr n[]] = mn
 
   for n in schema.nets: # bus rippers
     if n.part.kind == pkWire:
@@ -336,8 +338,8 @@ proc buildSchema(moduleName: string,
 
         let myBr = MBusRipper(
           select: getBusSelect(bp, n),
-          source: allNetsMap[addr n[]],
-          dest: allNetsMap[addr bp.destNet[]],
+          # source: allNetsMap[addr n[]],
+          # dest: allNetsMap[addr bp.destNet[]],
           position: center bp.geometry,
           connection: connPos)
 
@@ -376,12 +378,12 @@ func choose(sa: seq[Architecture]): Architecture =
     if i.kind == amBlockDiagram:
       result = i
 
-proc toMiddle*(proj: em.Project): mm.MProject =
-  result = mm.MProject()
+proc toMiddle*(proj: Project): MProject =
+  result = MProject()
 
   var
-    modernIdMap: Table[em.Obid, mm.MElement]
-    originalIdMap: Table[em.Obid, em.Entity]
+    modernIdMap: Table[Obid, MElement]
+    originalIdMap: Table[Obid, Entity]
 
   for d in proj.designs:
     for en in d.entities:
@@ -395,20 +397,17 @@ proc toMiddle*(proj: em.Project): mm.MProject =
     let a = choose originalIdMap[id].architectures
     m.arch = case a.kind:
       of amBlockDiagram:
-        toArch(buildSchema(m.name,
+        toArch buildSchema(m.name,
           a.body.schematic,
           m.icon,
           modernIdMap,
-          result.modules), makSchema)
-
-      of amStateDiagram: # FSM
-        toArch(toMiddle a.body.stateMachine, makFSM)
-
-      of amHDLFile:
-        toArch toMiddle a.body.file
+          result.modules)
 
       of amTableDiagram:
         toArch toMiddle a.body.truthTable
 
-      of amExternalHDLFIle:
+      of amHDLFile:
+        toArch toMiddle a.body.file
+
+      of amStateDiagram, amExternalHDLFIle:
         err "not implemented"

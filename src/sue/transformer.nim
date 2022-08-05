@@ -169,29 +169,9 @@ proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
   for n in sch.nets:
     case n.kind:
-    of mnkTag:
-      # var
-      #   hasInput = false
-      #   hasOutput = false
-
-      # for p in n.ports:
-      #   case p.parent.dir:
-      #   of mpdInput:
-      #     hasInput = true
-
-      #   of mpdOutput:
-      #     hasOutput = true
-
-      #   else: discard
-
+    of mnkTag: # FIXME same input & output issue
       for p in n.ports:
-        let
-          # ppos = p.parent.position
-          # edge = whichEdge(ppos, p.wrapperIcon.size.toGeometry)
-          # vd = toUnitPoint edge
-          # outPos = ppos + vd *  
-          # outPos = ppos + vd * 50
-          ins = Instance(
+        let ins = Instance(
             name: dump p.parent.id,
             parent: lookup["name_net"],
             location: p.position)
