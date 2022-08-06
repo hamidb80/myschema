@@ -51,7 +51,6 @@ type
     select*: MIdentifier
     source*, dest*: MNet
     position*, connection*: Point
-    isSpecial*: bool # for debug
 
   MTokenGroup* = seq[MToken]
 
@@ -88,8 +87,6 @@ type
       isOpen*: bool
       assignedValue*: Option[string]
       isSliced*:  bool
-      nets*: seq[MNet]
-
 
   MSchematic* = ref object
     ports*: seq[MPort]
@@ -161,9 +158,7 @@ type
     parameter*: MParameter
     value*: Option[MTokenGroup]
 
-  MNet* = ref MNetImpl
-
-  MNetImpl* = object
+  MNet* = ref object
     ports*: seq[MPort]
 
     case kind*: MNetKind

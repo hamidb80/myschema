@@ -1,6 +1,6 @@
-import std/[tables, options, strutils, sequtils, strformat, sugar]
+import std/[tables, options, strutils, strformat, sugar]
 
-import ../common/[coordination, domain, seqs, minitable, errors, graph]
+import ../common/[coordination, domain, seqs, minitable, errors]
 
 import model as em
 import ../middle/model as mm
@@ -25,7 +25,7 @@ func toText(lbl: Label): MText =
 func toText(fpt: FreePlacedText): MText =
   toText Label fpt
 
-func getTransform[T: Visible](smth: T): MTransform =
+func getTransform[T: Thing](smth: T): MTransform =
   MTransform(
     rotation: smth.rotation,
     flips: smth.flips)
@@ -60,7 +60,7 @@ func toMIdent(id: Identifier): MIdentifier =
 
   result.name = id.name
 
-proc extractIcon[T: Visible](smth: T): MIcon =
+proc extractIcon[T: Thing](smth: T): MIcon =
   let
     geo = smth.geometry
     ro = smth.rotation
@@ -197,15 +197,16 @@ func netSlice2MIdent(mg: MTokenGroup): MIdentifier =
 proc buildSchema(moduleName: string,
   schema: sink Schematic,
   icon: MIcon,
-  mlk: Table[Obid, MElement],
+  lookup: Table[Obid, MElement],
   elements: var Table[string, MElement]
   ): MSchematic =
 
   result = MSchematic(size: toSize schema.sheetSize)
 
   var
-    allPortsMap: Table[Obid, MPort]
-    allNetsMap: Table[Obid, MNet]
+    internalPortMap: Table[Obid, Port]
+    externalPortMap: Table[Obid, MPort]
+    externalNetMap: Table[Obid, MNet]
     connectionBusRippers: seq[(MBusRipper, MPort)]
 
 
@@ -214,7 +215,7 @@ proc buildSchema(moduleName: string,
 
   for p in schema.ports:
     let
-      mid = toMIdent(p.identifier)
+      mid = toMIdent p.identifier
       io = p.cbn.issome and p.cbn.get.kind == ctIntentionallyOpen
       val = p.cbn.map (it) => it.ident.name
 
@@ -227,7 +228,8 @@ proc buildSchema(moduleName: string,
         parent: icon.ports.search((it) => mid == it.id))
 
     result.ports.add mp
-    # allPortsMap[addr p[]] = mp
+    externalPortMap[p.obid] = mp
+    internalPortMap[p.obid] = p
 
   block instances:
     template makeInstance(el, parentEl, t, argsSeq): untyped =
@@ -236,30 +238,36 @@ proc buildSchema(moduleName: string,
         myPorts = collect newseq:
           for i in 0 .. el.ports.high:
             let
-              instancePort = el.ports[i]
-              p = copyPort(instancePort, parentEl.icon.ports[i])
+              originalPort = el.ports[i]
+
+              p = copyPort(originalPort, parentEl.icon.ports[i]) # susspecius
+
+            externalPortMap[originalPort.obid] = p
+            internalPortMap[originalPort.obid] = originalPort
 
             if p.isSliced:
               let
-                pos = instancePort.position
+                pos = originalPort.position
                 b = MBusRipper(
-                  select: netSlice2MIdent lexCode instancePort.properties[
+                  select: netSlice2MIdent lexCode originalPort.properties[
                       "NET_SLICE"],
                   source: nil, dest: nil,
-                  isSpecial: true,
                   position: pos, connection: pos)
 
               connectionBusRippers.add (b, p)
 
             p
 
-      MInstance(
-        name: iname,
-        geometry: el.geometry,
-        parent: parentEl,
-        transform: t,
-        args: argsSeq,
-        ports: myPorts)
+        ins = MInstance(
+          name: iname,
+          geometry: el.geometry,
+          parent: parentEl,
+          transform: t,
+          args: argsSeq,
+          ports: myPorts)
+
+      result.instances.add ins
+      ins
 
     template makeParent(el, ico, a): untyped =
       let yourName {.inject.} = moduleName & "_" & randomHdlIdent()
@@ -272,60 +280,46 @@ proc buildSchema(moduleName: string,
 
     for c in schema.components:
       let
-        parent = mlk[c.parent.obid]
-        ins = makeInstance(c, parent,
-          getTransform c,
+        parent = lookup[c.parent.obid]
+
+      discard makeInstance(c, parent, getTransform c,
           extractArgs(c, parent.parameters))
-
-      result.instances.add ins
-
-      # for i, p in c.ports:
-      #   allPortsMap[addr p[]] = ins.ports[i]
 
     for pr in schema.processes:
       let
         el = makeParent(initProcessElement pr, extractIcon pr, toArch pr) # FIXME
-        ins = makeInstance(pr, el,
+
+      discard makeInstance(pr, el,
           getTransform pr, @[])
-
-      result.instances.add ins
-
-      # for i, p in pr.ports:
-      #   allPortsMap[addr p[]] = ins.ports[i]
 
     for gb in schema.generateBlocks:
       let
         ico = extractIcon gb
         el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName,
-            gb.schematic, ico, mlk, elements))
+            gb.schematic, ico, lookup, elements))
 
-        ins = makeInstance(gb, el,
-          getTransform gb, @[])
-
-      # for i, p in gb.ports:
-      #   allPortsMap[addr p[]] = ins.ports[i]
-
-      result.instances.add ins
+      discard makeInstance(gb, el, getTransform gb, @[])
 
   for n in schema.nets:
-    var mn = case n.part.kind:
+    var mn =
+      case n.part.kind:
       of pkTag: MNet(kind: mnkTag)
       of pkWire:
         var completeWires = n.part.wires
 
         for p in n.part.ports:
-          let conn = p.connection.get
-          completeWires.add conn.position .. p.position
+          let
+            orgp = internalPortMap[p.obid]
+            conn = orgp.connection.get
+          completeWires.add conn.position .. orgp.position
 
         extractNet completeWires
 
-    # for p in n.part.ports:
-    #   var mp = allPortsMap[addr p[]]
-    #   mn.ports.add mp
-    #   mp.nets.add mn
+    for p in n.part.ports:
+      mn.ports.add externalPortMap[p.obid]
 
     result.nets.add mn
-    # allNetsMap[addr n[]] = mn
+    externalNetMap[n.obid] = mn
 
   for n in schema.nets: # bus rippers
     if n.part.kind == pkWire:
@@ -338,8 +332,8 @@ proc buildSchema(moduleName: string,
 
         let myBr = MBusRipper(
           select: getBusSelect(bp, n),
-          # source: allNetsMap[addr n[]],
-          # dest: allNetsMap[addr bp.destNet[]],
+          source: externalNetMap[n.obid],
+          dest: externalNetMap[bp.destNet.obid],
           position: center bp.geometry,
           connection: connPos)
 
@@ -347,28 +341,28 @@ proc buildSchema(moduleName: string,
         myBr.source.busRippers.add myBr
         myBr.dest.busRippers.add myBr
 
-  for (b, p) in connectionBusRippers:
-    assert p.nets.len == 1
-    let n = p.nets[0]
-    b.source = n
-    b.dest = n
-    result.busRippers.add b
-    n.busRippers.add b
+  # for (b, p) in connectionBusRippers:
+    # assert p.nets.len == 1
+    # let n = p.nets[0]
+    # b.source = n
+    # b.dest = n
+    # result.busRippers.add b
+    # n.busRippers.add b
 
-    let
-      portPos = p.position
-      nextNode = n.connections[portPos][0]
-      dir = detectDir(portPos .. nextNode)
-      vdir = toUnitPoint dir
-      close = portPos + vdir * 20
-      far = portPos + vdir * 40
+    # let
+    #   portPos = p.position
+    #   nextNode = n.connections[portPos][0]
+    #   dir = detectDir(portPos .. nextNode)
+    #   vdir = toUnitPoint dir
+    #   close = portPos + vdir * 20
+    #   far = portPos + vdir * 40
 
-    n.connections.removeBoth portPos, nextNode
-    n.connections.addBoth portPos, close
-    n.connections.addBoth close, far
+    # n.connections.removeBoth portPos, nextNode
+    # n.connections.addBoth portPos, close
+    # n.connections.addBoth close, far
 
-    b.connection = close
-    b.position = far
+    # b.connection = close
+    # b.position = far
 
 
 func choose(sa: seq[Architecture]): Architecture =
@@ -395,7 +389,8 @@ proc toMiddle*(proj: Project): MProject =
   # phase 2. convert schematics
   for id, m in modernIdMap.mpairs:
     let a = choose originalIdMap[id].architectures
-    m.arch = case a.kind:
+    m.arch =
+      case a.kind:
       of amBlockDiagram:
         toArch buildSchema(m.name,
           a.body.schematic,
@@ -409,5 +404,8 @@ proc toMiddle*(proj: Project): MProject =
       of amHDLFile:
         toArch toMiddle a.body.file
 
-      of amStateDiagram, amExternalHDLFIle:
+      of amStateDiagram:
+        MArchitecture(kind: makSchema, schema: MSchematic())
+
+      of amExternalHDLFIle:
         err "not implemented"

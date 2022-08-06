@@ -288,7 +288,6 @@ type
       geometry*: Geometry
       stateMachine*: StateMachineV2
 
-
   Action* = ref object
     obid*: Obid
     geometry*: Geometry
@@ -320,9 +319,7 @@ type
       wires*: seq[Wire]
       busRippers*: seq[BusRipper]
 
-  Net* = ref NetImpl
-
-  NetImpl* = object
+  Net* = ref object
     obid*: Obid
 
     case kind*: NetKind:
@@ -337,14 +334,12 @@ type
     side*: Side
     label*: Label
 
-  Port* = ref PortImpl
-
   HdlFile* = ref object
     name*: string
     lang*: Language
     content*: seq[string]
 
-  PortImpl* = object
+  Port* = ref object
     obid*: Obid
 
     case kind*: PortKind
@@ -459,7 +454,7 @@ type
     packages*: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
 
-  Visible* = Component or Entity or Process or GenerateBlock
+  Thing* = Component or Entity or Process or GenerateBlock
 
 # semantics ---------------------------------
 
@@ -467,9 +462,3 @@ import std/[hashes]
 
 func `==`*(o1, o2: Obid): bool {.borrow.}
 func hash*(o: Obid): Hash {.borrow.}
-
-func isEmpty*(attrs: Attributes): bool =
-  (isNone attrs.mode) and
-  (isNone attrs.kind) and
-  (isNone attrs.constraint) and
-  (isNone attrs.def_value)

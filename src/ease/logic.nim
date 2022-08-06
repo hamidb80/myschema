@@ -32,13 +32,13 @@ func toRotation*(s: Side): Rotation =
   of sBottomToTop: r180
   of sLeftToRight: r270
 
-func rotation*[T: Visible](c: T): Rotation =
+func rotation*[T: Thing](c: T): Rotation =
   toRotation c.side
 
 func position*(p: Port): Point =
   center p.geometry
 
-func flips*[T: Visible](element: T): set[Flip] =
+func flips*[T: Thing](element: T): set[Flip] =
   # vertical = 1
   # horizontal = 2
   # both = 3
