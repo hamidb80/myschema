@@ -24,10 +24,8 @@ set NETLIST_CACHE(combine_style1,names) {
   {380 240 {1 o[0]}}
   {580 240 {1 o[2:0]}}
   {270 400 {0 Xbuffer0_2} {1 in3}}
-  {270 320 {0 Xbuffer0_1}
-  {1 in2}}
-  {270 240 {0 Xbuffer0}
-  {1 in1}}
+  {270 320 {0 Xbuffer0_1} {1 in2}}
+  {270 240 {0 Xbuffer0} {1 in1}}
   {290 400 {0 o[2]}}
   {290 320 {0 o[1]}}
   {290 240 {0 o[0]}}
