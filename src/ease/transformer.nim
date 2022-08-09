@@ -285,6 +285,7 @@ proc buildSchema(moduleName: string,
       discard makeInstance(c, parent, getTransform c,
           extractArgs(c, parent.parameters))
 
+    # FIXME do something about ports with the same name
     for pr in schema.processes:
       let
         el = makeParent(initProcessElement pr, extractIcon pr, toArch pr) # FIXME
@@ -292,13 +293,13 @@ proc buildSchema(moduleName: string,
       discard makeInstance(pr, el,
           getTransform pr, @[])
 
-    for gb in schema.generateBlocks:
-      let
-        ico = extractIcon gb
-        el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName,
-            gb.schematic, ico, lookup, elements))
+    # for gb in schema.generateBlocks:
+    #   let
+    #     ico = extractIcon gb
+    #     el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName,
+    #         gb.schematic, ico, lookup, elements))
 
-      discard makeInstance(gb, el, getTransform gb, @[])
+    #   discard makeInstance(gb, el, getTransform gb, @[])
 
   for n in schema.nets:
     var mn =

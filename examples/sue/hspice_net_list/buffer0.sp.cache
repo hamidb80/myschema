@@ -1,0 +1,27 @@
+set NETLIST_CACHE(buffer0,cells) {{schematic inverter {}}}
+set netlist_props spice
+set netlist_level 1000
+set NETLIST_CACHE(buffer0,version) MMI_SUE4.4.0
+
+set NETLIST_CACHE(buffer0) {
+  {.SUBCKT buffer0 in out } 
+  {Xinverter in net_1 inverter WP=10 WN=5} 
+  {Xinverter_1 net_1 out inverter M=4 WP=10 WN=5} 
+  {.ENDS	$ buffer0} {}
+}
+
+set NETLIST_CACHE(buffer0,names) {
+  {800 350 {0 Xinverter_1}}
+  {670 350 {0 Xinverter}}
+  {850 350 {0 out}
+  {2 out}}
+  {720 350 {0 net_1}}
+  {770 350 {0 net_1}}
+  {640 350 {0 in}
+  {2 in}}
+}
+
+set NETLIST_CACHE(buffer0,wires) {
+  {720 350 770 350 net_1}
+}
+

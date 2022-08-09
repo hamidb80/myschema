@@ -1,0 +1,55 @@
+set NETLIST_CACHE(combine_style1,cells) {{schematic buffer0}}
+set netlist_props spice
+set netlist_level 1000
+set NETLIST_CACHE(combine_style1,level) main
+set NETLIST_CACHE(combine_style1,globals) {
+  {[2:0]}
+  {[2:0]}
+  {[2:0]}
+}
+
+set NETLIST_CACHE(combine_style1,version) MMI_SUE4.4.0
+set NETLIST_CACHE(combine_style1) {
+  {* start main CELL combine_style1}
+  {* .SUBCKT combine_style1 in1 in2 in3 o[0] o[1] o[2] }
+  {Xbuffer0 in1 o[0] buffer0 }
+  {Xbuffer0_1 in2 o[1] buffer0 }
+  {Xbuffer0_2 in3 o[2] buffer0 }
+  {* .ENDS	$ combine_style1}
+  {}
+}
+
+set NETLIST_CACHE(combine_style1,names) {
+  {380 320 {1 o[1]}}
+  {380 240 {1 o[0]}}
+  {580 240 {1 o[2:0]}}
+  {270 400 {0 Xbuffer0_2} {1 in3}}
+  {270 320 {0 Xbuffer0_1}
+  {1 in2}}
+  {270 240 {0 Xbuffer0}
+  {1 in1}}
+  {290 400 {0 o[2]}}
+  {290 320 {0 o[1]}}
+  {290 240 {0 o[0]}}
+  {240 400 {1 in3}}
+  {240 320 {1 in2}}
+  {240 240 {1 in1}}
+  {380 400 {1 o[2]}}
+  {540 240 {1 o[2:0]}}
+}
+
+set NETLIST_CACHE(combine_style1,wires) {
+  {480 320 480 400 o[2:0]} 
+  {480 240 480 320 o[2:0]}
+  {480 240 540 240 o[2:0]}
+  {540 240 580 240 o[2:0]}
+  {240 240 270 240 in1}
+  {240 320 270 320 in2}
+  {240 400 270 400 in3}
+  {290 240 380 240 o[0]}
+  {380 240 480 240 o[2:0]}
+  {290 320 380 320 o[1]}
+  {380 320 480 320 o[2:0]}
+  {290 400 380 400 o[2]}
+  {380 400 480 400 o[2:0]}
+}

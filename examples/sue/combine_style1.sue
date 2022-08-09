@@ -1,0 +1,29 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_combine_style1 {} {
+  make output -name {o[2:0]} -origin {580 240}
+  make input -name in1 -origin {240 240}
+  make input -name in2 -origin {240 320}
+  make input -name in3 -origin {240 400}
+  make name_net_s -name {[2:0]} -origin {540 240}
+  make buffer0 -origin {270 240}
+  make buffer0 -origin {270 320}
+  make buffer0 -origin {270 400}
+  make name_net_s -name {[0]} -origin {380 240}
+  make name_net_s -name {[1]} -origin {380 320}
+  make name_net_s -name {[2]} -origin {380 400}
+  make_wire 480 320 480 400
+  make_wire 480 320 480 240
+  make_wire 540 240 480 240
+  make_wire 540 240 580 240
+  make_wire 270 240 240 240
+  make_wire 270 320 240 320
+  make_wire 270 400 240 400
+  make_wire 380 240 290 240
+  make_wire 380 240 480 240
+  make_wire 380 320 290 320
+  make_wire 380 320 480 320
+  make_wire 380 400 290 400
+  make_wire 380 400 480 400
+}
+
