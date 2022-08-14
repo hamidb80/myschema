@@ -2,10 +2,10 @@
 
 version       = "0.0.1"
 author        = "hamidb80"
-description   = ".ews -> .sue"
+description   = "schema convertor (MicroMagic SUE, HDL EASE, XSCHEM)"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["ews_sue"]
+bin           = @["myschema"]
 
 
 # Dependencies
