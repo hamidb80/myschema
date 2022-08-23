@@ -1,5 +1,3 @@
-# SUE version MMI_SUE4.0
-
 proc SCHEMATIC_buffer0 {} {
   make inverter -WP 10 -WN 5 -origin {670 350}
   make inverter -M 4 -WP 10 -WN 5 -origin {800 350}
