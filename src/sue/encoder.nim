@@ -1,10 +1,50 @@
-import std/[os, tables, sequtils, setutils, strutils, strformat, times, options]
+import std/[os, tables, sequtils, strutils, strformat, times, options, macros]
 import ../common/[coordination, domain]
 import model, lexer, logic
 
 
-type EncodeContext = enum
-  ecIcon, ecSchematic
+type
+  EncodeContext = enum
+    ecIcon, ecSchematic
+
+  KeyValueNimPair = tuple
+    k, v: NimNode
+
+
+func newObjConstr(objIdent: NimNode,
+  keyValuePairs: seq[KeyValueNimPair]): NimNode = # TODO add to macroplus
+
+  result = newTree(nnkObjConstr, objIdent)
+
+  for (k, v) in keyValuePairs:
+    result.add newTree(nnkExprColonExpr, k, v)
+
+func extractSueOption(n: NimNode): KeyValueNimPair =
+  expectKind n, nnkPrefix
+  (n[1][0], n[1][1])
+
+func toSueOption(p: KeyValueNimPair): NimNode =
+  newCall(ident "toOption", ident "sf" & p.k.strVal, p.v)
+
+func seqLit(s: seq[NimNode]): NimNode = # TODO add to macroplus
+  prefix(newTree(nnkBracket).add s, "@")
+
+macro genSueExpr(fnName, body: untyped): untyped =
+  var
+    options: seq[NimNode]
+    args: seq[NimNode]
+
+  for e in body:
+    case e.kind:
+    of nnkPrefix:
+      options.add toSueOption extractSueOption e
+    else:
+      args.add newCall(bindSym"toToken", e)
+
+  result = newObjConstr bindSym "SueExpression":
+    @[(ident "command", ident "sc" & fnName.strVal),
+    (ident "args", seqLit args),
+    (ident "options", seqLit options)]
 
 
 func quoted(s: string): string =
@@ -13,15 +53,8 @@ func quoted(s: string): string =
   else:
     s
 
-func normalize(o: Orient): Orient =
-  ## R180 is invalid rotation, you should use RXY instead
-
-  if o.rotation == r180:
-    Orient(
-      rotation: r0,
-      flips: complement o.flips)
-
-  else: o
+template `|>`(list, fn): untyped = # TODO move it to common or globals
+  list.map fn
 
 template toOption(f, val): untyped =
   SueOption(flag: f, value: toToken val)
@@ -31,14 +64,6 @@ func toToken*(p: Point): SueToken =
 
 func `$`*(flips: set[Flip]): string =
   join toseq flips
-
-func `$`*(o: Orient): string =
-  ## R0XY => RXY
-  if o.rotation == r0:
-    if o.flips.card == 0: "R0"
-    else: 'R' & $o.flips
-  else:
-    'R' & $o.rotation.int & $o.flips
 
 func speardPoints(points: seq[Point]): seq[int] =
   for p in points:
@@ -55,22 +80,23 @@ func encode(l: Line, ctx: EncodeContext): SueExpression =
 
     SueExpression(
       command: cmd,
-      args: l.points.speardPoints.map(toToken))
+      args: l.points.speardPoints |> toToken)
 
   of arc:
-    SueExpression(
-      command: scIconArc,
-      args: @[l.head.x, l.head.y, l.tail.x, l.tail.y].map(toToken),
-      options: @[
-        toOption(sfStart, l.start),
-        toOption(sfExtent, l.extent),
-      ])
+    genSueExpr icon_arc:
+      l.head.x
+      l.head.y
+      l.tail.x
+      l.tail.y
+      -start l.start
+      -extent l.extent
 
 func encode(w: Wire): SueExpression =
-  SueExpression(
-    command: scMakeWire,
-    args: @[w.a.x, w.a.y, w.b.x, w.b.y].map toToken,
-  )
+  genSueExpr make_wire:
+    w.a.x
+    w.a.y
+    w.b.x
+    w.b.y
 
 func encode(arg: Argument): SueOption =
   SueOption(flag: sfCustom,
@@ -78,33 +104,28 @@ func encode(arg: Argument): SueOption =
     value: toToken arg.value)
 
 func encode(i: Instance): SueExpression =
-  SueExpression(
-    command: scMake,
-    args: @[toToken i.parent.name],
-    options: @[
-      toOption(sfName, quoted i.name),
-      toOption(sfOrigin, i.location),
-      toOption(sfOrient, $i.orient.normalize),
-    ] & map(i.args, encode),
-  )
+  result = genSueExpr make:
+    i.parent.name
+    -name quoted i.name
+    -origin $i.location
+    -orient $i.orient
+
+  result.options.add (i.args |> encode)
 
 func encode(l: Label, ctx: EncodeContext): SueExpression =
   case ctx:
   of ecIcon:
-    SueExpression(
-      command: scIconProperty,
-      options: @[
-        toOption(sfOrigin, l.location),
-        toOption(sfAnchor, $l.anchor),
-        toOption(sfLabel, quoted l.content)])
+    genSueExpr icon_property:
+      -origin l.location
+      -anchor $l.anchor
+      -label quoted l.content
 
   of ecSchematic:
-    SueExpression(
-      command: scMakeText,
-      options: @[
-        toOption(sfOrigin, l.location),
-        toOption(sfAnchor, $l.anchor),
-        toOption(sfText, quoted l.content)])
+    genSueExpr make_text:
+      -origin l.location
+      -anchor $l.anchor
+      -text quoted l.content
+
 
 func inlineEncode(param: Parameter): string =
   if issome param.defaultValue:
@@ -118,24 +139,20 @@ func encode(params: seq[Parameter], ctx: EncodeContext): SueExpression =
       else: scCallUseKeyword,
 
     args: @[
-      toTokenRaw "$args",
-      toTokenRaw "{$#}" % params.map(inlineEncode).join " "])
+      toRawToken "$args",
+      toRawToken "{$#}" % (params |> inlineEncode).join " "])
 
 func encode(p: Port): SueExpression =
-  SueExpression(
-    command: scIconTerm,
-    options: @[
-      toOption(sfType, $p.kind),
-      toOption(sfName, quoted p.name),
-      toOption(sfOrigin, p.location)])
+  genSueExpr icon_term:
+    -type $p.kind
+    -name quoted p.name
+    -origin p.location
 
 func encode(p: IconProperty): SueExpression =
-  result = SueExpression(
-    command: scIconProperty,
-    options: @[
-      toOption(sfOrigin, p.location),
-      toOption(sfType, $p.kind),
-      toOption(sfName, p.name)])
+  result = genSueExpr icon_property:
+    -origin p.location
+    -type $p.kind
+    -name p.name
 
   if issome p.defaultValue:
     result.options.add toOption(sfDefault, quoted p.defaultValue.get)
@@ -186,14 +203,15 @@ proc genTclIndex(proj: Project): string =
     timesAcc.add "{$# $#}" % [name, now]
 
   linesAcc.add "set mtimes {$#}" % timesAcc.join(" ")
-  linesAcc.join "\n"
+  linesAcc.join "n"
 
+
+# TODO keep schematic input/output/inout in elements, not in ports
 
 const b = readfile "./elements/buffer0.sue"
+
 proc writeProject*(proj: Project, dest: string) =
-
   writeFile dest / "buffer0.sue", b
-
 
   for name, module in proj.modules:
     if not module.isTemporary:

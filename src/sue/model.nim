@@ -9,9 +9,10 @@ type
     fzLarge = "large"
     fzVeryLarge = "very-large"
 
-  Orient* = object
-    rotation*: Rotation
-    flips*: set[Flip]
+  Orient* = enum
+    R0, R90, R270
+    R90X, R90Y
+    RX, RY, RXY
 
   Anchor* = enum
     w, s, e, n, c

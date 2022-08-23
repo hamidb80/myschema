@@ -137,17 +137,13 @@ type
     of mekGenerator:
       info*: GenerateInfo
 
-  MTransform* = object
-    rotation*: Rotation
-    flips*: set[Flip]
-
   MInstance* = ref object
     name*: string
     parent* {.cursor.}: MElement
     args*: seq[MArg]
     ports*: seq[MPort]
     geometry*: Geometry
-    transform*: MTransform
+    transform*: Transform
 
   MParameter* = ref object
     name*: string

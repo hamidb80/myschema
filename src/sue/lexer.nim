@@ -15,6 +15,8 @@ type
     sttCurlyClose
     sttNewLine
 
+  # TODO Oriemt
+
   SueToken* = object
     case kind*: SueTokenType
     of sttNumber:
@@ -105,7 +107,7 @@ func isNumbic(s: string): bool =
 
   true
 
-func toTokenRaw*(s: string): SueToken =
+func toRawToken*(s: string): SueToken =
   SueToken(kind: sttLiteral, strval: s)
 
 func toToken*(s: string): SueToken =

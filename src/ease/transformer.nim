@@ -25,8 +25,8 @@ func toText(lbl: Label): MText =
 func toText(fpt: FreePlacedText): MText =
   toText Label fpt
 
-func getTransform[T: Thing](smth: T): MTransform =
-  MTransform(
+func getTransform[T: Thing](smth: T): Transform =
+  Transform(
     rotation: smth.rotation,
     flips: smth.flips)
 

@@ -1,0 +1,11 @@
+# I/O's are weird because they are recursive.
+# Note the priority.  Can't be generated in SUE.
+
+proc ICON_input {args} {
+  icon_setup $args {{origin {0 0}} {orient R0} {name {}}}
+  icon_line 0 0 -10 0 -15 -5 -25 -5 -25 5 -15 05 -10 0
+  icon_term -type input -origin {0 0} -name {$name} -priority input
+  icon_property -origin {-40 50} -type user -name name
+  icon_property -origin {-35 0} -label {$name} -anchor e
+  icon_property -origin {-40 70} -type fixed -name primitive -text 1
+}

@@ -4,7 +4,7 @@ import ../common/errors
 
 const
   EOS = '\0'
-  Operators = {'+', '-', '&', '!', '?', '|', '/', ':', ',', '=', '<', '>'}
+  Operators = {'+', '-', '*', '&', '!', '?', '|', '/', ':', ',', '=', '<', '>'}
 
 type LexerState = enum
   lsInitial

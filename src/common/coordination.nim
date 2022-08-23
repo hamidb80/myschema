@@ -30,6 +30,9 @@ type
     vdSouth
     vdWest
 
+  Transform* = object
+    rotation*: Rotation
+    flips*: set[Flip]
 
 
 func `+`*(p1, p2: Point): Point =

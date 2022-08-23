@@ -46,7 +46,6 @@ func parseOrient(s: string): Orient =
 func parseOrigin*(s: string): Point =
   s.split(" ").map(parseInt).toTuple(2)
 
-
 func getOrigin(expr: SueExpression): Point =
   parseOrigin expr[sfOrigin].strval
 

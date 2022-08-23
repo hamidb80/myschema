@@ -1,6 +1,6 @@
-import std/[tables, sequtils, strutils, strformat, options, sugar]
+import std/[tables, sequtils, strutils, options, sugar, macros]
 
-import ../common/[coordination, seqs, minitable, domain, graph]
+import ../common/[coordination, seqs, minitable, domain]
 
 import model as sm
 import ../middle/model as mm
@@ -42,8 +42,21 @@ func toSue(gt: MTokenGroup): string =
       of mtkSymbol: '$' & $t
       else: $t
 
-func toSue(tr: MTransform): Orient =
-  Orient(rotation: tr.rotation, flips: tr.flips)
+
+template flipCase(f: set[Flip], bxy, bx, by, b0: untyped): untyped =
+  if f == {X, Y}: bxy
+  elif f == {X}: bx
+  elif f == {Y}: by
+  else: b0
+
+func toSue(tr: Transform): Orient =
+  let fs = tr.flips
+
+  case tr.rotation:
+  of r0: flipCase(fs, RXY, RX, RY, R0)
+  of r90: flipCase(fs, R270, R90X, R90Y, R90)
+  of r180: flipCase(fs, R0, RY, RX, RXY)
+  of r270: flipCase(fs, R90, R90Y, R90X, R270)
 
 func toSue(a: MArg): Argument =
   Argument(name: a.parameter.name, value: toSue a.value.get)
@@ -150,10 +163,10 @@ proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
             newPos = portPos - vdir * 200
             o =
               case dir:
-              of vdEast: Orient()
-              of vdWest: Orient(rotation: r180)
-              of vdNorth: Orient(rotation: -r90)
-              of vdSouth: Orient(rotation: r90)
+              of vdEast: R0
+              of vdWest: RXY
+              of vdNorth: R270
+              of vdSouth: R90
 
           result.wires.add newPos .. buffIn
 
