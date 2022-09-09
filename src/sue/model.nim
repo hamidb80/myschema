@@ -87,6 +87,17 @@ type
     name*: string
     defaultValue*: Option[string]
 
+  Argument* = object
+    name*: string
+    value*: string
+
+  Instance* = ref object
+    name*: string
+    parent* {.cursor.}: Module
+    location*: Point
+    # args*: seq[Argument]
+    orient*: Orient
+
   Module* = ref object
     name*: string
 
@@ -98,17 +109,6 @@ type
       params*: seq[Parameter]
       isGenerator*: bool
       isTemporary*: bool # do not generate file for these modules
-
-  Argument* = object
-    name*: string
-    value*: string
-
-  Instance* = ref object
-    name*: string
-    parent* {.cursor.}: Module
-    location*: Point
-    args*: seq[Argument]
-    orient*: Orient
 
   ModuleLookUp* = Table[string, Module]
 
