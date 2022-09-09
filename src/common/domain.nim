@@ -16,7 +16,7 @@ type
   Language* = enum
     Verilog, VHDL
 
-  MCodeFile* = object
+  CodeFile* = object
     name*: string
     content*: string
 

@@ -18,22 +18,30 @@ type
     w, s, e, n, c
     sw, se, nw, ne
 
+  PortDir* = enum
+    pdInput, pdOutput, pdInout
+
+  LineKind* = enum
+    arc, straight
+
+  IconPropertyKind* = enum
+    ipFixed = "fixed" # static
+    ipUser = "user"   # dynamic
+
+  ModuleKind* = enum
+    mkRef # instance
+    mkCtx
+
+  ArchitectureKind* = enum
+    akSchematic
+    akFile
+
+type
   Label* = ref object
     content*: string
     location*: Point
     anchor*: Anchor
-    size*: FontSize
-
-  PortDir* = enum
-    pdInput, pdOutput, pdInout
-
-  Port* = ref object
-    kind*: PortDir
-    location*: Point # relative
-    name*: string
-
-  LineKind* = enum
-    arc, straight
+    fnsize*: FontSize
 
   Line* = object
     case kind*: LineKind
@@ -44,9 +52,10 @@ type
     of straight:
       points*: seq[Point]
 
-  IconPropertyKind* = enum
-    ipFixed = "fixed" # static
-    ipUser = "user"   # dynamic
+  Port* = ref object
+    kind*: PortDir
+    location*: Point # relative
+    name*: string
 
   IconProperty* = object
     kind*: IconPropertyKind
@@ -61,27 +70,19 @@ type
     labels*: seq[Label]
     properties*: seq[IconProperty]
 
-  SSchematic* = ref object
+  Schematic* = ref object
     instances*: seq[Instance]
     wires*: seq[Wire]
     labels*: seq[Label]
     lines*: seq[Line]
 
-  ModuleKind* = enum
-    mkRef # instance
-    mkCtx
-
-  ArchitectureKind* = enum
-    akSchematic
-    akFile
-
   Architecture* = object
-    schema*: SSchematic
+    schema*: Schematic
 
     case kind*: ArchitectureKind
     of akSchematic: discard
     of akFile:
-      file*: MCodeFile
+      file*: CodeFile
 
   Parameter* = object
     name*: string
@@ -94,8 +95,8 @@ type
   Instance* = ref object
     name*: string
     parent* {.cursor.}: Module
-    location*: Point
     # args*: seq[Argument]
+    location*: Point
     orient*: Orient
 
   Module* = ref object
@@ -106,9 +107,10 @@ type
     of mkCtx:
       icon*: Icon
       arch*: Architecture
-      params*: seq[Parameter]
-      isGenerator*: bool
-      isTemporary*: bool # do not generate file for these modules
+
+      # params*: seq[Parameter]
+      # isGenerator*: bool
+      # isTemporary*: bool ## do not generate file for these modules
 
   ModuleLookUp* = Table[string, Module]
 
