@@ -205,28 +205,6 @@ proc buildSchema(moduleName: string,
     externalNetMap: Table[Obid, MNet]
     connectionBusRippers: seq[(MBusRipper, MPort)]
 
-
-  for fpt in schema.freePlacedTexts:
-    result.texts.add toText fpt
-
-  for p in schema.ports:
-    let
-      mid = toMIdent p.identifier
-      io = p.cbn.issome and p.cbn.get.kind == ctIntentionallyOpen
-      val = p.cbn.map (it) => it.ident.name
-
-      mp = MPort(
-        kind: mpCopy,
-        position: p.position,
-        wrapperKind: wkSchematic,
-        isOpen: io,
-        assignedValue: val,
-        parent: icon.ports.search((it) => mid == it.id))
-
-    result.ports.add mp
-    externalPortMap[p.obid] = mp
-    internalPortMap[p.obid] = p
-
   block instances:
     template makeInstance(el, parentEl, t, argsSeq): untyped =
       let
@@ -289,13 +267,6 @@ proc buildSchema(moduleName: string,
       discard makeInstance(pr, el,
           getTransform pr, @[])
 
-    # for gb in schema.generateBlocks:
-    #   let
-    #     ico = extractIcon gb
-    #     el = makeParent(makeGenerator gb, ico, toArch buildSchema(yourName,
-    #         gb.schematic, ico, lookup, elements))
-
-    #   discard makeInstance(gb, el, getTransform gb, @[])
 
   for n in schema.nets:
     var mn =
@@ -338,29 +309,6 @@ proc buildSchema(moduleName: string,
         myBr.source.busRippers.add myBr
         myBr.dest.busRippers.add myBr
 
-  # for (b, p) in connectionBusRippers:
-    # assert p.nets.len == 1
-    # let n = p.nets[0]
-    # b.source = n
-    # b.dest = n
-    # result.busRippers.add b
-    # n.busRippers.add b
-
-    # let
-    #   portPos = p.position
-    #   nextNode = n.connections[portPos][0]
-    #   dir = detectDir(portPos .. nextNode)
-    #   vdir = toUnitPoint dir
-    #   close = portPos + vdir * 20
-    #   far = portPos + vdir * 40
-
-    # n.connections.removeBoth portPos, nextNode
-    # n.connections.addBoth portPos, close
-    # n.connections.addBoth close, far
-
-    # b.connection = close
-    # b.position = far
-
 
 func choose(sa: seq[Architecture]): Architecture =
   result = sa[0]
@@ -369,40 +317,3 @@ func choose(sa: seq[Architecture]): Architecture =
     if i.kind == amBlockDiagram:
       result = i
 
-proc toMiddle*(proj: Project): MProject =
-  result = MProject()
-
-  var
-    modernIdMap: Table[Obid, MElement]
-    originalIdMap: Table[Obid, Entity]
-
-  for d in proj.designs:
-    for en in d.entities:
-      let m = initModule en
-      modernIdMap[en.obid] = m
-      originalIdMap[en.obid] = en
-      result.modules[m.name] = m
-
-  # phase 2. convert schematics
-  for id, m in modernIdMap.mpairs:
-    let a = choose originalIdMap[id].architectures
-    m.arch =
-      case a.kind:
-      of amBlockDiagram:
-        toArch buildSchema(m.name,
-          a.body.schematic,
-          m.icon,
-          modernIdMap,
-          result.modules)
-
-      of amTableDiagram:
-        toArch toMiddle a.body.truthTable
-
-      of amHDLFile:
-        toArch toMiddle a.body.file
-
-      of amStateDiagram:
-        MArchitecture(kind: makSchema, schema: MSchematic())
-
-      of amExternalHDLFIle:
-        err "not implemented"

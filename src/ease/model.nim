@@ -173,7 +173,7 @@ type
       geometry*: Geometry
       side*: Side
       label*: Label
-      parent*: Option[Generic]
+      parent*: Generic
       actValue*: Option[string]
 
   GenerateBlock* = ref object
@@ -326,7 +326,7 @@ type
     of netRef: discard
     of netDef:
       ident*: HdlIdent
-      part*: Part # FIXME convert to seq[PART] / in system09 example
+      parts*: seq[Part] # FIXME convert to seq[PART] / in system09 example
 
   PointConnection* = ref object
     obid*: Obid
@@ -354,7 +354,7 @@ type
       label*: Label
       cbn*: Option[ConnectByName]
       connection*: Option[PointConnection]
-      parent*: Option[Port]
+      parent*: Port
 
   Process* = ref object
     obid*: Obid
@@ -431,7 +431,7 @@ type
       geometry*: Geometry
       generics*: seq[Generic]
       ports*: seq[Port]
-      architectures*: seq[Architecture]
+      archs*: seq[Architecture]
 
   Library* = ref object
     obid*: Obid

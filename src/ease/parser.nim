@@ -299,20 +299,23 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
       result.connection = some parseNCon n
 
     of "PORT", "GENERATE":
-      result.parent = some parseRefPort n
+      result.parent = parseRefPort n
 
     of "CBN":
       result.cbn = some parseCbn n
 
     else: err "what?"
 
-func parseNetPart(part2Node: LispNode, k: PartKind): Part =
-  result = Part(kind: k)
+func parseNetPart(part2Node: LispNode): Part =
+  result = Part(kind: pkWire)
 
   for n in part2Node:
     case n.ident:
     of "OBID":
       result.obid = parseOBID n
+
+    of "CBN": 
+      result = Part(kind: pkTag, obid: result.obid)
 
     of "LABEL":
       result.label = parseLabel n
@@ -326,7 +329,6 @@ func parseNetPart(part2Node: LispNode, k: PartKind): Part =
     of "BUS_RIPPER":
       result.busRippers.add parseHook n
 
-    of "CBN": discard
     else: err "invalid"
 
 func parseNet(netNode: LispNode): Net =
@@ -341,14 +343,7 @@ func parseNet(netNode: LispNode): Net =
       result.ident = parseHDLIdent n
 
     of "PART":
-      result.part = parseNetPart n:
-        if result.part == nil:
-          pkTag
-        elif result.part.ports.len == 0:
-          pkWire
-        else:
-          pkWire
-          # err fmt"part is already full: {result.obid.string}"
+      result.parts.add parseNetPart n
 
 func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
   result = Generic(kind: gkind) # FIXME `scriptfunction` complains here
@@ -374,12 +369,12 @@ func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
       result.label = parseLabel n
 
     of "GENERIC":
-      result.parent = some Generic(kind: gkRef, obid: parseOBID n)
+      result.parent = Generic(kind: gkRef, obid: parseOBID n)
 
     of "ACT_VALUE":
       result.actValue = some parseStr n
 
-    else: err fmt"invalid field {n.ident}"
+    else: err fmt"invalid field {n.ident}" # FIXME Dont Rpeat Yourself
 
 func parseComp(componentNode: LispNode): Component =
   result = new Component
@@ -910,7 +905,7 @@ func parseEntityFile(entityFileNode: LispNode): Entity =
       parseEnt n, result
 
     of "ARCH_DEFINITION":
-      result.architectures.add parseArch n
+      result.archs.add parseArch n
 
     of "CONFIGURATION": discard
     else: err fmt"invalid {n.ident}"
@@ -972,10 +967,47 @@ func parseProj(projectFileNode: LispNode): Project =
     of "PACKAGE_USE", "EXTERNAL_DOC", "INCLUDE_STATEMENT": discard
     else: err fmt"invalid ident: {n.ident}"
 
-proc parseEws*(dir: string): Project =
-  doAssert dir.strip(leading = false, chars = {'/'}).endsWith ".ews", fmt"the workspace directory name must ends with .ews"
-  let dbDir = dir / "ease.db"
 
+func resolve(proj: var Project) =
+  ## links obids to refrencers
+
+  var
+    portMap: Table[Obid, Port]
+    netMap: Table[Obid, Net]
+
+  template walkEntities(body): untyped {.dirty.} =
+    for d in mitems proj.designs:
+      for e in mitems d.entities:
+        body
+
+  template withSchema(e, code): untyped {.dirty.} =
+    for a in e.archs:
+      if a.body.kind == bkSchematic:
+        var schema = a.body.schematic
+        code
+
+  walkEntities:
+    for p in e.ports:
+      portMap[p.obid] = p
+
+    withSchema e:
+      for n in schema.nets:
+        netMap[n.obid] = n
+
+  walkEntities:
+    withSchema e:
+      for c in mitems schema.components:
+        for p in mitems c.ports:
+          p.parent = portMap[p.parent.obid]
+
+      for n in mitems schema.nets:
+        for p in mitems n.parts:
+          if p.kind == pkWire:
+            for b in mitems p.busRippers:
+              b.destNet = netMap[b.destNet.obid]
+
+proc parseEws*(dir: string): Project =
+  let dbDir = dir / "ease.db"
   result = parseProj select parseLisp readfile dbDir / "project.eas"
 
   for d in mitems result.designs:
@@ -986,3 +1018,5 @@ proc parseEws*(dir: string): Project =
       let fname = libdir / e.obid.string & ".eas"
       debugEcho "parseing eas: ", fname
       e = parseEntityFile select parseLisp readfile fname
+
+  resolve result
