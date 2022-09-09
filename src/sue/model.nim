@@ -36,10 +36,6 @@ type
     mkRef # instance
     mkCtx
 
-  ArchitectureKind* = enum
-    akSchematic
-    akFile
-
 type
   Label* = object
     content*: string
@@ -88,10 +84,6 @@ type
     labels*: seq[Label]
     lines*: seq[Line]
 
-  Architecture* = object
-    schema*: Schematic
-    code*: Option[string]
-
   Parameter* = ref object
     name*: string
     defaultValue*: Option[string]
@@ -108,7 +100,7 @@ type
     orient*: Orient
 
     # --- meta data
-    ports*: seq[Port]
+    ports*: Table[Point, Port]
 
   Module* = ref object
     name*: string
@@ -117,7 +109,8 @@ type
     of mkRef: discard
     of mkCtx:
       icon*: Icon
-      arch*: Architecture
+      schema*: Schematic
+      code*: Option[string]
       # params*: seq[Parameter]
       # isGenerator*: bool
 

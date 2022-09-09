@@ -174,3 +174,7 @@ func whichEdge*(p: Point, geo: Geometry): VectorDirection =
   elif p.y == geo.y1: vdNorth
   elif p.y == geo.y2: vdSouth
   else: raise newException(ValueError, "offside")
+
+
+func translationAfter*(geo: Geometry, r: Rotation): Vector =
+  topleft(geo.rotate(P0, r)) - (topleft geo)

@@ -96,17 +96,19 @@ func parseSchematic(se: seq[SueExpression]): Schematic =
 
   for expr in se:
     case expr.command:
-    of scMake:
-      result.instances.add parseMake expr
-
-    of scMakeWire:
-      result.wires.add parseWire expr
+    of scMakeLine: discard
 
     of scMakeText:
       result.labels.add parseMakeText expr
 
-    of scMakeLine: discard
-    of scGenerate: err "'generate' is not implemented"
+    of scMakeWire:
+      let w = parseWire expr
+      # TODO result.nets.add
+
+    of scMake:
+      result.instances.add parseMake expr
+
+    # of scGenerate: err "'generate' is not implemented yet"
     else:
       err fmt"invalid command in schematic: {expr.command}"
 
@@ -119,27 +121,72 @@ func parseIcon(se: seq[SueExpression]): Icon =
 
     of scIconTerm:
       result.ports.add Port(
+        kind: pkIconTerm,
         name: expr[sfName].strval,
-        kind: parsePortType expr[sfType].strval,
+        dir: parsePortType expr[sfType].strval,
         location: parseOrigin expr[sfOrigin].strval)
 
     else:
       err fmt"invalid command in icon: {expr.command}"
 
+proc parseSue(sfile: SueFile): Module =
+  Module(
+    name: sfile.name,
+    kind: mkCtx,
+    icon: parseIcon sfile.icon,
+    schema: parseSchematic sfile.schematic)
+
+func instantiate(origin: Port, parent: Instance): Port =
+  Port(kind: pkInstance,
+    parent: parent,
+    origin: origin)
+
+func rotation(orient: Orient): Rotation = 
+  case orient:
+  of R0, RX, RY: r0
+  of RXY: r180
+  of R270: r270
+  of R90, R90X, R90Y: r90
+
+func flips(orient: Orient): set[Flip] = 
+  case orient:
+  of R0, R90, RXY, R270: {}
+  of R90X, RX: {X}
+  of R90Y, RY: {Y}
+
+func calcNewPos(geo: Geometry, pos: Point, o: Orient): Point = 
+  let
+    geo =
+      rotate(ins.parent.size.toGeometry, P0, ins.orient.rotation) +
+      ins.location
+
+    translate = translationAfter(toGeometry ins.icon.size, R90)
+    pos = ins.location + translate
+    c = center geo
+
+  (p.rotate0(rotation) + pos - translate).flip(c, flips)
+
+
+func resolve*(proj: var Project) =
+  ## add meta data for instances, resolve modules
+  for _, module in mpairs proj.modules:
+    for ins in mitems module.schema.instances:
+      let mref = proj.modules[ins.parent.name]
+      ins.parent = mref
+
+      for p in mref.icon.ports:          
+        ins.ports[calcNewPos loc] = instantiate(p, module)
 
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())
 
   template walkSue(dir): untyped {.dirty.} =
     for path in walkFiles dir / "*.sue":
-      let sfile = lexSue readFile path
-      result.modules[sfile.name] = Module(
-        name: sfile.name,
-        kind: mkCtx,
-        icon: parseIcon(sfile.icon),
-        arch: Architecture(schema: parseSchematic(sfile.schematic)))
+      let m = parseSue lexSue readFile path
+      result.modules[m.name] = m
 
   walkSue mainDir
-
   for d in lookupDirs:
     walkSue d
+
+  resolve result
