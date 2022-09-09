@@ -88,11 +88,11 @@ func parseMakeText*(expr: SueExpression): Label =
   Label(content: content,
     location: origin,
     anchor: anchor,
-    size: size)
+    fnsize: size)
 
 
-func parseSchematic(se: seq[SueExpression]): SSchematic =
-  result = new SSchematic
+func parseSchematic(se: seq[SueExpression]): Schematic =
+  result = new Schematic
 
   for expr in se:
     case expr.command:
@@ -132,12 +132,12 @@ proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
 
   template walkSue(dir): untyped {.dirty.} =
     for path in walkFiles dir / "*.sue":
-      let sf = lexSue readFile path
-      result.modules[sf.name] = Module(
-        name: sf.name,
+      let sfile = lexSue readFile path
+      result.modules[sfile.name] = Module(
+        name: sfile.name,
         kind: mkCtx,
-        icon: parseIcon(sf.icon),
-        arch: toArch parseSchematic(sf.schematic))
+        icon: parseIcon(sfile.icon),
+        arch: Architecture(schema: parseSchematic(sfile.schematic)))
 
   walkSue mainDir
 

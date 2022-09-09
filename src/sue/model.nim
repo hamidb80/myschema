@@ -1,5 +1,5 @@
 import std/[tables, options]
-import ../common/[coordination, domain]
+import ../common/[coordination, domain, graph]
 
 type
   FontSize* = enum
@@ -21,6 +21,10 @@ type
   PortDir* = enum
     pdInput, pdOutput, pdInout
 
+  PortKind* = enum
+    pkIconTerm
+    pkInstance
+
   LineKind* = enum
     arc, straight
 
@@ -37,7 +41,7 @@ type
     akFile
 
 type
-  Label* = ref object
+  Label* = object
     content*: string
     location*: Point
     anchor*: Anchor
@@ -53,9 +57,15 @@ type
       points*: seq[Point]
 
   Port* = ref object
-    kind*: PortDir
-    location*: Point # relative
-    name*: string
+    case kind*: PortKind
+    of pkIconTerm:
+      dir*: PortDir
+      name*: string
+      location*: Point
+
+    of pkInstance:
+      parent* {.cursor.}: Instance
+      origin* {.cursor.}: Port
 
   IconProperty* = object
     kind*: IconPropertyKind
@@ -70,25 +80,23 @@ type
     labels*: seq[Label]
     properties*: seq[IconProperty]
 
+  Net* = Graph[Point]
+
   Schematic* = ref object
     instances*: seq[Instance]
-    wires*: seq[Wire]
+    nets*: seq[Net]
     labels*: seq[Label]
     lines*: seq[Line]
 
   Architecture* = object
     schema*: Schematic
+    code*: Option[string]
 
-    case kind*: ArchitectureKind
-    of akSchematic: discard
-    of akFile:
-      file*: CodeFile
-
-  Parameter* = object
+  Parameter* = ref object
     name*: string
     defaultValue*: Option[string]
 
-  Argument* = object
+  Argument* = ref object
     name*: string
     value*: string
 
@@ -99,6 +107,9 @@ type
     location*: Point
     orient*: Orient
 
+    # --- meta data
+    ports*: seq[Port]
+
   Module* = ref object
     name*: string
 
@@ -107,10 +118,8 @@ type
     of mkCtx:
       icon*: Icon
       arch*: Architecture
-
       # params*: seq[Parameter]
       # isGenerator*: bool
-      # isTemporary*: bool ## do not generate file for these modules
 
   ModuleLookUp* = Table[string, Module]
 

@@ -164,7 +164,7 @@ func find*(se: SueExpression, f: SueFlag): Option[SueToken] =
 
 # --- lexer
 
-func nextToken(code; bounds; lstate: LexerState): tuple[token: SueToken; index: int] =
+func nextToken(code; bounds; lstate: LexerState): tuple[token: SueToken, index: int] =
   let offside = bounds.b + 1
   var
     i = bounds.a
@@ -321,7 +321,7 @@ func lexSue(code; bounds; result: var SueFile) =
 
 func lexSue*(code: string): SueFile =
   result = new SueFile
-  lexSue(addr code, 0 .. code.high, result)
+  lexSue(unsafeaddr code, 0 .. code.high, result)
 
 # --- serializer
 
