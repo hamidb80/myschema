@@ -2,12 +2,8 @@ import std/[tables, sequtils, strutils, options, sugar, macros]
 
 import ../common/[coordination, seqs, minitable, domain]
 
-import model as sm
-import ../middle/model as mm
-
-import logic
+import model, logic
 import ../middle/logic as ml
-
 import ../middle/expr
 
 

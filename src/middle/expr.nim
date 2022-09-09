@@ -3,7 +3,7 @@ import model
 import ../common/errors
 
 const
-  EOS = '\0'
+  EOS = '\0' # end of string
   Operators = {'+', '-', '*', '&', '!', '?', '|', '/', ':', ',', '=', '<', '>'}
 
 type LexerState = enum

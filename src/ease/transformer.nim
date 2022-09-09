@@ -2,12 +2,8 @@ import std/[tables, options, strutils, strformat, sugar]
 
 import ../common/[coordination, domain, seqs, minitable, errors]
 
-import model as em
-import ../middle/model as mm
-
+import model, logic
 import ../middle/logic as mlogic
-import logic
-
 import ../middle/expr
 
 # ------------------------------- sue model -> middle model
