@@ -1,31 +1,26 @@
-from std/macros import error
 import std/[os]
 
-import ease/[transformer as et, parser]
-import sue/[transformer as st, encoder]
-
+import ease/[encoder, parser]
+import sue/[encoder, parser]
+import middle/transformer
 
 static:
-  when compileOption("mm", "arc"):
-    error "the app is incompatible with 'ARC', use 'refC' or 'ORC' for memory management"
-
+  assert compileOption("mm", "arc")
 
 when isMainModule:
-  if paramCount() == 2: 
-    let 
-      ews = paramStr(1)
-      dest = paramStr(2)
+  template l(msg): untyped =
+    debugEcho msg
 
-    debugEcho "ews project: ", ews
-    debugEcho "destination: ", dest
+  if paramCount() == 2:
+    let pathes = paramStr(1) .. paramStr(2)
+    l "ews project: ", pathes.a
+    l "destination: ", pathes.b
+    l "-- PARSING .eas FILES ..."
+    let proj = parseEws pathes.a
+    l "-- CONVERTING TO .sue ..."
+    writeProject proj.toSue, pathes.b
+    l "-- DONE!"
 
-    debugEcho "-- PARSING .eas FILES ..."
-    let proj = toMiddle parseEws ews
-    debugEcho "-- CONVERTING TO .sue ..."
-    proj.toSue.writeProject dest
-    debugEcho "-- DONE!"
-
-    
   else: echo """
 USAGE:
   app.exe <PROJECT.ews::folder> <dest::folder>

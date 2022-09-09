@@ -7,6 +7,12 @@ import ../middle/logic as ml
 import ../middle/expr
 
 
+func toArch*(sch: SSchematic): Architecture =
+  Architecture(kind: akSchematic, schema: sch)
+
+func toArch*(f: MCodeFile): Architecture =
+  Architecture(kind: akFile, schema: SSchematic(), file: f)
+
 func toMiddleModel*(sch: sm.SSchematic): mm.MSchematic =
   mm.MSchematic(
     nets: toNets sch.wires)
@@ -309,3 +315,109 @@ proc toSue*(proj: mm.MProject): sm.Project =
     var m = result.modules[name]
     debugEcho "finalizing module sue: ", name
     m.arch = toSue(mmdl.arch, m.icon, result.modules, m)
+
+# --------------------------------
+
+proc buildSchema =
+  block instances:
+    template makeInstance(el, parentEl, t, argsSeq): untyped =
+      let
+        iname = el.ident.name
+        myPorts = collect newseq:
+          for i in 0 .. el.ports.high:
+            let
+              originalPort = el.ports[i]
+
+              p = copyPort(originalPort, parentEl.icon.ports[i]) # susspecius
+
+            externalPortMap[originalPort.obid] = p
+            internalPortMap[originalPort.obid] = originalPort
+
+            if p.isSliced:
+              let
+                pos = originalPort.position
+                b = MBusRipper(
+                  select: netSlice2MIdent lexCode originalPort.properties[
+                      "NET_SLICE"],
+                  source: nil, dest: nil,
+                  position: pos, connection: pos)
+
+              connectionBusRippers.add (b, p)
+
+            p
+
+        ins = MInstance(
+          name: iname,
+          geometry: el.geometry,
+          parent: parentEl,
+          transform: t,
+          args: argsSeq,
+          ports: myPorts)
+
+      result.instances.add ins
+      ins
+
+    template makeParent(el, ico, a): untyped =
+      let yourName {.inject.} = moduleName & "_" & randomHdlIdent()
+      var parent = el
+      parent.name = yourName
+      parent.icon = ico
+      parent.arch = a
+      elements[parent.name] = parent
+      parent
+
+    for c in schema.components:
+      let
+        parent = lookup[c.parent.obid]
+
+      discard makeInstance(c, parent, getTransform c,
+          extractArgs(c, parent.parameters))
+
+    # FIXME do something about ports with the same name
+    for pr in schema.processes:
+      let
+        el = makeParent(initProcessElement pr, extractIcon pr, toArch pr) # FIXME
+
+      discard makeInstance(pr, el,
+          getTransform pr, @[])
+
+  for n in schema.nets:
+    var mn =
+      case n.part.kind:
+      of pkTag: MNet(kind: mnkTag)
+      of pkWire:
+        var completeWires = n.part.wires
+
+        for p in n.part.ports:
+          let
+            orgp = internalPortMap[p.obid]
+            conn = orgp.connection.get
+          completeWires.add conn.position .. orgp.position
+
+        extractNet completeWires
+
+    for p in n.part.ports:
+      mn.ports.add externalPortMap[p.obid]
+
+    result.nets.add mn
+    externalNetMap[n.obid] = mn
+
+  for n in schema.nets: # bus rippers
+    if n.part.kind == pkWire:
+      for bp in n.part.busRippers:
+        let connPos = case bp.side:
+          of brsTopLeft: topLeft bp.geometry
+          of brsTopRight: topRight bp.geometry
+          of brsBottomRight: bottomRight bp.geometry
+          of brsBottomLeft: bottomLeft bp.geometry
+
+        let myBr = MBusRipper(
+          select: getBusSelect(bp, n),
+          source: externalNetMap[n.obid],
+          dest: externalNetMap[bp.destNet.obid],
+          position: center bp.geometry,
+          connection: connPos)
+
+        result.busRippers.add myBr
+        myBr.source.busRippers.add myBr
+        myBr.dest.busRippers.add myBr

@@ -10,38 +10,8 @@ func parsePortType*(s: string): PortDir =
   of "inout": pdInout
   else: err fmt"not a port type: {s}"
 
-func parseFlip(s: string): set[Flip] =
-  for c in s:
-    result.incl case c:
-      of 'X': X
-      of 'Y': Y
-      else: err fmt"invalid flip axis: {c}"
-
-func parseRotation(s: string): Rotation =
-  case s:
-  of "": r0
-  of "90": r90
-  of "180": r180
-  of "270": r270
-  else: err fmt"invalid rotation degree: {s}"
-
-func flipIndex(s: string): Natural =
-  for c in s:
-    case c:
-    of 'R': discard
-    of '0' .. '9': inc result
-    of 'X', 'Y': break
-    else: err fmt"invalid '-orient' token: {c}"
-
-func splitOrient(s: string): tuple[rotation, flips: string] =
-  let fi = flipIndex s
-  (s[1 .. fi], s.substr fi+1)
-
 func parseOrient(s: string): Orient =
-  let t = splitOrient s
-  Orient(
-    rotation: parseRotation t[0],
-    flips: parseFlip t[1])
+  parseEnum[Orient](s)
 
 func parseOrigin*(s: string): Point =
   s.split(" ").map(parseInt).toTuple(2)

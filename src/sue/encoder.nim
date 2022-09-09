@@ -11,6 +11,13 @@ type
     k, v: NimNode
 
 
+func `$`*(pd: PortDir): string =
+  case pd:
+  of pdInput: "input"
+  of pdOutput: "output"
+  of pdInout: "inout"
+
+
 func newObjConstr(objIdent: NimNode,
   keyValuePairs: seq[KeyValueNimPair]): NimNode = # TODO add to macroplus
 
