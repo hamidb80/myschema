@@ -1,5 +1,5 @@
 import std/[tables, os, strformat, strutils, sequtils, options]
-import ../common/[errors, coordination, tuples, domain]
+import ../common/[errors, coordination, tuples, domain, graph]
 import lexer, model, logic
 
 
@@ -63,33 +63,29 @@ func moduleRef(name: string): Module =
 
 func parseMake*(expr: SueExpression): Instance =
   let
-    parent = expr.args[0].strVal
-    name = expr[sfName].strval
-    origin = getOrigin expr
-    orient = getOrient expr
+    p = expr.args[0].strVal
+    n = expr[sfName].strval
+    l = getOrigin expr
+    o = getOrient expr
 
-  Instance(name: name,
-    parent: moduleRef parent,
-    location: origin,
-    orient: orient)
+  Instance(name: n, parent: moduleRef p, location: l, orient: o)
 
 func parseWire*(expr: SueExpression): Wire =
-  let s = expr.args.mapIt it.intval
-  (s[0], s[1]) .. (s[2], s[3])
+  let v = expr.args.mapIt it.intval
+  (v[0], v[1]) .. (v[2], v[3])
 
 func parseMakeText*(expr: SueExpression): Label =
   let
-    content = expr[sfText].strval
-    origin = getOrigin expr
-    rotated = getRotate expr
-    size = getSize expr
-    anchor = getAnchor expr
+    c = expr[sfText].strval
+    o = getOrigin expr
+    r = getRotate expr
+    s = getSize expr
+    a = getAnchor expr
 
-  Label(content: content,
-    location: origin,
-    anchor: anchor,
-    fnsize: size)
+  Label(content: c, location: o, anchor: a, fnsize: s)
 
+func add(nets: var Graph[Point], w: Wire) =
+  nets.addBoth w.a, w.b
 
 func parseSchematic(se: seq[SueExpression]): Schematic =
   result = new Schematic
@@ -102,8 +98,7 @@ func parseSchematic(se: seq[SueExpression]): Schematic =
       result.labels.add parseMakeText expr
 
     of scMakeWire:
-      let w = parseWire expr
-      # TODO result.nets.add
+      result.nets.add parseWire expr
 
     of scMake:
       result.instances.add parseMake expr
