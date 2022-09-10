@@ -78,7 +78,8 @@ type
 
   Schematic* = ref object
     instances*: seq[Instance]
-    nets*: Graph[Point]
+    wireNets*: Graph[Point]
+    connections*: Graph[Port] # `name-net`s are considered transparent
     labels*: seq[Label]
     lines*: seq[Line]
 
@@ -98,7 +99,7 @@ type
     orient*: Orient
 
     # --- meta data
-    ports*: Table[Point, Port]
+    portsPlot*: Table[Point, Port]
 
   Module* = ref object
     name*: string
@@ -109,6 +110,7 @@ type
       icon*: Icon
       schema*: Schematic
       code*: Option[string]
+      isTemp*: bool # is temporaty - do not generate file for temporary modules
       # params*: seq[Parameter]
       # isGenerator*: bool
 

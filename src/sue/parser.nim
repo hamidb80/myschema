@@ -98,7 +98,7 @@ func parseSchematic(se: seq[SueExpression]): Schematic =
       result.labels.add parseMakeText expr
 
     of scMakeWire:
-      result.nets.add parseWire expr
+      result.wireNets.add parseWire expr
 
     of scMake:
       result.instances.add parseMake expr
@@ -150,6 +150,12 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfrom =
     (rotate(p, pin, r) + vec).flip(c, f)
 
 
+# iterator walk(g: Graph[Point]):
+
+func makeConnections(sch: Schematic): Graph[Port] =
+  ## considering name nets
+  
+
 func resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
   for _, module in mpairs proj.modules:
@@ -164,7 +170,9 @@ func resolve*(proj: var Project) =
 
       for p in mref.icon.ports:
         let loc = t(p.location + ins.location)
-        ins.ports[loc] = instantiate(p, ins)
+        ins.portsPlot[loc] = instantiate(p, ins)
+
+    module.schema.connections = makeConnections module.schema
 
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())
