@@ -136,35 +136,23 @@ proc parseSue(sfile: SueFile): Module =
     icon: parseIcon sfile.icon,
     schema: parseSchematic sfile.schematic)
 
-func instantiate(origin: Port, parent: Instance): Port =
-  Port(kind: pkInstance,
-    parent: parent,
-    origin: origin)
 
-func rotation(orient: Orient): Rotation = 
-  case orient:
-  of R0, RX, RY: r0
-  of RXY: r180
-  of R270: r270
-  of R90, R90X, R90Y: r90
+func instantiate(o: Port, p: Instance): Port =
+  Port(kind: pkInstance, parent: p, origin: o)
 
-func flips(orient: Orient): set[Flip] = 
-  case orient:
-  of R0, R90, RXY, R270: {}
-  of R90X, RX: {X}
-  of R90Y, RY: {Y}
+type Transfrom = proc(p: Point): Point {.noSideEffect.}
 
-func calcNewPos(geo: Geometry, pos: Point, o: Orient): Point = 
+func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfrom =
   let
-    geo =
-      rotate(ins.parent.size.toGeometry, P0, ins.orient.rotation) +
-      ins.location
+    r = o.rotation
+    f = o.flips
+    rotatedGeo = rotate(geo, pin, r)
+    vec = pin - topleft geo
+    finalGeo = rotatedGeo.placeAt pin
+    c = center finalGeo
 
-    translate = translationAfter(toGeometry ins.icon.size, R90)
-    pos = ins.location + translate
-    c = center geo
-
-  (p.rotate0(rotation) + pos - translate).flip(c, flips)
+  return func(p: Point): Point =
+    (rotate(p, pin, r) + vec).flip(c, f)
 
 
 func resolve*(proj: var Project) =
@@ -174,8 +162,14 @@ func resolve*(proj: var Project) =
       let mref = proj.modules[ins.parent.name]
       ins.parent = mref
 
-      for p in mref.icon.ports:          
-        ins.ports[calcNewPos loc] = instantiate(p, module)
+      let t = genTransformer(
+        mref.icon.size.toGeometry,
+        ins.location,
+        ins.orient)
+
+      for p in mref.icon.ports:
+        let loc = t(p.location + ins.location)
+        ins.ports[loc] = instantiate(p, ins)
 
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())

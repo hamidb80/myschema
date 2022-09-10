@@ -76,11 +76,9 @@ type
     labels*: seq[Label]
     properties*: seq[IconProperty]
 
-  Net* = Graph[Point]
-
   Schematic* = ref object
     instances*: seq[Instance]
-    nets*: seq[Net]
+    nets*: Graph[Point]
     labels*: seq[Label]
     lines*: seq[Line]
 
