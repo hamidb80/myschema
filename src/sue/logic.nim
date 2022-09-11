@@ -1,3 +1,4 @@
+import std/[sequtils, strutils]
 import ../common/[coordination]
 import model
 
@@ -16,16 +17,30 @@ func flips*(orient: Orient): set[Flip] =
   of R90Y, RY: {Y}
 
 
-func normalizeModuleName(originalName: string): string = 
+const nameNet = "name_net"
+
+func normalizeModuleName(originalName: string): string =
   case originalName:
-  of "name-net", "name-net_s", "name-net_sw", "name-suggested_name": "name-net"
+  of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": nameNet
   else: originalName
 
-func absoluteName(s: string): string = 
-  ## "id[]" => "id"
+func pureName(s: string): string =
+  ## removes the bracket part from `s`
+  ## "id[a:b]" => "id"
+  ## "id[a]" => "id"
+  ## "id" => "id"
 
-func id*(p: Port): PortId = 
-  # TODO consider multi ident, like: `a,b[0],c[2:0]`
+  let i = s.find '['
+  if i == -1: s
+  else: s[0..<i]
+
+func id*(p: Port): PortId =
   PortId(
-    ident: absoluteName p.origin.name, 
+    ident: pureName p.origin.name,
     elem: normalizeModuleName p.parent.name)
+
+func id(p: string): PortId =
+  PortId(ident: p, elem: nameNet)
+
+func ids*(s: string): seq[PortId] =
+  s.split(',').mapit(id pureName it)
