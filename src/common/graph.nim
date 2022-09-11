@@ -21,3 +21,6 @@ func exclImpl*[N](g: var Graph[N], key, val: N) =
 func excl*[N](g: var Graph[N], n1, n2: N) =
   g.exclImpl n1, n2
   g.exclImpl n2, n1
+
+func areConnected*[N](conns: Graph[N], n1, n2: N): bool =
+  n2 in conns[n2]

@@ -1,5 +1,5 @@
 import std/[tables, sets, os, strformat, strutils, sequtils, options]
-import ../common/[errors, coordination, tuples, seqs, domain, graph, seqtable]
+import ../common/[errors, coordination, tuples, seqs, domain, graph, seqtable, rand]
 import lexer, model, logic
 
 
@@ -124,7 +124,7 @@ func parseIcon(se: seq[SueExpression]): Icon =
     else:
       err fmt"invalid command in icon: {expr.command}"
 
-proc parseSue(sfile: SueFile): Module =
+func parseSue(sfile: SueFile): Module =
   Module(
     name: sfile.name,
     kind: mkCtx,
@@ -135,9 +135,9 @@ proc parseSue(sfile: SueFile): Module =
 func instantiate(o: Port, p: Instance): Port =
   Port(kind: pkInstance, parent: p, origin: o)
 
-type Transfrom = proc(p: Point): Point {.noSideEffect.}
+type Transfromer = proc(p: Point): Point {.noSideEffect.}
 
-func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfrom =
+func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
   let
     r = o.rotation
     f = o.flips
@@ -149,9 +149,6 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfrom =
   return func(p: Point): Point =
     (rotate(p, pin, r) + vec).flip(c, f)
 
-
-func areConnected(conns: Graph[PortId], p1, p2: PortId): bool =
-  p2 in conns[p1]
 
 iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
   var stack: seq[Point] = @[start]
@@ -166,7 +163,7 @@ iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
       for p in g[head]:
         stack.add p
 
-func makeConnections(sch: Schematic): Graph[PortId] =
+func extractConnection(sch: Schematic): Graph[PortId] =
   var seen: Hashset[Point]
 
   for ins in sch.instances:
@@ -175,25 +172,25 @@ func makeConnections(sch: Schematic): Graph[PortId] =
       var acc: seq[Port]
 
       for l in walk(sch.wireNets, loc, seen):
-        # TODO exclude anonymous `name-net`s
-
         withValue ins.portsPlot, l, connectedPorts:
           for cp in connectedPorts[]:
             acc.add cp
 
-      for pp in acc:
-        if (pp.parent.kind == ikNameNet) and (pp.parent.name.dropIndexes == ""):
-          discard
+      for p1 in acc:
+        for pid1 in ids p1:
+          for p2 in ports:
+            for pid2 in ids p2:
+              result.incl pid1, pid2
 
-        for p in ports:
-          result.incl p.id, pp.id
-
-func resolve*(proj: var Project) =
+proc resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
   for _, module in mpairs proj.modules:
     for ins in mitems module.schema.instances:
       let mref = proj.modules[ins.parent.name]
       ins.parent = mref
+
+      if ins.name[0] == '[': # an array, like [2:0]
+        ins.name = randomIdent(10) & ins.name
 
       let t = genTransformer(
         mref.icon.size.toGeometry,
@@ -204,7 +201,7 @@ func resolve*(proj: var Project) =
         let loc = t(p.location + ins.location)
         ins.portsPlot.addSafe loc, instantiate(p, ins)
 
-    module.schema.connections = makeConnections module.schema
+    module.schema.connections = extractConnection module.schema
 
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())

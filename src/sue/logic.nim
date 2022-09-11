@@ -1,5 +1,5 @@
 import std/[sequtils, strutils]
-import ../common/[coordination, rand]
+import ../common/[coordination, graph]
 import model
 
 
@@ -42,16 +42,17 @@ iterator sepIds*(s: string): PortId =
 func `/`(s1, s2: string): string {.inline.} =
   s1 & '/' & s2
 
-template `||`(s1, s2: string): string =
-  if s1 == "": s2
-  else: s1
-
-proc ids*(port: Port): seq[PortId] =
+func ids*(port: Port): seq[PortId] =
   case port.parent.kind:
   of ikPort, ikNameNet: toseq sepids(port.parent.name)
   of ikCustom:
     let
-      n1 = dropIndexes(port.parent.name) || randomIdent(10)
+      n1 = dropIndexes port.parent.name
       n2 = dropIndexes port.origin.name
 
     @[PortId n1/n2]
+
+
+func fixConnectionErrors*(sch: var Schematic) =
+  ## fixes connection errors via adding `buffer0` element
+  discard
