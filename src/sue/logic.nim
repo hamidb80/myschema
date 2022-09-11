@@ -1,5 +1,5 @@
 import std/[sequtils, strutils]
-import ../common/[coordination]
+import ../common/[coordination, rand]
 import model
 
 
@@ -17,14 +17,13 @@ func flips*(orient: Orient): set[Flip] =
   of R90Y, RY: {Y}
 
 
-const nameNet = "name_net"
+func instancekind*(name: string): InstanceKind =
+  case name:
+  of "input", "output", "inout": ikPort
+  of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": ikNameNet
+  else: ikCustom
 
-func normalizeModuleName(originalName: string): string =
-  case originalName:
-  of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": nameNet
-  else: originalName
-
-func pureName(s: string): string =
+func dropIndexes(s: string): string =
   ## removes the bracket part from `s`
   ## "id[a:b]" => "id"
   ## "id[a]" => "id"
@@ -34,13 +33,25 @@ func pureName(s: string): string =
   if i == -1: s
   else: s[0..<i]
 
-func id*(p: Port): PortId =
-  PortId(
-    ident: pureName p.origin.name,
-    elem: normalizeModuleName p.parent.name)
+iterator sepIds*(s: string): PortId =
+  for w in s.split(','):
+    let id = dropIndexes w
+    if id.len != 0:
+      yield PortId id
 
-func id(p: string): PortId =
-  PortId(ident: p, elem: nameNet)
+func `/`(s1, s2: string): string {.inline.} =
+  s1 & '/' & s2
 
-func ids*(s: string): seq[PortId] =
-  s.split(',').mapit(id pureName it)
+template `||`(s1, s2: string): string =
+  if s1 == "": s2
+  else: s1
+
+proc ids*(port: Port): seq[PortId] =
+  case port.parent.kind:
+  of ikPort, ikNameNet: toseq sepids(port.parent.name)
+  of ikCustom:
+    let
+      n1 = dropIndexes(port.parent.name) || randomIdent(10)
+      n2 = dropIndexes port.origin.name
+
+    @[PortId n1/n2]

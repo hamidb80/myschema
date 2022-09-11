@@ -84,8 +84,8 @@ func parseMakeText*(expr: SueExpression): Label =
 
   Label(content: c, location: o, anchor: a, fnsize: s)
 
-func add(nets: var Graph[Point], w: Wire) =
-  nets.addBoth w.a, w.b
+func incl(nets: var Graph[Point], w: Wire) =
+  nets.incl w.a, w.b
 
 func parseSchematic(se: seq[SueExpression]): Schematic =
   result = new Schematic
@@ -98,7 +98,7 @@ func parseSchematic(se: seq[SueExpression]): Schematic =
       result.labels.add parseMakeText expr
 
     of scMakeWire:
-      result.wireNets.add parseWire expr
+      result.wireNets.incl parseWire expr
 
     of scMake:
       result.instances.add parseMake expr
@@ -150,7 +150,7 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfrom =
     (rotate(p, pin, r) + vec).flip(c, f)
 
 
-func areConnected(conns: Graph[PortId], p1, p2: PortId): bool = 
+func areConnected(conns: Graph[PortId], p1, p2: PortId): bool =
   p2 in conns[p1]
 
 iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
@@ -166,7 +166,7 @@ iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
       for p in g[head]:
         stack.add p
 
-func makeConnections(sch: Schematic): Graph[Port] =
+func makeConnections(sch: Schematic): Graph[PortId] =
   var seen: Hashset[Point]
 
   for ins in sch.instances:
@@ -175,14 +175,18 @@ func makeConnections(sch: Schematic): Graph[Port] =
       var acc: seq[Port]
 
       for l in walk(sch.wireNets, loc, seen):
+        # TODO exclude anonymous `name-net`s
+
         withValue ins.portsPlot, l, connectedPorts:
           for cp in connectedPorts[]:
             acc.add cp
 
       for pp in acc:
-        # TODO exclude anonymous `name-net`s
+        if (pp.parent.kind == ikNameNet) and (pp.parent.name.dropIndexes == ""):
+          discard
+
         for p in ports:
-          result.addBoth p, pp
+          result.incl p.id, pp.id
 
 func resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
@@ -198,7 +202,7 @@ func resolve*(proj: var Project) =
 
       for p in mref.icon.ports:
         let loc = t(p.location + ins.location)
-        ins.portsPlot.safeAdd loc, instantiate(p, ins)
+        ins.portsPlot.addSafe loc, instantiate(p, ins)
 
     module.schema.connections = makeConnections module.schema
 

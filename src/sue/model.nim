@@ -32,6 +32,11 @@ type
     ipFixed = "fixed" # static
     ipUser = "user"   # dynamic
 
+  InstanceKind* = enum
+    ikPort
+    ikNameNet
+    ikCustom
+
   ModuleKind* = enum
     mkRef # instance
     mkCtx
@@ -76,8 +81,7 @@ type
     labels*: seq[Label]
     properties*: seq[IconProperty]
 
-  PortId* = object
-    ident*, elem*: string
+  PortId* = distinct string
 
   Schematic* = ref object
     instances*: seq[Instance]
@@ -95,6 +99,7 @@ type
     value*: string
 
   Instance* = ref object
+    kind*: InstanceKind
     name*: string
     parent* {.cursor.}: Module
     # args*: seq[Argument]
@@ -121,3 +126,9 @@ type
 
   Project* = ref object
     modules*: ModuleLookUp
+
+
+import std/hashes
+
+func hash*(pid: PortId): Hash {.borrow.}
+func `==`*(pid1, pid2: PortId): bool {.borrow.}
