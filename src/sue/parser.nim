@@ -1,5 +1,5 @@
-import std/[tables, os, strformat, strutils, sequtils, options]
-import ../common/[errors, coordination, tuples, domain, graph]
+import std/[tables, sets, os, strformat, strutils, sequtils, options]
+import ../common/[errors, coordination, tuples, seqs, domain, graph, seqtable]
 import lexer, model, logic
 
 
@@ -150,11 +150,37 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfrom =
     (rotate(p, pin, r) + vec).flip(c, f)
 
 
-# iterator walk(g: Graph[Point]):
+iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
+  var stack: seq[Point] = @[start]
+
+  while not isempty stack:
+    let head = stack.pop
+    yield head
+
+    if head notin seen:
+      seen.incl head
+
+      for p in g[head]:
+        stack.add p
 
 func makeConnections(sch: Schematic): Graph[Port] =
   ## considering name nets
-  
+  var seen: Hashset[Point]
+
+  for ins in sch.instances:
+    for loc, ports in ins.portsPlot:
+
+      var acc: seq[Port]
+
+      for l in walk(sch.wireNets, loc, seen):
+        withValue ins.portsPlot, l, connectedPorts:
+          for cp in connectedPorts[]:
+            acc.add cp
+
+      for p in ports:
+        for pp in acc:
+          result.addBoth p, pp
+
 
 func resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
@@ -170,7 +196,7 @@ func resolve*(proj: var Project) =
 
       for p in mref.icon.ports:
         let loc = t(p.location + ins.location)
-        ins.portsPlot[loc] = instantiate(p, ins)
+        ins.portsPlot.safeAdd loc, instantiate(p, ins)
 
     module.schema.connections = makeConnections module.schema
 

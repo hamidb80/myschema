@@ -1,12 +1,7 @@
 import std/tables
+import seqtable
 
-type Graph*[N] = Table[N, seq[N]]
-
-func safeAdd*[N](lookup: var Graph[N], k, v: N) =
-  lookup.withValue k, list:
-    list[].add v
-  do:
-    lookup[k] = @[v]
+type Graph*[N] = SeqTable[N, N]
 
 func addBoth*[N](lookup: var Graph[N], v1, v2: N) =
   lookup.safeAdd v1, v2
