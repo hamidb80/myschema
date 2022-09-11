@@ -15,3 +15,17 @@ func flips*(orient: Orient): set[Flip] =
   of R90X, RX: {X}
   of R90Y, RY: {Y}
 
+
+func normalizeModuleName(originalName: string): string = 
+  case originalName:
+  of "name-net", "name-net_s", "name-net_sw", "name-suggested_name": "name-net"
+  else: originalName
+
+func absoluteName(s: string): string = 
+  ## "id[]" => "id"
+
+func id*(p: Port): PortId = 
+  # TODO consider multi ident, like: `a,b[0],c[2:0]`
+  PortId(
+    ident: absoluteName p.origin.name, 
+    elem: normalizeModuleName p.parent.name)

@@ -150,6 +150,9 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfrom =
     (rotate(p, pin, r) + vec).flip(c, f)
 
 
+func areConnected(conns: Graph[PortId], p1, p2: PortId): bool = 
+  p2 in conns[p1]
+
 iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
   var stack: seq[Point] = @[start]
 
@@ -164,7 +167,6 @@ iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
         stack.add p
 
 func makeConnections(sch: Schematic): Graph[Port] =
-  ## considering name nets
   var seen: Hashset[Point]
 
   for ins in sch.instances:
@@ -177,10 +179,10 @@ func makeConnections(sch: Schematic): Graph[Port] =
           for cp in connectedPorts[]:
             acc.add cp
 
-      for p in ports:
-        for pp in acc:
+      for pp in acc:
+        # TODO exclude anonymous `name-net`s
+        for p in ports:
           result.addBoth p, pp
-
 
 func resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules

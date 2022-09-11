@@ -76,10 +76,13 @@ type
     labels*: seq[Label]
     properties*: seq[IconProperty]
 
+  PortId* = object
+    ident*, elem*: string
+
   Schematic* = ref object
     instances*: seq[Instance]
     wireNets*: Graph[Point]
-    connections*: Graph[Port] # `name-net`s are considered transparent -
+    connections*: Graph[PortId]
     labels*: seq[Label]
     lines*: seq[Line]
 
