@@ -149,38 +149,22 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
   return func(p: Point): Point =
     (rotate(p, pin, r) + vec).flip(c, f)
 
-
-iterator walk(g: Graph[Point], start: Point, seen: var Hashset[Point]): Point =
-  var stack: seq[Point] = @[start]
-
-  while not isempty stack:
-    let head = stack.pop
-    yield head
-
-    if head notin seen:
-      seen.incl head
-
-      for p in g[head]:
-        stack.add p
-
 func extractConnection(sch: Schematic): Graph[PortId] =
   var seen: Hashset[Point]
 
-  for ins in sch.instances:
-    for loc, ports in ins.portsPlot:
+  for loc, ports in sch.portsPlot:
+    var acc: seq[Port]
 
-      var acc: seq[Port]
+    for l in walk(sch.wireNets, loc, seen):
+      withValue sch.portsPlot, l, connectedPorts:
+        for cp in connectedPorts[]:
+          acc.add cp
 
-      for l in walk(sch.wireNets, loc, seen):
-        withValue ins.portsPlot, l, connectedPorts:
-          for cp in connectedPorts[]:
-            acc.add cp
-
-      for p1 in acc:
-        for pid1 in ids p1:
-          for p2 in ports:
-            for pid2 in ids p2:
-              result.incl pid1, pid2
+    for p1 in acc:
+      for pid1 in ids p1:
+        for p2 in ports:
+          for pid2 in ids p2:
+            result.incl pid1, pid2
 
 proc resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
@@ -199,7 +183,7 @@ proc resolve*(proj: var Project) =
 
       for p in mref.icon.ports:
         let loc = t(p.location + ins.location)
-        ins.portsPlot.addSafe loc, instantiate(p, ins)
+        module.schema.portsPlot.addSafe loc, instantiate(p, ins)
 
     module.schema.connections = extractConnection module.schema
 

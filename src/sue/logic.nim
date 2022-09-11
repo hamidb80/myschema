@@ -1,4 +1,4 @@
-import std/[sequtils, strutils]
+import std/[sequtils, strutils, sets]
 import ../common/[coordination, graph]
 import model
 
@@ -53,6 +53,9 @@ func ids*(port: Port): seq[PortId] =
     @[PortId n1/n2]
 
 
-func fixConnectionErrors*(sch: var Schematic) =
+func fixErrors*(sch: var Schematic) =
   ## fixes connection errors via adding `buffer0` element
-  discard
+  var seen: HashSet[PortId]
+
+  # for ins in sch.instances:
+  #   for pid in

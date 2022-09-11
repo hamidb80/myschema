@@ -1,5 +1,5 @@
 import std/[tables, options]
-import ../common/[coordination, domain, graph]
+import ../common/[coordination, domain, graph, seqTable]
 
 type
   FontSize* = enum
@@ -90,6 +90,10 @@ type
     labels*: seq[Label]
     lines*: seq[Line]
 
+    # --- meta data
+    portsTable*: Table[PortId, seq[Port]]
+    portsPlot*: Table[Point, seq[Port]]
+
   Parameter* = ref object
     name*: string
     defaultValue*: Option[string]
@@ -105,9 +109,6 @@ type
     # args*: seq[Argument]
     location*: Point
     orient*: Orient
-
-    # --- meta data
-    portsPlot*: Table[Point, seq[Port]] # `seq` because multiply ports can be at the same place!
 
   Module* = ref object
     name*: string
