@@ -83,17 +83,5 @@ func location*(p: Port): Point =
 
 func fixErrors*(schema: var Schematic) =
   ## fixes connection errors via adding `buffer0` element
-  var seen: HashSet[PortId]
-
-  for pid1 in keys schema.connections:
-
-    if pid1 notin seen:
-
-      var 
-        hasInput = false
-        hasOutput = false
-
-      for pid2 in walk(schema.connections, pid1):
-
-
-        seen.incl pid2
+  for ports in parts schema.connections:
+    discard
