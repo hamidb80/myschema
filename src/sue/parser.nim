@@ -68,7 +68,7 @@ func parseMake*(expr: SueExpression): Instance =
     l = getOrigin expr
     o = getOrient expr
 
-  Instance(name: n, parent: moduleRef p, location: l, orient: o)
+  Instance(name: n, module: moduleRef p, location: l, orient: o)
 
 func parseWire*(expr: SueExpression): Wire =
   let v = expr.args.mapIt it.intval
@@ -119,7 +119,7 @@ func parseIcon(se: seq[SueExpression]): Icon =
         kind: pkIconTerm,
         name: expr[sfName].strval,
         dir: parsePortType expr[sfType].strval,
-        location: parseOrigin expr[sfOrigin].strval)
+        position: parseOrigin expr[sfOrigin].strval)
 
     else:
       err fmt"invalid command in icon: {expr.command}"
@@ -135,29 +135,19 @@ func parseSue(sfile: SueFile): Module =
 func instantiate(o: Port, p: Instance): Port =
   Port(kind: pkInstance, parent: p, origin: o)
 
-type Transfromer = proc(p: Point): Point {.noSideEffect.}
+func extractConnection(
+  sch: Schematic,
+  portsPlot: Table[Point, seq[Port]]
+  ): Graph[PortId] =
 
-func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
-  let
-    r = o.rotation
-    f = o.flips
-    rotatedGeo = rotate(geo, pin, r)
-    vec = pin - topleft geo
-    finalGeo = rotatedGeo.placeAt pin
-    c = center finalGeo
-
-  return func(p: Point): Point =
-    (rotate(p, pin, r) + vec).flip(c, f)
-
-func extractConnection(sch: Schematic): Graph[PortId] =
   var seen: Hashset[Point]
 
-  for loc, ports in sch.portsPlot:
+  for loc, ports in portsPlot:
     var acc: seq[Port]
 
     for l in walk(sch.wireNets, loc, seen):
-      withValue sch.portsPlot, l, connectedPorts:
-        for cp in connectedPorts[]:
+      if l in portsPlot:
+        for cp in portsPlot[l]:
           acc.add cp
 
     for p1 in acc:
@@ -169,23 +159,27 @@ func extractConnection(sch: Schematic): Graph[PortId] =
 proc resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
   for _, module in mpairs proj.modules:
+    var portsPlot: Table[Point, seq[Port]]
+
     for ins in mitems module.schema.instances:
-      let mref = proj.modules[ins.parent.name]
-      ins.parent = mref
+      let mref = proj.modules[ins.module.name]
+      ins.module = mref
 
       if ins.name[0] == '[': # an array, like [2:0]
         ins.name = randomIdent(10) & ins.name
 
-      let t = genTransformer(
-        mref.icon.size.toGeometry,
-        ins.location,
-        ins.orient)
-
       for p in mref.icon.ports:
-        let loc = t(p.location + ins.location)
-        module.schema.portsPlot.addSafe loc, instantiate(p, ins)
+        let
+          insPort = instantiate(p, ins)
+          loc = insPort.location
 
-    module.schema.connections = extractConnection module.schema
+        portsPlot.add loc, insPort
+
+        for pid in p.ids:
+          module.schema.portsTable.add pid, insPort
+
+    module.schema.connections =
+      extractConnection(module.schema, portsPlot)
 
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())

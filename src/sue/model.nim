@@ -62,7 +62,7 @@ type
     of pkIconTerm:
       dir*: PortDir
       name*: string
-      location*: Point
+      position*: Point
 
     of pkInstance:
       parent* {.cursor.}: Instance
@@ -92,7 +92,6 @@ type
 
     # --- meta data
     portsTable*: Table[PortId, seq[Port]]
-    portsPlot*: Table[Point, seq[Port]]
 
   Parameter* = ref object
     name*: string
@@ -105,7 +104,7 @@ type
   Instance* = ref object
     kind*: InstanceKind
     name*: string
-    parent* {.cursor.}: Module
+    module* {.cursor.}: Module
     # args*: seq[Argument]
     location*: Point
     orient*: Orient

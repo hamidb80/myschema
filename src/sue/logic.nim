@@ -1,4 +1,4 @@
-import std/[sequtils, strutils, sets]
+import std/[sequtils, strutils, sets, tables]
 import ../common/[coordination, graph]
 import model
 
@@ -53,9 +53,37 @@ func ids*(port: Port): seq[PortId] =
     @[PortId n1/n2]
 
 
-func fixErrors*(sch: var Schematic) =
+type Transfromer = proc(p: Point): Point {.noSideEffect.}
+
+func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
+  let
+    r = o.rotation
+    f = o.flips
+    rotatedGeo = rotate(geo, pin, r)
+    vec = pin - topleft geo
+    finalGeo = rotatedGeo.placeAt pin
+    c = center finalGeo
+
+  return func(p: Point): Point =
+    (rotate(p, pin, r) + vec).flip(c, f)
+
+func location*(p: Port): Point =
+  case p.kind:
+  of pkIconTerm: p.position
+  of pkInstance:
+    let
+      ins = p.parent
+      t = genTransformer(
+        ins.module.icon.size.toGeometry,
+        ins.location,
+        ins.orient)
+
+    t(p.origin.location + ins.location)
+
+
+func fixErrors*(schema: var Schematic) =
   ## fixes connection errors via adding `buffer0` element
   var seen: HashSet[PortId]
 
-  # for ins in sch.instances:
-  #   for pid in
+  for loc, ports in schema.connections:
+    discard
