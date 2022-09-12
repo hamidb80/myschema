@@ -29,3 +29,7 @@ macro pickTuple*(list: untyped, indexes: static[openArray[int]]): untyped =
     block:
       let `tempId` = `list`
       `tupleDef`
+
+
+template toSlice*(a): untyped =
+  a[0] .. a[1]

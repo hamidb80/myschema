@@ -1,3 +1,6 @@
+## this modules implmemntes a data structure like Table, 
+## but optimized for few numbers of elements
+
 type
   MiniTable*[K, V] = seq[tuple[key: K, value: V]]
 

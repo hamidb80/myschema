@@ -1,4 +1,5 @@
-
+## this modules contains utility functionalities to work woth
+## `seq`s
 
 func remove*[T](s: var seq[T], v: T) =
   let i = s.find(v)

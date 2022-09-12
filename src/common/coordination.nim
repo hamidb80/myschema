@@ -1,3 +1,5 @@
+## this module contains basics 2D-coordination types and functionalities
+
 import minmax
 
 type
