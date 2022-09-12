@@ -1,5 +1,5 @@
 import std/[sequtils, strutils, sets, tables]
-import ../common/[coordination, graph]
+import ../common/[coordination, graph, errors, seqtable]
 import model
 
 
@@ -33,16 +33,16 @@ func dropIndexes(s: string): string =
   if i == -1: s
   else: s[0..<i]
 
-iterator sepIds*(s: string): PortId =
+iterator sepIds*(s: string): PortID =
   for w in s.split(','):
     let id = dropIndexes w
     if id.len != 0:
-      yield PortId id
+      yield PortID id
 
 func `/`(s1, s2: string): string {.inline.} =
   s1 & '/' & s2
 
-func ids*(port: Port): seq[PortId] =
+func ids*(port: Port): seq[PortID] =
   case port.parent.kind:
   of ikPort, ikNameNet: toseq sepids(port.parent.name)
   of ikCustom:
@@ -50,7 +50,7 @@ func ids*(port: Port): seq[PortId] =
       n1 = dropIndexes port.parent.name
       n2 = dropIndexes port.origin.name
 
-    @[PortId n1/n2]
+    @[PortID n1/n2]
 
 
 type Transfromer = proc(p: Point): Point {.noSideEffect.}
@@ -81,7 +81,46 @@ func location*(p: Port): Point =
     t(p.origin.location + ins.location)
 
 
+type
+  SourceKind = enum
+    skSchema
+    skElement
+
+  Source = object
+    case kind*: SourceKind
+    of skSchema: discard
+    of skElement:
+      name: string
+
+func source(p: Port): Source =
+  case p.parent.kind:
+  of ikPort: Source(kind: skSchema)
+  of ikCustom: Source(kind: skElement, name: p.parent.name)
+  of ikNameNet: err "cannot find source of a name-net"
+
+func groupBySource(portGroups: seq[seq[Port]]): Table[Source, seq[Port]] =
+  for ports in portGroups:
+    for p in ports:
+      if p.origin.dir in {pdInput, pdOutput}:
+        result.add p.source, p
+
+func problematic(ports: seq[Port]): seq[Port] = 
+  ## returns input ports if there were both input ports and output ports
+  var groups: array[PortDir, seq[Port]]
+
+  for p in ports:
+    groups[p.origin.dir].add p
+
+  if groups[pdInput].len != 0 and groups[pdOutput].len != 0:
+    groups[pdInput]
+  else:
+    @[]
+
 func fixErrors*(schema: var Schematic) =
   ## fixes connection errors via adding `buffer0` element
-  for ports in parts schema.connections:
-    discard
+  for pids in parts schema.connections:
+    let portGroups = pids.mapit(schema.portsTable[it])
+    for src, ports in groupBySource portGroups:
+      for p in problematic ports:
+        ## add buffer0 element
+      

@@ -81,17 +81,17 @@ type
     labels*: seq[Label]
     properties*: seq[IconProperty]
 
-  PortId* = distinct string
+  PortID* = distinct string
 
   Schematic* = ref object
     instances*: seq[Instance]
     wireNets*: Graph[Point]
-    connections*: Graph[PortId]
+    connections*: Graph[PortID]
     labels*: seq[Label]
     lines*: seq[Line]
 
     # --- meta data
-    portsTable*: Table[PortId, seq[Port]]
+    portsTable*: Table[PortID, seq[Port]]
 
   Parameter* = ref object
     name*: string
@@ -130,5 +130,5 @@ type
 
 import std/hashes
 
-func hash*(pid: PortId): Hash {.borrow.}
-func `==`*(pid1, pid2: PortId): bool {.borrow.}
+func hash*(pid: PortID): Hash {.borrow.}
+func `==`*(pid1, pid2: PortID): bool {.borrow.}
