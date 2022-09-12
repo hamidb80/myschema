@@ -69,12 +69,12 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
 
 func location*(p: Port): Point =
   case p.kind:
-  of pkIconTerm: p.position
+  of pkIconTerm: p.relativeLocation
   of pkInstance:
     let
       ins = p.parent
       t = genTransformer(
-        ins.module.icon.size.toGeometry,
+        toGeometry ins.module.icon.size,
         ins.location,
         ins.orient)
 
@@ -85,5 +85,15 @@ func fixErrors*(schema: var Schematic) =
   ## fixes connection errors via adding `buffer0` element
   var seen: HashSet[PortId]
 
-  for loc, ports in schema.connections:
-    discard
+  for pid1 in keys schema.connections:
+
+    if pid1 notin seen:
+
+      var 
+        hasInput = false
+        hasOutput = false
+
+      for pid2 in walk(schema.connections, pid1):
+
+
+        seen.incl pid2

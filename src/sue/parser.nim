@@ -119,7 +119,7 @@ func parseIcon(se: seq[SueExpression]): Icon =
         kind: pkIconTerm,
         name: expr[sfName].strval,
         dir: parsePortType expr[sfType].strval,
-        position: parseOrigin expr[sfOrigin].strval)
+        relativeLocation: parseOrigin expr[sfOrigin].strval)
 
     else:
       err fmt"invalid command in icon: {expr.command}"

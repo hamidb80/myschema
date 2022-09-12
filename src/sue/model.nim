@@ -62,7 +62,7 @@ type
     of pkIconTerm:
       dir*: PortDir
       name*: string
-      position*: Point
+      relativeLocation*: Point
 
     of pkInstance:
       parent* {.cursor.}: Instance
