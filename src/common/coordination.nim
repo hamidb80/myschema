@@ -153,16 +153,16 @@ func toGeometry*(s: Size): Geometry =
 #     max(g1.x2, g2.x2), max(g1.y2, g2.y2),
 #   )
 
-func toSize*(g: Geometry): Size =
+func size*(g: Geometry): Size =
   (g.x2 - g.x1, g.y2 - g.y1)
 
 func toRect*(g: Geometry): Rect =
-  let size = toSize g
-  (g.x1, g.y1, size.w, size.h)
+  let s = size g
+  (g.x1, g.y1, s.w, s.h)
 
 func placeAt*(g: Geometry, at: Point): Geometry =
-  let size = toSize g
-  (at.x, at.y, at.x + size.w, at.y + size.h)
+  let s = size g
+  (at.x, at.y, at.x + s.w, at.y + s.h)
 
 const P0* = (0, 0)
 

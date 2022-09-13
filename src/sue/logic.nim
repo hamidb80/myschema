@@ -1,6 +1,6 @@
-import std/[sequtils, sets, tables]
-import ../common/[coordination, graph, errors, seqtable, domain]
-import model, helpers
+import std/[sequtils, sets, tables, os]
+import ../common/[coordination, graph, errors, seqtable, domain, rand]
+import model, helpers, parser, lexer
 
 
 type
@@ -13,6 +13,14 @@ type
     of skSchema: discard
     of skElement:
       name: string
+
+
+var basicModules: ModuleLookUp
+
+for path in walkFiles "./elements/*.sue":
+  let (_, name, _) = splitFile path
+  basicModules[name] = parseSue lexSue readfile path
+
 
 
 func source(p: Port): Source =
@@ -47,24 +55,7 @@ func problematic(ports: seq[Port]): seq[Port] =
   else:
     @[]
 
-
-# func placeElementAt(anchor: Point, orient: Orient) =
-#   result.instances.add Instance(
-#     name: "hepler_" & randomHdlIdent(),
-#     orient: o,
-#     parent: lookup["buffer0"],
-#     location: buffIn)
-
-func toOrient(vd: VectorDirection): Orient =
-  case vd:
-  of vdEast: R0
-  of vdWest: RXY
-  of vdNorth: R270
-  of vdSouth: R90
-  of vdDiagonal: err "orient for diogal vectors is not defined"
-
-
-func addBuffer(p: Port, schema: var Schematic) =
+proc addBuffer(p: Port, schema: var Schematic) =
   ## 1. find location
   ## 2. find connected wires
   ## 3. detect direction of the port
@@ -75,20 +66,25 @@ func addBuffer(p: Port, schema: var Schematic) =
     loc = p.location
     connectedWiresNodes = toseq schema.wireNets[loc]
     nextNodeLoc = connectedWiresNodes[0]
-    dir = detectDir loc .. nextNodeLoc
+    dir = dirOf loc .. nextNodeLoc
     vdir = toVector dir
     orient = toOrient dir
-    bufferDir =
-      case p.origin.dir:
-      of pdInput: cdInwrad
-      of pdOutput: cdOutward
-      of pdInout: err "'inout' port does not need a buffer"
+    module = basicModules["buffer0"]
+    buffIn = loc
+    buffOut = loc + -vdir*(module.icon.geometry.size.w)
 
-    # elem =
-    # buffIn = loc - vdir * 20
-    # newPos = loc - vdir * 200
+    buffer = Instance(
+      kind: ikCustom,
+      name: "fix_" & randomIdent(),
+      module: module,
+      location: buffIn,
+      orient: orient)
 
-func fixErrors*(schema: var Schematic) =
+  schema.wireNets.excl loc, nextNodeLoc
+  schema.wireNets.incl buffOut, nextNodeLoc
+  schema.instances.add buffer
+
+proc fixErrors*(schema: var Schematic) =
   ## fixes connection errors via adding `buffer0` element
   for pids in parts schema.connections:
     let portGroups = pids.mapit(schema.portsTable[it])

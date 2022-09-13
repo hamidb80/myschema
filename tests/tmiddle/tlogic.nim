@@ -9,13 +9,13 @@ suite "lex":
 
 suite "wire direction":
   test "south":
-    check detectDir((0, 7) .. (0, 3)) == wdSouth
+    check dirOf((0, 7) .. (0, 3)) == wdSouth
 
   test "north":
-    check detectDir((0, 3) .. (0, 7)) == wdNorth
+    check dirOf((0, 3) .. (0, 7)) == wdNorth
 
   test "west":
-    check detectDir((7, 0) .. (3, 0)) == wdWest
+    check dirOf((7, 0) .. (3, 0)) == wdWest
 
   test "east":
-    check detectDir((3, 0) .. (7, 0)) == wdEast
+    check dirOf((3, 0) .. (7, 0)) == wdEast

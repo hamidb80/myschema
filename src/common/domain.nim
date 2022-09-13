@@ -11,7 +11,7 @@ type
     content*: string
 
 
-func detectDir*(w: Wire): VectorDirection =
+func dirOf*(w: Wire): VectorDirection =
   if w.a.x == w.b.x: # horizobtal
     if w.a.y > w.b.y: vdSouth
     else: vdNorth

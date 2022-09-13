@@ -133,7 +133,7 @@ func parseIcon(se: seq[SueExpression]): Icon =
     else:
       err fmt"invalid command in icon: {expr.command}"
 
-func parseSue(sfile: SueFile): Module =
+func parseSue*(sfile: SueFile): Module =
   Module(
     name: sfile.name,
     kind: mkCtx,

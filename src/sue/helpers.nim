@@ -1,5 +1,5 @@
 import std/[sequtils, strutils]
-import ../common/[coordination]
+import ../common/[coordination, errors]
 import model
 
 func rotation*(orient: Orient): Rotation =
@@ -66,6 +66,14 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
   return func(p: Point): Point =
     (rotate(p, pin, r) + vec).flip(c, f)
 
+
+func toOrient*(vd: VectorDirection): Orient =
+  case vd:
+  of vdEast: R0
+  of vdWest: RXY
+  of vdNorth: R270
+  of vdSouth: R90
+  of vdDiagonal: err "orient for diogal vectors is not defined"
 
 func location*(p: Port): Point
 func geometry*(icon: Icon): Geometry =
