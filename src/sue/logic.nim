@@ -55,7 +55,7 @@ func problematic(ports: seq[Port]): seq[Port] =
   else:
     @[]
 
-proc addBuffer(p: Port, schema: var Schematic) =
+proc addBuffer(p: Port, schema: var Schematic, module: Module) =
   ## 1. find location
   ## 2. find connected wires
   ## 3. detect direction of the port
@@ -69,7 +69,6 @@ proc addBuffer(p: Port, schema: var Schematic) =
     dir = dirOf loc .. nextNodeLoc
     vdir = toVector dir
     orient = toOrient dir
-    module = basicModules["buffer0"]
     buffIn = loc
     buffOut = loc + -vdir*(module.icon.geometry.size.w)
 
@@ -84,10 +83,14 @@ proc addBuffer(p: Port, schema: var Schematic) =
   schema.wireNets.incl buffOut, nextNodeLoc
   schema.instances.add buffer
 
-proc fixErrors*(schema: var Schematic) =
+proc fixErrors(schema: var Schematic, modules: ModuleLookup) =
   ## fixes connection errors via adding `buffer0` element
   for pids in parts schema.connections:
     let portGroups = pids.mapit(schema.portsTable[it])
     for src, ports in groupBySource portGroups:
       for p in problematic ports:
-        addBuffer p, schema
+        addBuffer p, schema, modules["buffer0"]
+
+proc fixErrors*(project: var Project) =
+  for _, m in mpairs project.modules:
+    fixErrors m.schema, project.modules

@@ -3,26 +3,6 @@ import std/[options, tables, strutils, strformat]
 import model
 import ../common/[coordination, errors, domain, minitable]
 
-
-type
-  Transformer* = proc(p: Point): Point
-
-  IndetifierKind* = enum
-    ikSingle, ikIndex, ikRange
-
-  Identifier* = object
-    name*: string
-
-    case kind*: IndetifierKind
-    of ikSingle: discard
-    of ikIndex:
-      index*: string
-
-    of ikRange:
-      direction*: NumberDirection
-      indexes*: Slice[string]
-
-
 # basics ---
 
 func toRotation*(s: Side): Rotation =

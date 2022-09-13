@@ -52,8 +52,6 @@ func ids*(port: Port): seq[PortID] =
     @[PortID n1/n2]
 
 
-type Transfromer = proc(p: Point): Point {.noSideEffect.}
-
 func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
   let
     r = o.rotation

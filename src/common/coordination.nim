@@ -36,6 +36,8 @@ type
   Size* = tuple
     w, h: int
 
+  Transfromer* = proc(p: Point): Point {.noSideEffect.}
+
   # Transform* = object
   #   rotation*: Rotation
   #   flips*: set[Flip]

@@ -476,6 +476,21 @@ type
     packages*: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
 
+  IndetifierKind* = enum
+    ikSingle, ikIndex, ikRange
+
+  Identifier* = object
+    name*: string
+
+    case kind*: IndetifierKind
+    of ikSingle: discard
+    of ikIndex:
+      index*: string
+
+    of ikRange:
+      direction*: NumberDirection
+      indexes*: Slice[string]
+
   Thing* = Component or Entity or Process or GenerateBlock
 
 # semantics ---------------------------------
