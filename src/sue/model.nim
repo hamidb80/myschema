@@ -1,5 +1,5 @@
 import std/[tables, options]
-import ../common/[coordination, domain, graph, seqTable]
+import ../common/[coordination, domain, graph]
 
 type
   FontSize* = enum

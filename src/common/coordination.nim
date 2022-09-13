@@ -142,6 +142,13 @@ func toGeometry*(p: Point): Geometry =
 func toGeometry*(s: Size): Geometry =
   toGeometry toPoint s
 
+# func `or`*(g1, g2: Geometry): Geometry =
+#   ## returns a geometry that  includes both `g1` and `g2`
+#   (
+#     min(g1.x1, g2.x1), min(g1.y1, g2.y1),
+#     max(g1.x2, g2.x2), max(g1.y2, g2.y2),
+#   )
+
 func toSize*(g: Geometry): Size =
   (g.x2 - g.x1, g.y2 - g.y1)
 
@@ -180,3 +187,4 @@ func whichEdge*(p: Point, geo: Geometry): VectorDirection =
 
 func translationAfter*(geo: Geometry, r: Rotation): Vector =
   topleft(geo.rotate(P0, r)) - (topleft geo)
+

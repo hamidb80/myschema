@@ -1,7 +1,7 @@
 import std/[tables, sequtils, strutils, options, sugar, macros]
-
 import ../common/[coordination, collections, minitable, domain]
+import ../ease/model as em
+import ../sue/model as sm
 
-import model, logic
-# import ../middle/expr
-
+func toSue*(proj: em.Project): sm.Project = 
+  discard  

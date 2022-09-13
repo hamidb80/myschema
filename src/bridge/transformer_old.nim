@@ -55,39 +55,7 @@ proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
           name: dump(br.select, true),
           parent: lookup["name_net"],
           location: br.connection)]
-
-    block directInputs:
-      # detect busRppers that contain both input and output shcematic input
-      for (p, n) in findDriectInputs br:
-        if p notin seenPorts:
-          seenPorts.add p
-
-          let
-            portPos = p.position
-            nextNode = n.connections[portPos][0]
-            dir = detectDir(portPos .. nextNode)
-            vdir = toUnitPoint dir
-            buffIn = portPos - vdir * 20
-            newPos = portPos - vdir * 200
-            o =
-              case dir:
-              of vdEast: R0
-              of vdWest: RXY
-              of vdNorth: R270
-              of vdSouth: R90
-
-          result.wires.add newPos .. buffIn
-
-          p.position = newPos
-
-          result.instances.add Instance(
-            name: "hepler_" & randomHdlIdent(),
-            orient: o,
-            parent: lookup["buffer0"],
-            location: buffIn)
-
-          # assert false, $(p.position, buffIn, buffOut)
-
+      
 func inoutModule(n: string): Module =
   Module(
     name: n,

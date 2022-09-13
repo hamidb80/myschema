@@ -1,6 +1,6 @@
 import std/[tables, sets, os, strformat, strutils, sequtils, options]
 import ../common/[errors, coordination, collections, domain, graph, seqtable, rand]
-import lexer, model, logic
+import lexer, model, helpers
 
 
 func parsePortType*(s: string): PortDir =
@@ -107,12 +107,21 @@ func parseSchematic(se: seq[SueExpression]): Schematic =
     else:
       err fmt"invalid command in schematic: {expr.command}"
 
+func foldPoints(xyValues: seq[int]): seq[Point] = 
+  for i in countup(0, xyValues.high, 2):
+    result.add (i, i+1)
+
 func parseIcon(se: seq[SueExpression]): Icon =
   result = new Icon
 
   for expr in se:
     case expr.command:
-    of scIconSetup, scIconProperty, scIconLine, scIconArc: discard
+    of scIconSetup, scIconProperty, scIconArc: discard
+
+    of scIconLine:
+      result.lines.add Line(
+        kind: straight, 
+        points: foldPoints mapIt(expr.args, it.intval))
 
     of scIconTerm:
       result.ports.add Port(
