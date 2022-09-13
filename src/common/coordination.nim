@@ -1,12 +1,11 @@
 ## this module contains basics 2D-coordination types and functionalities
 
-import minmax
+import minmax, errors
 
 type
-  Point* = tuple
-    x, y: int
-
-  Vector* = Point
+  CircularDirection* = enum
+    cdInwrad
+    cdOutward
 
   Rotation* = enum
     r0 = 0
@@ -17,8 +16,16 @@ type
   Flip* = enum
     X, Y
 
-  Size* = tuple
-    w, h: int
+  VectorDirection* = enum
+    vdNorth
+    vdEast
+    vdSouth
+    vdWest
+    vdDiognal
+
+  Vector* = Point
+  Point* = tuple
+    x, y: int
 
   Geometry* = tuple
     x1, y1, x2, y2: int
@@ -26,15 +33,12 @@ type
   Rect* = tuple
     x, y, w, h: int
 
-  VectorDirection* = enum
-    vdNorth
-    vdEast
-    vdSouth
-    vdWest
+  Size* = tuple
+    w, h: int
 
-  Transform* = object
-    rotation*: Rotation
-    flips*: set[Flip]
+  # Transform* = object
+  #   rotation*: Rotation
+  #   flips*: set[Flip]
 
 
 func `+`*(p1, p2: Point): Point =
@@ -169,22 +173,24 @@ func `-`*(vd: VectorDirection): VectorDirection =
   of vdWest: vdEast
   of vdNorth: vdSouth
   of vdSouth: vdNorth
+  of vdDiognal: err "cannot negate a digonal vector direction"
 
-func toUnitPoint*(vd: VectorDirection): Point =
+func toVector*(vd: VectorDirection): Vector =
+  ## converts vector direction `vd` to unit Vecotr
   case vd:
   of vdEast: (+1, 0)
   of vdWest: (-1, 0)
   of vdNorth: (0, +1)
   of vdSouth: (0, -1)
+  of vdDiognal: err "cannot represent a digonal line as unit vector"
 
 func whichEdge*(p: Point, geo: Geometry): VectorDirection =
   if p.x == geo.x1: vdWest
   elif p.x == geo.x2: vdEast
   elif p.y == geo.y1: vdNorth
   elif p.y == geo.y2: vdSouth
-  else: raise newException(ValueError, "offside")
+  else: vdDiognal
 
 
 func translationAfter*(geo: Geometry, r: Rotation): Vector =
   topleft(geo.rotate(P0, r)) - (topleft geo)
-

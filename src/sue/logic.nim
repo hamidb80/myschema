@@ -55,6 +55,15 @@ func problematic(ports: seq[Port]): seq[Port] =
 #     parent: lookup["buffer0"],
 #     location: buffIn)
 
+func toOrient(vd: VectorDirection): Orient =
+  case vd:
+  of vdEast: R0
+  of vdWest: RXY
+  of vdNorth: R270
+  of vdSouth: R90
+  of vdDiognal: err "orient for diogal vectors is not defined"
+
+
 func addBuffer(p: Port, schema: var Schematic) =
   ## 1. find location
   ## 2. find connected wires
@@ -67,23 +76,17 @@ func addBuffer(p: Port, schema: var Schematic) =
     connectedWiresNodes = toseq schema.wireNets[loc]
     nextNodeLoc = connectedWiresNodes[0]
     dir = detectDir loc .. nextNodeLoc
-    vdir = toUnitPoint dir
-    o =
-      case dir:
-      of vdEast: R0
-      of vdWest: RXY
-      of vdNorth: R270
-      of vdSouth: R90
-
+    vdir = toVector dir
+    orient = toOrient dir
     bufferDir =
       case p.origin.dir:
-      of pdInput: cdIn
-      of pdOutput: cdOut
-      else: err "doesn't need buffer"
+      of pdInput: cdInwrad
+      of pdOutput: cdOutward
+      of pdInout: err "'inout' port does not need a buffer"
 
     # elem =
-    buffIn = loc - vdir * 20
-    newPos = loc - vdir * 200
+    # buffIn = loc - vdir * 20
+    # newPos = loc - vdir * 200
 
 func fixErrors*(schema: var Schematic) =
   ## fixes connection errors via adding `buffer0` element

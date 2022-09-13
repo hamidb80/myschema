@@ -10,10 +10,6 @@ type
     name*: string
     content*: string
 
-  CircularDirection* = enum
-    cdIn
-    cdOut
-
 
 func detectDir*(w: Wire): VectorDirection =
   if w.a.x == w.b.x: # horizobtal

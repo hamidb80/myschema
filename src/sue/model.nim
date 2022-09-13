@@ -77,7 +77,6 @@ type
   Icon* = ref object
     ports*: seq[Port]
     lines*: seq[Line]
-    size*: Size
     labels*: seq[Label]
     properties*: seq[IconProperty]
 

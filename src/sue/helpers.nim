@@ -66,19 +66,8 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
   return func(p: Point): Point =
     (rotate(p, pin, r) + vec).flip(c, f)
 
-func location*(p: Port): Point =
-  case p.kind:
-  of pkIconTerm: p.relativeLocation
-  of pkInstance:
-    let
-      ins = p.parent
-      t = genTransformer(
-        toGeometry ins.module.icon.size,
-        ins.location,
-        ins.orient)
 
-    t(p.origin.location + ins.location)
-
+func location*(p: Port): Point
 func geometry*(icon: Icon): Geometry =
   var acc: seq[Point]
 
@@ -91,3 +80,16 @@ func geometry*(icon: Icon): Geometry =
         acc.add p
 
   area acc
+
+func location*(p: Port): Point =
+  case p.kind:
+  of pkIconTerm: p.relativeLocation
+  of pkInstance:
+    let
+      ins = p.parent
+      t = genTransformer(
+        ins.module.icon.geometry,
+        ins.location,
+        ins.orient)
+
+    t(p.origin.location + ins.location)
