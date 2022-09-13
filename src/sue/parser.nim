@@ -1,5 +1,5 @@
 import std/[tables, sets, os, strformat, strutils, sequtils, options]
-import ../common/[errors, coordination, tuples, seqs, domain, graph, seqtable, rand]
+import ../common/[errors, coordination, collections, domain, graph, seqtable, rand]
 import lexer, model, logic
 
 

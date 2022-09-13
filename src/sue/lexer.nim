@@ -1,5 +1,5 @@
 import std/[strutils, strformat, sequtils, options]
-import ../common/[errors, tuples]
+import ../common/[errors, collections]
 
 
 type

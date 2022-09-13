@@ -1,7 +1,7 @@
 ## implments a non-directional graph
 
 import std/[tables, sets, sequtils]
-import seqs
+import collections
 
 type Graph*[N] = Table[N, HashSet[N]]
 

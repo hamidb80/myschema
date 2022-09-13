@@ -1,6 +1,6 @@
 import std/[tables, strformat, strutils, os, sequtils, options]
 import lisp, model
-import ../common/[coordination, tuples, errors, domain, minitable]
+import ../common/[coordination, collections, errors, domain, minitable]
 
 # {.experimental: "strictFuncs".}
 

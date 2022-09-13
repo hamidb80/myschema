@@ -121,6 +121,8 @@ func addBuffer(p: Port, schema: var Schematic) =
   ## 2. find connected wires
   ## 3. detect direction of the port
   ## 4. place buffer before the port and remove intersected wires
+  
+  
 
 func fixErrors*(schema: var Schematic) =
   ## fixes connection errors via adding `buffer0` element
