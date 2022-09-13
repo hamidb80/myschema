@@ -1,17 +1,29 @@
 import std/[strutils, strformat]
-import model
-import ../common/errors
+import errors
 
 const
   EOS = '\0' # end of string
   Operators = {'+', '-', '*', '&', '!', '?', '|', '/', ':', ',', '=', '<', '>'}
 
-type LexerState = enum
-  lsInitial
-  lsString, lsNumber
-  lsOperator, lsSymbol
+type 
+  LexerState = enum
+    lsInitial
+    lsString, lsNumber
+    lsOperator, lsSymbol
 
-func toMTokenKind(ch: char): MTokenKind =
+  TokenGroup* = seq[Token]
+
+  TokenKind* = enum
+    mtkOpenPar, mtkClosePar
+    mtkOpenBracket, mtkCloseBracket
+    mtkNumberLiteral, mtkStringLiteral
+    mtkSymbol, mtkOperator
+
+  Token* = object
+    kind*: TokenKind
+    content*: string
+
+func toTokenKind(ch: char): TokenKind =
   case ch:
   of '(': mtkOpenPar
   of ')': mtkClosePar
@@ -20,7 +32,7 @@ func toMTokenKind(ch: char): MTokenKind =
   else: err "invalid char"
 
 
-func `$`*(tkn: MToken): string =
+func `$`*(tkn: Token): string =
   case tkn.kind:
   of mtkOpenPar: "("
   of mtkClosePar: ")"
@@ -29,20 +41,10 @@ func `$`*(tkn: MToken): string =
   of mtkOperator, mtkNumberLiteral, mtkSymbol: tkn.content
   of mtkStringLiteral: '"' & tkn.content & '"'
 
-func `$`*(mtg: MTokenGroup): string =
+func `$`*(mtg: TokenGroup): string =
   join mtg
 
-func dump*(id: MIdentifier, ignoreName = false): string =
-  let customizedName =
-    if ignoreName: ""
-    else: id.name
-
-  case id.kind:
-  of mikSingle: id.name
-  of mikIndex: fmt"{customizedName}[{id.index}]"
-  of mikRange: fmt"{customizedName}[{id.indexes.a}:{id.indexes.b}]"
-
-func lexCode*(s: string): MTokenGroup =
+func lexCode*(s: string): TokenGroup =
   var
     capture = -1
     i = 0
@@ -75,14 +77,14 @@ func lexCode*(s: string): MTokenGroup =
         state = lsOperator
 
       of '(', ')', '[', ']':
-        result.add MToken(kind: toMTokenKind ch)
+        result.add Token(kind: toTokenKind ch)
 
       else:
         err fmt"invalid char: {ch}, {s}"
 
     of lsString:
       if ch in {'"', '\''} and not isEscaped:
-        result.add MToken(kind: mtkStringLiteral, content: s[capture ..< i])
+        result.add Token(kind: mtkStringLiteral, content: s[capture ..< i])
         reset state
 
       else:
@@ -96,7 +98,7 @@ func lexCode*(s: string): MTokenGroup =
       case ch:
       of Digits, '\'', '#', 'z', 'h', 'b', 'x', 'd', '.': discard
       else:
-        result.add MToken(kind: mtkNumberLiteral, content: s[capture ..< i])
+        result.add Token(kind: mtkNumberLiteral, content: s[capture ..< i])
         reset state
         dec i
 
@@ -104,7 +106,7 @@ func lexCode*(s: string): MTokenGroup =
       case ch:
       of Operators: discard
       else:
-        result.add MToken(kind: mtkOperator, content: s[capture ..< i])
+        result.add Token(kind: mtkOperator, content: s[capture ..< i])
         reset state
         dec i
 
@@ -112,7 +114,7 @@ func lexCode*(s: string): MTokenGroup =
       case ch:
       of IdentChars: discard
       else:
-        result.add MToken(kind: mtkSymbol, content: s[capture ..< i])
+        result.add Token(kind: mtkSymbol, content: s[capture ..< i])
         reset state
         dec i
 

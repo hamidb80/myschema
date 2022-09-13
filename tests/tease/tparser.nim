@@ -74,7 +74,6 @@ suite "basic":
   test "TEXT":
     check parseText(lfName "TEXT.eas") == @["line.1", "line.2", "line.3"]
 
-
 suite "compound":
   test "HDL_IDENT_simple":
     let ident = parseHDLIdent(lfName "HDL_IDENT/simple.eas")
@@ -221,7 +220,6 @@ suite "compound":
     let go = parseGeneric(lfName "GENERIC/igen.eas", gkInstance)
     genericCheck go, "igena0a0a056f0f80505c4914b4527b7a454", "DWIDTH", 3224, 3, 129
     check go.parent.get.obid.string == "egena0a0a056f0f80505c4914b455f87a454"
-
 
 suite "complex":
 
