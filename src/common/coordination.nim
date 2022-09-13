@@ -21,7 +21,7 @@ type
     vdEast
     vdSouth
     vdWest
-    vdDiognal
+    vdDiagonal
 
   Vector* = Point
   Point* = tuple
@@ -173,7 +173,7 @@ func `-`*(vd: VectorDirection): VectorDirection =
   of vdWest: vdEast
   of vdNorth: vdSouth
   of vdSouth: vdNorth
-  of vdDiognal: err "cannot negate a digonal vector direction"
+  of vdDiagonal: err "cannot negate a diagonal vector direction"
 
 func toVector*(vd: VectorDirection): Vector =
   ## converts vector direction `vd` to unit Vecotr
@@ -182,14 +182,14 @@ func toVector*(vd: VectorDirection): Vector =
   of vdWest: (-1, 0)
   of vdNorth: (0, +1)
   of vdSouth: (0, -1)
-  of vdDiognal: err "cannot represent a digonal line as unit vector"
+  of vdDiagonal: err "cannot represent a diagonal line as unit vector"
 
 func whichEdge*(p: Point, geo: Geometry): VectorDirection =
   if p.x == geo.x1: vdWest
   elif p.x == geo.x2: vdEast
   elif p.y == geo.y1: vdNorth
   elif p.y == geo.y2: vdSouth
-  else: vdDiognal
+  else: vdDiagonal
 
 
 func translationAfter*(geo: Geometry, r: Rotation): Vector =

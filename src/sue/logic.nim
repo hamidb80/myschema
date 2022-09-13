@@ -61,7 +61,7 @@ func toOrient(vd: VectorDirection): Orient =
   of vdWest: RXY
   of vdNorth: R270
   of vdSouth: R90
-  of vdDiognal: err "orient for diogal vectors is not defined"
+  of vdDiagonal: err "orient for diogal vectors is not defined"
 
 
 func addBuffer(p: Port, schema: var Schematic) =
