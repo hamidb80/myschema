@@ -36,7 +36,7 @@ type
   Size* = tuple
     w, h: int
 
-  Transfromer* = proc(p: Point): Point {.noSideEffect.}
+  Transformer* = proc(p: Point): Point {.noSideEffect.}
 
   # Transform* = object
   #   rotation*: Rotation
@@ -97,8 +97,10 @@ func bottomLeft*(geo: Geometry): Point =
 func bottomRight*(geo: Geometry): Point =
   (geo.x2, geo.y2)
 
-func points*(geo: Geometry): seq[Point] =
-  @[topLeft geo, topRight geo, bottomRight geo, bottomLeft geo]
+func points*(geo: Geometry, closed = false): seq[Point] =
+  result = @[topLeft geo, topRight geo, bottomRight geo, bottomLeft geo]
+  if closed:
+    result.add result[0]
 
 func area*(ps: seq[Point]): Geometry =
   var

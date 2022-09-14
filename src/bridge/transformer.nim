@@ -1,30 +1,70 @@
 import std/[tables, sequtils, strutils, options, sugar, macros]
-import ../common/[coordination, collections, minitable, domain]
+import ../common/[coordination, collections, domain, errors]
 import ../ease/model as em, ../sue/model as sm
+import ../ease/logic as el, ../sue/logic as sl
 
-# template param(n, d): untyped = 
+# template param(n, d): untyped =
 #   Parameter(name: n, defaultValue: some d)
 
-proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project = 
+func toLine(geo: Geometry): sm.Line =
+  sm.Line(
+    kind: sm.straight,
+    points: geo.points(closed = true))
+
+func toSue(portMode: em.PortMode): sm.PortDir =
+  case portMode:
+  of pmInput: pdInput
+  of pmOutput: pdOutput
+  of pmInout, pmBuffer: pdInout
+  of pmVirtual: err "invalid port mode"
+
+
+func toSue*(entity: em.Entity): sm.Module =
+  result = sm.newModule()
+  result.icon.lines.add toLine entity.geometry
+
+  ## TODO add icon labels
+  ## TODO add icon properties
+
+  for p in entity.ports:
+    result.icon.ports.add sm.Port(
+      kind: sm.pkIconTerm,
+      dir: toSue p.mode,
+      name: $p.identifier,
+      relativeLocation: p.geometry.center)
+
+  for a in entity.archs:
+    case a.kind:
+    of amBlockDiagram:
+      let schema = a.body.schematic
+
+      for c in schema.components:
+        result.instances.add Instance(
+          kind: ikCustom,
+          name: c.hdlIdent.name,
+          module: sm.Module(kind: mkRef, name: $c.parent.obid),
+          location: topleft c.geometry,
+          orient: _)
+
+      # TODO process, generator block
+
+    of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
+      err "is not supported yet"
+
+
+proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
   ## fonverts a EWS project to SUE project
   result = sm.Project(modules: basicModules)
 
   for d in proj.designs:
-    for e in d.entities:
+    for obid, e in d.entities:
       # var
       #   myParams = @[
       #     param("name", "{}"),
       #     param("origin", "{0 0}"),
       #     param("orient", "R0")]
 
-      let 
-        name = ...
-
-
-      result.modules[name] = Module(
-        kind: mkCtx,
-        name: name,
-        icon: buildIcon(name, module.icon))
+      result.modules[$obid] = toSue e
 
   # for name, mmdl in mpairs proj.modules:
   #   var m = result.modules[name]
@@ -49,38 +89,28 @@ when false:
     of r270: flipCase(fs, R90, R90Y, R90X, R270)
 
   func buildIcon(name: string, ico: MIcon, params: seq[Parameter]): Icon =
-    let
-      myPorts = ico.ports.map(iconPort)
-      defaultLabel = Label(
-        content: name,
-        location: ico.size.toGeometry.center,
-        anchor: c,
-        size: fzLarge)
+    defaultLabel = Label(
+      content: name,
+      location: ico.size.toGeometry.center,
+      anchor: c,
+      size: fzLarge)
 
     Icon(
-      ports: myPorts,
       properties: params.map(toProperty),
-      size: ico.size,
-      labels: @[defaultLabel] & myPorts.map(toLabel),
-      lines: @[toLine toGeometry ico.size])
-
-  func addIconPorts(s: var SSchematic, ico: Icon, lookup: ModuleLookUp)
-  func findDriectInputs(br: MBusRipper): seq[tuple[port: MPort, net: MNet]]
+      labels: @[defaultLabel] & myPorts.map(toLabel))
 
   proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
 
-    var seenPorts: seq[MPort]
     for br in sch.busRippers:
       let anotherId = br.source.ports.search((p) => not p.isSliced).parent.id
 
-      block convert_busRipper_to_2_nameNets:
-        result.instances.add [
-          Instance(
-            name: dump(anotherId, true),
-            parent: lookup["name_net"],
-            location: br.position),
+      result.instances.add [
+        Instance(
+          name: dump(anotherId, true),
+          parent: lookup["name_net"],
+          location: br.position),
 
-          Instance(
-            name: dump(br.select, true),
-            parent: lookup["name_net"],
-            location: br.connection)]
+        Instance(
+          name: dump(br.select, true),
+          parent: lookup["name_net"],
+          location: br.connection)]

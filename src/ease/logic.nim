@@ -1,7 +1,7 @@
 import std/[options, tables, strutils, strformat]
 
 import model
-import ../common/[coordination, errors, domain, minitable]
+import ../common/[coordination, errors, minitable]
 
 # basics ---
 
@@ -32,13 +32,12 @@ func flips*[T: Thing](element: T): set[Flip] =
   else: err fmt"invalid Flip code: '{f}'"
 
 func identifier*(p: Port): Identifier =
-  let cn = p.ident.attributes.constraint
+  let cn = p.hdlident.attributes.constraint
 
   if isSome cn:
     case cn.get.kind:
     of ckIndex:
-      result = Identifier(kind: ikIndex,
-        index: cn.get.index)
+      result = Identifier(kind: ikIndex, index: cn.get.index)
 
     of ckRange:
       result = Identifier(kind: ikRange,
@@ -48,10 +47,10 @@ func identifier*(p: Port): Identifier =
   else:
     result = Identifier(kind: ikSingle)
 
-  result.name = p.ident.name
+  result.name = p.hdlident.name
 
 func mode*(p: Port): PortMode =
-  PortMode p.ident.attributes.mode.get
+  PortMode p.hdlident.attributes.mode.get
 
 func getIfCond*(gb: GenerateBlock): string =
   gb.properties["IF_CONDITION"]
@@ -79,6 +78,3 @@ func getIconTransformer*(iconGeo: Geometry,
     t2
 
   transformer
-
-func getIconSize*(geo: Geometry, ro: Rotation): Size =
-  toSize rotate(geo, P0, -ro)

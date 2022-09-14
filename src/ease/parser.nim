@@ -201,7 +201,7 @@ func parseCbn(cbnNode: LispNode): ConnectByName =
       result.obid = parseOBID n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -227,7 +227,7 @@ func parseHook(busRipperNode: LispNode): BusRipper =
       result.obid = parseOBID n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -281,7 +281,7 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
       result.name = parseName n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "PROPERTIES":
       result.properties = parseProperties n
@@ -314,7 +314,7 @@ func parseNetPart(part2Node: LispNode): Part =
     of "OBID":
       result.obid = parseOBID n
 
-    of "CBN": 
+    of "CBN":
       result = Part(kind: pkTag, obid: result.obid)
 
     of "LABEL":
@@ -340,7 +340,7 @@ func parseNet(netNode: LispNode): Net =
       result.obid = parseOBID n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "PART":
       result.parts.add parseNetPart n
@@ -357,7 +357,7 @@ func parseGeneric(genericNode: LispNode, gkind: GenericKind): Generic =
       result.properties = parseProperties n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -388,7 +388,7 @@ func parseComp(componentNode: LispNode): Component =
       result.properties = parseProperties n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -456,7 +456,7 @@ func parseStat(stateNode: LispNode): State =
       result.obid = parseOBID n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -618,7 +618,7 @@ func parseSlav(slaveNode: LispNode): Slave =
       result.obid = parseOBID n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -723,7 +723,7 @@ func parseProc(processNode: LispNode): Process =
       result.obid = parseOBID n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "PROPERTIES":
       result.properties = parseProperties n
@@ -771,7 +771,7 @@ func parseGenB(generateNode: LispNode): GenerateBlock =
       result.properties = parseProperties n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -846,7 +846,7 @@ func parseArch(archDefNode: LispNode): Architecture =
       result.kind = ArchitectureKind n.parseInt
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "PROPERTIES":
       result.properties = parseProperties n
@@ -878,7 +878,7 @@ func parseEnt(entityNode: LispNode, result: var Entity) =
       result.side = parseSide n
 
     of "HDL_IDENT":
-      result.ident = parseHDLIdent n
+      result.hdlident = parseHDLIdent n
 
     of "GEOMETRY":
       result.geometry = parseGeometry n
@@ -927,7 +927,8 @@ func parseLib(designFileNode: LispNode): Library =
       result.name = parseName n
 
     of "ENTITY":
-      result.entities.add parseEntityDecl n
+      let e = parseEntityDecl n
+      result.entities[e.obid] = e
 
     of "PROPERTIES":
       result.properties = parseProperties n
@@ -977,7 +978,7 @@ func resolve(proj: var Project) =
 
   template walkEntities(body): untyped {.dirty.} =
     for d in mitems proj.designs:
-      for e in mitems d.entities:
+      for _, e in mpairs d.entities:
         body
 
   template withSchema(e, code): untyped {.dirty.} =
@@ -1014,7 +1015,7 @@ proc parseEws*(dir: string): Project =
     let libdir = dbDir / d.obid.string
     d = parseLib select parseLisp readFile libdir / "library.eas"
 
-    for e in mitems d.entities:
+    for _, e in mpairs d.entities:
       let fname = libdir / e.obid.string & ".eas"
       debugEcho "parseing eas: ", fname
       e = parseEntityFile select parseLisp readfile fname

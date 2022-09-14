@@ -131,3 +131,6 @@ import std/hashes
 
 func hash*(pid: PortID): Hash {.borrow.}
 func `==`*(pid1, pid2: PortID): bool {.borrow.}
+
+func newModule*(): Module = 
+  Module(kind: mkCtx, icon: Icon(), schema: Schematic())

@@ -1,4 +1,4 @@
-import std/[options]
+import std/[options, tables]
 import ../common/[coordination, domain, minitable]
 
 ## NOTE: `type` fields is replaced with `kind`
@@ -179,7 +179,7 @@ type
   ConnectByName* = ref object # AKA CBN
     obid*: Obid
     kind*: CbnKind
-    ident*: HdlIdent
+    hdlident*: HdlIdent
     geometry*: Geometry
     side*: Side
     label*: Label
@@ -190,7 +190,7 @@ type
     case kind*: GenericKind
     of gkRef: discard
     of gkEntity, gkInstance:
-      ident*: HdlIdent
+      hdlident*: HdlIdent
       properties*: Properties
       geometry*: Geometry
       side*: Side
@@ -200,7 +200,7 @@ type
 
   GenerateBlock* = ref object
     obid*: Obid
-    ident*: HdlIdent
+    hdlident*: HdlIdent
     properties*: Properties
     geometry*: Geometry
     side*: Side
@@ -212,7 +212,7 @@ type
 
   BusRipper* = ref object
     obid*: Obid
-    ident*: HdlIdent
+    hdlident*: HdlIdent
     geometry*: Geometry
     side*: BusRipperSide
     label*: Label
@@ -229,7 +229,7 @@ type
     case kind*: LinkKind
     of linkRef: discard
     of linkDef:
-      ident*: HdlIdent
+      hdlident*: HdlIdent
       geometry*: Geometry
       side*: Side
       label*: Label
@@ -241,7 +241,7 @@ type
     case kind*: StateKind
     of skRef: discard
     of skDef:
-      ident*: HdlIdent
+      hdlident*: HdlIdent
       geometry*: Geometry
       side*: Side
       label*: Label
@@ -306,7 +306,7 @@ type
     case kind*: SlaveKind
     of slvRef: discard
     of slvDef:
-      ident*: HdlIdent
+      hdlident*: HdlIdent
       geometry*: Geometry
       stateMachine*: StateMachineV2
 
@@ -347,7 +347,7 @@ type
     case kind*: NetKind:
     of netRef: discard
     of netDef:
-      ident*: HdlIdent
+      hdlident*: HdlIdent
       parts*: seq[Part] # FIXME convert to seq[PART] / in system09 example
 
   PointConnection* = ref object
@@ -369,7 +369,7 @@ type
       name*: string
 
     else:
-      ident*: HdlIdent
+      hdlident*: HdlIdent
       properties*: Properties
       geometry*: Geometry
       side*: Side
@@ -381,7 +381,7 @@ type
   Process* = ref object
     obid*: Obid
     kind*: ProcessKind
-    ident*: HdlIdent
+    hdlident*: HdlIdent
     properties*: Properties
     sensitivityList*: bool
     geometry*: Geometry
@@ -392,7 +392,7 @@ type
 
   Component* = ref object
     obid*: Obid
-    ident*: HdlIdent
+    hdlident*: HdlIdent
     properties*: Properties
     geometry*: Geometry
     side*: Side
@@ -431,7 +431,7 @@ type
   Architecture* = ref object
     obid*: Obid
     properties*: Properties
-    ident*: HdlIdent
+    hdlident*: HdlIdent
     kind*: ArchitectureKind
     body*: Body
 
@@ -446,7 +446,7 @@ type
       name*: string
 
     of ekDef:
-      ident*: HdlIdent
+      hdlident*: HdlIdent
       properties*: Properties
       side*: Side
       objStamp*: ObjStamp
@@ -463,7 +463,7 @@ type
     of lkDecl: discard
     of lkDef:
       properties*: Properties
-      entities*: seq[Entity]
+      entities*: Table[Obid, Entity]
 
   Package* = ref object
     obid*: Obid
@@ -499,3 +499,8 @@ import std/[hashes]
 
 func `==`*(o1, o2: Obid): bool {.borrow.}
 func hash*(o: Obid): Hash {.borrow.}
+func `$`*(o: Obid): string {.borrow.}
+
+
+func `$`*(i: Identifier): string =
+  ## FIXME capture it from github middle/logic
