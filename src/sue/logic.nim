@@ -16,6 +16,14 @@ func flips*(orient: Orient): set[Flip] =
   of R90X, RX: {X}
   of R90Y, RY: {Y}
 
+func toOrient*(vd: VectorDirection): Orient =
+  case vd:
+  of vdEast: R0
+  of vdSouth: R90
+  of vdWest: RXY
+  of vdNorth: R270
+  of vdDiagonal: err "orient for diagonal vectors is not defined"
+
 func instancekind*(name: string): InstanceKind =
   case name:
   of "input", "output", "inout": ikPort
@@ -65,14 +73,6 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transformer =
   return func(p: Point): Point =
     (rotate(p, pin, r) + vec).flip(c, f)
 
-func toOrient*(vd: VectorDirection): Orient =
-  case vd:
-  of vdEast: R0
-  of vdSouth: R90
-  of vdWest: RXY
-  of vdNorth: R270
-  of vdDiagonal: err "orient for diagonal vectors is not defined"
-
 func location*(p: Port): Point
 func geometry*(icon: Icon): Geometry =
   var acc: seq[Point]
@@ -101,10 +101,10 @@ func location*(p: Port): Point =
     t(p.origin.location + ins.location)
 
 
-iterator wires*(schema: Schematic): Wire =
+iterator wires*(wiredNodes: Graph[Point]): Wire =
   var my: Graph[Point]
 
-  for n1, conns in schema.wireNets:
+  for n1, conns in wiredNodes:
     for n2 in conns:
       if not connected(my, n1, n2):
         let w = n1..n2
@@ -176,7 +176,7 @@ proc addBuffer(p: Port, schema: var Schematic, module: Module) =
 
   let
     loc = p.location
-    connectedWiresNodes = toseq schema.wireNets[loc]
+    connectedWiresNodes = toseq schema.wiredNodes[loc]
     nextNodeLoc = connectedWiresNodes[0]
     dir = dirOf loc .. nextNodeLoc
     vdir = toVector dir
@@ -200,8 +200,8 @@ proc addBuffer(p: Port, schema: var Schematic, module: Module) =
       location: buffIn,
       orient: orient)
 
-  schema.wireNets.excl loc, nextNodeLoc
-  schema.wireNets.incl loc2, nextNodeLoc
+  schema.wiredNodes.excl loc, nextNodeLoc
+  schema.wiredNodes.incl loc2, nextNodeLoc
   schema.instances.add buffer
 
 proc fixErrors(schema: var Schematic, modules: ModuleLookup) =
@@ -220,7 +220,7 @@ proc fixErrors*(project: var Project) =
 func instantiate(o: Port, p: Instance): Port =
   Port(kind: pkInstance, parent: p, origin: o)
 
-func extractConnection(
+func extractConnections(
   sch: Schematic,
   portsPlot: Table[Point, seq[Port]]
   ): Graph[PortId] =
@@ -230,7 +230,7 @@ func extractConnection(
   for loc, ports in portsPlot:
     var acc: seq[Port]
 
-    for l in walk(sch.wireNets, loc, seen):
+    for l in walk(sch.wiredNodes, loc, seen):
       if l in portsPlot:
         for cp in portsPlot[l]:
           acc.add cp
@@ -264,4 +264,4 @@ proc resolve*(proj: var Project) =
           module.schema.portsTable.add pid, insPort
 
     module.schema.connections =
-      extractConnection(module.schema, portsPlot)
+      extractConnections(module.schema, portsPlot)

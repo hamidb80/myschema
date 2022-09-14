@@ -27,8 +27,10 @@ func excl*[N](g: var Graph[N], n1, n2: N) =
   g.exclImpl n2, n1
 
 func connected*[N](conns: Graph[N], n1, n2: N): bool =
-  n2 in conns[n2]
-
+  if n1 in conns:
+    n2 in conns[n1]
+  else: 
+    false
 
 iterator walk*[N](g: Graph[N], start: N, seen: var HashSet[N]): N =
   var stack = @[start]

@@ -1,5 +1,5 @@
-import std/[tables, sets, os, strformat, strutils, sequtils, options]
-import ../common/[errors, coordination, collections, domain, graph, seqtable, rand]
+import std/[tables, os, strformat, strutils, sequtils, options]
+import ../common/[errors, coordination, collections, domain, graph, rand]
 import lexer, model, logic
 
 
@@ -103,7 +103,7 @@ proc parseSchematic(se: seq[SueExpression]): Schematic =
       result.labels.add parseMakeText expr
 
     of scMakeWire:
-      result.wireNets.incl parseWire expr
+      result.wiredNodes.incl parseWire expr
 
     of scMake:
       result.instances.add parseMake expr

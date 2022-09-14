@@ -116,7 +116,7 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
                 makeNet($srcIdent, conn.a),
                 makeNet($br.identifier, conn.b)]
 
-              result.schema.wireNets.incl conn
+              result.schema.wiredNodes.incl conn
 
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
       err "is not supported yet"

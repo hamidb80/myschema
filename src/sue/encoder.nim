@@ -189,7 +189,7 @@ func toSueFile(m: sink Module): SueFile =
   for ins in m.schema.instances:
     result.schematic.add encode ins
 
-  for w in m.schema.wires:
+  for w in wires m.schema.wiredNodes:
     result.schematic.add encode w
 
   for l in m.schema.labels:

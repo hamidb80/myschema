@@ -34,6 +34,9 @@ macro pickTuple*(list: untyped, indexes: static[openArray[int]]): untyped =
 template toSlice*(a): untyped =
   a[0] .. a[1]
 
+func reversed*[T](s: Slice[T]): Slice[T] = 
+  s.b .. s.a
+
 ## this modules contains utility functionalities to work woth
 ## `seq`s
 

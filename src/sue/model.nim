@@ -84,7 +84,7 @@ type
 
   Schematic* = ref object
     instances*: seq[Instance]
-    wireNets*: Graph[Point]
+    wiredNodes*: Graph[Point]
     connections*: Graph[PortID]
     labels*: seq[Label]
     lines*: seq[Line]
