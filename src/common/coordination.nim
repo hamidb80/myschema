@@ -17,10 +17,10 @@ type
     X, Y
 
   VectorDirection* = enum
-    vdNorth
     vdEast
     vdSouth
     vdWest
+    vdNorth
     vdDiagonal
 
   Vector* = Point
@@ -52,10 +52,15 @@ func `-`*(p: Point): Point =
 func `-`*(p1, p2: Point): Point =
   p1 + -p2
 
+func dist*(p1, p2: Point): int =
+  ## Manhattan distance
+  abs(p1.x-p2.x) + abs(p1.y-p2.y)
 
 proc `*`*(p: Vector, n: int): Vector =
   (p.x * n, p.y * n)
 
+proc `*`*(n: int, p: Vector): Vector =
+  p * n
 
 func `-`*(r: Rotation): Rotation =
   case r:
@@ -179,11 +184,12 @@ func `-`*(vd: VectorDirection): VectorDirection =
 
 func toVector*(vd: VectorDirection): Vector =
   ## converts vector direction `vd` to unit Vecotr
+  ## remember north is -y
   case vd:
   of vdEast: (+1, 0)
   of vdWest: (-1, 0)
-  of vdNorth: (0, +1)
-  of vdSouth: (0, -1)
+  of vdNorth: (0, -1)
+  of vdSouth: (0, +1)
   of vdDiagonal: err "cannot represent a diagonal line as unit vector"
 
 func whichEdge*(p: Point, geo: Geometry): VectorDirection =

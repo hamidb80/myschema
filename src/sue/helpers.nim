@@ -68,10 +68,10 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
 func toOrient*(vd: VectorDirection): Orient =
   case vd:
   of vdEast: R0
+  of vdSouth: R90
   of vdWest: RXY
   of vdNorth: R270
-  of vdSouth: R90
-  of vdDiagonal: err "orient for diogal vectors is not defined"
+  of vdDiagonal: err "orient for diagonal vectors is not defined"
 
 func location*(p: Port): Point
 func geometry*(icon: Icon): Geometry =

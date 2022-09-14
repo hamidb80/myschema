@@ -1,4 +1,4 @@
-import coordination, errors
+import ./coordination
 
 type
   Percent* = range[0.0 .. 1.0]
@@ -12,13 +12,15 @@ type
 
 
 func dirOf*(w: Wire): VectorDirection =
-  if w.a.x == w.b.x: # horizobtal
-    if w.a.y > w.b.y: vdSouth
+  ## remeber when you go up, the y is - and the bottom is +
+
+  if w.a.x == w.b.x: # vertical
+    if w.b.y > w.a.y: vdSouth
     else: vdNorth
 
   elif w.a.y == w.b.y: # horizobtal
-    if w.a.x > w.b.x: vdWest
-    else: vdEast
+    if w.b.x > w.a.x: vdEast
+    else: vdWest
 
   else:
-    err "invalid direction"
+    vdDiagonal

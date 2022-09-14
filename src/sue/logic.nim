@@ -55,12 +55,24 @@ func problematic(ports: seq[Port]): seq[Port] =
   else:
     @[]
 
+func `*`(i: int, vd: VectorDirection): VectorDirection =
+  case i:
+  of +1: vd
+  of -1: -vd
+  else: err "coefficient is not in {-1, +1}"
+
 proc addBuffer(p: Port, schema: var Schematic, module: Module) =
   ## 1. find location
   ## 2. find connected wires
   ## 3. detect direction of the port
   ## 4. place buffer before the port
   ## 5. remove intersected wires
+  ##
+  ## you need to draw every 2*4 cases to reach this conclusion
+  ## when the input is from input element, head of buffer is `loc`
+  ## when input is from a custom element, tail of the buffer is `loc`
+
+  assert p.origin.dir == pdInput
 
   let
     loc = p.location
@@ -68,19 +80,28 @@ proc addBuffer(p: Port, schema: var Schematic, module: Module) =
     nextNodeLoc = connectedWiresNodes[0]
     dir = dirOf loc .. nextNodeLoc
     vdir = toVector dir
-    orient = toOrient dir
-    buffIn = loc
-    buffOut = loc + -vdir*(module.icon.geometry.size.w)
+    coeff =
+      case p.parent.kind:
+      of ikPort: +1
+      else: -1
+
+    orient = toOrient coeff*dir
+    width = module.icon.geometry.size.w
+    loc2 = loc + coeff*vdir*width
+    buffIn =
+      case p.parent.kind:
+      of ikPort: loc
+      else: loc2
 
     buffer = Instance(
       kind: ikCustom,
-      name: "fix_" & randomIdent(),
+      name: "buffer_" & randomIdent(),
       module: module,
       location: buffIn,
       orient: orient)
 
   schema.wireNets.excl loc, nextNodeLoc
-  schema.wireNets.incl buffOut, nextNodeLoc
+  schema.wireNets.incl loc2, nextNodeLoc
   schema.instances.add buffer
 
 proc fixErrors(schema: var Schematic, modules: ModuleLookup) =
