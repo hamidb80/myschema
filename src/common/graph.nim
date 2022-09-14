@@ -15,6 +15,9 @@ func incl*[N](g: var Graph[N], n1, n2: N) =
   g.inclImpl n1, n2
   g.inclImpl n2, n1
 
+func incl*[N](g: var Graph[N], ns: Slice[N]) =
+  g.incl ns.a, ns.b
+
 func exclImpl*[N](g: var Graph[N], key, val: N) =
   g.withValue(key, wrapper):
     wrapper[].excl val

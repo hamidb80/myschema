@@ -31,7 +31,7 @@ func flips*[T: Thing](element: T): set[Flip] =
   of 3: {X, Y}
   else: err fmt"invalid Flip code: '{f}'"
 
-func identifier*(p: Port): Identifier =
+func identifier*[T](p: T): Identifier =
   let cn = p.hdlident.attributes.constraint
 
   if isSome cn:

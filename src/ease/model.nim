@@ -210,15 +210,6 @@ type
     kind*: GenerateBlockKind
     schematic*: Schematic
 
-  BusRipper* = ref object
-    obid*: Obid
-    hdlident*: HdlIdent
-    geometry*: Geometry
-    side*: BusRipperSide
-    label*: Label
-    cbn*: Option[ConnectByName]
-    destNet*: Net
-
   Global* = ref object
     geometry*: Geometry
     label*: Label
@@ -329,6 +320,15 @@ type
     properties*: Properties
     headers*: seq[string]
     rows*: seq[Row]
+
+  BusRipper* = ref object
+    obid*: Obid
+    hdlident*: HdlIdent
+    geometry*: Geometry
+    side*: BusRipperSide
+    label*: Label
+    cbn*: Option[ConnectByName]
+    destNet*: Net
 
   Part* = ref object
     obid*: Obid

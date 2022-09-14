@@ -52,7 +52,7 @@ func ids*(port: Port): seq[PortID] =
     @[PortID n1/n2]
 
 
-func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
+func genTransformer(geo: Geometry, pin: Point, o: Orient): Transformer =
   let
     r = o.rotation
     f = o.flips
@@ -63,7 +63,6 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transfromer =
 
   return func(p: Point): Point =
     (rotate(p, pin, r) + vec).flip(c, f)
-
 
 func toOrient*(vd: VectorDirection): Orient =
   case vd:

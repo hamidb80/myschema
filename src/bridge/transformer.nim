@@ -1,5 +1,5 @@
-import std/[tables, sequtils, strutils, options, sugar, macros]
-import ../common/[coordination, collections, domain, errors]
+import std/[tables, strutils, options, macros]
+import ../common/[coordination, domain, errors, graph]
 import ../ease/model as em, ../sue/model as sm
 import ../ease/logic as el, ../sue/logic as sl
 
@@ -18,8 +18,34 @@ func toSue(portMode: em.PortMode): sm.PortDir =
   of pmInout, pmBuffer: pdInout
   of pmVirtual: err "invalid port mode"
 
+template flipCase(f: set[Flip], bxy, bx, by, b0: untyped): untyped =
+  if f == {X, Y}: bxy
+  elif f == {X}: bx
+  elif f == {Y}: by
+  else: b0
 
-func toSue*(entity: em.Entity): sm.Module =
+func toSue(ro: Rotation, fs: set[Flip]): Orient =
+  case ro:
+  of r0: flipCase(fs, RXY, RX, RY, R0)
+  of r90: flipCase(fs, R270, R90X, R90Y, R90)
+  of r180: flipCase(fs, R0, RY, RX, RXY)
+  of r270: flipCase(fs, R90, R90Y, R90X, R270)
+
+func head(b: BusRipper): Point =
+  center b.geometry
+
+func tail(b: BusRipper): Point =
+  case b.side:
+  of brsTopLeft: topLeft b.geometry
+  of brsTopRight: topRight b.geometry
+  of brsBottomRight: bottomRight b.geometry
+  of brsBottomLeft: bottomLeft b.geometry
+
+func toWire(b: BusRipper): Wire =
+  b.head .. b.tail
+
+
+func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
   result = sm.newModule()
   result.icon.lines.add toLine entity.geometry
 
@@ -39,18 +65,48 @@ func toSue*(entity: em.Entity): sm.Module =
       let schema = a.body.schematic
 
       for c in schema.components:
-        result.instances.add Instance(
+        let
+          geo = c.geometry
+          pin = topleft geo
+          r = c.rotation
+          dv = pin - topleft(rotate(geo, pin, -r))
+
+        result.schema.instances.add Instance(
           kind: ikCustom,
           name: c.hdlIdent.name,
           module: sm.Module(kind: mkRef, name: $c.parent.obid),
-          location: topleft c.geometry,
-          orient: _)
+          location: dv - topleft(geo),
+          orient: toSue(c.rotation, c.flips))
+
+      for sourceNet in schema.nets:
+        for part in sourceNet.parts:
+          if part.kind == pkWire:
+            for br in part.busRippers:
+              let
+                nameNet = modules["name_net"]
+                conn = toWire br
+                srcIdent =
+                  sourceNet.parts[1]
+                  .ports[0]
+                  .parent.identifier
+
+              template makeNet(id, pos): untyped =
+                Instance(
+                  kind: ikNameNet,
+                  name: id,
+                  module: nameNet,
+                  location: pos)
+
+              result.schema.instances.add [
+                makeNet($srcIdent, conn.a),
+                makeNet($br.identifier, conn.b)]
+
+              result.schema.wireNets.incl conn
 
       # TODO process, generator block
 
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
       err "is not supported yet"
-
 
 proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
   ## fonverts a EWS project to SUE project
@@ -64,30 +120,9 @@ proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
       #     param("origin", "{0 0}"),
       #     param("orient", "R0")]
 
-      result.modules[$obid] = toSue e
-
-  # for name, mmdl in mpairs proj.modules:
-  #   var m = result.modules[name]
-  #   debugEcho "finalizing module sue: ", name
-  #   m.arch = toSue(mmdl.arch, m.icon, result.modules, m)
-
+      result.modules[$obid] = toSue(e, basicModules)
 
 when false:
-  template flipCase(f: set[Flip], bxy, bx, by, b0: untyped): untyped =
-    if f == {X, Y}: bxy
-    elif f == {X}: bx
-    elif f == {Y}: by
-    else: b0
-
-  func toSue(tr: Transform): Orient =
-    let fs = tr.flips
-
-    case tr.rotation:
-    of r0: flipCase(fs, RXY, RX, RY, R0)
-    of r90: flipCase(fs, R270, R90X, R90Y, R90)
-    of r180: flipCase(fs, R0, RY, RX, RXY)
-    of r270: flipCase(fs, R90, R90Y, R90X, R270)
-
   func buildIcon(name: string, ico: MIcon, params: seq[Parameter]): Icon =
     defaultLabel = Label(
       content: name,
@@ -98,19 +133,3 @@ when false:
     Icon(
       properties: params.map(toProperty),
       labels: @[defaultLabel] & myPorts.map(toLabel))
-
-  proc toSue(sch: MSchematic, lookup: ModuleLookUp): SSchematic =
-
-    for br in sch.busRippers:
-      let anotherId = br.source.ports.search((p) => not p.isSliced).parent.id
-
-      result.instances.add [
-        Instance(
-          name: dump(anotherId, true),
-          parent: lookup["name_net"],
-          location: br.position),
-
-        Instance(
-          name: dump(br.select, true),
-          parent: lookup["name_net"],
-          location: br.connection)]

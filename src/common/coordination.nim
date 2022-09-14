@@ -1,5 +1,5 @@
 ## this module contains basics 2D-coordination types and functionalities
-
+import std/[sequtils]
 import minmax, errors
 
 type
@@ -132,7 +132,6 @@ func flip*(p, c: Point, flips: set[Flip]): Point =
       of Y: applyFlip flipY, result, c
 
 
-import std/sequtils
 
 func rotate*(geo: Geometry, center: Point, r: Rotation): Geometry =
   area geo.points.mapIt rotate(it, center, r)
@@ -193,14 +192,3 @@ func toVector*(vd: VectorDirection): Vector =
   of vdNorth: (0, -1)
   of vdSouth: (0, +1)
   of vdDiagonal: err "cannot represent a diagonal line as unit vector"
-
-func whichEdge*(p: Point, geo: Geometry): VectorDirection =
-  if p.x == geo.x1: vdWest
-  elif p.x == geo.x2: vdEast
-  elif p.y == geo.y1: vdNorth
-  elif p.y == geo.y2: vdSouth
-  else: vdDiagonal
-
-
-func translationAfter*(geo: Geometry, r: Rotation): Vector =
-  topleft(geo.rotate(P0, r)) - (topleft geo)
