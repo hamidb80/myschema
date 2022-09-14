@@ -49,6 +49,12 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
   result = sm.newModule()
   result.icon.lines.add toLine entity.geometry
 
+  result.icon.labels.add sm.Label(
+    content: entity.name,
+    location: topleft entity.geometry,
+    anchor: c,
+    fnsize: fzLarge)
+
   ## TODO add icon labels
   ## TODO add icon properties
 
@@ -58,6 +64,12 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
       dir: toSue p.mode,
       name: $p.identifier,
       relativeLocation: p.geometry.center)
+
+    result.icon.labels.add sm.Label(
+      content: $p.identifier,
+      location: p.geometry.center,
+      anchor: s,
+      fnsize: fzStandard)
 
   for a in entity.archs:
     case a.kind:
@@ -121,15 +133,3 @@ proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
       #     param("orient", "R0")]
 
       result.modules[$obid] = toSue(e, basicModules)
-
-when false:
-  func buildIcon(name: string, ico: MIcon, params: seq[Parameter]): Icon =
-    defaultLabel = Label(
-      content: name,
-      location: ico.size.toGeometry.center,
-      anchor: c,
-      size: fzLarge)
-
-    Icon(
-      properties: params.map(toProperty),
-      labels: @[defaultLabel] & myPorts.map(toLabel))
