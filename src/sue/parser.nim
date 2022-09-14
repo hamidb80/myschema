@@ -146,56 +146,6 @@ proc parseSue*(sfile: SueFile): Module =
     schema: parseSchematic sfile.schematic)
     # paramters: ) # TODO
 
-
-func instantiate(o: Port, p: Instance): Port =
-  Port(kind: pkInstance, parent: p, origin: o)
-
-func extractConnection(
-  sch: Schematic,
-  portsPlot: Table[Point, seq[Port]]
-  ): Graph[PortId] =
-
-  var seen: Hashset[Point]
-
-  for loc, ports in portsPlot:
-    var acc: seq[Port]
-
-    for l in walk(sch.wireNets, loc, seen):
-      if l in portsPlot:
-        for cp in portsPlot[l]:
-          acc.add cp
-
-    for p1 in acc:
-      for pid1 in ids p1:
-        for p2 in ports:
-          for pid2 in ids p2:
-            result.incl pid1, pid2
-
-proc resolve*(proj: var Project) =
-  ## add meta data for instances, resolve modules
-  for _, module in mpairs proj.modules:
-    var portsPlot: Table[Point, seq[Port]]
-
-    for ins in mitems module.schema.instances:
-      let mref = proj.modules[ins.module.name]
-      ins.module = mref
-
-      if ins.name[0] == '[': # an array, like [2:0]
-        ins.name = randomIdent(10) & ins.name
-
-      for p in mref.icon.ports:
-        let
-          insPort = instantiate(p, ins)
-          loc = insPort.location
-
-        portsPlot.add loc, insPort
-
-        for pid in p.ids:
-          module.schema.portsTable.add pid, insPort
-
-    module.schema.connections =
-      extractConnection(module.schema, portsPlot)
-
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   result = Project(modules: ModuleLookUp())
 

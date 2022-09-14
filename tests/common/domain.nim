@@ -1,7 +1,4 @@
-import std/[unittest]
-import src/middle/[logic, expr]
-
-import print
+import std/unittest
 
 suite "lex":
   test "correctness":

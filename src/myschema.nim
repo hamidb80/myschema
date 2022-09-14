@@ -22,6 +22,6 @@ when isMainModule:
     writeProject proj.toSue, pathes.b
     l "-- DONE!"
 
-  else: 
+  else:
     echo "ERROR: wrong number of arguemnts, given: ", paramCount()
-    echo "USAGE: app.exe <PROJECT.ews::folder> <dest::folder>"
+    echo "USAGE: app <PROJECT.ews::folder> <dest::folder>"

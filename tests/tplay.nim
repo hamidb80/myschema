@@ -1,7 +1,6 @@
 import std/[os]
 
 import src/ease/[transformer as et, parser]
-import src/middle/[visualizer]
 import src/sue/[transformer as st, encoder]
 
 
@@ -16,7 +15,6 @@ const path =
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\usb_hs\usbhostslave.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\fsm_verilog\master_slave.ews"
   r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\amba.ews"
-  # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\rotate_test.ews" # TODO add visual testing like this
 
 proc createDirs(dirs: varargs[string]) =
   for dir in dirs:
@@ -28,7 +26,5 @@ when isMainModule:
 
   debugEcho "parsing ..."
   let proj = toMiddle parseEws path
-  debugEcho "generating svg ..."
-  proj.toSVG "./temp/svg/"
   debugEcho "final conversion ..."
   proj.toSue.writeProject "./temp/sue/"

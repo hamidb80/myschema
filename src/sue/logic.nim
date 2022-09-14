@@ -16,12 +16,12 @@ func flips*(orient: Orient): set[Flip] =
   of R90X, RX: {X}
   of R90Y, RY: {Y}
 
-
 func instancekind*(name: string): InstanceKind =
   case name:
   of "input", "output", "inout": ikPort
   of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": ikNameNet
   else: ikCustom
+
 
 func dropIndexes(s: string): string =
   ## removes the bracket part from `s`
@@ -39,7 +39,7 @@ iterator sepIds*(s: string): PortID =
     if id.len != 0:
       yield PortID id
 
-func `/`(s1, s2: string): string {.inline.} =
+func `--`(s1, s2: string): string =
   s1 & '/' & s2
 
 func ids*(port: Port): seq[PortID] =
@@ -50,7 +50,7 @@ func ids*(port: Port): seq[PortID] =
       n1 = dropIndexes port.parent.name
       n2 = dropIndexes port.origin.name
 
-    @[PortID n1/n2]
+    @[PortID n1--n2]
 
 
 func genTransformer(geo: Geometry, pin: Point, o: Orient): Transformer =
@@ -100,6 +100,7 @@ func location*(p: Port): Point =
 
     t(p.origin.location + ins.location)
 
+
 iterator wires*(schema: Schematic): Wire =
   var my: Graph[Point]
 
@@ -109,6 +110,7 @@ iterator wires*(schema: Schematic): Wire =
         let w = n1..n2
         my.incl w
         yield w
+
 
 type
   SourceKind = enum
@@ -213,3 +215,53 @@ proc fixErrors(schema: var Schematic, modules: ModuleLookup) =
 proc fixErrors*(project: var Project) =
   for _, m in mpairs project.modules:
     fixErrors m.schema, project.modules
+
+
+func instantiate(o: Port, p: Instance): Port =
+  Port(kind: pkInstance, parent: p, origin: o)
+
+func extractConnection(
+  sch: Schematic,
+  portsPlot: Table[Point, seq[Port]]
+  ): Graph[PortId] =
+
+  var seen: Hashset[Point]
+
+  for loc, ports in portsPlot:
+    var acc: seq[Port]
+
+    for l in walk(sch.wireNets, loc, seen):
+      if l in portsPlot:
+        for cp in portsPlot[l]:
+          acc.add cp
+
+    for p1 in acc:
+      for pid1 in ids p1:
+        for p2 in ports:
+          for pid2 in ids p2:
+            result.incl pid1, pid2
+
+proc resolve*(proj: var Project) =
+  ## add meta data for instances, resolve modules
+  for _, module in mpairs proj.modules:
+    var portsPlot: Table[Point, seq[Port]]
+
+    for ins in mitems module.schema.instances:
+      let mref = proj.modules[ins.module.name]
+      ins.module = mref
+
+      if ins.name[0] == '[': # an array, like [2:0]
+        ins.name = randomIdent(10) & ins.name
+
+      for p in mref.icon.ports:
+        let
+          insPort = instantiate(p, ins)
+          loc = insPort.location
+
+        portsPlot.add loc, insPort
+
+        for pid in p.ids:
+          module.schema.portsTable.add pid, insPort
+
+    module.schema.connections =
+      extractConnection(module.schema, portsPlot)

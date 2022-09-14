@@ -1,1 +1,1 @@
-import tease/[tlisp, tlogic, tparser]
+import ease/[lisp, logic, parser]
