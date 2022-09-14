@@ -1,6 +1,6 @@
 import std/[tables, sets, os, strformat, strutils, sequtils, options]
 import ../common/[errors, coordination, collections, domain, graph, seqtable, rand]
-import lexer, model, helpers
+import lexer, model, logic
 
 
 func parsePortType*(s: string): PortDir =

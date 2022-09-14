@@ -48,3 +48,7 @@ func `[]=`*[K, V](tab: var MiniTable[K, V], key: K, val: V) =
 iterator values*[_, V](tab: MiniTable[_, V]): lent V =
   for (_, v) in tab:
     yield v
+
+iterator pairs*[K, V](tab: MiniTable[K, V]): lent (K, V) =
+  for p in tab:
+    yield p

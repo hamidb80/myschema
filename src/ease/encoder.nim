@@ -1,6 +1,6 @@
-import std/[tables, macros, options, sequtils]
+import std/[macros, options, sequtils]
 import model, lisp
-import ../common/[coordination, errors]
+import ../common/[coordination, domain, errors, minitable]
 
 # --- building blocks
 
@@ -135,6 +135,9 @@ func encodeAlignment(a: Alignment): LispNode =
 func encodeDirection(d: NumberDirection): LispNode =
   toLisp (`DIRECTION`, d.int)
 
+func encodeProperty(prs: Properties, k, v: LispNode): LispNode =
+  result.add toLisp (`PROPERTY`, k, v)
+
 func encodeProperties(prs: Properties): LispNode =
   result = toLisp (`PROPERTIES`)
   for k, v in prs:
@@ -217,7 +220,7 @@ func encodeFreePlacedText(fpt: FreePlacedText): LispNode =
 func encodeCBN(cbn: ConnectByName): LispNode =
   toLisp (`CBN`,
     (OBID, cbn.obid),
-    (HDL_IDENT, cbn.ident),
+    (HDL_IDENT, cbn.hdlident),
     (GEOMETRY, cbn.geometry),
     (SIDE, cbn.side),
     (LABEL, cbn.label),
@@ -230,11 +233,11 @@ func encodeComponent(comp: Component): LispNode =
     ports: seq[LispNode]
 
   toLisp (`COMPONENT`,
-    (HDL_IDENT, comp.ident),
+    (HDL_IDENT, comp.hdlident),
     (GEOMETRY, comp.geometry),
     (SIDE, comp.side),
     (LABEL, comp.label),
-    # (ENTITY, comp.ident),
+    # (ENTITY, comp.hdlident),
     _ generics,
     _ ports,
   )

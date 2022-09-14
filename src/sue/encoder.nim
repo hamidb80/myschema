@@ -112,12 +112,13 @@ func encode(arg: Argument): SueOption =
 
 func encode(i: Instance): SueExpression =
   result = genSueExpr make:
-    i.parent.name
+    i.module.name
     -name quoted i.name
     -origin $i.location
     -orient $i.orient
 
-  result.options.add (i.args |> encode)
+  # FIXME uncomment
+  # result.options.add (i.args |> encode)
 
 func encode(l: Label, ctx: EncodeContext): SueExpression =
   case ctx:
@@ -168,7 +169,7 @@ func toSueFile(m: sink Module): SueFile =
   result = SueFile(name: m.name)
 
   # --- icon
-  result.icon.add encode(m.params, ecIcon)
+  # FIXME result.icon.add encode(m.params, ecIcon)
 
   for p in m.icon.properties:
     if p.name notin ["origin", "orient"]:
@@ -184,18 +185,18 @@ func toSueFile(m: sink Module): SueFile =
     result.icon.add encode(l, ecIcon)
 
   # --- schematic
-  result.schematic.add encode(m.params, ecSchematic)
+  # FIXME result.schematic.add encode(m.params, ecSchematic)
 
-  for ins in m.arch.schema.instances:
+  for ins in m.schema.instances:
     result.schematic.add encode ins
 
-  for w in m.arch.schema.wires:
+  for w in m.schema.wires:
     result.schematic.add encode w
 
-  for l in m.arch.schema.labels:
+  for l in m.schema.labels:
     result.schematic.add encode(l, ecSchematic)
 
-  for l in m.arch.schema.lines:
+  for l in m.schema.lines:
     result.schematic.add encode(l, ecSchematic)
 
 proc genTclIndex(proj: Project): string =
@@ -221,12 +222,12 @@ proc writeProject*(proj: Project, dest: string) =
   writeFile dest / "buffer0.sue", b
 
   for name, module in proj.modules:
-    if not module.isTemporary:
+    if not module.isTemp:
       let fname = dest / name & ".sue"
       debugEcho "writing ", fname
       writeFile fname, dump toSueFile module
 
-      if module.arch.kind == akFile:
-        writeFile dest / name, module.arch.file.content
+      # if module.kind == akFile:
+      #   writeFile dest / name, module.file.content
 
   writeFile dest / "tclindex", genTclIndex proj
