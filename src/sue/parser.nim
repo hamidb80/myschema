@@ -20,7 +20,7 @@ func getOrigin(expr: SueExpression): Point =
   parseOrigin expr[sfOrigin].strval
 
 func getOrient(expr: SueExpression): Orient =
-  let tk = expr.find(sfOrigin)
+  let tk = expr.find(sfOrient)
 
   if issome tk:
     parseOrient tk.get.strval
@@ -61,10 +61,15 @@ func getAnchor(expr: SueExpression): Anchor =
 func moduleRef(name: string): Module =
   Module(name: name, kind: mkRef)
 
-func parseMake*(expr: SueExpression): Instance =
+proc parseMake*(expr: SueExpression): Instance =
   let
     p = expr.args[0].strVal
-    n = expr[sfName].strval
+    n =
+      try: 
+        expr[sfName].strval
+      except ValueError:
+        randomIdent(10)
+
     l = getOrigin expr
     o = getOrient expr
 
@@ -87,7 +92,7 @@ func parseMakeText*(expr: SueExpression): Label =
 func incl(nets: var Graph[Point], w: Wire) =
   nets.incl w.a, w.b
 
-func parseSchematic(se: seq[SueExpression]): Schematic =
+proc parseSchematic(se: seq[SueExpression]): Schematic =
   result = new Schematic
 
   for expr in se:
@@ -107,7 +112,7 @@ func parseSchematic(se: seq[SueExpression]): Schematic =
     else:
       err fmt"invalid command in schematic: {expr.command}"
 
-func foldPoints(xyValues: seq[int]): seq[Point] = 
+func foldPoints(xyValues: seq[int]): seq[Point] =
   for i in countup(0, xyValues.high, 2):
     result.add (i, i+1)
 
@@ -120,7 +125,7 @@ func parseIcon(se: seq[SueExpression]): Icon =
 
     of scIconLine:
       result.lines.add Line(
-        kind: straight, 
+        kind: straight,
         points: foldPoints mapIt(expr.args, it.intval))
 
     of scIconTerm:
@@ -133,12 +138,13 @@ func parseIcon(se: seq[SueExpression]): Icon =
     else:
       err fmt"invalid command in icon: {expr.command}"
 
-func parseSue*(sfile: SueFile): Module =
+proc parseSue*(sfile: SueFile): Module =
   Module(
     name: sfile.name,
     kind: mkCtx,
     icon: parseIcon sfile.icon,
     schema: parseSchematic sfile.schematic)
+    # paramters: ) # TODO
 
 
 func instantiate(o: Port, p: Instance): Port =

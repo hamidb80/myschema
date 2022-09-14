@@ -60,7 +60,7 @@ func quoted(s: string): string =
   else:
     s
 
-template `|>`(list, fn): untyped = # TODO move it to common or globals
+template `|>`(list, fn): untyped =
   list.map fn
 
 template toOption(f, val): untyped =
@@ -117,8 +117,7 @@ func encode(i: Instance): SueExpression =
     -origin $i.location
     -orient $i.orient
 
-  # FIXME uncomment
-  # result.options.add (i.args |> encode)
+  result.options.add (i.args |> encode)
 
 func encode(l: Label, ctx: EncodeContext): SueExpression =
   case ctx:

@@ -1,0 +1,15 @@
+# This generator makes either a "name_net_s", "name_net", and a 
+# "name_net_sw".  The name_net_s seems to be used more often so
+# it is the default and the file name.  These icons all doing
+# the exact same thing, they just look a little different.
+
+# Note the priority.  Can't be generated in SUE.
+
+proc ICON_name_net_s args {
+  icon_setup $args {{origin {0 0}} {orient R0} {name {}}}
+  icon_term -type inout -origin {0 0} -name {$name} -priority name
+  icon_line 0 0 0 -10 -10 -10
+  icon_property -origin {-60 50} -type user -name name
+  icon_property -origin {0 -20} -label {$name} -anchor center
+  icon_property -origin {-60 70} -type fixed -name primitive -text 1
+}

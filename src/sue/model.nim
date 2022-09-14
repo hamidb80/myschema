@@ -104,7 +104,7 @@ type
     kind*: InstanceKind
     name*: string
     module* {.cursor.}: Module
-    # args*: seq[Argument]
+    args*: seq[Argument]
     location*: Point
     orient*: Orient
 
@@ -117,9 +117,9 @@ type
       icon*: Icon
       schema*: Schematic
       code*: Option[string]
+      params*: seq[Parameter]
       isTemp*: bool # is temporaty - do not generate file for temporary modules
-                    # params*: seq[Parameter]
-                    # isGenerator*: bool
+      isGenerator*: bool
 
   ModuleLookUp* = Table[string, Module]
 
