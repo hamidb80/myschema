@@ -1,6 +1,6 @@
-import std/[sequtils, sets, tables, os]
+import std/[sequtils, sets, tables]
 import ../common/[coordination, graph, errors, seqtable, domain, rand]
-import model, helpers, parser, lexer
+import model, helpers
 
 
 type
@@ -13,14 +13,6 @@ type
     of skSchema: discard
     of skElement:
       name: string
-
-
-var basicModules: ModuleLookUp
-
-for path in walkFiles "./elements/*.sue":
-  let (_, name, _) = splitFile path
-  basicModules[name] = parseSue lexSue readfile path
-
 
 
 func source(p: Port): Source =

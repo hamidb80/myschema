@@ -2,6 +2,7 @@ import std/[tables, strutils, options, macros]
 import ../common/[coordination, domain, errors, graph]
 import ../ease/model as em, ../sue/model as sm
 import ../ease/logic as el, ../sue/logic as sl
+import ../sue/prepare as sp
 
 # template param(n, d): untyped =
 #   Parameter(name: n, defaultValue: some d)
@@ -31,6 +32,7 @@ func toSue(ro: Rotation, fs: set[Flip]): Orient =
   of r180: flipCase(fs, R0, RY, RX, RXY)
   of r270: flipCase(fs, R90, R90Y, R90X, R270)
 
+
 func head(b: BusRipper): Point =
   center b.geometry
 
@@ -55,8 +57,9 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
     anchor: c,
     fnsize: fzLarge)
 
-  ## TODO add icon labels
-  ## TODO add icon properties
+  # TODO add icon labels
+  # TODO add icon properties
+  # TODO process, generator block
 
   for p in entity.ports:
     result.icon.ports.add sm.Port(
@@ -71,6 +74,7 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
       anchor: s,
       fnsize: fzStandard)
 
+  let nameNet = modules["name_net"]
   for a in entity.archs:
     case a.kind:
     of amBlockDiagram:
@@ -95,7 +99,6 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
           if part.kind == pkWire:
             for br in part.busRippers:
               let
-                nameNet = modules["name_net"]
                 conn = toWire br
                 srcIdent =
                   sourceNet.parts[1]
@@ -115,12 +118,10 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
 
               result.schema.wireNets.incl conn
 
-      # TODO process, generator block
-
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
       err "is not supported yet"
 
-proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
+func toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
   ## fonverts a EWS project to SUE project
   result = sm.Project(modules: basicModules)
 
@@ -133,3 +134,6 @@ proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
       #     param("orient", "R0")]
 
       result.modules[$obid] = toSue(e, basicModules)
+
+proc toSue*(proj: em.Project): sm.Project =
+  proj.toSue sp.basicModules
