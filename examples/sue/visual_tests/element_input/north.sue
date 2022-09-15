@@ -1,0 +1,8 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_north {} {
+  make inverter -orient R270 -origin {600 230}
+  make input -orient R270 -origin {600 380}
+  make_wire 600 260 600 380
+}
+

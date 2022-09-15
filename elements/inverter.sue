@@ -1,0 +1,11 @@
+# SUE version MMI_SUE3.3
+
+proc SCHEMATIC_inverter args {
+    make input -name in -origin {450 280}
+    make output -name out -origin {570 280}
+}
+
+proc ICON_inverter args {
+    icon_term -type input -origin {-30 0} -name in
+    icon_term -type output -origin {50 0} -name out
+}

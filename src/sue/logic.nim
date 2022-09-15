@@ -30,6 +30,11 @@ func instancekind*(name: string): InstanceKind =
   of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": ikNameNet
   else: ikCustom
 
+func normalizeModuleName(name: string): string =
+  case name:
+  of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": "name_net"
+  else: name
+
 
 func dropIndexes(s: string): string =
   ## removes the bracket part from `s`
@@ -220,19 +225,15 @@ proc fixErrors*(project: var Project) =
 func instantiate(o: Port, p: Instance): Port =
   Port(kind: pkInstance, parent: p, origin: o)
 
-func extractConnections(
-  sch: Schematic,
-  portsPlot: Table[Point, seq[Port]]
-  ): Graph[PortId] =
-
+func extractConnections(sch: Schematic): Graph[PortId] =
   var seen: Hashset[Point]
 
-  for loc, ports in portsPlot:
+  for loc, ports in sch.portsPlot:
     var acc: seq[Port]
 
     for l in walk(sch.wiredNodes, loc, seen):
-      if l in portsPlot:
-        for cp in portsPlot[l]:
+      if l in sch.portsPlot:
+        for cp in sch.portsPlot[l]:
           acc.add cp
 
     for p1 in acc:
@@ -241,13 +242,14 @@ func extractConnections(
           for pid2 in ids p2:
             result.incl pid1, pid2
 
+import print
 proc resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
   for _, module in mpairs proj.modules:
     var portsPlot: Table[Point, seq[Port]]
 
     for ins in mitems module.schema.instances:
-      let mref = proj.modules[ins.module.name]
+      let mref = proj.modules[normalizeModuleName ins.module.name]
       ins.module = mref
 
       if ins.name[0] == '[': # an array, like [2:0]
@@ -258,10 +260,15 @@ proc resolve*(proj: var Project) =
           insPort = instantiate(p, ins)
           loc = insPort.location
 
-        portsPlot.add loc, insPort
+        module.schema.portsPlot.add loc, insPort
 
-        for pid in p.ids:
+        for pid in insPort.ids:
           module.schema.portsTable.add pid, insPort
 
-    module.schema.connections =
-      extractConnections(module.schema, portsPlot)
+    echo module.name
+    for p, ports in module.schema.portsPlot:
+      echo p, ports.mapit(toseq ids it)
+
+    print module.schema.wiredNodes
+
+    module.schema.connections = extractConnections(module.schema)

@@ -1,0 +1,43 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_no_name {} {
+  make input -name a -origin {320 280}
+  make input -orient RXY -name b -origin {380 280}
+  make output -orient RXY -name c -origin {320 330}
+  make output -orient R90 -name d -origin {350 370}
+  make output -name f -origin {570 340}
+  make input -orient R90 -name e -origin {540 310}
+  make name_net_s -orient R270 -name e -origin {500 340}
+  make output -orient R90 -name g -origin {540 380}
+  make input -name h -origin {700 280}
+  make input -orient RXY -name i -origin {780 280}
+  make name_net_s -name j -origin {740 280}
+  make name_net_s -orient R270 -name j -origin {680 340}
+  make name_net_s -name k -origin {740 340}
+  make output -name l -origin {780 340}
+  make output -name m -origin {780 380}
+  make name_net_s -orient RXY -name k -origin {740 380}
+  make_wire 320 280 350 280
+  make_wire 350 280 380 280
+  make_wire 320 330 350 330
+  make_wire 350 330 350 280
+  make_wire 350 330 350 370
+  make_wire 540 340 540 380
+  make_wire 540 340 500 340
+  make_wire 540 340 570 340
+  make_wire 740 280 700 280
+  make_wire 740 280 780 280
+  make_wire 740 340 680 340
+  make_wire 740 340 780 340
+  make_wire 740 380 780 380
+  make_line 460 220 460 440
+  make_line 640 220 640 440
+  make_text -origin {320 170} -text {this schematic contains 3 disconnected nets }
+  make_text -origin {340 230} -text #1
+  make_text -origin {530 230} -text #2
+  make_text -origin {730 230} -text #3
+  make_text -origin {290 500} -text {case #1: wired nodes
+case #2: port with name-net
+case #3: tagged connection}
+}
+

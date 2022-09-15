@@ -65,7 +65,7 @@ proc parseMake*(expr: SueExpression): Instance =
   let
     p = expr.args[0].strVal
     n =
-      try: 
+      try:
         expr[sfName].strval
       except ValueError:
         randomIdent(10)
@@ -146,8 +146,20 @@ proc parseSue*(sfile: SueFile): Module =
     schema: parseSchematic sfile.schematic)
     # paramters: ) # TODO
 
+
+
+var basicModules*: ModuleLookUp
+
+for path in walkFiles "./elements/*.sue":
+  let 
+    (_, name, _) = splitFile path
+    module = parseSue lexSue readfile path
+  module.isTemp = true
+  basicModules[name] = module
+
+
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
-  result = Project(modules: ModuleLookUp())
+  result = Project(modules: basicModules)
 
   template walkSue(dir): untyped {.dirty.} =
     for path in walkFiles dir / "*.sue":
@@ -157,5 +169,15 @@ proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
   walkSue mainDir
   for d in lookupDirs:
     walkSue d
+
+  resolve result
+
+proc parseSueProject*(paths: seq[string]): Project =
+  ## parse custom files, mainly created for testing purposes
+  result = Project(modules: basicModules)
+
+  for path in paths:
+    let m = parseSue lexSue readFile path
+    result.modules[m.name] = m
 
   resolve result

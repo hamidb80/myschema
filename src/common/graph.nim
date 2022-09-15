@@ -35,15 +35,16 @@ func connected*[N](conns: Graph[N], n1, n2: N): bool =
 iterator walk*[N](g: Graph[N], start: N, seen: var HashSet[N]): N =
   var stack = @[start]
 
-  while not isempty stack:
-    let head = stack.pop
+  if start in g:
+    while not isempty stack:
+      let head = stack.pop
 
-    if head notin seen:
-      yield head
-      seen.incl head
+      if head notin seen:
+        yield head
+        seen.incl head
 
-      for p in g[head]:
-        stack.add p
+        for p in g[head]:
+          stack.add p
 
 iterator walk*[N](g: Graph[N], start: N): N =
   var seen: HashSet[N]

@@ -88,8 +88,8 @@ type
     connections*: Graph[PortID]
     labels*: seq[Label]
     lines*: seq[Line]
-
     # --- meta data
+    portsPlot*: Table[Point, seq[Port]]
     portsTable*: Table[PortID, seq[Port]]
 
   Parameter* = ref object
@@ -131,6 +131,7 @@ import std/hashes
 
 func hash*(pid: PortID): Hash {.borrow.}
 func `==`*(pid1, pid2: PortID): bool {.borrow.}
+func `$`*(pid: PortID): string {.borrow.}
 
 func newModule*(): Module = 
   Module(kind: mkCtx, icon: Icon(), schema: Schematic())

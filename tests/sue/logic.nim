@@ -1,8 +1,9 @@
-import std/[unittest, sequtils, tables]
+import std/[unittest, sequtils, tables, sets]
 import src/sue/logic {.all.}
-import src/sue/model
+import src/sue/[model, lexer, parser]
 import src/common/[coordination, graph, collections]
 
+import print
 
 suite "basics":
   test "dropIndexes":
@@ -49,10 +50,15 @@ suite "basics":
 
     check pws.len == ws.len
 
+  test "location":
+    # FIXME complete the file examples/sue/visual_tests/my_elem.sue
+    discard
+
 suite "advanced":
-  # TODO test with sue files
   test "extractConnection":
     discard
+    # let proj = parseSueProject @["./examples/sue/visual_tests/net_graphs.sue"]
+    # echo proj.modules["no_name"].schema.connections
 
   test "resolve":
     discard
