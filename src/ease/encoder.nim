@@ -271,7 +271,7 @@ func makeProjectFile*(proj: Project): seq[LispNode] =
   wrapFile encodeProject proj
 
 
-when isMainModule:
-  echo encodeGeometry (1, 2, 3, 4)
-  echo encodeWire ((1, 3) .. (2, 4))
-  echo encodeLabel Label(texts: @["hye", "wow"])
+# when isMainModule:
+#   echo encodeGeometry (1, 2, 3, 4)
+#   echo encodeWire ((1, 3) .. (2, 4))
+#   echo encodeLabel Label(texts: @["hye", "wow"])

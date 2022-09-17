@@ -2,10 +2,29 @@
 
 proc SCHEMATIC_location {} {
   make input -name p0 -origin {0 0}
-  make my_elem -orient R270 -name rotated -origin {40 190}
-  make my_elem -orient R90X -name rotated_and_flipped -origin {150 -180}
-  make my_elem -orient RY -name flipped -origin {-220 130}
-  make my_elem -name nothing -origin {-210 -110}
-  make_line 0 -190 0 180
+  make myelem -name nothing -origin {-210 -110}
+  make myelem -orient R90X -name rotated_and_flipped -origin {150 -180}
+  make myelem -orient R270 -name rotated -origin {40 190}
+  make myelem -orient RY -name flipped -origin {-220 130}
   make_line -270 0 250 0
+  make_line -50 -10 -50 0
+  make_line -150 -10 -150 0
+  make_line -250 -10 -250 0
+  make_line 0 -50 -10 -50
+  make_line 0 -150 -10 -150
+  make_line 0 50 -10 50
+  make_line 0 150 -10 150
+  make_line 50 0 50 -10
+  make_line 150 0 150 -10
+  make_line 250 0 250 -10
+  make_line 0 -200 -10 -200
+  make_line 0 -200 0 300
+  make_line 0 -100 -20 -100
+  make_line 100 0 100 -20
+  make_line 200 0 200 -20
+  make_line 0 100 -20 100
+  make_line 0 200 -20 200
+  make_line -100 0 -100 -20
+  make_line -200 0 -200 -20
 }
+

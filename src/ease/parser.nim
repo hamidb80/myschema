@@ -1017,7 +1017,7 @@ proc parseEws*(dir: string): Project =
 
     for _, e in mpairs d.entities:
       let fname = libdir / e.obid.string & ".eas"
-      debugEcho "parseing eas: ", fname
+      # debugEcho "parseing eas: ", fname
       e = parseEntityFile select parseLisp readfile fname
 
   resolve result

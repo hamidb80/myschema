@@ -1,0 +1,20 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_myelem {} {
+  make input -name in1 -origin {-190 10}
+  make output -name out1 -origin {-140 10}
+  make input -name in2 -origin {-190 40}
+}
+
+proc ICON_myelem args {
+  icon_setup $args {{origin {0 0}} {orient R0} {name {}}}
+  icon_term -type input -origin {0 0} -name in1
+  icon_term -type input -origin {70 60} -orient R270 -name in2
+  icon_term -type output -origin {100 0} -name out1
+  icon_property -origin {-50 110} -type user -name name
+  icon_line 0 -10 0 60 100 60 100 -20 0 -20 0 0 0 0
+  icon_property -origin {-40 -30} -label in1
+  icon_property -origin {90 80} -label in2
+  icon_property -origin {130 -20} -label out1
+}
+

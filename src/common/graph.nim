@@ -1,4 +1,4 @@
-## implments a non-directional graph
+## implments a non-directional graph - loop is not alowwed
 
 import std/[tables, sets, sequtils]
 import collections
@@ -6,10 +6,11 @@ import collections
 type Graph*[N] = Table[N, HashSet[N]]
 
 func inclImpl[N](g: var Graph[N], key, val: N) =
-  g.withValue(key, wrapper):
-    wrapper[].incl val
-  do:
-    g[key] = toHashSet @[val]
+  if key != val: # loop is not alowwed
+    g.withValue(key, wrapper):
+      wrapper[].incl val
+    do:
+      g[key] = toHashSet @[val]
 
 func incl*[N](g: var Graph[N], n1, n2: N) =
   g.inclImpl n1, n2

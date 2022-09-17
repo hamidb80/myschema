@@ -1,6 +1,6 @@
 # SUE version MMI_SUE4.4.0
 
-proc SCHEMATIC_no_name {} {
+proc SCHEMATIC_net_graphs {} {
   make input -name a -origin {320 280}
   make input -orient RXY -name b -origin {380 280}
   make output -orient RXY -name c -origin {320 330}

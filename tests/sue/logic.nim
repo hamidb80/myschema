@@ -1,9 +1,12 @@
-import std/[unittest, sequtils, tables, sets]
+import std/[unittest, sequtils, tables, sets, os]
 import src/sue/logic {.all.}
 import src/sue/[model, lexer, parser]
 import src/common/[coordination, graph, collections]
 
 import print
+
+func vis(s: string): string =
+  "./examples/sue/visual_tests" / s
 
 suite "basics":
   test "dropIndexes":
@@ -51,14 +54,35 @@ suite "basics":
     check pws.len == ws.len
 
   test "location":
-    # FIXME complete the file examples/sue/visual_tests/my_elem.sue
-    discard
+    let
+      proj = parseSueProject @[
+        vis "location.sue",
+        vis "myelem.sue"]
+
+      m1 = proj.modules["myelem"]
+      m2 = proj.modules["location"]
+
+    echo "-----------------------------"
+    echo m1.icon.ports.mapIt it.name
+
+    var tt: Table[string, HashSet[Point]]
+    for loc, ps in m2.schema.portsPlot:
+      for p in ps:
+        let n = p.parent.name
+        
+        withValue  tt, n, wrapper:
+          wrapper[].incl p.location
+        do:
+          tt[n] = toHashSet @[p.location]
+
+    ## rotated and nothing is right, flipped is wrong
+
+    print tt
 
 suite "advanced":
   test "extractConnection":
-    discard
-    # let proj = parseSueProject @["./examples/sue/visual_tests/net_graphs.sue"]
-    # echo proj.modules["no_name"].schema.connections
+    let proj = parseSueProject @["./examples/sue/visual_tests/net_graphs.sue"]
+    # print proj.modules["net_graphs"].schema.connections
 
   test "resolve":
     discard

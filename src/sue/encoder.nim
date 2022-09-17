@@ -223,7 +223,7 @@ proc writeProject*(proj: Project, dest: string) =
   for name, module in proj.modules:
     if not module.isTemp:
       let fname = dest / name & ".sue"
-      debugEcho "writing ", fname
+      # debugEcho "writing ", fname
       writeFile fname, dump toSueFile module
 
       # if module.kind == akFile:

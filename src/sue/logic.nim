@@ -99,7 +99,7 @@ func location*(p: Port): Point =
     let
       ins = p.parent
       t = genTransformer(
-        ins.module.icon.geometry,
+        ins.module.icon.geometry + ins.location,
         ins.location,
         ins.orient)
 
@@ -226,12 +226,10 @@ func instantiate(o: Port, p: Instance): Port =
   Port(kind: pkInstance, parent: p, origin: o)
 
 func extractConnections(sch: Schematic): Graph[PortId] =
-  var seen: Hashset[Point]
-
   for loc, ports in sch.portsPlot:
     var acc: seq[Port]
 
-    for l in walk(sch.wiredNodes, loc, seen):
+    for l in walk(sch.wiredNodes, loc):
       if l in sch.portsPlot:
         for cp in sch.portsPlot[l]:
           acc.add cp
@@ -242,12 +240,9 @@ func extractConnections(sch: Schematic): Graph[PortId] =
           for pid2 in ids p2:
             result.incl pid1, pid2
 
-import print
 proc resolve*(proj: var Project) =
   ## add meta data for instances, resolve modules
   for _, module in mpairs proj.modules:
-    var portsPlot: Table[Point, seq[Port]]
-
     for ins in mitems module.schema.instances:
       let mref = proj.modules[normalizeModuleName ins.module.name]
       ins.module = mref
@@ -265,10 +260,5 @@ proc resolve*(proj: var Project) =
         for pid in insPort.ids:
           module.schema.portsTable.add pid, insPort
 
-    echo module.name
-    for p, ports in module.schema.portsPlot:
-      echo p, ports.mapit(toseq ids it)
-
-    print module.schema.wiredNodes
-
+    # print module.schema.wiredNodes
     module.schema.connections = extractConnections(module.schema)
