@@ -1,4 +1,4 @@
-import std/[macros,  tables, sets]
+import std/[macros, tables, sets]
 import seqtable
 
 macro toTuple*(list: untyped, n: static[int]): untyped =
@@ -34,6 +34,11 @@ macro pickTuple*(list: untyped, indexes: static[openArray[int]]): untyped =
 
 template toSlice*(a): untyped =
   a[0] .. a[1]
+
+func sorted*[T](r: Slice[T]): Slice[T] =
+  if r.a < r.b: r
+  else: r.b .. r.a
+
 
 func reversed*[T](s: Slice[T]): Slice[T] =
   s.b .. s.a
@@ -82,7 +87,7 @@ template toTableBy*[Key, Value](s, keyExtractor): untyped =
   result
 
 template surf*[V](s, cond): untyped =
-  var 
+  var
     result: V
     found = false
 

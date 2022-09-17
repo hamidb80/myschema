@@ -114,7 +114,7 @@ proc parseSchematic(se: seq[SueExpression]): Schematic =
 
 func foldPoints(xyValues: seq[int]): seq[Point] =
   for i in countup(0, xyValues.high, 2):
-    result.add (i, i+1)
+    result.add (xyValues[i], xyValues[i+1]) # TODO this line
 
 func parseIcon(se: seq[SueExpression]): Icon =
   result = new Icon
@@ -151,7 +151,7 @@ proc parseSue*(sfile: SueFile): Module =
 var basicModules*: ModuleLookUp
 
 for path in walkFiles "./elements/*.sue":
-  let 
+  let
     (_, name, _) = splitFile path
     module = parseSue lexSue readfile path
   module.isTemp = true
