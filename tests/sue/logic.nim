@@ -81,6 +81,8 @@ suite "basics":
       tt["flipped"] == %[(-150, 70), (-120, 130), (-220, 130)]
       tt["rotated_and_flipped"] == %[(150, -180), (210, -110), (150, -80)]
 
+  ## TODO add location test for a `kite` shape
+
 suite "advanced":
   test "extractConnection":
     let
