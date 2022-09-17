@@ -89,10 +89,7 @@ func geometry*(icon: Icon): Geometry =
       for p in l.points:
         acc.add p
 
-  if isEmpty acc:
-    (0, 0, 1, 1)
-  else:
-    area acc
+  area acc
 
 func location*(p: Port): Point =
   case p.kind:
