@@ -114,7 +114,7 @@ proc parseSchematic(se: seq[SueExpression]): Schematic =
 
 func foldPoints(xyValues: seq[int]): seq[Point] =
   for i in countup(0, xyValues.high, 2):
-    result.add (i, i+1)
+    ## TODO result.add (i, i+1)
 
 func parseIcon(se: seq[SueExpression]): Icon =
   result = new Icon
