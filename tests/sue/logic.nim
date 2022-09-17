@@ -1,4 +1,4 @@
-import std/[unittest, sequtils, tables, sets, os]
+import std/[unittest, sequtils, tables, sets, os, sugar]
 import src/sue/logic {.all.}
 import src/sue/[model, lexer, parser]
 import src/common/[coordination, graph, collections]
@@ -7,6 +7,10 @@ import print
 
 func vis(s: string): string =
   "./examples/sue/visual_tests" / s
+
+template `%`(smth): untyped =
+  toHashSet smth
+
 
 suite "basics":
   test "dropIndexes":
@@ -59,30 +63,44 @@ suite "basics":
         vis "location.sue",
         vis "myelem.sue"]
 
-      m1 = proj.modules["myelem"]
       m2 = proj.modules["location"]
-
-    echo "-----------------------------"
-    echo m1.icon.ports.mapIt it.name
 
     var tt: Table[string, HashSet[Point]]
     for loc, ps in m2.schema.portsPlot:
       for p in ps:
         let n = p.parent.name
-        
-        withValue  tt, n, wrapper:
+
+        withValue tt, n, wrapper:
           wrapper[].incl p.location
         do:
           tt[n] = toHashSet @[p.location]
 
-    ## rotated and nothing is right, flipped is wrong
-
-    print tt
+    check:
+      tt["nothing"] == %[(-110, -110), (-210, -110), (-140, -50)]
+      tt["rotated"] == %[(100, 120), (40, 190), (40, 90)]
+      tt["flipped"] == %[(-150, 70), (-120, 130), (-220, 130)]
+      tt["rotated_and_flipped"] == %[(150, -180), (210, -110), (150, -80)]
 
 suite "advanced":
   test "extractConnection":
-    let proj = parseSueProject @["./examples/sue/visual_tests/net_graphs.sue"]
-    # print proj.modules["net_graphs"].schema.connections
+    let
+      proj = parseSueProject @["./examples/sue/visual_tests/net_graphs.sue"]
+      conns = proj.modules["net_graphs"].schema.connections
+
+    check cast[Table[string, HashSet[string]]](conns) == toTable {
+      "a": %["b", "d", "c"],
+      "b": %["a", "d", "c"],
+      "c": %["a", "b", "d"],
+      "d": %["a", "b", "c"],
+      "e": %["f", "g"],
+      "f": %["g", "e"],
+      "g": %["f", "e"],
+      "h": %["j", "i"],
+      "i": %["j", "h"],
+      "j": %["k", "h", "l", "i"],
+      "k": %["j", "l", "m"],
+      "l": %["j", "k"],
+      "m": %["k"]}
 
   test "resolve":
     discard
