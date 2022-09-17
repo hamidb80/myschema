@@ -73,7 +73,9 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transformer =
     vec = pin - topleft geo
 
   return func(p: Point): Point =
-    (rotate(p, pin, r) + vec).flip(pin, f)
+    rotate(p, pin, r)
+    .`+`(vec)
+    .flip(pin, f)
 
 func location*(p: Port): Point
 func geometry*(icon: Icon): Geometry =
@@ -88,7 +90,7 @@ func geometry*(icon: Icon): Geometry =
         acc.add p
 
   if isEmpty acc:
-    (0, 0,1, 1)
+    (0, 0, 1, 1)
   else:
     area acc
 
@@ -196,7 +198,7 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
       else: -1
 
     orient = toOrient coeff*dir
-    width =  bufferModule.icon.geometry.size.w
+    width = bufferModule.icon.geometry.size.w
     loc2 = loc + coeff*vdir*width
     buffIn =
       case p.parent.kind:
@@ -206,7 +208,7 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
     buffer = Instance(
       kind: ikCustom,
       name: "buffer_" & randomIdent(),
-      module:  bufferModule,
+      module: bufferModule,
       location: buffIn,
       orient: orient)
 
