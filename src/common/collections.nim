@@ -1,4 +1,5 @@
-import macros
+import std/[macros,  tables, sets]
+import seqtable
 
 macro toTuple*(list: untyped, n: static[int]): untyped =
   ## converts first `n` elements of `list` to tuple
@@ -34,7 +35,7 @@ macro pickTuple*(list: untyped, indexes: static[openArray[int]]): untyped =
 template toSlice*(a): untyped =
   a[0] .. a[1]
 
-func reversed*[T](s: Slice[T]): Slice[T] = 
+func reversed*[T](s: Slice[T]): Slice[T] =
   s.b .. s.a
 
 ## this modules contains utility functionalities to work woth
@@ -64,3 +65,32 @@ func search*[T](s: openArray[T], check: proc(item: T): bool): T =
       return i
 
   raise newException(ValueError, "not found")
+
+# proc add[T](s: var HashSet[T], v: T) =
+#   s.incl v
+
+template toTableBy*[Key, Value](s, keyExtractor): untyped =
+  var result: Table[Key, seq[Value]]
+
+  for it{.inject.} in s:
+    let key = keyExtractor
+    withValue result, key, wrapper:
+      wrapper[].add it
+    do:
+      result[key] = @[it]
+
+  result
+
+template surf*[V](s, cond): untyped =
+  var 
+    result: V
+    found = false
+
+  for it{.inject.} in s:
+    if cond:
+      result = it
+      found = true
+      break
+
+  assert found
+  result

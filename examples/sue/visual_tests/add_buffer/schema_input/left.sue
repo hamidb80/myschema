@@ -1,0 +1,8 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_left {} {
+  make input -name in1 -origin {80 320}
+  make output -name out1 -origin {240 320}
+  make_wire 80 320 240 320
+}
+

@@ -1,5 +1,5 @@
 import std/[sequtils, strutils, sets, tables]
-import ../common/[coordination, graph, errors, seqtable, domain, rand]
+import ../common/[coordination, graph, errors, seqtable, domain, rand, collections]
 import model
 
 
@@ -87,7 +87,10 @@ func geometry*(icon: Icon): Geometry =
       for p in l.points:
         acc.add p
 
-  area acc
+  if isEmpty acc:
+    (0, 0,1, 1)
+  else:
+    area acc
 
 func location*(p: Port): Point =
   case p.kind:
@@ -112,6 +115,11 @@ iterator wires*(wiredNodes: Graph[Point]): Wire =
         let w = n1..n2
         my.incl w
         yield w
+
+iterator ports*(schema: Schematic): Port =
+  for ports in values schema.portsPlot:
+    for p in ports:
+      yield p
 
 
 type
@@ -163,7 +171,7 @@ func `*`(i: range[-1..1], vd: VectorDirection): VectorDirection =
   of -1: -vd
   else: err "coefficient is not in {-1, +1}"
 
-proc addBuffer(p: Port, schema: var Schematic, module: Module) =
+proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
   ## 1. find location
   ## 2. find connected wires
   ## 3. detect direction of the port
@@ -188,7 +196,7 @@ proc addBuffer(p: Port, schema: var Schematic, module: Module) =
       else: -1
 
     orient = toOrient coeff*dir
-    width = module.icon.geometry.size.w
+    width =  bufferModule.icon.geometry.size.w
     loc2 = loc + coeff*vdir*width
     buffIn =
       case p.parent.kind:
@@ -198,7 +206,7 @@ proc addBuffer(p: Port, schema: var Schematic, module: Module) =
     buffer = Instance(
       kind: ikCustom,
       name: "buffer_" & randomIdent(),
-      module: module,
+      module:  bufferModule,
       location: buffIn,
       orient: orient)
 
@@ -206,7 +214,7 @@ proc addBuffer(p: Port, schema: var Schematic, module: Module) =
   schema.wiredNodes.incl loc2, nextNodeLoc
   schema.instances.add buffer
 
-proc fixErrors(schema: var Schematic, modules: ModuleLookup) =
+proc fixErrors(schema: Schematic, modules: ModuleLookup) =
   ## fixes connection errors via adding `buffer0` element
   for pids in parts schema.connections:
     let portGroups = pids.mapit(schema.portsTable[it])
@@ -214,7 +222,7 @@ proc fixErrors(schema: var Schematic, modules: ModuleLookup) =
       for p in problematic ports:
         addBuffer p, schema, modules["buffer0"]
 
-proc fixErrors*(project: var Project) =
+proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
     fixErrors m.schema, project.modules
 
@@ -237,7 +245,7 @@ func extractConnections(sch: Schematic): Graph[PortId] =
           for pid2 in ids p2:
             result.incl pid1, pid2
 
-proc resolve*(proj: var Project) =
+proc resolve*(proj: Project) =
   ## add meta data for instances, resolve modules
   for _, module in mpairs proj.modules:
     for ins in mitems module.schema.instances:

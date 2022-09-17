@@ -84,7 +84,7 @@ suite "basics":
 suite "advanced":
   test "extractConnection":
     let
-      proj = parseSueProject @["./examples/sue/visual_tests/net_graphs.sue"]
+      proj = parseSueProject @[vis "net_graphs.sue"]
       conns = proj.modules["net_graphs"].schema.connections
 
     check cast[Table[string, HashSet[string]]](conns) == toTable {
@@ -102,11 +102,36 @@ suite "advanced":
       "l": %["j", "k"],
       "m": %["k"]}
 
-  test "resolve":
-    discard
+  # test "resolve":
+  #   discard
 
   test "addBuffer":
-    discard
+    template ab(m): untyped =
+      vis "add_buffer" / m
+
+    var
+      pElement = parseSueProject @[
+        ab "element_input/north.sue",
+        ab "element_input/east.sue",
+        ab "element_input/south.sue",
+        ab "element_input/west.sue"]
+
+      pSchema = parseSueProject @[
+        ab "schema_input/up.sue",
+        ab "schema_input/right.sue",
+        ab "schema_input/bottom.sue",
+        ab "schema_input/left.sue"]
+
+    fixErrors pSchema
+    
+    let kk = surf[Instance](
+        pSchema.modules["left"].schema.instances,
+        it.module.name == "buffer0")
+
+    check kk.location == (80, 320)
+    check kk.module.icon.geometry + kk.location == (80, 320, 80+20, 320)
+
+
 
   test "fixErrors":
     discard
