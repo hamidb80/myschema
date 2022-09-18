@@ -81,6 +81,15 @@ suite "basics":
       tt["flipped"] == %[(-150, 70), (-120, 130), (-220, 130)]
       tt["rotated_and_flipped"] == %[(150, -180), (210, -110), (150, -80)]
 
+      # tt["raw"] == ...
+      # tt["r90"] == ...
+      # tt["r180"] == ...
+      # tt["r270"] == ...
+      # tt["fx"] == ...
+      # tt["fy"] == ...
+      # tt["r90x"] == ...
+      # tt["r90y"] == ...
+
 suite "advanced":
   test "extractConnection":
     let
@@ -105,28 +114,28 @@ suite "advanced":
   # test "resolve":
   #   discard
 
-  test "addBuffer":
-    template ab(m): untyped =
-      vis "add_buffer" / m
+  # test "addBuffer":
+  #   template ab(m): untyped =
+  #     vis "add_buffer" / m
 
-    var
-      pElement = parseSueProject @[
-        ab "element_input/north.sue",
-        ab "element_input/east.sue",
-        ab "element_input/south.sue",
-        ab "element_input/west.sue"]
+  #   var
+  #     pElement = parseSueProject @[
+  #       ab "element_input/north.sue",
+  #       ab "element_input/east.sue",
+  #       ab "element_input/south.sue",
+  #       ab "element_input/west.sue"]
 
-      pSchema = parseSueProject @[
-        ab "schema_input/up.sue",
-        ab "schema_input/right.sue",
-        ab "schema_input/bottom.sue",
-        ab "schema_input/left.sue"]
+  #     pSchema = parseSueProject @[
+  #       ab "schema_input/up.sue",
+  #       ab "schema_input/right.sue",
+  #       ab "schema_input/bottom.sue",
+  #       ab "schema_input/left.sue"]
 
-    fixErrors pSchema
+  #   fixErrors pSchema
     
-    let kk = surf[Instance](
-        pSchema.modules["left"].schema.instances,
-        it.module.name == "buffer0")
+  #   let kk = surf[Instance](
+  #       pSchema.modules["left"].schema.instances,
+  #       it.module.name == "buffer0")
 
     # check kk.location == (80, 320)
     # echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>"
