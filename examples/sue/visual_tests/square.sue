@@ -1,12 +1,12 @@
 # SUE version MMI_SUE4.4.0
 
-proc SCHEMATIC_myelem {} {
+proc SCHEMATIC_square {} {
   make input -name in1 -origin {-190 10}
   make output -name out1 -origin {-140 10}
   make input -name in2 -origin {-190 40}
 }
 
-proc ICON_myelem args {
+proc ICON_square args {
   icon_setup $args {{origin {0 0}} {orient R0} {name {}}}
   icon_term -type input -origin {0 0} -name in1
   icon_term -type input -origin {70 60} -orient R270 -name in2

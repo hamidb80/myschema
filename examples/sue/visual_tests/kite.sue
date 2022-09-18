@@ -1,0 +1,23 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_kite {} {
+  make input -name i1 -origin {300 260}
+  make input -name i2 -origin {300 300}
+  make output -name o1 -origin {330 260}
+  make output -name o2 -origin {330 300}
+  make_text -origin {200 150} -text {kite is a module that 
+included center point
+and has non-symmetrical
+shape (icon)}
+}
+
+proc ICON_kite args {
+  icon_setup $args {{origin {0 0}} {orient R0} {name {}}}
+  icon_term -type input -origin {-30 0} -name i2
+  icon_term -type output -origin {20 -20} -name o1
+  icon_term -type output -origin {0 -70} -orient R270 -name o2
+  icon_term -type input -origin {0 20} -orient R270 -name i1
+  icon_property -origin {-80 100} -type user -name name
+  icon_line 0 20 -30 0 0 -70 20 -20 0 20
+}
+

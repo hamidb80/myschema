@@ -104,6 +104,16 @@ func location*(p: Port): Point =
 
     t(p.origin.location + ins.location)
 
+func geometry*(ins: Instance): Geometry = 
+  let 
+    pin = ins.location
+    geo = 
+      ins.module.icon.geometry
+      .rotate(pin, rotation ins.orient)
+      .flip(pin, flips ins.orient)
+
+  geo + pin
+  
 
 iterator wires*(wiredNodes: Graph[Point]): Wire =
   var my: Graph[Point]
