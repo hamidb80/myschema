@@ -70,11 +70,9 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transformer =
   let
     r = o.rotation
     f = o.flips
-    vec = pin - topleft geo # TODO this should be removed
 
   return func(p: Point): Point =
     rotate(p, pin, r)
-    .`+`(vec)
     .flip(pin, f)
 
 func location*(p: Port): Point

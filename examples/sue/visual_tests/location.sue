@@ -14,11 +14,13 @@ proc SCHEMATIC_location {} {
   make kite -orient R90 -name r90 -origin {-130 490}
   make kite -orient RXY -name r180 -origin {10 450}
   make inout -origin {0 0}
+  make kite -orient RXY -name rxy -origin {-250 780}
   make_line -270 0 250 0
   make_line 0 -200 0 300
   make_line -160 380 -160 780
   make_line -30 380 -30 780
   make_line 100 380 100 780
   make_line -280 550 240 550
+  make_line -290 730 240 730
 }
 
