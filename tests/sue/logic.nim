@@ -61,7 +61,8 @@ suite "basics":
     let
       proj = parseSueProject @[
         vis "location.sue",
-        vis "myelem.sue"]
+        vis "square.sue",
+        vis "kite.sue"]
 
       m2 = proj.modules["location"]
 
@@ -76,12 +77,19 @@ suite "basics":
           tt[n] = toHashSet @[p.location]
 
     check:
-      tt["nothing"] == %[(-110, -110), (-210, -110), (-140, -50)]
-      tt["rotated"] == %[(100, 120), (40, 190), (40, 90)]
-      tt["flipped"] == %[(-150, 70), (-120, 130), (-220, 130)]
-      tt["rotated_and_flipped"] == %[(150, -180), (210, -110), (150, -80)]
+      tt["nothing"] == %[(-210, -110), (-140, -50), (-110, -110)]
+      tt["rotated"] == %[(40, 190), (40, 90), (100, 120)]
+      tt["flipped"] == %[(-220, 130), (-150, 70), (-120, 130)]
+      tt["rotated_and_flipped"] == %[(150, -180), (150, -80), (210, -110)]
 
-  ## TODO add location test for a `kite` shape
+      tt["raw"] == %[(-240, 500), (-210, 520), (-210, 430), (-190, 480)]
+      tt["r90"] == %[(-150, 490), (-130, 460), (-110, 510), (-60, 490)]
+      tt["r180"] == %[(-10, 470), (10, 430), (10, 520), (40, 450)]
+      tt["r270"] == %[(130, 450), (180, 430), (200, 480), (220, 450)]
+      tt["fx"] == %[(-250, 640), (-230, 590), (-230, 680), (-200, 660)]
+      tt["fy"] == %[(-110, 600), (-80, 580), (-80, 670), (-50, 620)]
+      tt["r90x"] == %[(0, 660), (60, 680), (70, 630), (90, 660)]
+      tt["r90y"] == %[(120, 640), (140, 640), (160, 590), (210, 610)]
 
 suite "advanced":
   test "extractConnection":
@@ -125,7 +133,7 @@ suite "advanced":
   #       ab "schema_input/left.sue"]
 
   #   fixErrors pSchema
-    
+
   #   let kk = surf[Instance](
   #       pSchema.modules["left"].schema.instances,
   #       it.module.name == "buffer0")

@@ -1,42 +1,24 @@
 # SUE version MMI_SUE4.4.0
 
 proc SCHEMATIC_location {} {
-  make input -name p0 -origin {0 0}
   make square -name nothing -origin {-210 -110}
   make square -orient R90X -name rotated_and_flipped -origin {150 -180}
   make square -orient R270 -name rotated -origin {40 190}
   make square -orient RY -name flipped -origin {-220 130}
-  make kite -name raw -origin {-210 490}
-  make kite -orient R270 -name r270 -origin {190 470}
-  make kite -orient RX -name fx -origin {-220 660}
-  make kite -orient RY -name fy -origin {-100 600}
-  make kite -orient R90X -name r90x -origin {60 640}
-  make kite -orient R90Y -name r90y -origin {150 630}
-  make kite -orient R90 -name r90 -origin {-120 480}
-  make kite -orient RXY -name r180 -origin {30 460}
+  make kite -name raw -origin {-210 500}
+  make kite -orient R270 -name r270 -origin {200 450}
+  make kite -orient RX -name fx -origin {-230 660}
+  make kite -orient RY -name fy -origin {-80 600}
+  make kite -orient R90X -name r90x -origin {70 660}
+  make kite -orient R90Y -name r90y -origin {140 610}
+  make kite -orient R90 -name r90 -origin {-130 490}
+  make kite -orient RXY -name r180 -origin {10 450}
+  make inout -origin {0 0}
   make_line -270 0 250 0
-  make_line -50 -10 -50 0
-  make_line -150 -10 -150 0
-  make_line -250 -10 -250 0
-  make_line 0 -50 -10 -50
-  make_line 0 -150 -10 -150
-  make_line 0 50 -10 50
-  make_line 0 150 -10 150
-  make_line 50 0 50 -10
-  make_line 150 0 150 -10
-  make_line 250 0 250 -10
   make_line 0 -200 0 300
-  make_line 0 -100 -20 -100
-  make_line 100 0 100 -20
-  make_line 200 0 200 -20
-  make_line 0 100 -20 100
-  make_line 0 200 -20 200
-  make_line -100 0 -100 -20
-  make_line -200 0 -200 -20
-  make_line 0 -200 -20 -200
-  make_line -160 410 -160 690
-  make_line -30 410 -30 690
-  make_line 100 410 100 690
+  make_line -160 380 -160 780
+  make_line -30 380 -30 780
+  make_line 100 380 100 780
   make_line -280 550 240 550
 }
 
