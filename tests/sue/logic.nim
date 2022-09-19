@@ -94,6 +94,8 @@ suite "basics":
       tt["r90y"] == %[(120, 610), (140, 640), (160, 590), (210, 610)]
       tt["rxy"] == %[(-270, 800), (-250, 760), (-250, 850), (-220, 780)]
 
+  # TODO geometry of instance
+
 suite "advanced":
   test "extractConnection":
     let
@@ -117,16 +119,16 @@ suite "advanced":
 
   test "addBuffer":
     var pSchema = parseSueProject @[
-        # vis "add_buffer/schema_input/up.sue",
+      # vis "add_buffer/schema_input/up.sue",
         # vis "add_buffer/schema_input/right.sue",
         # vis "add_buffer/schema_input/bottom.sue",
-        vis "add_buffer/schema_input/left.sue"]
+      vis "add_buffer/schema_input/left.sue"]
 
     fixErrors pSchema
 
     let kk = surf[Instance](
-        pSchema.modules["left"].schema.instances,
-        it.module.name == "buffer0")
+      pSchema.modules["left"].schema.instances,
+      it.module.name == "buffer0")
 
     check kk.location == (80, 100)
     check kk.geometry == (80, 90, 80+20, 110)
