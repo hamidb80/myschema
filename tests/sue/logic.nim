@@ -115,37 +115,27 @@ suite "advanced":
       "l": %["j", "k"],
       "m": %["k"]}
 
-  # test "resolve":
-  #   discard
+  test "addBuffer":
+    var pSchema = parseSueProject @[
+        # vis "add_buffer/schema_input/up.sue",
+        # vis "add_buffer/schema_input/right.sue",
+        # vis "add_buffer/schema_input/bottom.sue",
+        vis "add_buffer/schema_input/left.sue"]
 
-  # test "addBuffer":
-  #   template ab(m): untyped =
-  #     vis "add_buffer" / m
+    fixErrors pSchema
 
-  #   var
-  #     pElement = parseSueProject @[
-  #       ab "element_input/north.sue",
-  #       ab "element_input/east.sue",
-  #       ab "element_input/south.sue",
-  #       ab "element_input/west.sue"]
+    let kk = surf[Instance](
+        pSchema.modules["left"].schema.instances,
+        it.module.name == "buffer0")
 
-  #     pSchema = parseSueProject @[
-  #       ab "schema_input/up.sue",
-  #       ab "schema_input/right.sue",
-  #       ab "schema_input/bottom.sue",
-  #       ab "schema_input/left.sue"]
+    check kk.location == (80, 100)
+    check kk.geometry == (80, 90, 80+20, 110)
 
-  #   fixErrors pSchema
-
-  #   let kk = surf[Instance](
-  #       pSchema.modules["left"].schema.instances,
-  #       it.module.name == "buffer0")
-
-    # check kk.location == (80, 320)
-    # echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>"
-    # check kk.geometry == (80, 320, 80+20, 320)
-
-    # TODO better testss
+    # var pElement = parseSueProject @[
+    #   ab "element_input/north.sue",
+    #   ab "element_input/east.sue",
+    #   ab "element_input/south.sue",
+    #   ab "element_input/west.sue"]
 
 
   test "fixErrors":

@@ -2,6 +2,7 @@ import std/[sequtils, strutils, sets, tables]
 import ../common/[coordination, graph, errors, seqtable, domain, rand, collections]
 import model
 
+import print
 
 func rotation*(orient: Orient): Rotation =
   case orient:
@@ -106,11 +107,11 @@ func geometry*(ins: Instance): Geometry =
   let 
     pin = ins.location
     geo = 
-      ins.module.icon.geometry
+      ins.module.icon.geometry + pin
       .rotate(pin, rotation ins.orient)
       .flip(pin, flips ins.orient)
 
-  geo + pin
+  geo
   
 
 iterator wires*(wiredNodes: Graph[Point]): Wire =
@@ -191,6 +192,8 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
 
   assert p.origin.dir == pdInput
 
+  print schema.wiredNodes
+
   let
     loc = p.location
     connectedWiresNodes = toseq schema.wiredNodes[loc]
@@ -223,15 +226,18 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
 
 proc fixErrors(schema: Schematic, modules: ModuleLookup) =
   ## fixes connection errors via adding `buffer0` element
+  let bufferModule = modules["buffer0"]
   for pids in parts schema.connections:
     let portGroups = pids.mapit(schema.portsTable[it])
     for src, ports in groupBySource portGroups:
       for p in problematic ports:
-        addBuffer p, schema, modules["buffer0"]
+        addBuffer p, schema, bufferModule
 
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
-    fixErrors m.schema, project.modules
+    if not m.isTemp:
+      debugEcho m.name, " >>>>>>"
+      fixErrors m.schema, project.modules
 
 
 func instantiate(o: Port, p: Instance): Port =

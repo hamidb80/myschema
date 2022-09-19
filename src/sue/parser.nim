@@ -65,10 +65,8 @@ proc parseMake*(expr: SueExpression): Instance =
   let
     p = expr.args[0].strVal
     n =
-      try:
-        expr[sfName].strval
-      except ValueError:
-        randomIdent(10)
+      try: expr[sfName].strval
+      except ValueError: randomIdent(10)
 
     l = getOrigin expr
     o = getOrient expr
