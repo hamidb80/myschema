@@ -86,7 +86,7 @@ template toTableBy*[Key, Value](s, keyExtractor): untyped =
 
   result
 
-template surf*[V](s, cond): untyped =
+template findOne*[V](s, cond): untyped =
   var
     result: V
     found = false

@@ -1,9 +1,9 @@
-import std/[unittest, sequtils, tables, sets, os, sugar]
+import std/[unittest, sequtils, tables, sets, os]
 import src/sue/logic {.all.}
 import src/sue/[model, lexer, parser]
 import src/common/[coordination, graph, collections]
 
-import print
+# import print
 
 func vis(s: string): string =
   "./examples/sue/visual_tests" / s
@@ -117,21 +117,39 @@ suite "advanced":
       "l": %["j", "k"],
       "m": %["k"]}
 
-  test "addBuffer":
-    var pSchema = parseSueProject @[
-      # vis "add_buffer/schema_input/up.sue",
-        # vis "add_buffer/schema_input/right.sue",
-        # vis "add_buffer/schema_input/bottom.sue",
-      vis "add_buffer/schema_input/left.sue"]
+  let bufferGeo = (0, -10, 20, 10)
 
-    fixErrors pSchema
+  test "addBuffer :: schema":
+    var
+      p = parseSueProject @[
+        vis "add_buffer/schema_input/left.sue",
+        vis "add_buffer/schema_input/right.sue",
+        vis "add_buffer/schema_input/up.sue",
+        vis "add_buffer/schema_input/bottom.sue"]
 
-    let kk = surf[Instance](
-      pSchema.modules["left"].schema.instances,
-      it.module.name == "buffer0")
+      left = p.modules["left"]
+      right = p.modules["right"]
+      up = p.modules["up"]
+      bottom = p.modules["bottom"]
 
-    check kk.location == (80, 100)
-    check kk.geometry == (80, 90, 80+20, 110)
+    fixErrors p
+
+    # ------------------------------------------
+
+    template findBuffer(mdl): untyped =
+      findOne[Instance](mdl.schema.instances, it.module.name == "buffer0")
+
+    block test_left:
+      let buff = findBuffer left
+      check buff.location == (80, 100)
+      check buff.geometry == bufferGeo + (80, 100)
+
+    block test_right:
+      let buff = findBuffer right
+      check buff.location == (150, 260)
+      check buff.geometry == bufferGeo + -(150, 260)
+
+
 
     # var pElement = parseSueProject @[
     #   ab "element_input/north.sue",

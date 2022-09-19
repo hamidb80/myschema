@@ -90,6 +90,9 @@ func geometry*(icon: Icon): Geometry =
 
   area acc
 
+func size*(i: Icon): Size = 
+  i.geometry.size
+
 func location*(p: Port): Point =
   case p.kind:
   of pkIconTerm: p.relativeLocation
@@ -112,7 +115,6 @@ func geometry*(ins: Instance): Geometry =
       .flip(pin, flips ins.orient)
 
   geo
-  
 
 iterator wires*(wiredNodes: Graph[Point]): Wire =
   var my: Graph[Point]
@@ -236,7 +238,6 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
     if not m.isTemp:
-      debugEcho m.name, " >>>>>>"
       fixErrors m.schema, project.modules
 
 
