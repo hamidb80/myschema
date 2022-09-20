@@ -108,6 +108,9 @@ type
     location*: Point
     orient*: Orient
 
+    ## cache
+    ports*: seq[Port]
+
   Module* = ref object
     name*: string
 

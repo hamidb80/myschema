@@ -272,6 +272,7 @@ proc resolve*(proj: Project) =
           insPort = instantiate(p, ins)
           loc = insPort.location
 
+        ins.ports.add insPort
         module.schema.portsPlot.add loc, insPort
 
         for pid in insPort.ids:

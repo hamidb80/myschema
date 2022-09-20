@@ -9,6 +9,12 @@ import print
 func vis(s: string): string =
   "./examples/sue/visual_tests" / s
 
+template findInstanceOf(moduleName, mdl): untyped =
+  findOne[Instance](mdl.schema.instances, it.module.name == moduleName)
+
+template findBuffer(mdl): untyped =
+  findInstanceOf "buffer0", mdl
+
 
 suite "basics":
   test "dropIndexes":
@@ -97,7 +103,7 @@ suite "basics":
       withName("nothing").geometry == (-210, -130, -110, -50)
       withName("rotated").geometry == (20, 90, 100, 190)
       withName("flipped").geometry == (-220, 70, -120, 150)
-      withName("rotated_and_flipped").geometry == (20, 90, 100, 190)
+      withName("rotated_and_flipped").geometry == (130, -180, 210, -80)
       withName("raw").geometry == (-240, 430, -190, 520)
       withName("r90").geometry == (-150, 460, -60, 510)
       withName("r180").geometry == (-10, 430, 40, 520)
@@ -131,95 +137,99 @@ suite "advanced":
 
   let iconGeo = (0, -10, 20, 10)
 
-  test "addBuffer :: schema":
+  test "fixErrors :: addBuffer":
     var
       p = parseSueProject @[
         vis "add_buffer/schema_input/left.sue",
         vis "add_buffer/schema_input/right.sue",
         vis "add_buffer/schema_input/up.sue",
-        vis "add_buffer/schema_input/bottom.sue",
+        vis "add_buffer/schema_input/bottom.sue"]
+
+    fixErrors p
+
+    let
+      left = p.modules["left"]
+      right = p.modules["right"]
+      up = p.modules["up"]
+      bottom = p.modules["bottom"]
+
+    block test_left:
+      let buff = findBuffer left
+      check:
+        buff.location == (80, 100)
+        buff.orient == R0
+        buff.geometry == iconGeo + (80, 100)
+
+    block test_right:
+      let buff = findBuffer right
+      check:
+        buff.location == (150, 260)
+        buff.orient == RXY
+        buff.geometry == iconGeo.rotate(P0, r180) + (150, 260)
+
+    block test_up:
+      let buff = findBuffer up
+      check:
+        buff.location == (90, 350)
+        buff.orient == R270
+        buff.geometry == iconGeo.rotate(P0, -r90) + (90, 350)
+
+    block test_bottom:
+      let buff = findBuffer bottom
+      check:
+        buff.location == (130, 260)
+        buff.orient == R90
+        buff.geometry == iconGeo.rotate(P0, r90) + (130, 260)
+
+  test "addBuffer :: element_input":
+    var
+      p = parseSueProject @[
         vis "add_buffer/element_input/north.sue",
         vis "add_buffer/element_input/east.sue",
         vis "add_buffer/element_input/south.sue",
         vis "add_buffer/element_input/west.sue"]
 
-    fixErrors p
+      east = p.modules["east"]
+      west = p.modules["west"]
+      north = p.modules["north"]
+      south = p.modules["south"]
 
-    # ------------------------------------------
+    block test_east:
+      let inp = findInstanceOf("input", east).ports[0]
+      addBuffer inp, east.schema, p.modules["buffer0"]
 
-    template findBuffer(mdl): untyped =
-      findOne[Instance](mdl.schema.instances, it.module.name == "buffer0")
+      let buff = findBuffer east
+      check:
+        buff.location == (450, 340)
+        buff.orient == R0
+        buff.geometry == iconGeo + (450, 340)
 
-    block to_schema:
-      let
-        left = p.modules["left"]
-        right = p.modules["right"]
-        up = p.modules["up"]
-        bottom = p.modules["bottom"]
+    block test_west:
+      let inp = findInstanceOf("input", west).ports[0]
+      addBuffer inp, west.schema, p.modules["buffer0"]
 
-      block test_left:
-        let buff = findBuffer left
-        check:
-          buff.location == (80, 100)
-          buff.orient == R0
-          buff.geometry == iconGeo + (80, 100)
+      let buff = findBuffer west
+      check:
+        buff.location == (710, 260)
+        buff.orient == RXY
+        buff.geometry == iconGeo.rotate(P0, r180) + (710, 260)
 
-      block test_right:
-        let buff = findBuffer right
-        check:
-          buff.location == (150, 260)
-          buff.orient == RXY
-          buff.geometry == iconGeo.flip(P0, {X}) + (150, 260)
+    block test_north:
+      let inp = findInstanceOf("input", north).ports[0]
+      addBuffer inp, north.schema, p.modules["buffer0"]
 
-      block test_up:
-        let buff = findBuffer up
-        check:
-          buff.location == (90, 350)
-          buff.orient == R270
-          buff.geometry == iconGeo.rotate(P0, -r90) + (90, 350)
+      let buff = findBuffer north
+      check:
+        buff.location == (600, 380)
+        buff.orient == R270
+        buff.geometry == iconGeo.rotate(P0, -r90) + (600, 380)
 
-      block test_bottom:
-        let buff = findBuffer bottom
-        check:
-          buff.location == (130, 260)
-          buff.orient == R90
-          buff.geometry == iconGeo.rotate(P0, r90) + (130, 260)
+    block test_south:
+      let inp = findInstanceOf("input", south).ports[0]
+      addBuffer inp, south.schema, p.modules["buffer0"]
 
-    block to_elements:
-      let
-        north = p.modules["north"]
-        east = p.modules["east"]
-        south = p.modules["south"]
-        west = p.modules["west"]
-
-      block test_east:
-        let buff = findBuffer east
-        check:
-          buff.location == (80, 100)
-          buff.orient == R0
-          buff.geometry == iconGeo + (80, 100)
-
-      block test_west:
-        let buff = findBuffer west
-        check:
-          buff.location == (150, 260)
-          buff.orient == RXY
-          buff.geometry == iconGeo.flip(P0, {X}) + (150, 260)
-
-      block test_north:
-        let buff = findBuffer north
-        check:
-          buff.location == (90, 350)
-          buff.orient == R270
-          buff.geometry == iconGeo.rotate(P0, -r90) + (90, 350)
-
-      block test_south:
-        let buff = findBuffer south
-        check:
-          buff.location == (130, 260)
-          buff.orient == R90
-          buff.geometry == iconGeo.rotate(P0, r90) + (130, 260)
-
-
-  # test "fixErrors":
-  #   discard
+      let buff = findBuffer south
+      check:
+        buff.location == (600, 230)
+        buff.orient == R90
+        buff.geometry == iconGeo.rotate(P0, r90) + (600, 230)
