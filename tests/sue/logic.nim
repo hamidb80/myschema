@@ -57,7 +57,7 @@ suite "basics":
 
     check pws.len == ws.len
 
-  test "location":
+  test "location & geometry":
     let
       proj = parseSueProject @[
         vis "location.sue",
@@ -77,7 +77,6 @@ suite "basics":
           tt[n] = toHashSet @[p.location]
 
     check:
-      # square
       tt["nothing"] == %[(-210, -110), (-140, -50), (-110, -110)]
       tt["rotated"] == %[(40, 190), (40, 90), (100, 120)]
       tt["flipped"] == %[(-220, 130), (-150, 70), (-120, 130)]
@@ -94,24 +93,22 @@ suite "basics":
 
 
     template withName(n): untyped =
-      findOne[Instance](m.schema.instances, it.module.name == n)
+      findOne[Instance](m.schema.instances, it.name == n)
 
     check:
       withName("nothing").geometry == (-210, -130, -110, -50)
       withName("rotated").geometry == (20, 90, 100, 190)
       withName("flipped").geometry == (-220, 70, -120, 150)
       withName("rotated_and_flipped").geometry == (20, 90, 100, 190)
-      # tt["raw"].geometry == [(-240, 500), (-210, 520), (-210, 430), (-190, 480)]
-      # tt["r90"].geometry == [(-150, 490), (-130, 460), (-110, 510), (-60, 490)]
-      # tt["r180"].geometry == [(-10, 470), (10, 430), (10, 520), (40, 450)]
-      # tt["r270"].geometry == [(130, 450), (180, 430), (200, 480), (220, 450)]
-      # tt["fx"].geometry == [(-250, 640), (-230, 590), (-230, 680), (-200, 660)]
-      # tt["fy"].geometry == [(-110, 600), (-80, 580), (-80, 670), (-60, 620)]
-      # tt["r90x"].geometry == [(0, 660), (50, 680), (70, 630), (90, 660)]
-      # tt["r90y"].geometry == [(120, 610), (140, 640), (160, 590), (210, 610)]
-      # tt["rxy"].geometry == [(-270, 800), (-250, 760), (-250, 850), (-220, 780)]
-
-  # TODO geometry of instance
+      withName("raw").geometry == (-240, 430, -190, 520)
+      withName("r90").geometry == (-150, 460, -60, 510)
+      withName("r180").geometry == (-10, 430, 40, 520)
+      withName("r270").geometry == (130, 430, 220, 480)
+      withName("fx").geometry == (-250, 590, -200, 680)
+      withName("fy").geometry == (-110, 580, -60, 670)
+      withName("r90x").geometry == (0, 630, 90, 680)
+      withName("r90y").geometry == (120, 590, 210, 640)
+      withName("rxy").geometry == (-270, 760, -220, 850)
 
 suite "advanced":
   test "extractConnection":

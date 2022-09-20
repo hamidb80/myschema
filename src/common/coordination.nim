@@ -131,21 +131,8 @@ func flip*(p, c: Point, flips: set[Flip]): Point =
       of X: applyFlip flipX, result, c
       of Y: applyFlip flipY, result, c
 
-func flipImpl(x, c: int): int =
-  let dx = c - x
-  c + -sgn(dx) * abs(dx)
-
 func flip*(geo: Geometry, c: Point, flips: set[Flip]): Geometry =
-  result = geo
-  for f in flips:
-    result = 
-      case f:
-      of X:
-        let xr = sorted flipImpl(result.x1, c.x) .. flipImpl(result.x2, c.x)
-        (xr.a, result.y1, xr.b, result.y2)
-      of Y:
-        let yr = sorted flipImpl(result.y1, c.y) .. flipImpl(result.y2, c.y)
-        (result.x1, yr.a, result.x2, yr.b)
+  area geo.points.mapIt flip(it, c, flips)
 
 func rotate*(geo: Geometry, center: Point, r: Rotation): Geometry =
   area geo.points.mapIt rotate(it, center, r)
