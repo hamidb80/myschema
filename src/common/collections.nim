@@ -99,3 +99,7 @@ template findOne*[V](s, cond): untyped =
 
   assert found, "not found"
   result
+
+
+template `%`*(smth): untyped =
+  toHashSet smth

@@ -107,7 +107,6 @@ func location*(p: Port): Point =
     t(p.origin.location + ins.location)
 
 func geometry*(ins: Instance): Geometry =
-  ## FIXME the problem
   let
     pin = ins.location
     geo =
