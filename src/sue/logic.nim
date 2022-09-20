@@ -77,20 +77,20 @@ func genTransformer(geo: Geometry, pin: Point, o: Orient): Transformer =
     .flip(pin, f)
 
 func location*(p: Port): Point
-func geometry*(icon: Icon): Geometry =
-  var acc: seq[Point]
 
+iterator points*(icon: Icon): Point =
   for p in icon.ports:
-    acc.add p.location
+    yield p.location
 
   for l in icon.lines:
     if l.kind == straight:
       for p in l.points:
-        acc.add p
+        yield p
 
-  area acc
+func geometry*(icon: Icon): Geometry =
+  area toseq points icon
 
-func size*(i: Icon): Size = 
+func size*(i: Icon): Size =
   i.geometry.size
 
 func location*(p: Port): Point =
@@ -106,15 +106,16 @@ func location*(p: Port): Point =
 
     t(p.origin.location + ins.location)
 
-func geometry*(ins: Instance): Geometry = 
-  let 
+func geometry*(ins: Instance): Geometry =
+  ## FIXME the problem
+  let
     pin = ins.location
-    geo = 
-      ins.module.icon.geometry + pin
-      .rotate(pin, rotation ins.orient)
-      .flip(pin, flips ins.orient)
+    geo =
+      ins.module.icon.geometry
+      .rotate(P0, rotation ins.orient)
+      .flip(P0, flips ins.orient)
 
-  geo
+  geo + pin
 
 iterator wires*(wiredNodes: Graph[Point]): Wire =
   var my: Graph[Point]
@@ -193,8 +194,6 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
   ## when input is from a custom element, tail of the buffer is `loc`
 
   assert p.origin.dir == pdInput
-
-  print schema.wiredNodes
 
   let
     loc = p.location

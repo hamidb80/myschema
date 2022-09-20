@@ -97,5 +97,5 @@ template findOne*[V](s, cond): untyped =
       found = true
       break
 
-  assert found
+  assert found, "not found"
   result

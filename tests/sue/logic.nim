@@ -3,7 +3,7 @@ import src/sue/logic {.all.}
 import src/sue/[model, lexer, parser]
 import src/common/[coordination, graph, collections]
 
-# import print
+import print
 
 func vis(s: string): string =
   "./examples/sue/visual_tests" / s
@@ -64,10 +64,10 @@ suite "basics":
         vis "square.sue",
         vis "kite.sue"]
 
-      m2 = proj.modules["location"]
+      m = proj.modules["location"]
 
     var tt: Table[string, HashSet[Point]]
-    for loc, ps in m2.schema.portsPlot:
+    for loc, ps in m.schema.portsPlot:
       for p in ps:
         let n = p.parent.name
 
@@ -82,8 +82,6 @@ suite "basics":
       tt["rotated"] == %[(40, 190), (40, 90), (100, 120)]
       tt["flipped"] == %[(-220, 130), (-150, 70), (-120, 130)]
       tt["rotated_and_flipped"] == %[(150, -180), (150, -80), (210, -110)]
-
-      # kite
       tt["raw"] == %[(-240, 500), (-210, 520), (-210, 430), (-190, 480)]
       tt["r90"] == %[(-150, 490), (-130, 460), (-110, 510), (-60, 490)]
       tt["r180"] == %[(-10, 470), (10, 430), (10, 520), (40, 450)]
@@ -93,6 +91,25 @@ suite "basics":
       tt["r90x"] == %[(0, 660), (50, 680), (70, 630), (90, 660)]
       tt["r90y"] == %[(120, 610), (140, 640), (160, 590), (210, 610)]
       tt["rxy"] == %[(-270, 800), (-250, 760), (-250, 850), (-220, 780)]
+
+
+    template withName(n): untyped =
+      findOne[Instance](m.schema.instances, it.module.name == n)
+
+    check:
+      withName("nothing").geometry == (-210, -130, -110, -50)
+      withName("rotated").geometry == (20, 90, 100, 190)
+      withName("flipped").geometry == (-220, 70, -120, 150)
+      withName("rotated_and_flipped").geometry == (20, 90, 100, 190)
+      # tt["raw"].geometry == [(-240, 500), (-210, 520), (-210, 430), (-190, 480)]
+      # tt["r90"].geometry == [(-150, 490), (-130, 460), (-110, 510), (-60, 490)]
+      # tt["r180"].geometry == [(-10, 470), (10, 430), (10, 520), (40, 450)]
+      # tt["r270"].geometry == [(130, 450), (180, 430), (200, 480), (220, 450)]
+      # tt["fx"].geometry == [(-250, 640), (-230, 590), (-230, 680), (-200, 660)]
+      # tt["fy"].geometry == [(-110, 600), (-80, 580), (-80, 670), (-60, 620)]
+      # tt["r90x"].geometry == [(0, 660), (50, 680), (70, 630), (90, 660)]
+      # tt["r90y"].geometry == [(120, 610), (140, 640), (160, 590), (210, 610)]
+      # tt["rxy"].geometry == [(-270, 800), (-250, 760), (-250, 850), (-220, 780)]
 
   # TODO geometry of instance
 
@@ -117,7 +134,7 @@ suite "advanced":
       "l": %["j", "k"],
       "m": %["k"]}
 
-  let bufferGeo = (0, -10, 20, 10)
+  let iconGeo = (0, -10, 20, 10)
 
   test "addBuffer :: schema":
     var
@@ -141,14 +158,27 @@ suite "advanced":
 
     block test_left:
       let buff = findBuffer left
-      check buff.location == (80, 100)
-      check buff.geometry == bufferGeo + (80, 100)
+      check:
+        buff.location == (80, 100)
+        buff.orient == R0
+        buff.geometry == iconGeo + (80, 100)
 
     block test_right:
       let buff = findBuffer right
-      check buff.location == (150, 260)
-      check buff.geometry == bufferGeo + -(150, 260)
+      check:
+        buff.location == (150, 260)
+        buff.orient == RXY
+        buff.geometry == iconGeo.flip(P0, {X}) + (150, 260)
 
+    block test_up:
+      let buff = findBuffer up
+      print buff.geometry
+      print iconGeo
+      print iconGeo.rotate(P0, -r90)
+      check:
+        buff.location == (90, 350)
+        buff.orient == R270
+        buff.geometry == iconGeo.rotate(P0, -r90) + (90, 350)
 
 
     # var pElement = parseSueProject @[
@@ -158,5 +188,5 @@ suite "advanced":
     #   ab "element_input/west.sue"]
 
 
-  test "fixErrors":
-    discard
+  # test "fixErrors":
+  #   discard
