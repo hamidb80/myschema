@@ -1,6 +1,6 @@
 ## this module contains basics 2D-coordination types and functionalities
-import std/[sequtils, math]
-import minmax, errors, collections
+import std/[sequtils]
+import minmax, errors
 
 type
   CircularDirection* = enum
@@ -154,13 +154,6 @@ func toGeometry*(p: Point): Geometry =
 
 func toGeometry*(s: Size): Geometry =
   toGeometry toPoint s
-
-# func `or`*(g1, g2: Geometry): Geometry =
-#   ## returns a geometry that  includes both `g1` and `g2`
-#   (
-#     min(g1.x1, g2.x1), min(g1.y1, g2.y1),
-#     max(g1.x2, g2.x2), max(g1.y2, g2.y2),
-#   )
 
 func size*(g: Geometry): Size =
   (g.x2 - g.x1, g.y2 - g.y1)
