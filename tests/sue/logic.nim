@@ -7,7 +7,7 @@ import print
 
 # utility
 func vis(s: string): string =
-  "./examples/sue/visual_tests" / s
+  "./samples/sue/visual_tests" / s
 
 template findInstanceOf(moduleName, mdl): untyped =
   findOne[Instance](mdl.schema.instances, it.module.name == moduleName)

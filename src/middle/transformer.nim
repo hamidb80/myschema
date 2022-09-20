@@ -2,7 +2,7 @@ import std/[tables, strutils, options, macros]
 import ../common/[coordination, domain, errors, graph]
 import ../ease/model as em, ../sue/model as sm
 import ../ease/logic as el, ../sue/logic as sl
-import ../sue/prepare as sp
+import ../sue/parser as sp
 
 # template param(n, d): untyped =
 #   Parameter(name: n, defaultValue: some d)
@@ -57,6 +57,7 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
     anchor: c,
     fnsize: fzLarge)
 
+  # TODO add arguments and params
   # TODO add icon labels
   # TODO add icon properties
   # TODO process, generator block
