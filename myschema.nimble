@@ -2,7 +2,7 @@
 
 version       = "0.0.1"
 author        = "hamidb80"
-description   = "schema format convertor (MicroMagic SUE, HDL EASE, XSCHEM)"
+description   = "schema format convertor (MicroMagic SUE, HDL EASE)"
 license       = "MIT"
 srcDir        = "src"
 bin           = @["myschema"]

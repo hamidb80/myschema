@@ -133,22 +133,6 @@ func encode(l: Label, ctx: EncodeContext): SueExpression =
       -anchor $l.anchor
       -text quoted l.content
 
-
-func inlineEncode(param: Parameter): string =
-  if issome param.defaultValue:
-    "{$# $#}" % [param.name, dump toToken param.defaultValue.get]
-  else:
-    "{$#}" % param.name
-
-func encode(params: seq[Parameter], ctx: EncodeContext): SueExpression =
-  SueExpression(
-    command: if ctx == ecIcon: scIconSetup
-      else: scCallUseKeyword,
-
-    args: @[
-      toRawToken "$args",
-      toRawToken "{$#}" % (params |> inlineEncode).join " "])
-
 func encode(p: Port): SueExpression =
   genSueExpr icon_term:
     -type $p.dir
@@ -168,7 +152,21 @@ func toSueFile(m: sink Module): SueFile =
   result = SueFile(name: m.name)
 
   # --- icon
-  # FIXME result.icon.add encode(m.params, ecIcon)
+
+  var acc: seq[string]
+
+  for (name, value) in m.params:
+    acc.add:
+      if isSome value:
+        "{$# $#}" % [name, value.get]
+      else:
+        "{$#}" % name
+
+
+  result.icon.add SueExpression(
+    command: scIconSetup,
+    args: @[toRawToken "$args", toRawToken "{$#}" % acc.join" "])
+
 
   for p in m.icon.properties:
     if p.name notin ["origin", "orient"]:
@@ -183,8 +181,6 @@ func toSueFile(m: sink Module): SueFile =
   for l in m.icon.lines:
     result.icon.add encode(l, ecIcon)
 
-  # --- schematic
-  # FIXME result.schematic.add encode(m.params, ecSchematic)
 
   for ins in m.schema.instances:
     result.schematic.add encode ins
@@ -198,7 +194,7 @@ func toSueFile(m: sink Module): SueFile =
   for l in m.schema.lines:
     result.schematic.add encode(l, ecSchematic)
 
-proc genTclIndex(proj: Project): string =
+proc tclIndex(proj: Project): string =
   let now = $gettime().tounix()
   var
     linesAcc: seq[string]
@@ -213,15 +209,9 @@ proc genTclIndex(proj: Project): string =
   linesAcc.join "n"
 
 
-# TODO keep schematic input/output/inout in elements, not in ports
-
-const b = readfile "./elements/buffer0.sue"
-
 proc writeProject*(proj: Project, dest: string) =
   if not dirExists dest:
     createDir dest
-
-  writeFile dest / "buffer0.sue", b
 
   for name, module in proj.modules:
     if not module.isTemp:
@@ -232,4 +222,4 @@ proc writeProject*(proj: Project, dest: string) =
       # if module.kind == akFile:
       #   writeFile dest / name, module.file.content
 
-  writeFile dest / "tclindex", genTclIndex proj
+  writeFile dest / "tclIndex", tclIndex proj

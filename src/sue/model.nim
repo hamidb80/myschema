@@ -1,5 +1,5 @@
 import std/[tables, options]
-import ../common/[coordination, domain, graph]
+import ../common/[coordination, domain, graph, minitable]
 
 type
   FontSize* = enum
@@ -92,10 +92,6 @@ type
     portsPlot*: Table[Point, seq[Port]]
     portsTable*: Table[PortID, seq[Port]]
 
-  Parameter* = ref object
-    name*: string
-    defaultValue*: Option[string]
-
   Argument* = ref object
     name*: string
     value*: string
@@ -120,7 +116,7 @@ type
       icon*: Icon
       schema*: Schematic
       code*: Option[string]
-      params*: seq[Parameter]
+      params*: MiniTable[string, Option[string]]
       isTemp*: bool # is temporaty - do not generate file for temporary modules
       isGenerator*: bool
 
@@ -136,12 +132,20 @@ func hash*(pid: PortID): Hash {.borrow.}
 func `==`*(pid1, pid2: PortID): bool {.borrow.}
 func `$`*(pid: PortID): string {.borrow.}
 
+template `?`(smth): untyped =
+  some smth
+
 func newModule*(name: string): Module =
   Module(
     kind: mkCtx,
     icon: Icon(),
     schema: Schematic(),
-    name: name)
+    name: name,
+    params: @{
+      "name": ?"{}",
+      "origin": ?"{0 0}",
+      "orient": ?"R0"
+    })
 
 func refModule*(name: string): Module =
   Module(kind: mkRef, name: name)

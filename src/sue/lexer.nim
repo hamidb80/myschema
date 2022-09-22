@@ -107,7 +107,7 @@ func isNumbic(s: string): bool =
 
   true
 
-func toRawToken*(s: string): SueToken =
+func toRawToken*(s: string): SueToken {.inline.} =
   SueToken(kind: sttLiteral, strval: s)
 
 func toToken*(s: string): SueToken =

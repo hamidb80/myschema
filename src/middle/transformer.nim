@@ -56,12 +56,7 @@ func `[]`(proj: em.Project, obid: em.Obid): Entity =
 
 
 proc makeModule(prc: em.Process): sm.Module =
-  result = sm.Module(
-    kind: sm.mkCtx,
-    name: "proc_" & randomIdent(6),
-    icon: sm.Icon(),
-    schema: sm.Schematic())
-
+  result = sm.newModule("proc_" & randomIdent(6))
   let pin = topLeft prc.geometry
 
   for p in prc.ports:
@@ -172,12 +167,6 @@ proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
 
   for d in proj.designs:
     for obid, e in d.entities:
-      # var
-      #   myParams = @[
-      #     param("name", "{}"),
-      #     param("origin", "{0 0}"),
-      #     param("orient", "R0")]
-
       let m = toSue(e, proj, result.modules)
       result.modules[m.name] = m
 

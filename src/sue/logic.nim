@@ -2,7 +2,7 @@ import std/[sequtils, strutils, sets, tables]
 import ../common/[coordination, graph, errors, seqtable, domain, rand, collections]
 import model
 
-import print
+# import print
 
 func rotation*(orient: Orient): Rotation =
   case orient:

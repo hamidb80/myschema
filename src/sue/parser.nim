@@ -152,7 +152,7 @@ for path in walkFiles "./elements/*.sue":
   let
     (_, name, _) = splitFile path
     module = parseSue lexSue readfile path
-  module.isTemp = true
+  module.isTemp = name != "buffer0"
   basicModules[name] = module
 
 
