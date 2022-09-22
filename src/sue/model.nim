@@ -136,5 +136,12 @@ func hash*(pid: PortID): Hash {.borrow.}
 func `==`*(pid1, pid2: PortID): bool {.borrow.}
 func `$`*(pid: PortID): string {.borrow.}
 
-func newModule*(): Module = 
-  Module(kind: mkCtx, icon: Icon(), schema: Schematic())
+func newModule*(name: string): Module =
+  Module(
+    kind: mkCtx,
+    icon: Icon(),
+    schema: Schematic(),
+    name: name)
+
+func refModule*(name: string): Module =
+  Module(kind: mkRef, name: name)

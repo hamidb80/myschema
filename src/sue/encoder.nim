@@ -114,7 +114,7 @@ func encode(i: Instance): SueExpression =
   result = genSueExpr make:
     i.module.name
     -name quoted i.name
-    -origin $i.location
+    -origin i.location
     -orient $i.orient
 
   result.options.add (i.args |> encode)
@@ -151,7 +151,7 @@ func encode(params: seq[Parameter], ctx: EncodeContext): SueExpression =
 
 func encode(p: Port): SueExpression =
   genSueExpr icon_term:
-    -type $p.kind
+    -type $p.dir
     -name quoted p.name
     -origin p.location
 
@@ -218,6 +218,9 @@ proc genTclIndex(proj: Project): string =
 const b = readfile "./elements/buffer0.sue"
 
 proc writeProject*(proj: Project, dest: string) =
+  if not dirExists dest:
+    createDir dest
+
   writeFile dest / "buffer0.sue", b
 
   for name, module in proj.modules:

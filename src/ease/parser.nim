@@ -969,7 +969,19 @@ func parseProj(projectFileNode: LispNode): Project =
     else: err fmt"invalid ident: {n.ident}"
 
 
-func resolve(proj: var Project) =
+iterator allPorts(s: Schematic): Port = 
+  for p in s.ports:
+    yield p
+
+  for pr in s.processes:
+    for p in pr.ports:
+      yield p
+
+  for c in s.components:
+    for p in c.ports:
+      yield p
+
+func resolve(proj: Project) =
   ## links obids to refrencers
 
   var
@@ -984,7 +996,7 @@ func resolve(proj: var Project) =
   template withSchema(e, code): untyped {.dirty.} =
     for a in e.archs:
       if a.body.kind == bkSchematic:
-        var schema = a.body.schematic
+        let schema = a.body.schematic
         code
 
   walkEntities:
@@ -992,20 +1004,29 @@ func resolve(proj: var Project) =
       portMap[p.obid] = p
 
     withSchema e:
+      for p in allPorts schema:
+        portMap[p.obid] = p
+
       for n in schema.nets:
         netMap[n.obid] = n
 
   walkEntities:
     withSchema e:
-      for c in mitems schema.components:
-        for p in mitems c.ports:
+      for p in schema.ports:
+        p.parent = portMap[p.parent.obid]
+
+      for c in schema.components:
+        for p in c.ports:
           p.parent = portMap[p.parent.obid]
 
-      for n in mitems schema.nets:
-        for p in mitems n.parts:
-          if p.kind == pkWire:
-            for b in mitems p.busRippers:
+      for n in schema.nets:
+        for part in n.parts:
+          if part.kind == pkWire:
+            for b in part.busRippers:
               b.destNet = netMap[b.destNet.obid]
+
+          for p in mitems part.ports:
+            p = portMap[p.obid]
 
 proc parseEws*(dir: string): Project =
   let dbDir = dir / "ease.db"

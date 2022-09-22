@@ -1,5 +1,5 @@
 import std/[tables, strutils, options, macros]
-import ../common/[coordination, domain, errors, graph]
+import ../common/[coordination, domain, errors, graph, rand]
 import ../ease/model as em, ../sue/model as sm
 import ../ease/logic as el, ../sue/logic as sl
 import ../sue/parser as sp
@@ -47,15 +47,46 @@ func toWire(b: BusRipper): Wire =
   b.head .. b.tail
 
 
-func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
-  result = sm.newModule()
+func `[]`(proj: em.Project, obid: em.Obid): Entity =
+  for l in proj.designs:
+    if obid in l.entities:
+      return l.entities[obid]
+
+  err "cannot find"
+
+
+proc makeModule(prc: em.Process): sm.Module =
+  result = sm.Module(
+    kind: sm.mkCtx,
+    name: "proc_" & randomIdent(6),
+    icon: sm.Icon(),
+    schema: sm.Schematic())
+
+  let pin = topLeft prc.geometry
+
+  for p in prc.ports:
+    result.icon.ports.add sm.Port(
+      kind: sm.pkIconTerm,
+      dir: toSue p.mode,
+      name: p.hdlident.name) # FIXME input and output cannot have the same name
+
+  result.icon.lines.add toLine(prc.geometry - pin)
+
+
+proc toSue*(
+  entity: em.Entity,
+  proj: em.Project,
+  modules: var ModuleLookup
+  ): sm.Module =
+
+  result = sm.newModule(entity.identifier.name)
   result.icon.lines.add toLine entity.geometry
 
-  result.icon.labels.add sm.Label(
-    content: entity.name,
-    location: topleft entity.geometry,
-    anchor: c,
-    fnsize: fzLarge)
+  # result.icon.labels.add sm.Label(
+  #   content: entity.name,
+  #   location: topleft entity.geometry,
+  #   anchor: c,
+  #   fnsize: fzLarge)
 
   # TODO add arguments and params
   # TODO add icon labels
@@ -91,9 +122,21 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
         result.schema.instances.add Instance(
           kind: ikCustom,
           name: c.hdlIdent.name,
-          module: sm.Module(kind: mkRef, name: $c.parent.obid),
           location: dv - topleft(geo),
-          orient: toSue(c.rotation, c.flips))
+          orient: toSue(c.rotation, c.flips),
+          module: refModule(proj[c.parent.obid].identifier.name))
+
+      ## since `process`es and `generate block`s are not resusable,
+      ## we can simply *ignore* the rotation and flip properties
+
+      for pr in schema.processes:
+        let newModule = makeModule pr
+        modules[newModule.name] = newModule
+        result.schema.instances.add sm.Instance(
+          kind: sm.ikCustom,
+          name: randomIdent(10),
+          module: newModule,
+          location: topleft pr.geometry)
 
       for sourceNet in schema.nets:
         for part in sourceNet.parts:
@@ -102,7 +145,8 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
               let
                 conn = toWire br
                 srcIdent =
-                  sourceNet.parts[1]
+                  sourceNet
+                  .parts[1]
                   .ports[0]
                   .parent.identifier
 
@@ -120,9 +164,9 @@ func toSue*(entity: em.Entity, modules: ModuleLookup): sm.Module =
               result.schema.wiredNodes.incl conn
 
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
-      err "is not supported yet"
+      discard # FIXME "is not supported yet"
 
-func toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
+proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
   ## fonverts a EWS project to SUE project
   result = sm.Project(modules: basicModules)
 
@@ -134,7 +178,9 @@ func toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
       #     param("origin", "{0 0}"),
       #     param("orient", "R0")]
 
-      result.modules[$obid] = toSue(e, basicModules)
+      let m = toSue(e, proj, result.modules)
+      result.modules[m.name] = m
 
 proc toSue*(proj: em.Project): sm.Project =
-  proj.toSue sp.basicModules
+  result = toSue(proj, sp.basicModules)
+  resolve result

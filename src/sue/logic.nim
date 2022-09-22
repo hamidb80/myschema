@@ -264,7 +264,7 @@ proc resolve*(proj: Project) =
       let mref = proj.modules[normalizeModuleName ins.module.name]
       ins.module = mref
 
-      if ins.name[0] == '[': # an array, like [2:0]
+      if ins.name.len == 0 or ins.name[0] == '[': # an array, like [2:0]
         ins.name = randomIdent(10) & ins.name
 
       for p in mref.icon.ports:
