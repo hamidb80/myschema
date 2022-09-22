@@ -44,7 +44,6 @@ func tail(b: BusRipper): Point =
 func toWire(b: BusRipper): Wire =
   b.head .. b.tail
 
-
 func `[]`(proj: em.Project, obid: em.Obid): Entity =
   for l in proj.designs:
     if obid in l.entities:
@@ -52,8 +51,30 @@ func `[]`(proj: em.Project, obid: em.Obid): Entity =
 
   err "cannot find"
 
-proc makeModule(gb: em.GenerateBlock): sm.Module =
-  ## TODO
+
+proc addPortsLabel(i: sm.Icon) = 
+  for p in i.ports:
+    i.labels.add sm.Label(
+      content: p.name,
+      location: p.relativeLocation,
+      anchor: s,
+      fnsize: fzStandard)
+
+proc addSchematicInputs(m: sm.Module) = 
+  for i, p in m.icon.ports:
+    m.schema.instances.add Instance(
+      kind: ikPort,
+      name: p.name,
+      module: refModule($p.dir),
+      location: (0, i * 100))
+
+func genIconPort(p: em.Port, pin: Point): sm.Port = 
+  sm.Port(
+    kind: sm.pkIconTerm,
+    dir: toSue p.mode,
+    relativeLocation: p.geometry.center - pin,
+    name: p.identifier.format)
+
 
 proc makeModule(prc: em.Process): sm.Module =
   let pin = topLeft prc.geometry
@@ -62,31 +83,14 @@ proc makeModule(prc: em.Process): sm.Module =
   result.icon.lines.add toLine(prc.geometry - pin)
 
   ## FIXME i regret on name
+  for p in prc.ports:
+    result.icon.ports.add genIconPort(p, pin)
 
-  for i, p in prc.ports:
-    let 
-      n = p.identifier.format
-      schemaLoc = (0, i * 100)
-      iconLoc = p.geometry.center - pin
-      d = toSue p.mode
+  addSchematicInputs result
+  addPortsLabel result.icon
 
-    result.icon.ports.add sm.Port(
-      kind: sm.pkIconTerm,
-      dir: d,
-      relativeLocation: iconLoc,
-      name: n)
-    
-    result.icon.labels.add sm.Label(
-      content: n,
-      location: iconLoc,
-      anchor: s,
-      fnsize: fzStandard)
-
-    result.schema.instances.add Instance(
-      kind: ikPort,
-      name: n,
-      module: refModule($d),
-      location: schemaLoc)
+proc makeModule(gb: em.GenerateBlock): sm.Module =
+  ## TODO
 
 
 proc toSue*(
