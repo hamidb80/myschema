@@ -107,6 +107,10 @@ proc toSue*(
     of amBlockDiagram:
       let schema = a.body.schematic
 
+      template drawDiffWire(p: em.Port): untyped =
+        result.schema.wiredNodes.incl:
+          p.geometry.center .. p.connection.get.position
+
       for c in schema.components:
         let
           geo = c.geometry
@@ -121,6 +125,9 @@ proc toSue*(
           orient: toSue(c.rotation, c.flips),
           module: refModule(proj[c.parent.obid].identifier.name))
 
+        for p in c.ports:
+          drawDiffWire p
+
       ## since `process`es and `generate block`s are not resusable,
       ## we can simply *ignore* the rotation and flip properties
 
@@ -133,9 +140,15 @@ proc toSue*(
           module: newModule,
           location: topleft pr.geometry)
 
+        for p in pr.ports:
+          drawDiffWire p
+
       for sourceNet in schema.nets:
         for part in sourceNet.parts:
           if part.kind == pkWire:
+            for w in part.wires:
+              result.schema.wiredNodes.incl w
+
             for br in part.busRippers:
               let
                 conn = toWire br
