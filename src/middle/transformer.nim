@@ -52,18 +52,41 @@ func `[]`(proj: em.Project, obid: em.Obid): Entity =
 
   err "cannot find"
 
+proc makeModule(gb: em.GenerateBlock): sm.Module =
+  ## TODO
 
 proc makeModule(prc: em.Process): sm.Module =
-  result = sm.newModule("proc_" & randomIdent(6))
   let pin = topLeft prc.geometry
 
-  for p in prc.ports:
+  result = sm.newModule("proc_" & randomIdent(6))
+  result.icon.lines.add toLine(prc.geometry - pin)
+
+  ## FIXME i regret on name
+
+  for i, p in prc.ports:
+    let 
+      n = p.identifier.format
+      schemaLoc = (0, i * 100)
+      iconLoc = p.geometry.center - pin
+      d = toSue p.mode
+
     result.icon.ports.add sm.Port(
       kind: sm.pkIconTerm,
-      dir: toSue p.mode,
-      name: p.identifier.format) # FIXME input and output cannot have the same name
+      dir: d,
+      relativeLocation: iconLoc,
+      name: n)
+    
+    result.icon.labels.add sm.Label(
+      content: n,
+      location: iconLoc,
+      anchor: s,
+      fnsize: fzStandard)
 
-  result.icon.lines.add toLine(prc.geometry - pin)
+    result.schema.instances.add Instance(
+      kind: ikPort,
+      name: n,
+      module: refModule($d),
+      location: schemaLoc)
 
 
 proc toSue*(

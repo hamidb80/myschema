@@ -233,6 +233,9 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
       for p in problematic ports:
         addBuffer p, schema, bufferModule
 
+  ## FIXME input and output cannot have the same name
+  ## it can happen in `process`es and `generate block`s
+
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
     if not m.isTemp:
