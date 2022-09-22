@@ -296,7 +296,7 @@ func parsePort(portNode: LispNode, pk: PortKind): Port =
       result.label = parseLabel n
 
     of "CONNECTION":
-      result.connection = some parseNCon n
+      result.connection = parseNCon n
 
     of "PORT", "GENERATE":
       result.parent = parseRefPort n

@@ -375,7 +375,7 @@ type
       side*: Side
       label*: Label
       cbn*: Option[ConnectByName]
-      connection*: Option[PointConnection]
+      connection*: PointConnection
       parent*: Port
 
   Process* = ref object
@@ -502,5 +502,12 @@ func hash*(o: Obid): Hash {.borrow.}
 func `$`*(o: Obid): string {.borrow.}
 
 
-func `$`*(i: Identifier): string =
-  ## FIXME capture it from github middle/logic
+func format*(i: Identifier, withName = true): string =
+  if withName:
+    result.add i.name
+
+  result.add:
+    case i.kind:
+    of ikSingle: ""
+    of ikIndex: '[' & i.index & ']'
+    of ikRange: '[' & i.indexes.a & ':' & i.indexes.b & ']' # direction*: NumberDirection

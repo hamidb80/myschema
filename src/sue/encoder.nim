@@ -1,4 +1,4 @@
-import std/[os, tables, sequtils, strutils, strformat, times, options, macros]
+import std/[os, tables, sequtils, strutils, strformat, times, options, macros, sugar]
 import ../common/[coordination, domain]
 import model, lexer, logic
 
@@ -9,13 +9,6 @@ type
 
   KeyValueNimPair = tuple
     k, v: NimNode
-
-
-func `$`*(pd: PortDir): string =
-  case pd:
-  of pdInput: "input"
-  of pdOutput: "output"
-  of pdInout: "inout"
 
 
 func newObjConstr(objIdent: NimNode,
@@ -148,20 +141,18 @@ func encode(p: IconProperty): SueExpression =
   if issome p.defaultValue:
     result.options.add toOption(sfDefault, quoted p.defaultValue.get)
 
+
 func toSueFile(m: sink Module): SueFile =
   result = SueFile(name: m.name)
 
   # --- icon
 
-  var acc: seq[string]
-
-  for (name, value) in m.params:
-    acc.add:
+  let acc = collect:
+    for (name, value) in m.params:
       if isSome value:
         "{$# $#}" % [name, value.get]
       else:
         "{$#}" % name
-
 
   result.icon.add SueExpression(
     command: scIconSetup,
@@ -201,13 +192,12 @@ proc tclIndex(proj: Project): string =
     timesAcc: seq[string]
 
   for name, _ in proj.modules:
-    linesAcc.add fmt"set auto_index(ICON_{name}) [list source [file join $dir {name}.sue]]"
-    linesAcc.add fmt"set auto_index(SCHEMATIC_{name}) [list source [file join $dir {name}.sue]]"
+    linesAcc.add fmt "set auto_index(ICON_{name}) [list source [file join $dir {name}.sue]]"
+    linesAcc.add fmt "set auto_index(SCHEMATIC_{name}) [list source [file join $dir {name}.sue]]"
     timesAcc.add "{$# $#}" % [name, now]
 
   linesAcc.add "set mtimes {$#}" % timesAcc.join(" ")
-  linesAcc.join "n"
-
+  linesAcc.join "\n"
 
 proc writeProject*(proj: Project, dest: string) =
   if not dirExists dest:

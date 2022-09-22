@@ -4,8 +4,6 @@ import ../ease/model as em, ../sue/model as sm
 import ../ease/logic as el, ../sue/logic as sl
 import ../sue/parser as sp
 
-# template param(n, d): untyped =
-#   Parameter(name: n, defaultValue: some d)
 
 func toLine(geo: Geometry): sm.Line =
   sm.Line(
@@ -63,7 +61,7 @@ proc makeModule(prc: em.Process): sm.Module =
     result.icon.ports.add sm.Port(
       kind: sm.pkIconTerm,
       dir: toSue p.mode,
-      name: p.hdlident.name) # FIXME input and output cannot have the same name
+      name: p.identifier.format) # FIXME input and output cannot have the same name
 
   result.icon.lines.add toLine(prc.geometry - pin)
 
@@ -84,19 +82,17 @@ proc toSue*(
   #   fnsize: fzLarge)
 
   # TODO add arguments and params
-  # TODO add icon labels
-  # TODO add icon properties
-  # TODO process, generator block
+  # TODO generator block
 
   for p in entity.ports:
     result.icon.ports.add sm.Port(
       kind: sm.pkIconTerm,
       dir: toSue p.mode,
-      name: $p.identifier,
+      name: format(p.identifier),
       relativeLocation: p.geometry.center)
 
     result.icon.labels.add sm.Label(
-      content: $p.identifier,
+      content: p.identifier.format,
       location: p.geometry.center,
       anchor: s,
       fnsize: fzStandard)
@@ -109,7 +105,7 @@ proc toSue*(
 
       template drawDiffWire(p: em.Port): untyped =
         result.schema.wiredNodes.incl:
-          p.geometry.center .. p.connection.get.position
+          p.geometry.center .. p.connection.position
 
       for c in schema.components:
         let
@@ -121,7 +117,7 @@ proc toSue*(
         result.schema.instances.add Instance(
           kind: ikCustom,
           name: c.hdlIdent.name,
-          location: dv - topleft(geo),
+          location: dv + topleft(geo),
           orient: toSue(c.rotation, c.flips),
           module: refModule(proj[c.parent.obid].identifier.name))
 
@@ -166,10 +162,24 @@ proc toSue*(
                   location: pos)
 
               result.schema.instances.add [
-                makeNet($srcIdent, conn.a),
-                makeNet($br.identifier, conn.b)]
+                makeNet(format(srcIdent, false), conn.a),
+                makeNet(format(br.identifier, false), conn.b)]
 
               result.schema.wiredNodes.incl conn
+
+      for p in schema.ports:
+        let loc = center p.geometry
+
+        result.schema.instances.add sm.Instance(
+          kind: ikPort,
+          name: format p.identifier,
+          module: modules[$(toSue p.mode)],
+          location: loc,
+          # TODO orient*: Orient
+        )
+
+        result.schema.wiredNodes.incl p.connection.position .. loc
+
 
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
       discard # FIXME "is not supported yet"

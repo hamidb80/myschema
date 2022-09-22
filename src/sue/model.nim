@@ -19,7 +19,9 @@ type
     sw, se, nw, ne
 
   PortDir* = enum
-    pdInput, pdOutput, pdInout
+    pdInput = "input"
+    pdOutput = "output"
+    pdInout = "inout"
 
   PortKind* = enum
     pkIconTerm
