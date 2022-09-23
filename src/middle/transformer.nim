@@ -17,6 +17,14 @@ func toSue(portMode: em.PortMode): sm.PortDir =
   of pmInout, pmBuffer: pdInout
   of pmVirtual: err "invalid port mode"
 
+func toSue(s: em.Side): Orient = 
+  case s:
+  of sTopToBottom: R90
+  of sRightToLeft: RXY
+  of sBottomToTop: R270
+  of sLeftToRight: R0
+    
+
 template flipCase(f: set[Flip], bxy, bx, by, b0: untyped): untyped =
   if f == {X, Y}: bxy
   elif f == {X}: bx
@@ -168,7 +176,8 @@ proc toSue*(
 
       for sourceNet in schema.nets:
         for part in sourceNet.parts:
-          if part.kind == pkWire:
+          case part.kind
+          of pkWire:
             for w in part.wires:
               result.schema.wiredNodes.incl w
 
@@ -193,6 +202,24 @@ proc toSue*(
                 makeNet(format(br.identifier, false), conn.b)]
 
               result.schema.wiredNodes.incl conn
+
+          of pkTag:
+            ## TODO check other kinds like `connect by value`
+            for p in part.ports:
+              let 
+                tag = p.cbn.get
+                conn = p.connection.position
+                pin = center tag.geometry
+              
+              # TODO make a proc to get rid of `kind` and `name`
+              result.schema.instances.add Instance(
+                kind: ikNameNet,
+                name: p.identifier.name,
+                module: nameNet,
+                location: pin,
+                orient: toSue tag.side)
+              
+              result.schema.wiredNodes.incl pin .. conn
 
       for p in schema.ports:
         let loc = center p.geometry

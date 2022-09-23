@@ -78,3 +78,63 @@ func getIconTransformer*(iconGeo: Geometry,
     t2
 
   transformer
+
+
+iterator allPorts(s: Schematic): Port = 
+  for p in s.ports:
+    yield p
+
+  for pr in s.processes:
+    for p in pr.ports:
+      yield p
+
+  for c in s.components:
+    for p in c.ports:
+      yield p
+
+func resolve*(proj: Project) =
+  ## links obids to refrencers
+
+  var
+    portMap: Table[Obid, Port]
+    netMap: Table[Obid, Net]
+
+  template walkEntities(body): untyped {.dirty.} =
+    for d in mitems proj.designs:
+      for _, e in mpairs d.entities:
+        body
+
+  template withSchema(e, code): untyped {.dirty.} =
+    for a in e.archs:
+      if a.body.kind == bkSchematic:
+        let schema = a.body.schematic
+        code
+
+  walkEntities:
+    for p in e.ports:
+      portMap[p.obid] = p
+
+    withSchema e:
+      for p in allPorts schema:
+        portMap[p.obid] = p
+
+      for n in schema.nets:
+        netMap[n.obid] = n
+
+  walkEntities:
+    withSchema e:
+      for p in schema.ports:
+        p.parent = portMap[p.parent.obid]
+
+      for c in schema.components:
+        for p in c.ports:
+          p.parent = portMap[p.parent.obid]
+
+      for n in schema.nets:
+        for part in n.parts:
+          if part.kind == pkWire:
+            for b in part.busRippers:
+              b.destNet = netMap[b.destNet.obid]
+
+          for p in mitems part.ports:
+            p = portMap[p.obid]
