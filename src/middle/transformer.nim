@@ -83,6 +83,11 @@ func genIconPort(p: em.Port, pin: Point): sm.Port =
     relativeLocation: p.geometry.center - pin,
     name: p.identifier.format)
 
+proc addComponentName(i: Icon) = 
+  i.properties.add sm.IconProperty(
+    kind: ipUser,
+    name: "name",
+    location: i.geometry.center)
 
 proc makeModule(prc: em.Process): sm.Module =
   let pin = topLeft prc.geometry
@@ -96,6 +101,7 @@ proc makeModule(prc: em.Process): sm.Module =
 
   addSchematicInputs result
   addPortsLabel result.icon
+  addComponentName result.icon
 
 proc makeModule(gb: em.GenerateBlock): sm.Module =
   ## TODO
@@ -109,6 +115,7 @@ proc toSue*(
 
   result = sm.newModule(entity.identifier.name)
   result.icon.lines.add toLine entity.geometry
+  addComponentName result.icon
 
   # result.icon.labels.add sm.Label(
   #   content: entity.name,
