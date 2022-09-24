@@ -119,12 +119,14 @@ func encode(l: Label, ctx: EncodeContext): SueExpression =
       -origin l.location
       -anchor $l.anchor
       -label quoted l.content
+      -size $l.fnsize
 
   of ecSchematic:
     genSueExpr make_text:
       -origin l.location
       -anchor $l.anchor
       -text quoted l.content
+      -size $l.fnsize
 
 func encode(p: Port): SueExpression =
   genSueExpr icon_term:

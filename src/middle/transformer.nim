@@ -60,6 +60,17 @@ func `[]`(proj: em.Project, obid: em.Obid): Entity =
   err "cannot find"
 
 
+proc addComponentLabels(m: sm.Module) = 
+  m.icon.properties.add sm.IconProperty(
+    kind: ipUser,
+    name: "name")
+
+  m.icon.labels.add sm.Label(
+    content: m.name,
+    location: m.icon.geometry.center,
+    anchor: c,
+    fnsize: fzVeryLarge)
+
 proc addPortsLabel(i: sm.Icon) = 
   for p in i.ports:
     i.labels.add sm.Label(
@@ -83,25 +94,18 @@ func genIconPort(p: em.Port, pin: Point): sm.Port =
     relativeLocation: p.geometry.center - pin,
     name: p.identifier.format)
 
-proc addComponentName(i: Icon) = 
-  i.properties.add sm.IconProperty(
-    kind: ipUser,
-    name: "name",
-    location: i.geometry.center)
-
 proc makeModule(prc: em.Process): sm.Module =
   let pin = topLeft prc.geometry
 
-  result = sm.newModule("proc_" & randomIdent(6))
+  result = sm.newModule("proc_" & prc.hdlident.name & randomIdent(6))
   result.icon.lines.add toLine(prc.geometry - pin)
 
-  ## FIXME i regret on name
   for p in prc.ports:
     result.icon.ports.add genIconPort(p, pin)
 
   addSchematicInputs result
   addPortsLabel result.icon
-  addComponentName result.icon
+  addComponentLabels result
 
 proc makeModule(gb: em.GenerateBlock): sm.Module =
   ## TODO
@@ -115,13 +119,7 @@ proc toSue*(
 
   result = sm.newModule(entity.identifier.name)
   result.icon.lines.add toLine entity.geometry
-  addComponentName result.icon
-
-  # result.icon.labels.add sm.Label(
-  #   content: entity.name,
-  #   location: topleft entity.geometry,
-  #   anchor: c,
-  #   fnsize: fzLarge)
+  addComponentLabels result
 
   # TODO add arguments and params
   # TODO generator block
@@ -241,9 +239,8 @@ proc toSue*(
 
         result.schema.wiredNodes.incl p.connection.position .. loc
 
-
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
-      discard # FIXME "is not supported yet"
+      addSchematicInputs result
 
 proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
   ## fonverts a EWS project to SUE project
