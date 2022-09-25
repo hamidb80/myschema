@@ -30,9 +30,9 @@ type
   LineKind* = enum
     arc, straight
 
-  IconPropertyKind* = enum
-    ipFixed = "fixed" # static
-    ipUser = "user"   # dynamic
+  PropertyKind* = enum
+    pFixed = "fixed" # static
+    pUser = "user"   # dynamic
 
   InstanceKind* = enum
     ikPort
@@ -70,8 +70,8 @@ type
       parent* {.cursor.}: Instance
       origin* {.cursor.}: Port
 
-  IconProperty* = object
-    kind*: IconPropertyKind
+  Property* = object
+    kind*: PropertyKind
     name*: string
     location*: Point
     defaultValue*: Option[string]
@@ -80,7 +80,7 @@ type
     ports*: seq[Port]
     lines*: seq[Line]
     labels*: seq[Label]
-    properties*: seq[IconProperty]
+    properties*: seq[Property]
 
   PortID* = distinct string
 

@@ -17,13 +17,23 @@ func toSue(portMode: em.PortMode): sm.PortDir =
   of pmInout, pmBuffer: pdInout
   of pmVirtual: err "invalid port mode"
 
-func toSue(s: em.Side): Orient = 
+func dir(p: em.Port): sm.PortDir =
+  toSue p.mode
+
+func `xor`(d1, d2: PortDir): bool =
+  (d1, d2) in [
+    (pdInput, pdOutput),
+    (pdOutput, pdInput)
+  ]
+
+
+func toSue(s: em.Side): Orient =
   case s:
   of sTopToBottom: R90
   of sRightToLeft: RXY
   of sBottomToTop: R270
   of sLeftToRight: R0
-    
+
 
 template flipCase(f: set[Flip], bxy, bx, by, b0: untyped): untyped =
   if f == {X, Y}: bxy
@@ -60,18 +70,18 @@ func `[]`(proj: em.Project, obid: em.Obid): Entity =
   err "cannot find"
 
 
-proc addComponentLabels(m: sm.Module) = 
-  m.icon.properties.add sm.IconProperty(
-    kind: ipUser,
+proc addComponentLabels(m: sm.Module) =
+  m.icon.properties.add sm.Property(
+    kind: pUser,
     name: "name")
 
   m.icon.labels.add sm.Label(
     content: m.name,
     location: m.icon.geometry.center,
     anchor: c,
-    fnsize: fzVeryLarge)
+    fnsize: fzLarge)
 
-proc addPortsLabel(i: sm.Icon) = 
+proc addPortsLabel(i: sm.Icon) =
   for p in i.ports:
     i.labels.add sm.Label(
       content: p.name,
@@ -79,7 +89,7 @@ proc addPortsLabel(i: sm.Icon) =
       anchor: s,
       fnsize: fzStandard)
 
-proc addSchematicInputs(m: sm.Module) = 
+proc addSchematicInputs(m: sm.Module) =
   for i, p in m.icon.ports:
     m.schema.instances.add Instance(
       kind: ikPort,
@@ -87,28 +97,36 @@ proc addSchematicInputs(m: sm.Module) =
       module: refModule($p.dir),
       location: (0, i * 100))
 
-func genIconPort(p: em.Port, pin: Point): sm.Port = 
+func genIconPort(p: em.Port, pin: Point, name: string): sm.Port =
   sm.Port(
     kind: sm.pkIconTerm,
-    dir: toSue p.mode,
+    dir: p.dir,
     relativeLocation: p.geometry.center - pin,
-    name: p.identifier.format)
+    name: name)
 
 proc makeModule(prc: em.Process): sm.Module =
   let pin = topLeft prc.geometry
 
-  result = sm.newModule("proc_" & prc.hdlident.name & randomIdent(6))
+  result = sm.newModule("proc_" & prc.hdlident.name & '_' & randomIdent(6))
   result.icon.lines.add toLine(prc.geometry - pin)
 
+  var names: seq[string]
   for p in prc.ports:
-    result.icon.ports.add genIconPort(p, pin)
+    let
+      id = p.identifier
+      i = names.find id.name
+
+    case i
+    of notFound:
+      names.add id.name
+      result.icon.ports.add genIconPort(p, pin, id.format)
+
+    else: # TODO
+      assert result.icon.ports[i].dir xor p.dir
 
   addSchematicInputs result
   addPortsLabel result.icon
   addComponentLabels result
-
-proc makeModule(gb: em.GenerateBlock): sm.Module =
-  ## TODO
 
 
 proc toSue*(
@@ -211,11 +229,11 @@ proc toSue*(
           of pkTag:
             ## TODO check other kinds like `connect by value`
             for p in part.ports:
-              let 
+              let
                 tag = p.cbn.get
                 conn = p.connection.position
                 pin = center tag.geometry
-              
+
               # TODO make a proc to get rid of `kind` and `name`
               result.schema.instances.add Instance(
                 kind: ikNameNet,
@@ -223,7 +241,7 @@ proc toSue*(
                 module: nameNet,
                 location: pin,
                 orient: toSue tag.side)
-              
+
               result.schema.wiredNodes.incl pin .. conn
 
       for p in schema.ports:

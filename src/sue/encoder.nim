@@ -134,7 +134,7 @@ func encode(p: Port): SueExpression =
     -name quoted p.name
     -origin p.location
 
-func encode(p: IconProperty): SueExpression =
+func encode(p: Property): SueExpression =
   result = genSueExpr icon_property:
     -origin p.location
     -type $p.kind
@@ -201,12 +201,16 @@ proc tclIndex(proj: Project): string =
   linesAcc.add "set mtimes {$#}" % timesAcc.join(" ")
   linesAcc.join "\n"
 
+func shouldBeWritten(m: Module): bool = 
+  not m.isTemp or 
+  m.name == "buffer-0"
+
 proc writeProject*(proj: Project, dest: string) =
   if not dirExists dest:
     createDir dest
 
   for name, module in proj.modules:
-    if not module.isTemp:
+    if shouldBeWritten module:
       let fname = dest / name & ".sue"
       # debugEcho "writing ", fname
       writeFile fname, dump toSueFile module

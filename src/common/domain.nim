@@ -10,6 +10,8 @@ type
     name*: string
     content*: string
 
+const 
+  notFound* = -1
 
 func dirOf*(w: Wire): VectorDirection =
   ## remeber when you go up, the y is - and the bottom is +
