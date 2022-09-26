@@ -1,5 +1,5 @@
 import std/[os, tables, sequtils, strutils, strformat, times, options, macros, sugar]
-import ../common/[coordination, domain]
+import ../common/[coordination, domain, minitable]
 import model, lexer, logic
 
 
@@ -98,10 +98,11 @@ func encode(w: Wire): SueExpression =
     w.b.x
     w.b.y
 
-func encode(arg: Argument): SueOption =
+func toSue(arg: (string, string)): SueOption =
   SueOption(flag: sfCustom,
-    field: arg.name,
-    value: toToken arg.value)
+    field: arg[0],
+    value: toToken arg[1])
+
 
 func encode(i: Instance): SueExpression =
   result = genSueExpr make:
@@ -110,7 +111,7 @@ func encode(i: Instance): SueExpression =
     -origin i.location
     -orient $i.orient
 
-  result.options.add (i.args |> encode)
+  result.options.add i.args |> toSue
 
 func encode(l: Label, ctx: EncodeContext): SueExpression =
   case ctx:
@@ -150,7 +151,7 @@ func toSueFile(m: sink Module): SueFile =
   # --- icon
 
   let acc = collect:
-    for (name, value) in m.params:
+    for (name, value) in m.icon.params:
       if isSome value:
         "{$# $#}" % [name, value.get]
       else:
@@ -188,6 +189,15 @@ func toSueFile(m: sink Module): SueFile =
   for l in m.schema.lines:
     result.schematic.add encode(l, ecSchematic)
 
+func sline(points: seq[Point]): Line =
+  Line(kind: straight, points: points)
+
+func addCenter(schema: Schematic) =
+  schema.lines.add [
+    sline(@[(-10, 0), (+10, 0)]),
+    sline(@[(0, -10), (0, +10)])
+  ]
+
 proc tclIndex(proj: Project): string =
   let now = $gettime().tounix()
   var
@@ -202,9 +212,9 @@ proc tclIndex(proj: Project): string =
   linesAcc.add "set mtimes {$#}" % timesAcc.join(" ")
   linesAcc.join "\n"
 
-func shouldBeWritten(m: Module): bool = 
-  not m.isTemp or 
-  m.name == "buffer-0"
+func shouldBeWritten(m: Module): bool =
+  not m.isTemp or
+  m.name == "buffer0"
 
 proc writeProject*(proj: Project, dest: string) =
   if not dirExists dest:
@@ -213,7 +223,10 @@ proc writeProject*(proj: Project, dest: string) =
   for name, module in proj.modules:
     if shouldBeWritten module:
       let fname = dest / name & ".sue"
-      # debugEcho "writing ", fname
+      
+      when not defined(release):
+        addCenter module.schema
+
       writeFile fname, dump toSueFile module
 
       # if module.kind == akFile:

@@ -119,7 +119,11 @@ func parseIcon(se: seq[SueExpression]): Icon =
 
   for expr in se:
     case expr.command:
-    of scIconSetup, scIconProperty, scIconArc: discard
+    of scIconSetup:
+      assert expr.args[0] == "$args"
+      # TODO
+
+    of scIconProperty, scIconArc: discard
 
     of scIconLine:
       result.lines.add Line(
@@ -145,9 +149,11 @@ proc parseSue*(sfile: SueFile): Module =
     # paramters: ) # TODO
 
 
-const basicModulesContent = collect:
-  for _, path in walkDir getProjectPath() / "../elements":
-    readfile path
+const
+  projDir {.strdefine.} = getProjectPath()
+  basicModulesContent = collect:
+    for _, path in walkDir projDir / "elements":
+      readfile path
 
 proc loadBasicModules*: ModuleLookUp =
   collect:

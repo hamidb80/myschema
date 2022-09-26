@@ -78,6 +78,7 @@ type
     defaultValue*: Option[string]
 
   Icon* = ref object
+    params*: MiniTable[string, Option[string]]
     ports*: seq[Port]
     lines*: seq[Line]
     labels*: seq[Label]
@@ -95,15 +96,11 @@ type
     portsPlot*: Table[Point, seq[Port]]
     portsTable*: Table[PortID, seq[Port]]
 
-  Argument* = ref object
-    name*: string
-    value*: string
-
   Instance* = ref object
     kind*: InstanceKind
     name*: string
     module* {.cursor.}: Module
-    args*: seq[Argument]
+    args*: MiniTable[string, string]
     location*: Point
     orient*: Orient
 
@@ -119,7 +116,6 @@ type
       icon*: Icon
       schema*: Schematic
       code*: Option[string]
-      params*: MiniTable[string, Option[string]]
       isTemp*: bool # is temporaty - do not generate file for temporary modules
       isGenerator*: bool
 
@@ -141,14 +137,13 @@ template `?`(smth): untyped =
 func newModule*(name: string): Module =
   Module(
     kind: mkCtx,
-    icon: Icon(),
-    schema: Schematic(),
-    name: name,
-    params: @{
+    icon: Icon(params: @{
       "name": ?"{}",
       "origin": ?"{0 0}",
       "orient": ?"R0"
-    })
+    }),
+    schema: Schematic(),
+    name: name)
 
 func refModule*(name: string): Module =
   Module(kind: mkRef, name: name)

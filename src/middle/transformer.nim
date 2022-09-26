@@ -125,7 +125,7 @@ proc makeModule(prc: em.Process): sm.Module =
 
     else:
       let oldp = result.icon.ports[i]
-      
+
       assert oldp.dir xor newp.dir
       assert not oldp.hasSiblings
 
@@ -280,3 +280,4 @@ proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
 proc toSue*(proj: em.Project): sm.Project =
   result = toSue(proj, sp.loadBasicModules())
   resolve result
+  fixErrors result

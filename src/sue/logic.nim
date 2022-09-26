@@ -132,36 +132,11 @@ iterator ports*(schema: Schematic): Port =
       yield p
 
 
-type
-  SourceKind = enum
-    skSchema
-    skElement
-
-  Source = object
-    case kind*: SourceKind
-    of skSchema: discard
-    of skElement:
-      name: string
-
-func source(p: Port): Source =
-  case p.parent.kind:
-  of ikPort: Source(kind: skSchema)
-  of ikCustom: Source(kind: skElement, name: p.parent.name)
-  of ikNameNet: err "cannot find source of a name-net"
-
-func `==`(s1, s2: Source): bool =
-  if s1.kind == s2.kind:
-    case s1.kind:
-    of skSchema: true
-    of skElement: s1.name == s2.name
-
-  else: false
-
-func groupBySource(portGroups: seq[seq[Port]]): Table[Source, seq[Port]] =
+func groupBySource(portGroups: seq[seq[Port]]): seq[Port] =
   for ports in portGroups:
     for p in ports:
-      if p.origin.dir in {pdInput, pdOutput}:
-        result.add p.source, p
+      if p.origin.dir in {pdInput, pdOutput} and p.parent.kind == ikPort:
+        result.add p
 
 func problematic(ports: seq[Port]): seq[Port] =
   ## returns input ports if there were both input ports and output ports
@@ -192,18 +167,24 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
   ## when the input is from input element, head of buffer is `loc`
   ## when input is from a custom element, tail of the buffer is `loc`
 
-  assert p.origin.dir == pdInput
-
   let
     loc = p.location
     connectedWiresNodes = toseq schema.wiredNodes[loc]
     nextNodeLoc = connectedWiresNodes[0]
     dir = dirOf loc .. nextNodeLoc
     vdir = toVector dir
-    coeff =
+    dir_coeff =
+      case p.origin.dir:
+      of pdInput: +1
+      of pdOutput: -1
+      else: err "invalid"
+
+    kind_coeff =
       case p.parent.kind:
       of ikPort: +1
       else: -1
+
+    coeff = dir_coeff * kind_coeff
 
     orient = toOrient coeff*dir
     width = bufferModule.icon.geometry.size.w
@@ -230,18 +211,19 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
 
   for pids in parts schema.connections:
     let portGroups = pids.mapit(schema.portsTable[it])
-    for src, ports in groupBySource portGroups:
-      for p in problematic ports:
-        addBuffer p, schema, bufferModule
+    for p in problematic groupBySource portGroups:
+      addBuffer p, schema, bufferModule
 
-  for ins in schema.instances:
-    for p in ins.ports:
-      if p.hasSiblings:
-        p.dir = pdInout
+  # for ins in schema.instances:
+  #   for p in ins.ports:
+  #     if p.origin.hasSiblings:
+  #       addBuffer p, schema, bufferModule
+  #       p.origin.dir = pdInout
+  #       echo "Hey"
 
-      elif p.isGhost:
-        discard
-
+  #     elif p.origin.isGhost:
+  #       echo "Bye"
+  #       addBuffer p, schema, modules["name_net"]
 
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
@@ -289,5 +271,4 @@ proc resolve*(proj: Project) =
         for pid in insPort.ids:
           module.schema.portsTable.add pid, insPort
 
-    # print module.schema.wiredNodes
     module.schema.connections = extractConnections(module.schema)
