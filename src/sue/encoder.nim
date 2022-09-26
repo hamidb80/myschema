@@ -189,15 +189,6 @@ func toSueFile(m: sink Module): SueFile =
   for l in m.schema.lines:
     result.schematic.add encode(l, ecSchematic)
 
-func sline(points: seq[Point]): Line =
-  Line(kind: straight, points: points)
-
-func addCenter(schema: Schematic) =
-  schema.lines.add [
-    sline(@[(-10, 0), (+10, 0)]),
-    sline(@[(0, -10), (0, +10)])
-  ]
-
 proc tclIndex(proj: Project): string =
   let now = $gettime().tounix()
   var
@@ -224,9 +215,6 @@ proc writeProject*(proj: Project, dest: string) =
     if shouldBeWritten module:
       let fname = dest / name & ".sue"
       
-      when not defined(release):
-        addCenter module.schema
-
       writeFile fname, dump toSueFile module
 
       # if module.kind == akFile:

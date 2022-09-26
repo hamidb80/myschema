@@ -132,7 +132,7 @@ iterator ports*(schema: Schematic): Port =
       yield p
 
 
-func groupBySource(portGroups: seq[seq[Port]]): seq[Port] =
+func schemaPorts(portGroups: seq[seq[Port]]): seq[Port] =
   for ports in portGroups:
     for p in ports:
       if p.origin.dir in {pdInput, pdOutput} and p.parent.kind == ikPort:
@@ -207,23 +207,26 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
 
 proc fixErrors(schema: Schematic, modules: ModuleLookup) =
   ## fixes connection errors via adding `buffer0` element
-  let bufferModule = modules["buffer0"]
+  let
+    bufferModule = modules["buffer0"]
+    nameNet = modules["name_net"]
 
   for pids in parts schema.connections:
     let portGroups = pids.mapit(schema.portsTable[it])
-    for p in problematic groupBySource portGroups:
+    for p in problematic schemaPorts portGroups:
       addBuffer p, schema, bufferModule
 
-  # for ins in schema.instances:
-  #   for p in ins.ports:
-  #     if p.origin.hasSiblings:
-  #       addBuffer p, schema, bufferModule
-  #       p.origin.dir = pdInout
-  #       echo "Hey"
+  var instancesList = schema.instances # contains a copy
+  for ins in instancesList:
+    for p in ins.ports:
+      if p.origin.hasSiblings:
+        addBuffer p, schema, bufferModule
+        p.origin.dir = pdInout
 
-  #     elif p.origin.isGhost:
-  #       echo "Bye"
-  #       addBuffer p, schema, modules["name_net"]
+      elif p.origin.isGhost:
+        # FIXME add the first element changes the wire node position
+        addBuffer p, schema, nameNet
+        addBuffer p, schema, bufferModule
 
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:

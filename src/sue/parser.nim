@@ -149,11 +149,9 @@ proc parseSue*(sfile: SueFile): Module =
     # paramters: ) # TODO
 
 
-const
-  projDir {.strdefine.} = getProjectPath()
-  basicModulesContent = collect:
-    for _, path in walkDir projDir / "elements":
-      readfile path
+const  basicModulesContent = collect:
+  for _, path in walkDir getEnv("SUE_ELEM_DIR") / "elements":
+    readfile path
 
 proc loadBasicModules*: ModuleLookUp =
   collect:
