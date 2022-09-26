@@ -1,4 +1,4 @@
-import std/[tables, os, strformat, strutils, sequtils, options]
+import std/[tables, os, strformat, strutils, sequtils, options, sugar, macros]
 import ../common/[errors, coordination, collections, domain, graph, rand]
 import lexer, model, logic
 
@@ -145,19 +145,23 @@ proc parseSue*(sfile: SueFile): Module =
     # paramters: ) # TODO
 
 
+const basicModulesContent = collect:
+  for _, path in walkDir getProjectPath() / "../elements":
+    readfile path
 
-var basicModules*: ModuleLookUp
+proc loadBasicModules*: ModuleLookUp =
+  collect:
+    for c in basicModulesContent:
+      let
+        f = lexSue c
+        s = parseSue f
 
-for path in walkFiles "./elements/*.sue":
-  let
-    (_, name, _) = splitFile path
-    module = parseSue lexSue readfile path
-  module.isTemp = true
-  basicModules[name] = module
+      s.isTemp = true
+      {f.name: s}
 
 
 proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
-  result = Project(modules: basicModules)
+  result = Project(modules: loadBasicModules())
 
   template walkSue(dir): untyped {.dirty.} =
     for path in walkFiles dir / "*.sue":
@@ -172,7 +176,8 @@ proc parseSueProject*(mainDir: string, lookupDirs: seq[string]): Project =
 
 proc parseSueProject*(paths: seq[string]): Project =
   ## parse custom files, mainly created for testing purposes
-  result = Project(modules: basicModules)
+
+  result = Project(modules: loadBasicModules())
 
   for path in paths:
     let m = parseSue lexSue readFile path

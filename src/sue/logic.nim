@@ -227,14 +227,21 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
 proc fixErrors(schema: Schematic, modules: ModuleLookup) =
   ## fixes connection errors via adding `buffer0` element
   let bufferModule = modules["buffer0"]
+
   for pids in parts schema.connections:
     let portGroups = pids.mapit(schema.portsTable[it])
     for src, ports in groupBySource portGroups:
       for p in problematic ports:
         addBuffer p, schema, bufferModule
 
-  ## FIXME input and output cannot have the same name
-  ## it can happen in `process`es and `generate block`s
+  for ins in schema.instances:
+    for p in ins.ports:
+      if p.hasSiblings:
+        p.dir = pdInout
+
+      elif p.isGhost:
+        discard
+
 
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
@@ -242,8 +249,8 @@ proc fixErrors*(project: Project) =
       fixErrors m.schema, project.modules
 
 
-func instantiate(o: Port, p: Instance): Port =
-  Port(kind: pkInstance, parent: p, origin: o)
+func instantiate(o: Port, i: Instance): Port =
+  Port(kind: pkInstance, parent: i, origin: o)
 
 func extractConnections(sch: Schematic): Graph[PortId] =
   for loc, ports in sch.portsPlot:
@@ -267,7 +274,8 @@ proc resolve*(proj: Project) =
       let mref = proj.modules[normalizeModuleName ins.module.name]
       ins.module = mref
 
-      if ins.kind != ikNameNet and (ins.name.len == 0 or ins.name[0] == '['): # an array, like [2:0]
+      if ins.kind != ikNameNet and (ins.name.len == 0 or ins.name[0] ==
+          '['): # an array, like [2:0]
         ins.name = randomIdent(10) & ins.name
 
       for p in mref.icon.ports:

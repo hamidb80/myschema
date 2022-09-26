@@ -5,7 +5,7 @@
 
 # Note the priority.  Can't be generated in SUE.
 
-proc ICON_name_net_s args {
+proc ICON_name_net args {
   icon_setup $args {{origin {0 0}} {orient R0} {name {}}}
   icon_term -type inout -origin {0 0} -name {$name} -priority name
   icon_line 0 0 0 -10 -10 -10

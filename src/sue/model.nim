@@ -65,6 +65,7 @@ type
       dir*: PortDir
       name*: string
       relativeLocation*: Point
+      hasSiblings*, isGhost*: bool
 
     of pkInstance:
       parent* {.cursor.}: Instance

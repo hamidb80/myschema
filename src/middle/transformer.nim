@@ -83,19 +83,21 @@ proc addComponentLabels(m: sm.Module) =
 
 proc addPortsLabel(i: sm.Icon) =
   for p in i.ports:
-    i.labels.add sm.Label(
-      content: p.name,
-      location: p.relativeLocation,
-      anchor: s,
-      fnsize: fzStandard)
+    if not p.isGhost:
+      i.labels.add sm.Label(
+        content: p.name,
+        location: p.relativeLocation,
+        anchor: s,
+        fnsize: fzStandard)
 
 proc addSchematicInputs(m: sm.Module) =
   for i, p in m.icon.ports:
-    m.schema.instances.add Instance(
-      kind: ikPort,
-      name: p.name,
-      module: refModule($p.dir),
-      location: (0, i * 100))
+    if not p.isGhost:
+      m.schema.instances.add Instance(
+        kind: ikPort,
+        name: p.name,
+        module: refModule($p.dir),
+        location: (0, i * 100))
 
 func genIconPort(p: em.Port, pin: Point, name: string): sm.Port =
   sm.Port(
@@ -115,14 +117,22 @@ proc makeModule(prc: em.Process): sm.Module =
     let
       id = p.identifier
       i = names.find id.name
+      newp = genIconPort(p, pin, id.format)
 
     case i
     of notFound:
       names.add id.name
-      result.icon.ports.add genIconPort(p, pin, id.format)
 
-    else: # TODO
-      assert result.icon.ports[i].dir xor p.dir
+    else:
+      let oldp = result.icon.ports[i]
+      
+      assert oldp.dir xor newp.dir
+      assert not oldp.hasSiblings
+
+      newp.isGhost = true
+      oldp.hasSiblings = true
+
+    result.icon.ports.add newp
 
   addSchematicInputs result
   addPortsLabel result.icon
@@ -182,12 +192,10 @@ proc toSue*(
         for p in c.ports:
           drawDiffWire p
 
-      ## since `process`es and `generate block`s are not resusable,
-      ## we can simply *ignore* the rotation and flip properties
-
       for pr in schema.processes:
         let newModule = makeModule pr
         modules[newModule.name] = newModule
+
         result.schema.instances.add sm.Instance(
           kind: sm.ikCustom,
           name: randomIdent(10),
@@ -196,6 +204,19 @@ proc toSue*(
 
         for p in pr.ports:
           drawDiffWire p
+
+      for p in schema.ports:
+        let loc = center p.geometry
+
+        result.schema.instances.add sm.Instance(
+          kind: ikPort,
+          name: format p.identifier,
+          module: modules[$(toSue p.mode)],
+          location: loc,
+          # TODO orient*: Orient
+        )
+
+        result.schema.wiredNodes.incl p.connection.position .. loc
 
       for sourceNet in schema.nets:
         for part in sourceNet.parts:
@@ -244,19 +265,6 @@ proc toSue*(
 
               result.schema.wiredNodes.incl pin .. conn
 
-      for p in schema.ports:
-        let loc = center p.geometry
-
-        result.schema.instances.add sm.Instance(
-          kind: ikPort,
-          name: format p.identifier,
-          module: modules[$(toSue p.mode)],
-          location: loc,
-          # TODO orient*: Orient
-        )
-
-        result.schema.wiredNodes.incl p.connection.position .. loc
-
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
       addSchematicInputs result
 
@@ -270,5 +278,5 @@ proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
       result.modules[m.name] = m
 
 proc toSue*(proj: em.Project): sm.Project =
-  result = toSue(proj, sp.basicModules)
+  result = toSue(proj, sp.loadBasicModules())
   resolve result

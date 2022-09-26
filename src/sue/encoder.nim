@@ -166,7 +166,8 @@ func toSueFile(m: sink Module): SueFile =
       result.icon.add encode p
 
   for p in m.icon.ports:
-    result.icon.add encode p
+    if not p.isGhost:
+      result.icon.add encode p
 
   for l in m.icon.labels:
     result.icon.add encode(l, ecIcon)
