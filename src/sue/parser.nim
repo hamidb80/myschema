@@ -1,4 +1,4 @@
-import std/[tables, os, strformat, strutils, sequtils, options, sugar, macros]
+import std/[tables, os, strformat, strutils, sequtils, options, sugar]
 import ../common/[errors, coordination, collections, domain, graph, rand]
 import lexer, model, logic
 
@@ -27,11 +27,11 @@ func getOrient(expr: SueExpression): Orient =
   else:
     default Orient
 
-# func getRotate(expr: SueExpression): bool =
-#   let tk = expr.find(sfRotate)
+func getRotate(expr: SueExpression): bool =
+  let tk = expr.find(sfRotate)
 
-#   if issome tk: tk.get.intval == 1
-#   else: false
+  if issome tk: tk.get.intval == 1
+  else: false
 
 func getSize(expr: SueExpression): FontSize =
   let tk = expr.find(sfSize)
@@ -81,7 +81,7 @@ func parseMakeText*(expr: SueExpression): Label =
   let
     c = expr[sfText].strval
     o = getOrigin expr
-    # r = getRotate expr
+    r = getRotate expr
     s = getSize expr
     a = getAnchor expr
 

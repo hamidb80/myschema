@@ -1,8 +1,0 @@
-# SUE version MMI_SUE4.4.0
-
-proc SCHEMATIC_bottom {} {
-  make input -orient R90 -origin {130 260}
-  make output -orient R90 -origin {130 340}
-  make_wire 130 260 130 340
-}
-

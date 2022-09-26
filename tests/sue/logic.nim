@@ -137,6 +137,8 @@ suite "advanced":
 
   let iconGeo = (0, -10, 20, 10)
 
+  # FIXME do not rely on code test, do visual tests ...
+
   test "fixErrors :: addBuffer":
     var
       p = parseSueProject @[

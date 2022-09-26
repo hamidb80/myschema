@@ -1,8 +1,0 @@
-# SUE version MMI_SUE4.4.0
-
-proc SCHEMATIC_right {} {
-  make input -orient RXY -origin {150 260}
-  make output -orient RXY -origin {40 260}
-  make_wire 40 260 150 260
-}
-

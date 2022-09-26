@@ -1,0 +1,15 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_element_ports {} {
+  make square -name left -origin {580 310}
+  make square -orient RXY -name up -origin {310 370}
+  make square -name down -origin {200 550}
+  make square -name right -origin {520 570}
+  make_wire 490 310 580 310
+  make_wire 270 690 270 610
+  make_wire 620 570 750 570
+  make_wire 240 220 240 310
+  make_line 90 460 790 460
+  make_line 420 200 420 720
+}
+

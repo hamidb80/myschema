@@ -1,0 +1,23 @@
+# SUE version MMI_SUE4.4.0
+
+proc SCHEMATIC_schema_ports_result {} {
+  make output -orient R270 -name o1 -origin {300 200}
+  make input -orient R270 -name i1 -origin {300 310}
+  make input -orient R90 -name i2 -origin {300 500}
+  make output -orient R90 -name o2 -origin {300 610}
+  make output -orient RXY -name o3 -origin {480 470}
+  make input -orient RXY -name i3 -origin {590 470}
+  make input -name i4 -origin {480 340}
+  make output -name o4 -origin {600 340}
+  make buffer0 -origin {480 340}
+  make buffer0 -orient RXY -origin {590 470}
+  make buffer0 -orient R270 -origin {300 310}
+  make buffer0 -orient R90 -origin {300 500}
+  make_wire 500 340 600 340
+  make_wire 570 470 480 470
+  make_wire 300 290 300 200
+  make_wire 300 520 300 610
+  make_line 370 130 370 670
+  make_line 220 400 700 400
+}
+
