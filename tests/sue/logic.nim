@@ -1,7 +1,7 @@
 import std/[unittest, sequtils, tables, sets, os]
 
 import src/sue/logic {.all.}
-import src/sue/[model, lexer, parser]
+import src/sue/[model, lexer, parser, encoder]
 import src/common/[coordination, graph, collections]
 
 # import print
@@ -23,7 +23,13 @@ template anyInstance(schema, cond): untyped =
 
   result
 
-func `~=`(ins1, ins2: Instance): bool = 
+proc saveModule(m: Module; where: string) =
+  m.name = "play"
+  writefile "play.sue", dump toSueFile m
+
+
+func `~=`(ins1, ins2: Instance): bool =
+  ins1.name != ins2.name and
   ins1.module.name == ins2.module.name and
   ins1.location == ins2.location and
   ins1.geometry == ins2.geometry and
@@ -149,7 +155,7 @@ suite "advanced":
       "l": %["j", "k"],
       "m": %["k"]}
 
-  test "fixErrors :: addBuffer":
+  test "fixErrors :: addBuffer -> schematic":
     var
       proj = parseSueProject @[
         vis "add_buffer/schema_ports.sue",
@@ -161,10 +167,46 @@ suite "advanced":
       initial = proj.modules["schema_ports"]
       result = proj.modules["schema_ports_result"]
 
+    # TODO check for wires too
+
     block test_up:
       let should = findInstance(result.schema, "b1")
-
       check initial.schema.anyInstance ins ~= should
 
+    block test_down:
+      let should = findInstance(result.schema, "b2")
+      check initial.schema.anyInstance ins ~= should
 
-  # test "addBuffer :: element_input":
+    block test_right:
+      let should = findInstance(result.schema, "b3")
+      check initial.schema.anyInstance ins ~= should
+
+    block test_left:
+      let should = findInstance(result.schema, "b4")
+      check initial.schema.anyInstance ins ~= should
+
+  test "addBuffer -> element":
+    var
+      proj = parseSueProject @[
+        vis "square.sue",
+        vis "add_buffer/element_ports.sue",
+        vis "add_buffer/element_ports_result.sue"]
+
+    let
+      n = proj.modules["name_net"]
+      initial = proj.modules["element_ports"]
+      result = proj.modules["element_ports_result"]
+
+    # TODO check for wires too
+
+    block test_up:
+      let
+        ins = findInstance(result.schema, "up")
+        # should = findInstance(result.schema, "bu")
+        p = ins.ports.findOne[:Port](it.origin.name == "in2")
+
+      addNameNet p, initial.schema, n
+      saveModule(initial, "play")
+
+
+      # check initial.schema.anyInstance ins ~= should

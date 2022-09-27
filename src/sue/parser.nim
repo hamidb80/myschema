@@ -3,6 +3,11 @@ import ../common/[errors, coordination, collections, domain, graph, rand]
 import lexer, model, logic
 
 
+func foldPoints(xyValues: seq[int]): seq[Point] =
+  for i in countup(0, xyValues.high, 2):
+    result.add (xyValues[i], xyValues[i+1]) # TODO this line
+
+
 func parsePortType*(s: string): PortDir =
   case s:
   of "input": pdInput
@@ -95,7 +100,10 @@ proc parseSchematic(se: seq[SueExpression]): Schematic =
 
   for expr in se:
     case expr.command:
-    of scMakeLine: discard
+    of scMakeLine:
+      result.lines.add Line(
+        kind: straight,
+        points: foldPoints expr.args.mapIt it.intval)
 
     of scMakeText:
       result.labels.add parseMakeText expr
@@ -109,10 +117,6 @@ proc parseSchematic(se: seq[SueExpression]): Schematic =
     # of scGenerate: err "'generate' is not implemented yet"
     else:
       err fmt"invalid command in schematic: {expr.command}"
-
-func foldPoints(xyValues: seq[int]): seq[Point] =
-  for i in countup(0, xyValues.high, 2):
-    result.add (xyValues[i], xyValues[i+1]) # TODO this line
 
 func parseIcon(se: seq[SueExpression]): Icon =
   result = new Icon

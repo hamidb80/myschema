@@ -145,7 +145,7 @@ func encode(p: Property): SueExpression =
     result.options.add toOption(sfDefault, quoted p.defaultValue.get)
 
 
-func toSueFile(m: sink Module): SueFile =
+func toSueFile*(m: sink Module): SueFile =
   result = SueFile(name: m.name)
 
   # --- icon

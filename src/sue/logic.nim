@@ -150,6 +150,13 @@ func `*`(i: range[-1..1], vd: VectorDirection): VectorDirection =
   of -1: -vd
   else: err "coefficient is not in {-1, +1}"
 
+
+proc addNameNet*(p: Port, schema: Schematic, nameNetModule: Module) =
+  schema.instances.add Instance(
+    name: "net_" & randomIdent(),
+    module: nameNetModule,
+    location: p.location)
+
 proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
   ## 1. find location
   ## 2. find connected wires
