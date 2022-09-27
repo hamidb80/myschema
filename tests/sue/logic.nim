@@ -198,7 +198,7 @@ suite "advanced":
         port = ins.ports.findOne[:Port](it.origin.name == pname)
         should = findInstance(result.schema, rname)
 
-      addBuffer port, initial.schema, buffer
+      discard addBuffer(port, initial.schema, buffer)
       check initial.schema.anyInstance it ~= should
 
     tt("in_up", "in2", "ibu")
