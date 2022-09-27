@@ -25,8 +25,8 @@ func toOrient*(vd: VectorDirection): Orient =
   of vdNorth: R270
   of vdDiagonal: err "orient for diagonal vectors is not defined"
 
-func moduleTag*(name: string): ModuleTag =
-  case name:
+func tag*(m: Module): ModuleTag =
+  case m.name:
   of "input", "output", "inout": mtPort
   of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": mtNameNet
   else: mtCustom
@@ -242,7 +242,7 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
 
       elif p.origin.isGhost:
         addNameNet p, schema, nameNet
-        # addBuffer p, schema, bufferModule
+        addBuffer p, schema, bufferModule
 
   for pids in parts schema.connections:
     let connectedSchemaPorts =

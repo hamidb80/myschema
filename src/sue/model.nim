@@ -111,7 +111,6 @@ type
     case kind*: ModuleKind
     of mkRef: discard
     of mkCtx:
-      tag*: ModuleTag
       icon*: Icon
       schema*: Schematic
       code*: Option[string]

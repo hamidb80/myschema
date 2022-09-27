@@ -1,5 +1,5 @@
 import std/[tables, os, strformat, strutils, sequtils, options, sugar]
-import ../common/[errors, coordination, collections, domain, graph, rand, path]
+import ../common/[errors, coordination, collections, domain, graph, rand, path, minitable]
 import lexer, model, logic
 
 
@@ -125,7 +125,10 @@ func parseIcon(se: seq[SueExpression]): Icon =
     case expr.command:
     of scIconSetup:
       assert expr.args[0] == "$args"
-      # TODO
+      result.params["origin"] = some "{0 0}"
+      result.params["orient"] = some "R0"
+      result.params["name"] = some "{}"
+      # FIXME use a tested TCL parser
 
     of scIconProperty, scIconArc: discard
 
@@ -147,7 +150,6 @@ func parseIcon(se: seq[SueExpression]): Icon =
 proc parseSue*(sfile: SueFile): Module =
   Module(
     name: sfile.name,
-    tag: moduleTag sfile.name,
     kind: mkCtx,
     icon: parseIcon sfile.icon,
     schema: parseSchematic sfile.schematic)
