@@ -34,10 +34,10 @@ type
     pFixed = "fixed" # static
     pUser = "user"   # dynamic
 
-  InstanceKind* = enum
-    ikPort
-    ikNameNet
-    ikCustom
+  ModuleTag* = enum
+    mtPort
+    mtNameNet
+    mtCustom
 
   ModuleKind* = enum
     mkRef # instance
@@ -97,14 +97,12 @@ type
     portsTable*: Table[PortID, seq[Port]]
 
   Instance* = ref object
-    kind*: InstanceKind
     name*: string
     module* {.cursor.}: Module
     args*: MiniTable[string, string]
     location*: Point
     orient*: Orient
-
-    ## cache
+    ## --- cache
     ports*: seq[Port]
 
   Module* = ref object
@@ -113,10 +111,11 @@ type
     case kind*: ModuleKind
     of mkRef: discard
     of mkCtx:
+      tag*: ModuleTag
       icon*: Icon
       schema*: Schematic
       code*: Option[string]
-      isTemp*: bool # is temporaty - do not generate file for temporary modules
+      isTemp*: bool # do not generate file for temporary modules
       isGenerator*: bool
 
   ModuleLookUp* = Table[string, Module]

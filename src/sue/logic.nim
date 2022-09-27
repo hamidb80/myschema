@@ -25,11 +25,11 @@ func toOrient*(vd: VectorDirection): Orient =
   of vdNorth: R270
   of vdDiagonal: err "orient for diagonal vectors is not defined"
 
-func instancekind*(name: string): InstanceKind =
+func moduleTag*(name: string): ModuleTag =
   case name:
-  of "input", "output", "inout": ikPort
-  of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": ikNameNet
-  else: ikCustom
+  of "input", "output", "inout": mtPort
+  of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": mtNameNet
+  else: mtCustom
 
 func normalizeModuleName(name: string): string =
   case name:
@@ -57,9 +57,9 @@ func `--`(s1, s2: string): string =
   s1 & '/' & s2
 
 func ids*(port: Port): seq[PortID] =
-  case port.parent.kind:
-  of ikPort, ikNameNet: toseq sepids(port.parent.name)
-  of ikCustom:
+  case port.parent.module.tag:
+  of mtPort, mtNameNet: toseq sepids(port.parent.name)
+  of mtCustom:
     let
       n1 = dropIndexes port.parent.name
       n2 = dropIndexes port.origin.name
@@ -132,12 +132,6 @@ iterator ports*(schema: Schematic): Port =
       yield p
 
 
-func schemaPorts(portGroups: seq[seq[Port]]): seq[Port] =
-  for ports in portGroups:
-    for p in ports:
-      if p.origin.dir in {pdInput, pdOutput} and p.parent.kind == ikPort:
-        result.add p
-
 func problematic(ports: seq[Port]): seq[Port] =
   ## returns input ports if there were both input ports and output ports
   var groups: array[PortDir, seq[Port]]
@@ -180,8 +174,8 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
       else: err "invalid"
 
     kind_coeff =
-      case p.parent.kind:
-      of ikPort: +1
+      case p.parent.module.tag:
+      of mtPort: +1
       else: -1
 
     coeff = dir_coeff * kind_coeff
@@ -190,12 +184,11 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
     width = bufferModule.icon.geometry.size.w
     loc2 = loc + coeff*vdir*width
     buffIn =
-      case p.parent.kind:
-      of ikPort: loc
+      case p.parent.module.tag:
+      of mtPort: loc
       else: loc2
 
     buffer = Instance(
-      kind: ikCustom,
       name: "buffer_" & randomIdent(),
       module: bufferModule,
       location: buffIn,
@@ -205,6 +198,10 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
   schema.wiredNodes.incl loc2, nextNodeLoc
   schema.instances.add buffer
 
+func toPorts(schema: Schematic, pids: seq[PortID]): seq[Port] =
+  for pid in pids:
+    result.add schema.portsTable[pid]
+
 proc fixErrors(schema: Schematic, modules: ModuleLookup) =
   ## fixes connection errors via adding `buffer0` element
   let
@@ -212,21 +209,24 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
     nameNet = modules["name_net"]
 
   for pids in parts schema.connections:
-    let portGroups = pids.mapit(schema.portsTable[it])
-    for p in problematic schemaPorts portGroups:
+    let connectedSchemaPorts =
+      toPorts(schema, pids)
+      .filterit(it.parent.module.tag == mtPort)
+
+    for p in problematic connectedSchemaPorts:
       addBuffer p, schema, bufferModule
 
-  var instancesList = schema.instances # contains a copy
-  for ins in instancesList:
-    for p in ins.ports:
-      if p.origin.hasSiblings:
-        addBuffer p, schema, bufferModule
-        p.origin.dir = pdInout
+  # var instancesList = schema.instances # contains a copy
+  # for ins in instancesList:
+  #   for p in ins.ports:
+  #     if p.origin.hasSiblings:
+  #       addBuffer p, schema, bufferModule
+  #       p.origin.dir = pdInout
 
-      elif p.origin.isGhost:
-        # FIXME add the first element changes the wire node position
-        addBuffer p, schema, nameNet
-        addBuffer p, schema, bufferModule
+  #     elif p.origin.isGhost:
+  #       # FIXME add the first element changes the wire node position
+  #       addBuffer p, schema, nameNet
+  #       addBuffer p, schema, bufferModule
 
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
@@ -259,7 +259,7 @@ proc resolve*(proj: Project) =
       let mref = proj.modules[normalizeModuleName ins.module.name]
       ins.module = mref
 
-      if ins.kind != ikNameNet and (ins.name.len == 0 or ins.name[0] ==
+      if ins.module.tag != mtNameNet and (ins.name.len == 0 or ins.name[0] ==
           '['): # an array, like [2:0]
         ins.name = randomIdent(10) & ins.name
 

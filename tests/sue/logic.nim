@@ -1,19 +1,33 @@
 import std/[unittest, sequtils, tables, sets, os]
+
 import src/sue/logic {.all.}
 import src/sue/[model, lexer, parser]
 import src/common/[coordination, graph, collections]
 
-import print
+# import print
 
 # utility
 func vis(s: string): string =
-  "./samples/sue/visual_tests" / s
+  "./samples/sue" / s
 
-template findInstanceOf(moduleName, mdl): untyped =
-  findOne[Instance](mdl.schema.instances, it.module.name == moduleName)
+template findInstance(schema; insName): untyped =
+  findOne[Instance](schema.instances, it.name == insName)
 
-template findBuffer(mdl): untyped =
-  findInstanceOf "buffer0", mdl
+template anyInstance(schema, cond): untyped =
+  var result = false
+
+  for ins{.inject.} in schema.instances:
+    if cond:
+      result = true
+      break
+
+  result
+
+func `~=`(ins1, ins2: Instance): bool = 
+  ins1.module.name == ins2.module.name and
+  ins1.location == ins2.location and
+  ins1.geometry == ins2.geometry and
+  ins1.orient == ins2.orient
 
 
 suite "basics":
@@ -135,103 +149,22 @@ suite "advanced":
       "l": %["j", "k"],
       "m": %["k"]}
 
-  let iconGeo = (0, -10, 20, 10)
-
-  # FIXME do not rely on code test, do visual tests ...
-
   test "fixErrors :: addBuffer":
     var
-      p = parseSueProject @[
-        vis "add_buffer/schema_input/left.sue",
-        vis "add_buffer/schema_input/right.sue",
-        vis "add_buffer/schema_input/up.sue",
-        vis "add_buffer/schema_input/bottom.sue"]
+      proj = parseSueProject @[
+        vis "add_buffer/schema_ports.sue",
+        vis "add_buffer/schema_ports_result.sue"]
 
-    fixErrors p
+    fixErrors proj
 
     let
-      left = p.modules["left"]
-      right = p.modules["right"]
-      up = p.modules["up"]
-      bottom = p.modules["bottom"]
-
-    block test_left:
-      let buff = findBuffer left
-      check:
-        buff.location == (80, 100)
-        buff.orient == R0
-        buff.geometry == iconGeo + (80, 100)
-
-    block test_right:
-      let buff = findBuffer right
-      check:
-        buff.location == (150, 260)
-        buff.orient == RXY
-        buff.geometry == iconGeo.rotate(P0, r180) + (150, 260)
+      initial = proj.modules["schema_ports"]
+      result = proj.modules["schema_ports_result"]
 
     block test_up:
-      let buff = findBuffer up
-      check:
-        buff.location == (90, 350)
-        buff.orient == R270
-        buff.geometry == iconGeo.rotate(P0, -r90) + (90, 350)
+      let should = findInstance(result.schema, "b1")
 
-    block test_bottom:
-      let buff = findBuffer bottom
-      check:
-        buff.location == (130, 260)
-        buff.orient == R90
-        buff.geometry == iconGeo.rotate(P0, r90) + (130, 260)
+      check initial.schema.anyInstance ins ~= should
 
-  test "addBuffer :: element_input":
-    var
-      p = parseSueProject @[
-        vis "add_buffer/element_input/north.sue",
-        vis "add_buffer/element_input/east.sue",
-        vis "add_buffer/element_input/south.sue",
-        vis "add_buffer/element_input/west.sue"]
 
-      east = p.modules["east"]
-      west = p.modules["west"]
-      north = p.modules["north"]
-      south = p.modules["south"]
-
-    block test_east:
-      let inp = findInstanceOf("input", east).ports[0]
-      addBuffer inp, east.schema, p.modules["buffer0"]
-
-      let buff = findBuffer east
-      check:
-        buff.location == (450, 340)
-        buff.orient == R0
-        buff.geometry == iconGeo + (450, 340)
-
-    block test_west:
-      let inp = findInstanceOf("input", west).ports[0]
-      addBuffer inp, west.schema, p.modules["buffer0"]
-
-      let buff = findBuffer west
-      check:
-        buff.location == (710, 260)
-        buff.orient == RXY
-        buff.geometry == iconGeo.rotate(P0, r180) + (710, 260)
-
-    block test_north:
-      let inp = findInstanceOf("input", north).ports[0]
-      addBuffer inp, north.schema, p.modules["buffer0"]
-
-      let buff = findBuffer north
-      check:
-        buff.location == (600, 380)
-        buff.orient == R270
-        buff.geometry == iconGeo.rotate(P0, -r90) + (600, 380)
-
-    block test_south:
-      let inp = findInstanceOf("input", south).ports[0]
-      addBuffer inp, south.schema, p.modules["buffer0"]
-
-      let buff = findBuffer south
-      check:
-        buff.location == (600, 230)
-        buff.orient == R90
-        buff.geometry == iconGeo.rotate(P0, r90) + (600, 230)
+  # test "addBuffer :: element_input":

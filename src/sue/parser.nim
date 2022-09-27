@@ -143,13 +143,14 @@ func parseIcon(se: seq[SueExpression]): Icon =
 proc parseSue*(sfile: SueFile): Module =
   Module(
     name: sfile.name,
+    tag: moduleTag sfile.name,
     kind: mkCtx,
     icon: parseIcon sfile.icon,
     schema: parseSchematic sfile.schematic)
     # paramters: ) # TODO
 
 
-const  basicModulesContent = collect:
+const basicModulesContent = collect:
   for _, path in walkDir getEnv("SUE_ELEM_DIR") / "elements":
     readfile path
 

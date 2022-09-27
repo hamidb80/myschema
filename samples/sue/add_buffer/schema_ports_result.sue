@@ -9,10 +9,10 @@ proc SCHEMATIC_schema_ports_result {} {
   make input -orient RXY -name i3 -origin {590 470}
   make input -name i4 -origin {480 340}
   make output -name o4 -origin {600 340}
-  make buffer0 -origin {480 340}
-  make buffer0 -orient RXY -origin {590 470}
-  make buffer0 -orient R270 -origin {300 310}
-  make buffer0 -orient R90 -origin {300 500}
+  make buffer0 -orient R270 -name b1 -origin {300 310}
+  make buffer0 -orient R90 -name b2 -origin {300 500}
+  make buffer0 -name b3 -origin {480 340}
+  make buffer0 -orient RXY -name b4 -origin {590 470}
   make_wire 500 340 600 340
   make_wire 570 470 480 470
   make_wire 300 290 300 200
