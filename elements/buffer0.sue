@@ -8,8 +8,8 @@ proc SCHEMATIC_buffer0 {} {
 
 proc ICON_buffer0 args {
   icon_setup $args {{origin {0 0}} {orient R0} {name {}}}
-  icon_term -type input -origin {0 0} -name in
-  icon_term -type output -origin {20 0} -name out
+  icon_term -type input -origin {0 0} -name i
+  icon_term -type output -origin {20 0} -name o
   icon_property -origin {-10 160} -type user -name name
   icon_line 0 10 20 0 0 -10 0 10
 }

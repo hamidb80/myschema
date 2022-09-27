@@ -18,7 +18,7 @@ func rotation*[T: Thing](c: T): Rotation =
 func position*(p: Port): Point =
   center p.geometry
 
-func flips*[T: Thing](element: T): set[Flip] =
+func flips*[T: Thing](element: T): set[Axis] =
   # vertical = 1
   # horizontal = 2
   # both = 3

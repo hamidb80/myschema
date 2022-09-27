@@ -35,13 +35,13 @@ func toSue(s: em.Side): Orient =
   of sLeftToRight: R0
 
 
-template flipCase(f: set[Flip], bxy, bx, by, b0: untyped): untyped =
+template flipCase(f: set[Axis], bxy, bx, by, b0: untyped): untyped =
   if f == {X, Y}: bxy
   elif f == {X}: bx
   elif f == {Y}: by
   else: b0
 
-func toSue(ro: Rotation, fs: set[Flip]): Orient =
+func toSue(ro: Rotation, fs: set[Axis]): Orient =
   case ro:
   of r0: flipCase(fs, RXY, RX, RY, R0)
   of r90: flipCase(fs, R270, R90X, R90Y, R90)

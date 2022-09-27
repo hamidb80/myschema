@@ -1,19 +1,35 @@
 # SUE version MMI_SUE4.4.0
 
 proc SCHEMATIC_element_ports_result {} {
-  make square -orient RXY -name up -origin {310 370}
-  make square -name down -origin {200 550}
-  make square -name left -origin {580 310}
-  make square -name right -origin {520 570}
-  make buffer0 -orient R270 -name bu -origin {240 310}
-  make buffer0 -orient R90 -name bd -origin {270 610}
-  make buffer0 -orient RXY -name bl -origin {580 310}
-  make buffer0 -name br -origin {620 570}
-  make_wire 560 310 490 310
-  make_wire 640 570 750 570
-  make_wire 240 290 240 220
-  make_wire 270 630 270 690
+  make square -orient RXY -name in_up -origin {300 340}
+  make square -name in_down -origin {190 550}
+  make square -orient RXY -name in_right -origin {640 590}
+  make square -name in_left -origin {570 310}
+  make square -orient RXY -name out_left -origin {1480 330}
+  make square -name out_right -origin {1380 590}
+  make buffer0 -orient R90 -name ibu -origin {230 260}
+  make buffer0 -orient R270 -name ibd -origin {260 630}
+  make buffer0 -orient RXY -name ibr -origin {660 590}
+  make buffer0 -name ibl -origin {550 310}
+  make square -orient R270 -name out_up -origin {1010 300}
+  make square -orient R90 -name out_down -origin {1040 630}
+  make buffer0 -orient R270 -name obu -origin {1010 200}
+  make buffer0 -orient R90 -name obd -origin {1040 730}
+  make buffer0 -orient RXY -name obl -origin {1380 330}
+  make buffer0 -name obr -origin {1480 590}
+  make_wire 230 260 230 220
+  make_wire 550 310 480 310
+  make_wire 260 630 260 690
+  make_wire 660 590 750 590
+  make_wire 1040 750 1040 840
+  make_wire 1360 330 1260 330
+  make_wire 1500 590 1630 590
+  make_wire 1010 180 1010 90
   make_line 90 460 790 460
   make_line 420 200 420 720
+  make_text -origin {390 170} -text input
+  make_line 930 460 1630 460
+  make_line 1190 200 1190 720
+  make_text -origin {1160 170} -text output
 }
 

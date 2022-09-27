@@ -62,7 +62,7 @@ template toOption(f, val): untyped =
 func toToken*(p: Point): SueToken =
   toToken "{$# $#}" % [$p.x, $p.y]
 
-func `$`*(flips: set[Flip]): string =
+func `$`*(flips: set[Axis]): string =
   join toseq flips
 
 func speardPoints(points: seq[Point]): seq[int] =

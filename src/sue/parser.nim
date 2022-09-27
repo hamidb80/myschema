@@ -1,5 +1,5 @@
 import std/[tables, os, strformat, strutils, sequtils, options, sugar]
-import ../common/[errors, coordination, collections, domain, graph, rand]
+import ../common/[errors, coordination, collections, domain, graph, rand, path]
 import lexer, model, logic
 
 
@@ -155,7 +155,7 @@ proc parseSue*(sfile: SueFile): Module =
 
 
 const basicModulesContent = collect:
-  for _, path in walkDir getEnv("SUE_ELEM_DIR") / "elements":
+  for _, path in walkDir projectPath() / "elements":
     readfile path
 
 proc loadBasicModules*: ModuleLookUp =

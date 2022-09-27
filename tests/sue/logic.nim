@@ -16,16 +16,16 @@ template findInstance(schema; insName): untyped =
 template anyInstance(schema, cond): untyped =
   var result = false
 
-  for ins{.inject.} in schema.instances:
+  for it{.inject.} in schema.instances:
     if cond:
       result = true
       break
 
   result
 
-proc saveModule(m: Module; where: string) =
-  m.name = "play"
-  writefile "play.sue", dump toSueFile m
+proc saveModule(m: Module; name = "play") =
+  m.name = name
+  writefile name & ".sue", dump toSueFile m
 
 
 func `~=`(ins1, ins2: Instance): bool =
@@ -169,21 +169,14 @@ suite "advanced":
 
     # TODO check for wires too
 
-    block test_up:
-      let should = findInstance(result.schema, "b1")
-      check initial.schema.anyInstance ins ~= should
+    template cc(n): untyped =
+      let should = findInstance(result.schema, n)
+      check initial.schema.anyInstance it ~= should
 
-    block test_down:
-      let should = findInstance(result.schema, "b2")
-      check initial.schema.anyInstance ins ~= should
-
-    block test_right:
-      let should = findInstance(result.schema, "b3")
-      check initial.schema.anyInstance ins ~= should
-
-    block test_left:
-      let should = findInstance(result.schema, "b4")
-      check initial.schema.anyInstance ins ~= should
+    cc "b1" # test_up
+    cc "b2" # test_down
+    cc "b3" # test_right
+    cc "b4" # test_left
 
   test "addBuffer -> element":
     var
@@ -193,20 +186,29 @@ suite "advanced":
         vis "add_buffer/element_ports_result.sue"]
 
     let
-      n = proj.modules["name_net"]
+      buffer = proj.modules["buffer0"]
       initial = proj.modules["element_ports"]
       result = proj.modules["element_ports_result"]
 
     # TODO check for wires too
 
-    block test_up:
+    template tt(ename, pname, rname: string) =
       let
-        ins = findInstance(result.schema, "up")
-        # should = findInstance(result.schema, "bu")
-        p = ins.ports.findOne[:Port](it.origin.name == "in2")
+        ins = findInstance(initial.schema, ename)
+        port = ins.ports.findOne[:Port](it.origin.name == pname)
+        should = findInstance(result.schema, rname)
 
-      addNameNet p, initial.schema, n
-      saveModule(initial, "play")
+      addBuffer port, initial.schema, buffer
+      check initial.schema.anyInstance it ~= should
 
+    tt("in_up", "in2", "ibu")
+    tt("in_down", "in2", "ibd")
+    tt("in_left", "in1", "ibl")
+    tt("in_right", "in1", "ibr")
 
-      # check initial.schema.anyInstance ins ~= should
+    tt("out_up", "out1", "obu")
+    tt("out_down", "out1", "obd")
+    tt("out_left", "out1", "obl")
+    tt("out_right", "out1", "obr")
+
+    saveModule initial

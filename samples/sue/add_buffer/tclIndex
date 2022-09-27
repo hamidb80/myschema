@@ -12,4 +12,4 @@ set auto_index(SCHEMATIC_schema_ports_result) [list source [file join $dir schem
 set auto_index(SCHEMATIC_element_ports) [list source [file join $dir element_ports.sue]]
 set auto_index(SCHEMATIC_element_ports_result) [list source [file join $dir element_ports_result.sue]]
 set auto_index(SCHEMATIC_schema_ports) [list source [file join $dir schema_ports.sue]]
-set mtimes {{schema_ports_result.sue 1664257289} {element_ports.sue 1664219647} {element_ports_result.sue 1664257477} {schema_ports.sue 1664219436}}
+set mtimes {{schema_ports_result.sue 1664257289} {element_ports.sue 1664278076} {element_ports_result.sue 1664277595} {schema_ports.sue 1664219436}}

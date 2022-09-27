@@ -13,7 +13,7 @@ type
     r180 = 180
     r270 = 270
 
-  Flip* = enum
+  Axis* = enum
     X, Y
 
   VectorDirection* = enum
@@ -37,10 +37,6 @@ type
     w, h: int
 
   Transformer* = proc(p: Point): Point {.noSideEffect.}
-
-  # Transform* = object
-  #   rotation*: Rotation
-  #   flips*: set[Flip]
 
 
 func `+`*(p1, p2: Point): Point =
@@ -123,7 +119,7 @@ func flipX(p: Point): Point =
 template applyFlip(fn, p, c): untyped =
   fn(p - c) + c
 
-func flip*(p, c: Point, flips: set[Flip]): Point =
+func flip*(p, c: Point, flips: set[Axis]): Point =
   result = p
 
   for f in flips:
@@ -131,7 +127,7 @@ func flip*(p, c: Point, flips: set[Flip]): Point =
       of X: applyFlip flipX, result, c
       of Y: applyFlip flipY, result, c
 
-func flip*(geo: Geometry, c: Point, flips: set[Flip]): Geometry =
+func flip*(geo: Geometry, c: Point, flips: set[Axis]): Geometry =
   area geo.points.mapIt flip(it, c, flips)
 
 func rotate*(geo: Geometry, center: Point, r: Rotation): Geometry =
@@ -186,3 +182,24 @@ func toVector*(vd: VectorDirection): Vector =
   of vdNorth: (0, -1)
   of vdSouth: (0, +1)
   of vdDiagonal: err "cannot represent a diagonal line as unit vector"
+
+func axis*(vd: VectorDirection): Axis =
+  case vd:
+  of vdEast, vdWest: X
+  of vdNorth, vdSouth: Y
+  of vdDiagonal: err "both?"
+
+func on*(v: Vector, a: Axis): int =
+  case a:
+  of X: v.x
+  of Y: v.y
+
+func on*(g: Geometry, a: Axis): Slice[int] =
+  case a:
+  of X: g.x1 .. g.x2
+  of Y: g.y1 .. g.y2
+
+func vector*(length: int, axis: Axis): Vector =
+  case axis:
+  of X: (length, 0)
+  of Y: (0, length)

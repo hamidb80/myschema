@@ -11,7 +11,7 @@ func rotation*(orient: Orient): Rotation =
   of RXY: r180
   of R270: r270
 
-func flips*(orient: Orient): set[Flip] =
+func flips*(orient: Orient): set[Axis] =
   case orient:
   of R0, R90, RXY, R270: {}
   of R90X, RX: {X}
@@ -36,6 +36,14 @@ func normalizeModuleName(name: string): string =
   of "name_net", "name_net_s", "name_net_sw", "name_suggested_name": "name_net"
   else: name
 
+func instantiate(o: Port, i: Instance): Port =
+  Port(kind: pkInstance, parent: i, origin: o)
+
+func `~`(pd: PortDir): PortDir = 
+  case pd
+  of pdInput: pdOutput
+  of pdOutput: pdInput
+  of pdInout: pdInout
 
 func dropIndexes(s: string): string =
   ## removes the bracket part from `s`
@@ -132,24 +140,11 @@ iterator ports*(schema: Schematic): Port =
       yield p
 
 
-func problematic(ports: seq[Port]): seq[Port] =
-  ## returns input ports if there were both input ports and output ports
-  var groups: array[PortDir, seq[Port]]
-
-  for p in ports:
-    groups[p.origin.dir].add p
-
-  if groups[pdInput].len != 0 and groups[pdOutput].len != 0:
-    groups[pdInput]
-  else:
-    @[]
-
 func `*`(i: range[-1..1], vd: VectorDirection): VectorDirection =
   case i:
   of +1: vd
   of -1: -vd
   else: err "coefficient is not in {-1, +1}"
-
 
 proc addNameNet*(p: Port, schema: Schematic, nameNetModule: Module) =
   schema.instances.add Instance(
@@ -172,13 +167,12 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
     loc = p.location
     connectedWiresNodes = toseq schema.wiredNodes[loc]
     nextNodeLoc = connectedWiresNodes[0]
-    dir = dirOf loc .. nextNodeLoc
-    vdir = toVector dir
+
     dir_coeff =
       case p.origin.dir:
       of pdInput: +1
       of pdOutput: -1
-      else: err "invalid"
+      else: err "inout is not valid"
 
     kind_coeff =
       case p.parent.module.tag:
@@ -186,31 +180,54 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
       else: -1
 
     coeff = dir_coeff * kind_coeff
-
-    orient = toOrient coeff*dir
-    width = bufferModule.icon.geometry.size.w
-    loc2 = loc + coeff*vdir*width
-    buffIn =
-      case p.parent.module.tag:
-      of mtPort: loc
-      else: loc2
+    dir = coeff * (dirOf loc .. nextNodeLoc)
+    orient = toOrient dir
 
     buffer = Instance(
       name: "buffer_" & randomIdent(),
       module: bufferModule,
-      location: buffIn,
       orient: orient)
 
+
+  var cachedPorts: array[PortDir, Port]
+  for ip in bufferModule.icon.ports:
+    cachedPorts[ip.dir] = instantiate(ip, buffer)
+
+  let 
+    which = 
+      case coeff:
+      of -1: pdOutput
+      of +1: pdInput
+      else: pdInout
+
+    pin = cachedPorts[which].location
+
+    move = pin - loc
+
+  buffer.location = buffer.location - move
+
   schema.wiredNodes.excl loc, nextNodeLoc
-  schema.wiredNodes.incl loc2, nextNodeLoc
+  schema.wiredNodes.incl cachedPorts[~which].location, nextNodeLoc
   schema.instances.add buffer
+
+
+func problematic(ports: seq[Port]): seq[Port] =
+  ## returns input ports if there were both input ports and output ports
+  var groups: array[PortDir, seq[Port]]
+
+  for p in ports:
+    groups[p.origin.dir].add p
+
+  if groups[pdInput].len != 0 and groups[pdOutput].len != 0:
+    groups[pdInput]
+  else:
+    @[]
 
 func toPorts(schema: Schematic, pids: seq[PortID]): seq[Port] =
   for pid in pids:
     result.add schema.portsTable[pid]
 
 proc fixErrors(schema: Schematic, modules: ModuleLookup) =
-  ## fixes connection errors via adding `buffer0` element
   let
     bufferModule = modules["buffer0"]
     nameNet = modules["name_net"]
@@ -223,26 +240,23 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
     for p in problematic connectedSchemaPorts:
       addBuffer p, schema, bufferModule
 
-  # var instancesList = schema.instances # contains a copy
-  # for ins in instancesList:
-  #   for p in ins.ports:
-  #     if p.origin.hasSiblings:
-  #       addBuffer p, schema, bufferModule
-  #       p.origin.dir = pdInout
+  var instancesList = schema.instances # contains a copy
 
-  #     elif p.origin.isGhost:
-  #       # FIXME add the first element changes the wire node position
-  #       addBuffer p, schema, nameNet
-  #       addBuffer p, schema, bufferModule
+  for ins in instancesList:
+    for p in ins.ports:
+      if p.origin.hasSiblings:
+        addBuffer p, schema, bufferModule
+        p.origin.dir = pdInout
+
+      elif p.origin.isGhost:
+        addNameNet p, schema, nameNet
+        addBuffer p, schema, bufferModule
 
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:
     if not m.isTemp:
       fixErrors m.schema, project.modules
 
-
-func instantiate(o: Port, i: Instance): Port =
-  Port(kind: pkInstance, parent: i, origin: o)
 
 func extractConnections(sch: Schematic): Graph[PortId] =
   for loc, ports in sch.portsPlot:

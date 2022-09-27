@@ -1,0 +1,7 @@
+set NETLIST_CACHE(square,cells) {}
+set netlist_props spice
+set netlist_level 1000
+set NETLIST_CACHE(square,version) MMI_SUE4.4.0
+set NETLIST_CACHE(square) {{.SUBCKT square in1 in2 out1 } {.ENDS	$ square} {}}
+set NETLIST_CACHE(square,names) {{-190 10 {1 in1}} {-190 40 {1 in2}} {-140 10 {1 out1}}}
+set NETLIST_CACHE(square,wires) {}
