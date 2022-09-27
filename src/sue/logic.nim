@@ -39,7 +39,7 @@ func normalizeModuleName(name: string): string =
 func instantiate(o: Port, i: Instance): Port =
   Port(kind: pkInstance, parent: i, origin: o)
 
-func `~`(pd: PortDir): PortDir = 
+func `not`(pd: PortDir): PortDir =
   case pd
   of pdInput: pdOutput
   of pdOutput: pdInput
@@ -193,8 +193,8 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
   for ip in bufferModule.icon.ports:
     cachedPorts[ip.dir] = instantiate(ip, buffer)
 
-  let 
-    which = 
+  let
+    which =
       case coeff:
       of -1: pdOutput
       of +1: pdInput
@@ -207,7 +207,7 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module) =
   buffer.location = buffer.location - move
 
   schema.wiredNodes.excl loc, nextNodeLoc
-  schema.wiredNodes.incl cachedPorts[~which].location, nextNodeLoc
+  schema.wiredNodes.incl cachedPorts[not which].location, nextNodeLoc
   schema.instances.add buffer
 
 
@@ -232,14 +232,6 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
     bufferModule = modules["buffer0"]
     nameNet = modules["name_net"]
 
-  for pids in parts schema.connections:
-    let connectedSchemaPorts =
-      toPorts(schema, pids)
-      .filterit(it.parent.module.tag == mtPort)
-
-    for p in problematic connectedSchemaPorts:
-      addBuffer p, schema, bufferModule
-
   var instancesList = schema.instances # contains a copy
 
   for ins in instancesList:
@@ -250,7 +242,15 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
 
       elif p.origin.isGhost:
         addNameNet p, schema, nameNet
-        addBuffer p, schema, bufferModule
+        # addBuffer p, schema, bufferModule
+
+  for pids in parts schema.connections:
+    let connectedSchemaPorts =
+      toPorts(schema, pids)
+      .filterit(it.parent.module.tag == mtPort)
+
+    for p in problematic connectedSchemaPorts:
+      addBuffer p, schema, bufferModule
 
 proc fixErrors*(project: Project) =
   for _, m in mpairs project.modules:

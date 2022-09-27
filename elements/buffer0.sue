@@ -1,8 +1,8 @@
 proc SCHEMATIC_buffer0 {} {
   make inverter -WP 10 -WN 5 -origin {670 350}
   make inverter -M 4 -WP 10 -WN 5 -origin {800 350}
-  make input -name in -origin {640 350}
-  make output -name out -origin {850 350}
+  make input -name i -origin {640 350}
+  make output -name o -origin {850 350}
   make_wire 720 350 770 350
 }
 

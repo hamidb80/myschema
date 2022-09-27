@@ -94,7 +94,6 @@ proc addSchematicInputs(m: sm.Module) =
   for i, p in m.icon.ports:
     if not p.isGhost:
       m.schema.instances.add Instance(
-        kind: ikPort,
         name: p.name,
         module: refModule($p.dir),
         location: (0, i * 100))
@@ -183,7 +182,6 @@ proc toSue*(
           dv = pin - topleft(rotate(geo, pin, -r))
 
         result.schema.instances.add Instance(
-          kind: ikCustom,
           name: c.hdlIdent.name,
           location: dv + topleft(geo),
           orient: toSue(c.rotation, c.flips),
@@ -197,7 +195,6 @@ proc toSue*(
         modules[newModule.name] = newModule
 
         result.schema.instances.add sm.Instance(
-          kind: sm.ikCustom,
           name: randomIdent(10),
           module: newModule,
           location: topleft pr.geometry)
@@ -209,7 +206,6 @@ proc toSue*(
         let loc = center p.geometry
 
         result.schema.instances.add sm.Instance(
-          kind: ikPort,
           name: format p.identifier,
           module: modules[$(toSue p.mode)],
           location: loc,
@@ -236,7 +232,6 @@ proc toSue*(
 
               template makeNet(id, pos): untyped =
                 Instance(
-                  kind: ikNameNet,
                   name: id,
                   module: nameNet,
                   location: pos)
@@ -257,7 +252,6 @@ proc toSue*(
 
               # TODO make a proc to get rid of `kind` and `name`
               result.schema.instances.add Instance(
-                kind: ikNameNet,
                 name: p.identifier.name,
                 module: nameNet,
                 location: pin,
