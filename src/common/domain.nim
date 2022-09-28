@@ -12,17 +12,3 @@ type
 
 const 
   notFound* = -1
-
-func dirOf*(w: Wire): VectorDirection =
-  ## remeber when you go up, the y is - and the bottom is +
-
-  if w.a.x == w.b.x: # vertical
-    if w.b.y > w.a.y: vdSouth
-    else: vdNorth
-
-  elif w.a.y == w.b.y: # horizobtal
-    if w.b.x > w.a.x: vdEast
-    else: vdWest
-
-  else:
-    vdDiagonal

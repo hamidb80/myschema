@@ -165,6 +165,20 @@ func placeAt*(g: Geometry, at: Point): Geometry =
 const P0* = (0, 0)
 
 
+func dirOf*(w: Slice[Point]): VectorDirection =
+  ## remeber when you go up, the y is - and the bottom is +
+
+  if w.a.x == w.b.x: # vertical
+    if w.b.y > w.a.y: vdSouth
+    else: vdNorth
+
+  elif w.a.y == w.b.y: # horizobtal
+    if w.b.x > w.a.x: vdEast
+    else: vdWest
+
+  else:
+    vdDiagonal
+
 func `-`*(vd: VectorDirection): VectorDirection =
   case vd:
   of vdEast: vdWest

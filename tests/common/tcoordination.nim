@@ -1,6 +1,7 @@
 import std/[unittest]
 import src/common/coordination
 
+
 suite "rotation":
   test "rotate0":
     let p = (-4, -3)
@@ -24,6 +25,19 @@ suite "rotation":
     check p2.rotate(c2, r180) == (11, -15)
     check p2.rotate(c2, -r90) == (16, -4)
     check p2.rotate(c2, r90) == (0, -10)
+
+suite "wire direction":
+  test "south":
+    check dirOf((0, 7) .. (0, 3)) == vdNorth
+
+  test "north":
+    check dirOf((0, 3) .. (0, 7)) == vdSouth
+
+  test "west":
+    check dirOf((7, 0) .. (3, 0)) == vdWest
+
+  test "east":
+    check dirOf((3, 0) .. (7, 0)) == vdEast
 
 suite "flip":
   test "flip nothing":

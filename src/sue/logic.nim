@@ -1,5 +1,8 @@
 import std/[sequtils, strutils, sets, tables]
-import ../common/[coordination, graph, errors, seqtable, domain, rand, collections]
+
+import ../common/[coordination, graph, errors, seqtable, domain, rand,
+    collections, minitable]
+
 import model
 
 # import print
@@ -258,7 +261,7 @@ proc fixErrors(schema: Schematic, modules: ModuleLookup) =
   var instancesList = schema.instances # contains a copy
 
   for ins in instancesList:
-    var tt: Table[string, string]
+    var tt: MiniTable[string, string]
 
     for p in ins.ports:
       if p.origin.hasSiblings:

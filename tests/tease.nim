@@ -1,1 +1,1 @@
-import ease/[lisp, logic, parser]
+include ease/[tlisp, tlogic, tparser]

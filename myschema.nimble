@@ -11,3 +11,4 @@ bin           = @["myschema"]
 # Dependencies
 
 requires "nim >= 1.6.6"
+requires "print" # for testing

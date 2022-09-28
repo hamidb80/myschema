@@ -134,7 +134,7 @@ suite "compound":
 
   template checkPort(po, id, nm, geo_x1, sde, lbl): untyped =
     check po.obid.string == id
-    check po.ident.name == nm
+    check po.hdlident.name == nm
     check po.geometry.x1 == geo_x1
     check po.side.int == sde
 
@@ -144,13 +144,13 @@ suite "compound":
       check po.label.texts == @[lbl]
 
   template checkPortRef(po, refId, connId): untyped =
-    check po.parent.get.obid.string == refId
-    check po.connection.get.obid.string == connId
+    check po.parent.obid.string == refId
+    check po.connection.obid.string == connId
 
   test "PORT_eprt":
     let po = parsePort(lfName "PORT/eprt.eas", eprt)
     checkPort po, "eprta0a0a056f0f80505c4914b45e9a7a454", "new_cy_o", 2328, 1, "new_cy_o((DWIDTH-1)/4:0)"
-    check po.ident.attributes.kind.get == "STD_LOGIC_VECTOR"
+    check po.hdlident.attributes.kind.get == "STD_LOGIC_VECTOR"
 
   test "PORT_aprt":
     let po = parsePort(lfName "PORT/aprt.eas", aprt)
@@ -161,13 +161,13 @@ suite "compound":
     let po = parsePort(lfName "PORT/cprt.eas", cprt)
     checkPort po, "cprtf7000010d4884404803033fcce630000", "HTRANS", 3416, 3, "HTRANS[1:0]"
     check po.properties["SensitivityList"] == "Yes"
-    check po.parent.get.obid.string == "eprtf7000010b203330479045600affd1607"
-    check po.connection.get.obid.string == "ncona0a0a0bc32ebab64495073947d800000"
+    check po.parent.obid.string == "eprtf7000010b203330479045600affd1607"
+    check po.connection.obid.string == "ncona0a0a0bc32ebab64495073947d800000"
 
   test "PORT_pprt":
     let po = parsePort(lfName "PORT/pprt.eas", pprt)
     checkPort po, "pprtf7000010d90d4304848033fc75f70000", "resetn", 7768, 3, ""
-    check po.connection.get.obid.string == "ncona0a0a0bc32ebab64495073949b900000"
+    check po.connection.obid.string == "ncona0a0a0bc32ebab64495073949b900000"
 
   test "PORT_gprt":
     let po = parsePort(lfName "PORT/gprt.eas", gprt)
@@ -186,7 +186,7 @@ suite "compound":
   test "CBN":
     let co = parseCbn lfName "CBN.eas"
     check co.obid.string == "cbna0a0a0bc32ebab64495073946e800000"
-    check co.ident.name == "HCLK"
+    check co.hdlident.name == "HCLK"
     check co.geometry.x1 == 3256
     check co.side.int == 2
     check co.kind.int == 1
@@ -195,7 +195,7 @@ suite "compound":
   test "BUS_RIPPER":
     let bo = parseHook lfName "BUS_RIPPER.eas"
     check bo.obid.string == "hookf7000010a203330479045600dddd1607"
-    check bo.ident.attributes.constraint.get.index == "1"
+    check bo.hdlident.attributes.constraint.get.index == "1"
     check bo.geometry.x1 == 10560
     check bo.side.int == 2
     check bo.label.texts == @["layer2_HSEL[1]"]
@@ -206,7 +206,7 @@ suite "compound":
 
   template genericCheck(o, id, nm, xxx, s, f): untyped =
     check o.obid.string == id
-    check o.ident.name == nm
+    check o.hdlident.name == nm
     check o.geometry.x1 == xxx
     check o.side.int == s
     check o.label.format == f
@@ -214,18 +214,18 @@ suite "compound":
   test "GENERIC_egen":
     let go = parseGeneric(lfName "GENERIC/egen.eas", gkEntity)
     genericCheck go, "egenf7000010b203330479045600b40e1607", "DATA_PHASE", 1304, 2, 128
-    check go.parent.isNone
+    check go.parent == nil
 
   test "GENERIC_igen":
     let go = parseGeneric(lfName "GENERIC/igen.eas", gkInstance)
     genericCheck go, "igena0a0a056f0f80505c4914b4527b7a454", "DWIDTH", 3224, 3, 129
-    check go.parent.get.obid.string == "egena0a0a056f0f80505c4914b455f87a454"
+    check go.parent.obid.string == "egena0a0a056f0f80505c4914b455f87a454"
 
 suite "complex":
 
   template generate_check(o, id, nm, xx, sd, t, p0id, p0k, schid): untyped =
     check o.obid.string == id
-    check o.ident.name == nm
+    check o.hdlident.name == nm
     check o.geometry.x1 == xx
     check o.side.int == sd
     check o.label.texts == @[t]
@@ -254,7 +254,7 @@ suite "complex":
     let po = parseProc lfName "PROCESS.eas"
     check po.obid.string == "proca000000a062824244fa033fcc3040000"
     check po.kind.int == 1
-    check po.ident.name == "Control"
+    check po.hdlident.name == "Control"
     check po.side.int == 2
     check po.geometry.x1 == 3008
     check po.label.texts == @["Control(V)"]
@@ -265,7 +265,7 @@ suite "complex":
     let c = parseComp(lfname "COMPONENT.eas")
 
     check c.obid.string == "comp0c8a100706e3b3a4853033fc44480000"
-    check c.ident.name == "u_slavecontroller"
+    check c.hdlident.name == "u_slavecontroller"
     check c.geometry == (2560, 4800, 4672, 7104)
     check c.side.int == 0
     check c.parent.libObid.string == "lib0c8a"
@@ -274,19 +274,19 @@ suite "complex":
 
   test "NET_tag":
     let no = parseNet lfName "NET/tag.eas"
-    check no.part.kind == pkTag
-    check no.part.ports[0].obid.string == "aprtf700001024784404803033fc89630000"
-    check no.part.ports[^1].obid.string == "cprtf70000103b5feb040e4033fcd5810000"
+    check no.parts[0].kind == pkTag
+    check no.parts[0].ports[0].obid.string == "aprtf700001024784404803033fc89630000"
+    check no.parts[0].ports[^1].obid.string == "cprtf70000103b5feb040e4033fcd5810000"
 
   test "NET_wire":
     let no = parseNet lfName "NET/wire.eas"
-    check no.part.kind == pkWire
+    check no.parts[1].kind == pkWire
     check no.obid.string == "netf7000010a2033304790456008ddd1607"
-    check no.part.ports[1].obid.string == "cprtf7000010a203330479045600d7dd1607"
-    check no.part.label.texts == @["layer2_HSEL[2:0]"]
-    check no.part.wires[0] == (4416, 3712) .. (10624, 3712)
-    check no.part.wires[^1] == (10624, 9536) .. (10624, 10560)
-    check no.part.busRippers[^1].destNet.obid.string == "netf7000010a203330479045600cddd1607"
+    check no.parts[1].ports[1].obid.string == "cprtf7000010a203330479045600d7dd1607"
+    check no.parts[1].label.texts == @["layer2_HSEL[2:0]"]
+    check no.parts[1].wires[0] == (4416, 3712) .. (10624, 3712)
+    check no.parts[1].wires[^1] == (10624, 9536) .. (10624, 10560)
+    check no.parts[1].busRippers[^1].destNet.obid.string == "netf7000010a203330479045600cddd1607"
 
   test "TABLE":
     let to = parseTtab lfName "TABLE.eas"
@@ -324,14 +324,13 @@ suite "file":
     check df.obid.string == "lib9aef568962fb27a3023079900d800000"
     check df.properties["STAMP_REVISION"] == "Release Candidate 1"
     check df.name == "design"
-    check df.entities[0].name == "Toplevel"
-    check df.entities[^1].obid.string == "entf70000105f8463e3025033fc59400000"
+    # check df.entities["Toplevel"].name == "Toplevel"
 
   test "ENTITY_FILE":
     let ef = parseEntityFile lfName "ENTITY_FILE.eas"
     check ef.obid.string == "enta000000a9a859424478033fcaea30000"
     check ef.properties["STAMP_TOOL"] == "Ease"
-    check ef.ident.name == "ram_2k"
+    check ef.hdlident.name == "ram_2k"
     check ef.geometry == (0, 0, 1088, 896)
     check ef.objStamp.created == 1112103081
 
@@ -339,7 +338,7 @@ suite "file":
     check ef.ports[0].kind == eprt
     check ef.ports[^1].obid.string == "eprta000000a9a859424478033fc1fa30000"
 
-    check ef.architectures[0].obid.string == "archa000000a9a859424478033fc2fa30000"
-    check ef.architectures[0].kind.int == 2
-    check ef.architectures[1].obid.string == "archa000000a4d386524405033fc9f670000"
-    check ef.architectures[1].kind.int == 1
+    check ef.archs[0].obid.string == "archa000000a9a859424478033fc2fa30000"
+    check ef.archs[0].kind.int == 2
+    check ef.archs[1].obid.string == "archa000000a4d386524405033fc9f670000"
+    check ef.archs[1].kind.int == 1

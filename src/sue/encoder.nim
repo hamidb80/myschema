@@ -1,5 +1,5 @@
 import std/[os, tables, sequtils, strutils, strformat, times, options, macros, sugar]
-import ../common/[coordination, domain, minitable]
+import ../common/[coordination, domain]
 import model, lexer, logic
 
 

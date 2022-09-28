@@ -1,7 +1,7 @@
-import std/[os]
+# import std/[os]
 
-import src/ease/[transformer as et, parser]
-import src/sue/[transformer as st, encoder]
+# import src/ease/[parser]
+# import src/sue/[encoder]
 
 
 const path =
@@ -15,16 +15,3 @@ const path =
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\usb_hs\usbhostslave.ews"
   # r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\fsm_verilog\master_slave.ews"
   r"C:\ProgramData\HDL Works\Ease80Rev4\ease\examples\amba\amba.ews"
-
-proc createDirs(dirs: varargs[string]) =
-  for dir in dirs:
-    createDir dir
-
-when isMainModule:
-  removeDir "./temp"
-  createDirs "./temp", "./temp/sue", "./temp/svg"
-
-  debugEcho "parsing ..."
-  let proj = toMiddle parseEws path
-  debugEcho "final conversion ..."
-  proj.toSue.writeProject "./temp/sue/"

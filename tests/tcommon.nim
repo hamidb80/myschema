@@ -1,1 +1,1 @@
-import common/[coordination, minitable]
+include common/[tcoordination, tminitable]

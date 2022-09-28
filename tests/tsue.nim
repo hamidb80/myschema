@@ -1,1 +1,1 @@
-import sue/[parser, lexer, transformer]
+include sue/[tlogic, tlexer]
