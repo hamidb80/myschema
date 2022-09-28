@@ -1,5 +1,5 @@
-import std/[tables, strutils, options, macros]
-import ../common/[coordination, domain, errors, graph, rand, collections]
+import std/[tables, strutils, options, macros, sugar]
+import ../common/[coordination, domain, errors, graph, rand, collections, minitable]
 import ../ease/model as em, ../sue/model as sm
 import ../ease/logic as el, ../sue/logic as sl
 import ../sue/parser as sp
@@ -185,8 +185,14 @@ proc toSue*(
           r = c.rotation
           dv = pin - topleft(rotate(geo, pin, -r))
 
+        let args = collect:
+          for g in c.generics:
+            if isSome g.actValue:
+              (g.identifier.format, g.actValue.get)
+
         result.schema.instances.add Instance(
           name: c.hdlIdent.name,
+          args: args,
           location: dv + topleft(geo),
           orient: toSue(c.rotation, c.flips),
           module: refModule(proj[c.parent.obid].identifier.name))
