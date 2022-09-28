@@ -8,7 +8,7 @@ import src/common/[coordination, graph, collections]
 
 # utility
 func vis(s: string): string =
-  "./samples/sue" / s
+  "./examples/sue" / s
 
 template findInstance(schema; insName): untyped =
   findOne[Instance](schema.instances, it.name == insName)

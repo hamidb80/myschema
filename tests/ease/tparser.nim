@@ -1,12 +1,12 @@
 import std/[unittest, os, tables, options]
 import src/ease/[lisp, model]
 import src/ease/parser {.all.}
-import src/common/[collections, domain, minitable]
+import src/common/[collections, minitable]
 
 # --- helpers
 
 template lfName(subPath): untyped =
-  first parseLisp readFile "./examples/ease" / subPath
+  first parseLisp readFile "./samples/ease" / subPath
 
 # --- tests
 
