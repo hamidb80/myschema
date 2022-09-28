@@ -1,6 +1,8 @@
 ## this modules implmemntes a data structure like Table, 
 ## but optimized for few numbers of elements
 
+import std/options
+
 type
   MiniTable*[K, V] = seq[tuple[key: K, value: V]]
 
@@ -30,6 +32,12 @@ func getOrDefault*[K, V](tab: MiniTable[K, V], key: K, def: V): V =
     return p.value
   do:
     return def
+
+func get*[K, V](tab: MiniTable[K, V], key: K): Option[V] =
+  tab.search key:
+    return some p.value
+  do:
+    return
 
 func `[]`*[K, V](tab: MiniTable[K, V], key: K): V =
   tab.search key:

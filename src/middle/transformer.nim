@@ -1,5 +1,5 @@
 import std/[tables, strutils, options, macros]
-import ../common/[coordination, domain, errors, graph, rand]
+import ../common/[coordination, domain, errors, graph, rand, collections]
 import ../ease/model as em, ../sue/model as sm
 import ../ease/logic as el, ../sue/logic as sl
 import ../sue/parser as sp
@@ -26,6 +26,10 @@ func `xor`(d1, d2: PortDir): bool =
     (pdOutput, pdInput)
   ]
 
+func `$`(ns: em.NetSlice): string =
+  case ns.kind:
+  of nskIndex: '[' & ns.index & ']'
+  of nskRange: '[' & ns.indexes.a & ':' & ns.indexes.b & ']'
 
 func toSue(s: em.Side): Orient =
   case s:
@@ -258,6 +262,23 @@ proc toSue*(
                 orient: toSue tag.side)
 
               result.schema.wiredNodes.incl pin .. conn
+
+          for p in part.ports:
+            let ns = getNetSlice p
+
+            if issome ns:
+              let
+                secondi = sourceNet.identifier.format(false)
+                firsti = $ns.get
+
+                pos1 = p.position
+                post = result.schema.wiredNodes[pos1].pick
+                pos2 = pos1 + toVector(dirOf pos1 .. post) * 20
+
+              result.schema.wiredNodes.addInMiddle pos1 .. post, pos2
+
+              discard addNameNet(pos1, result.schema, nameNet, firsti)
+              discard addNameNet(pos2, result.schema, nameNet, secondi)
 
     of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
       addSchematicInputs result

@@ -27,11 +27,20 @@ func excl*[N](g: var Graph[N], n1, n2: N) =
   g.exclImpl n1, n2
   g.exclImpl n2, n1
 
+func excl*[N](g: var Graph[N], s: Slice[N]) =
+  g.excl s.a, s.b
+
+proc addInMiddle*[N](g: var Graph[N], pair: Slice[N], middle: N) = 
+  g.excl pair.a .. pair.b
+  g.incl pair.a .. middle
+  g.incl middle .. pair.b
+
 func connected*[N](conns: Graph[N], n1, n2: N): bool =
   if n1 in conns:
     n2 in conns[n1]
   else: 
     false
+
 
 iterator walk*[N](g: Graph[N], start: N, seen: var HashSet[N]): N =
   var stack = @[start]

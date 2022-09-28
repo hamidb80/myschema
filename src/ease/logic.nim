@@ -1,7 +1,7 @@
 import std/[options, tables, strutils, strformat]
 
-import model
 import ../common/[coordination, errors, minitable]
+import model
 
 # basics ---
 
@@ -79,8 +79,16 @@ func getIconTransformer*(iconGeo: Geometry,
 
   transformer
 
+func getNetSlice*(p: Port): Option[NetSlice] =
+  # FIXME "(8*i)+7 downto i*8" from `mc8051`
 
-iterator allPorts(s: Schematic): Port = 
+  let ns = p.properties.get("NET_SLICE")
+
+  if ns.isSome:
+    result = some NetSlice(kind: nskIndex, index: ns.get)
+
+
+iterator allPorts(s: Schematic): Port =
   for p in s.ports:
     yield p
 

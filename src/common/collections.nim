@@ -71,8 +71,9 @@ func search*[T](s: openArray[T], check: proc(item: T): bool): T =
 
   raise newException(ValueError, "not found")
 
-# proc add[T](s: var HashSet[T], v: T) =
-#   s.incl v
+proc pick*[T](s: HashSet[T]): T =
+  for i in s:
+    return i
 
 template toTableBy*[Key, Value](s, keyExtractor): untyped =
   var result: Table[Key, seq[Value]]

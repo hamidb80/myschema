@@ -133,6 +133,9 @@ type
     bkTruthTable
     bkCode
 
+  NetSliceKind* = enum
+    nskIndex
+    nskRange
 
 # --- type defs
 type
@@ -489,6 +492,14 @@ type
 
     of ikRange:
       direction*: NumberDirection
+      indexes*: Slice[string]
+
+  NetSlice* = object
+    case kind*: NetSliceKind
+    of nskIndex:
+      index*: string
+
+    of nskRange:
       indexes*: Slice[string]
 
   Thing* = Component or Entity or Process or GenerateBlock

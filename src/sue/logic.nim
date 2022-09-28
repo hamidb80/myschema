@@ -140,6 +140,11 @@ iterator ports*(schema: Schematic): Port =
       yield p
 
 
+proc addInMiddle*(g: var Graph[Point], wire: Wire, middle: Point) = 
+  g.excl wire.a .. wire.b
+  g.incl wire.a .. middle
+  g.incl middle .. wire.b
+
 func `*`(i: range[-1..1], vd: VectorDirection): VectorDirection =
   case i:
   of +1: vd
@@ -150,16 +155,27 @@ template `||`(s1, s2): untyped =
   if s1.len == 0: s2
   else: s1
 
-proc addNameNet*(p: Port, schema: Schematic,
+proc addNameNet*(loc: Point, schema: Schematic,
     nameNetModule: Module,
     name: string = ""): Instance =
 
   result = Instance(
     name: name || ("net_" & randomIdent()),
     module: nameNetModule,
-    location: p.location)
+    location: loc)
 
   schema.instances.add result
+
+  if loc in schema.wiredNodes:
+    discard
+  else:
+    discard
+
+proc addNameNet*(p: Port, schema: Schematic,
+    nameNetModule: Module,
+    name: string = ""): Instance =
+
+  result = addNameNet(p.location, schema, nameNetModule, name)
 
 proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Port =
   ## 1. find location
@@ -172,8 +188,7 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Port =
 
   let
     loc = p.location
-    connectedWiresNodes = toseq schema.wiredNodes[loc]
-    nextNodeLoc = connectedWiresNodes[0]
+    nextNodeLoc = schema.wiredNodes[loc].pick
 
     dir_coeff =
       case p.origin.dir:
