@@ -129,7 +129,7 @@ iterator wires*(wiredNodes: Graph[Point]): Wire =
 
   for n1, conns in wiredNodes:
     for n2 in conns:
-      if not connected(my, n1, n2):
+      if not isConnected(my, n1, n2):
         let w = n1..n2
         my.incl w
         yield w
@@ -139,11 +139,6 @@ iterator ports*(schema: Schematic): Port =
     for p in ports:
       yield p
 
-
-proc addInMiddle*(g: var Graph[Point], wire: Wire, middle: Point) = 
-  g.excl wire.a .. wire.b
-  g.incl wire.a .. middle
-  g.incl middle .. wire.b
 
 func `*`(i: range[-1..1], vd: VectorDirection): VectorDirection =
   case i:
@@ -177,7 +172,14 @@ proc addNameNet*(p: Port, schema: Schematic,
 
   result = addNameNet(p.location, schema, nameNetModule, name)
 
-proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Port =
+func `{}`*(sp: seq[Port], dir: PortDir): Port =
+  for p in sp:
+    if p.origin.dir == dir:
+      return p
+
+  err "not found"
+
+proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Instance =
   ## 1. find location
   ## 2. find connected wires
   ## 3. detect direction of the port
@@ -211,9 +213,8 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Port =
       orient: orient)
 
 
-  var cachedPorts: array[PortDir, Port]
   for ip in bufferModule.icon.ports:
-    cachedPorts[ip.dir] = instantiate(ip, buffer)
+    buffer.ports.add instantiate(ip, buffer)
 
   let
     which =
@@ -222,16 +223,16 @@ proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Port =
       of +1: pdInput
       else: pdInout
 
-    pin = cachedPorts[which].location
+    pin = buffer.ports{which}.location
     move = pin - loc
 
   buffer.location = buffer.location - move
 
   schema.wiredNodes.excl loc, nextNodeLoc
-  schema.wiredNodes.incl cachedPorts[not which].location, nextNodeLoc
+  schema.wiredNodes.incl buffer.ports{not which}.location, nextNodeLoc
   schema.instances.add buffer
 
-  cachedPorts[not which]
+  buffer
 
 func problematic(ports: seq[Port]): seq[Port] =
   ## returns input ports if there were both input ports and output ports
@@ -250,20 +251,27 @@ func toPorts(schema: Schematic, pids: seq[PortID]): seq[Port] =
     result.add schema.portsTable[pid]
 
 proc fixErrors(schema: Schematic, modules: ModuleLookup) =
-  let bufferModule = modules["buffer0"]
+  let
+    bufferModule = modules["buffer0"]
+    nameNetModule = modules["name_net"]
+
   var instancesList = schema.instances # contains a copy
 
   for ins in instancesList:
+    var tt: Table[string, string]
+
     for p in ins.ports:
       if p.origin.hasSiblings:
-        discard addBuffer(p, schema, bufferModule)
+        let
+          b = addBuffer(p, schema, bufferModule)
+          n = addNameNet(b.ports{not p.origin.dir}, schema, nameNetModule)
+
+        tt[p.origin.name] = n.name
         p.origin.dir = pdInout
-        # let n = addNameNet(otherp, schema, nameNet)
-        # tt[p.origin.name] = n.name
 
       elif p.origin.isGhost:
-        discard addBuffer(p, schema, bufferModule)
-        # discard addNameNet(otherp, schema, nameNet, tt[p.origin.name])
+        let b = addBuffer(p, schema, bufferModule)
+        discard addNameNet(b.ports{not p.origin.dir}, schema, nameNetModule, tt[p.origin.name])
 
   for pids in parts schema.connections:
     let connectedSchemaPorts =
@@ -297,9 +305,13 @@ func extractConnections(sch: Schematic): Graph[PortId] =
 proc resolve*(proj: Project) =
   ## add meta data for instances, resolve modules
   for _, module in mpairs proj.modules:
+    reset module.schema.portsPlot
+    reset module.schema.portsTable
+
     for ins in mitems module.schema.instances:
       let mref = proj.modules[normalizeModuleName ins.module.name]
       ins.module = mref
+      reset ins.ports
 
       if ins.module.tag != mtNameNet and (ins.name.len == 0 or ins.name[0] ==
           '['): # an array, like [2:0]

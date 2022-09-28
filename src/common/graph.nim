@@ -35,7 +35,7 @@ proc addInMiddle*[N](g: var Graph[N], pair: Slice[N], middle: N) =
   g.incl pair.a .. middle
   g.incl middle .. pair.b
 
-func connected*[N](conns: Graph[N], n1, n2: N): bool =
+func isConnected*[N](conns: Graph[N], n1, n2: N): bool =
   if n1 in conns:
     n2 in conns[n1]
   else: 
