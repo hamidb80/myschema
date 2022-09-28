@@ -210,5 +210,3 @@ suite "advanced":
     tt("out_down", "out1", "obd")
     tt("out_left", "out1", "obl")
     tt("out_right", "out1", "obr")
-
-    saveModule initial
