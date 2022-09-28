@@ -31,8 +31,11 @@ type
     arc, straight
 
   PropertyKind* = enum
-    pFixed = "fixed" # static
+    pText = "text"
     pUser = "user"   # dynamic
+    pFixed = "fixed" # static
+    pAuto = "auto"
+    pComment = "comment"
 
   ModuleTag* = enum
     mtPort

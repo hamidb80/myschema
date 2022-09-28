@@ -137,6 +137,12 @@ type
     nskIndex
     nskRange
 
+  SlaveKind* = enum
+    slvRef, slvDef
+
+  IndetifierKind* = enum
+    ikSingle, ikIndex, ikRange
+
 # --- type defs
 type
   Obid* = distinct string
@@ -291,9 +297,6 @@ type
     slaves*: seq[Slave]
     transitions*: seq[TransitionLine]
 
-  SlaveKind* = enum
-    slvRef, slvDef
-
   Slave* = ref object
     obid*: Obid
 
@@ -331,7 +334,7 @@ type
     side*: BusRipperSide
     label*: Label
     cbn*: Option[ConnectByName]
-    destNet*: Net
+    destNet* {.cursor.}: Net
 
   Part* = ref object
     obid*: Obid
@@ -351,7 +354,7 @@ type
     of netRef: discard
     of netDef:
       hdlident*: HdlIdent
-      parts*: seq[Part] # FIXME convert to seq[PART] / in system09 example
+      parts*: seq[Part]
 
   PointConnection* = ref object
     obid*: Obid
@@ -379,7 +382,7 @@ type
       label*: Label
       cbn*: Option[ConnectByName]
       connection*: PointConnection
-      parent*: Port
+      parent* {.cursor.}: Port
 
   Process* = ref object
     obid*: Obid
@@ -402,7 +405,7 @@ type
     label*: Label
     ports*: seq[Port]
     generics*: seq[Generic]
-    parent*: Entity
+    parent* {.cursor.}: Entity
 
   Schematic* = ref object
     obid*: Obid
@@ -478,9 +481,6 @@ type
     designs*: seq[Library]
     packages*: seq[Package]
     # usedPackages: seq[tuple[suffix: string, pkg: Package]]
-
-  IndetifierKind* = enum
-    ikSingle, ikIndex, ikRange
 
   Identifier* = object
     name*: string

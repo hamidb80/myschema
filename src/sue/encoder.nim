@@ -162,6 +162,13 @@ func toSueFile*(m: sink Module): SueFile =
     args: @[toRawToken "$args", toRawToken "{$#}" % acc.join" "])
 
 
+  # TODO icon.params
+  
+  # -type user 
+  # -name ...
+  # ? -default <default value for prop.>
+  # ? -choices {[radio|choice|popup|binary] <choice1> <choice2> ...}]
+
   for p in m.icon.properties:
     if p.name notin ["origin", "orient"]:
       result.icon.add encode p
@@ -175,7 +182,6 @@ func toSueFile*(m: sink Module): SueFile =
 
   for l in m.icon.lines:
     result.icon.add encode(l, ecIcon)
-
 
   for ins in m.schema.instances:
     result.schematic.add encode ins
