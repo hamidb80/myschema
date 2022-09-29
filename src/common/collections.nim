@@ -104,3 +104,7 @@ template findOne*[V](s, cond): untyped =
 
 template `%`*(smth): untyped =
   toHashSet smth
+
+iterator nodes*[T](s: Slice[T]): T = 
+  yield s.a
+  yield s.b

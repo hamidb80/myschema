@@ -109,6 +109,48 @@ func genIconPort(p: em.Port, pin: Point, name: string): sm.Port =
     relativeLocation: p.geometry.center - pin,
     name: name)
 
+proc drawTable(schema: sm.Schematic, table: seq[seq[string]]) =
+  const
+    h = 20
+    w = 200
+
+  for y, row in table:
+    if y == 1:
+      schema.lines.add Line(
+        kind: sm.straight,
+        points: @[(0, h), (w*row.len, h)])
+
+    for x, cell in row:
+      schema.labels.add sm.Label(
+        content: cell,
+        location: (x * w, y * h),
+        anchor: e,
+        fnsize: fzLarge)
+
+proc drawFSM(schema: sm.Schematic, stateMachine: em.StateMachineV2) =
+  for stat in stateMachine.fsm.states:
+    schema.lines.add stat.geometry.toline
+    schema.labels.add sm.Label(
+      content: stat.label.texts.join "\n",
+      location: stat.label.position,
+      anchor: c)
+
+  for t in stateMachine.fsm.transitions:
+    for c in nodes t.connections:
+      schema.lines.add c.geometry.toLine
+
+    schema.lines.add sm.Line(
+      kind: sm.straight,
+      points: t.arrow.points.closed)
+
+    schema.lines.add:
+      case t.kind:
+      of em.straight:
+        sm.Line(kind: sm.straight, points: t.points)
+
+      of em.curved:
+        sm.Line(kind: sm.straight, points: t.biezier.foldPoints)
+
 proc makeModule(prc: em.Process): sm.Module =
   let pin = topLeft prc.geometry
 
@@ -136,6 +178,12 @@ proc makeModule(prc: em.Process): sm.Module =
       oldp.hasSiblings = true
 
     result.icon.ports.add newp
+
+  case prc.kind:
+  of ptTruthTable: drawTable(result.schema, prc.body.truthTable.raw)
+  of ptStateDiagram: drawFSM(result.schema, prc.body.stateMachine)
+  of ptProcess, ptConcurrentStatement, ptInitialConstruct,
+      ptSpecifyBlock: discard
 
   addSchematicInputs result
   addPortsLabel result.icon
@@ -170,6 +218,9 @@ proc toSue*(
 
   let nameNet = modules["name_net"]
   for a in entity.archs:
+    if a.kind != amBlockDiagram:
+      addSchematicInputs result
+
     case a.kind:
     of amBlockDiagram:
       let schema = a.body.schematic
@@ -286,8 +337,13 @@ proc toSue*(
               discard addNameNet(pos1, result.schema, nameNet, firsti)
               discard addNameNet(pos2, result.schema, nameNet, secondi)
 
-    of amTableDiagram, amStateDiagram, amExternalHDLFIle, amHDLFile:
-      addSchematicInputs result
+    of amTableDiagram:
+      drawTable result.schema, a.body.truthTable.raw
+
+    of amStateDiagram:
+      drawFSM result.schema, a.body.stateMachine
+
+    of amExternalHDLFIle, amHDLFile: discard
 
 proc toSue*(proj: em.Project, basicModules: sm.ModuleLookUp): sm.Project =
   ## fonverts a EWS project to SUE project

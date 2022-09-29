@@ -164,6 +164,13 @@ func placeAt*(g: Geometry, at: Point): Geometry =
 
 const P0* = (0, 0)
 
+func closed*(s: seq[Point]): seq[Point] = 
+  if s[0] == s[^1]: s
+  else: s & s[0]
+
+func foldPoints*(xyValues: seq[int]): seq[Point] =
+  for i in countup(0, xyValues.high, 2):
+    result.add (xyValues[i], xyValues[i+1])
 
 func dirOf*(w: Slice[Point]): VectorDirection =
   ## remeber when you go up, the y is - and the bottom is +

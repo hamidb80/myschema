@@ -87,6 +87,8 @@ func getNetSlice*(p: Port): Option[NetSlice] =
   if ns.isSome:
     result = some NetSlice(kind: nskIndex, index: ns.get)
 
+func raw*(tt: TruthTable): seq[seq[string]] = 
+  tt.headers & tt.rows
 
 iterator allPorts(s: Schematic): Port =
   for p in s.ports:

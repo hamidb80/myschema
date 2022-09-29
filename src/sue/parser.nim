@@ -3,11 +3,6 @@ import ../common/[errors, coordination, collections, domain, graph, rand, path, 
 import lexer, model, logic
 
 
-func foldPoints(xyValues: seq[int]): seq[Point] =
-  for i in countup(0, xyValues.high, 2):
-    result.add (xyValues[i], xyValues[i+1]) # TODO this line
-
-
 func parsePortType*(s: string): PortDir =
   case s:
   of "input": pdInput

@@ -550,14 +550,8 @@ func parseArrow(arrowNode: LispNode): Arrow =
     of "NUMBER":
       result.number = parseInt n
 
-    of "ARROW_BPOS":
-      result.points[0] = parsePosition n
-
-    of "ARROW_MPOS":
-      result.points[1] = parsePosition n
-
-    of "ARROW_EPOS":
-      result.points[2] = parsePosition n
+    of "ARROW_BPOS", "ARROW_MPOS", "ARROW_EPOS":
+      result.points.add parsePosition n
 
     of "LABEL":
       result.label = parseLabel n

@@ -270,7 +270,7 @@ type
 
   Arrow* = ref object
     number*: int
-    points*: array[3, Point]
+    points*: seq[Point]
     label*: Label
 
   TransitionLine* = ref object
