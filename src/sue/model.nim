@@ -101,7 +101,7 @@ type
 
   Instance* = ref object
     name*: string
-    module* {.cursor.}: Module
+    module*: Module
     args*: MiniTable[string, string]
     location*: Point
     orient*: Orient

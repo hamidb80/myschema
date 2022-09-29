@@ -77,7 +77,7 @@ the following modules are not available:
 | cbn | Connect by name | CBN |
 | igen | instance generic | GENERIC |
 | egen | entity generic | GENERIC |
-| file | File content| VHDL_FILE |
+| txt | File content | FILE, VERILOG_FILE |
 | itxt | included text	| INCLUDED_TEXT |
 | extf | External file | - |
 | fsmx | state machine | STATE_MACHINE_V2 |
