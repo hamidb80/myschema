@@ -30,10 +30,10 @@ func excl*[N](g: var Graph[N], n1, n2: N) =
 func excl*[N](g: var Graph[N], s: Slice[N]) =
   g.excl s.a, s.b
 
-proc addInMiddle*[N](g: var Graph[N], pair: Slice[N], middle: N) = 
+proc addInbridge*[N](g: var Graph[N], pair: Slice[N], bridge: N) = 
   g.excl pair.a .. pair.b
-  g.incl pair.a .. middle
-  g.incl middle .. pair.b
+  g.incl pair.a .. bridge
+  g.incl bridge .. pair.b
 
 func isConnected*[N](conns: Graph[N], n1, n2: N): bool =
   if n1 in conns:

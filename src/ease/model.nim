@@ -334,7 +334,7 @@ type
     side*: BusRipperSide
     label*: Label
     cbn*: Option[ConnectByName]
-    destNet* {.cursor.}: Net
+    destNet*: Net
 
   Part* = ref object
     obid*: Obid
@@ -382,7 +382,7 @@ type
       label*: Label
       cbn*: Option[ConnectByName]
       connection*: PointConnection
-      parent* {.cursor.}: Port
+      parent*: Port
 
   Process* = ref object
     obid*: Obid
@@ -405,7 +405,7 @@ type
     label*: Label
     ports*: seq[Port]
     generics*: seq[Generic]
-    parent* {.cursor.}: Entity
+    parent*: Entity
 
   Schematic* = ref object
     obid*: Obid

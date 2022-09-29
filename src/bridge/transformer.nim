@@ -281,7 +281,7 @@ proc toSue*(
                 post = result.schema.wiredNodes[pos1].pick
                 pos2 = pos1 + toVector(dirOf pos1 .. post) * 20
 
-              result.schema.wiredNodes.addInMiddle pos1 .. post, pos2
+              result.schema.wiredNodes.addInbridge pos1 .. post, pos2
 
               discard addNameNet(pos1, result.schema, nameNet, firsti)
               discard addNameNet(pos2, result.schema, nameNet, secondi)
