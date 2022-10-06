@@ -109,6 +109,7 @@ func genIconPort(p: em.Port, pin: Point, name: string): sm.Port =
     relativeLocation: p.geometry.center - pin,
     name: name)
 
+
 proc drawTable(schema: sm.Schematic, table: seq[seq[string]]) =
   const
     h = 20

@@ -4,8 +4,8 @@ import ease/encoder as ee, sue/encoder as se
 import ease/parser as ep, sue/parser as sp
 import bridge/transformer
 
-static:
-  assert not compileOption("mm", "arc"), "a memory management that supports cycles should be used"
+when compileOption("mm", "arc"):
+  {.fatal: "a memory management that supports cycles should be used".}
 
 when isMainModule:
   template l(msgs: varargs[untyped]): untyped =

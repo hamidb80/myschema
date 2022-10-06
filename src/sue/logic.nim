@@ -182,6 +182,15 @@ func `{}`*(sp: seq[Port], dir: PortDir): Port =
 
   err "not found"
 
+type MathExpr = ref object
+
+func netLen(label: string): MathExpr | int = 
+  ## 
+
+func net(schema: Schematic, node: Point): NetWire = 
+  assert node in schema.wiredNodes
+
+
 proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Instance =
   ## 1. find location
   ## 2. find connected wires

@@ -27,6 +27,11 @@ type
     pkIconTerm
     pkInstance
 
+  NetWireKind* = enum
+    nwkSingle
+    nwkSelect
+    nwkBus
+
   LineKind* = enum
     arc, straight
 
@@ -89,6 +94,12 @@ type
 
   PortID* = distinct string
 
+  NetWire* = object
+    case kind*: NetWireKind
+    of nwkSingle: discard
+    of nwkSelect: index*: string
+    of nwkBus: indexes*: Slice[string]
+
   Schematic* = ref object
     instances*: seq[Instance]
     wiredNodes*: Graph[Point]
@@ -126,11 +137,14 @@ type
     modules*: ModuleLookUp
 
 
+# ------------------------------------------------
+
 import std/hashes
 
 func hash*(pid: PortID): Hash {.borrow.}
 func `==`*(pid1, pid2: PortID): bool {.borrow.}
 func `$`*(pid: PortID): string {.borrow.}
+
 
 template `?`(smth): untyped =
   some smth

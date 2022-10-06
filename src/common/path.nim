@@ -2,7 +2,7 @@ import std/[os, strutils, macros]
 import errors
 
 
-proc projectPath* : string =
+proc projectPath*: string =
   var path = getProjectPath()
 
   for _ in 1 .. 10:
