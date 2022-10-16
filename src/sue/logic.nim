@@ -1,4 +1,4 @@
-import std/[sequtils, strutils, sets, tables]
+import std/[sequtils, strutils, sets, tables, strformat, pegs, options]
 
 import ../common/[coordination, graph, errors, seqtable, domain, rand,
     collections, minitable]
@@ -182,22 +182,13 @@ func `{}`*(sp: seq[Port], dir: PortDir): Port =
 
   err "not found"
 
-const notFound = -1
-func netKind*(name: string): NetWireKind =
-  let
-    bClose = name.rfind "]"
-    bSlice = name.find ":"
-
-  if bClose == notFound: nwkSingle
-  elif bSlice == notFound: nwkSelect
-  else: nwkBus
-
-func busRange*(name: string): string = 
-  for ch in name:
-    case ch:
-    of '['
-    of ']'
-    of ':'
+func extractNet*(name: string): tuple[kind: NetWireKind, size: string] =
+  let s = name.split {'[', ':', ']'}
+  case s.len:
+  of 1: (nwkSingle, "")
+  of 3: (nwkSelect, "")
+  of 4: (nwkBus, fmt"({s[1]})-({s[2]})")
+  else: err "invalid port name"
 
 func buildNetList(schema: Schematic): Table[Point, string] =
   for p in schema.ports:
@@ -208,6 +199,20 @@ func buildNetList(schema: Schematic): Table[Point, string] =
 
     elif p.origin.dir == pdOutput and t != mtPort:
       discard
+
+
+# import nre
+
+# func `>..<`(a, b: int): Slice[int] =
+#   a+1 .. b-1
+
+# func vmoduleBody(c: string): string =
+#   ## extracts body of verilog file content `c`
+#   let
+#     s = c.find re(r"(?ms)module.*\)\s*(;)")
+#     e = c.find "endmodule"
+
+#   c[s.get.captureBounds[0].b >..< e]
 
 
 proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Instance =

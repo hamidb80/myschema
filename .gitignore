@@ -2,8 +2,10 @@
 build/
 temp/
 
-*.exe
 play.*
+temp.*
+
+*.exe
 *.BAK
 *.sp
 *.sue_as
