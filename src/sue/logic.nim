@@ -182,13 +182,32 @@ func `{}`*(sp: seq[Port], dir: PortDir): Port =
 
   err "not found"
 
-type MathExpr = ref object
+const notFound = -1
+func netKind*(name: string): NetWireKind =
+  let
+    bClose = name.rfind "]"
+    bSlice = name.find ":"
 
-func netLen(label: string): MathExpr | int = 
-  ## 
+  if bClose == notFound: nwkSingle
+  elif bSlice == notFound: nwkSelect
+  else: nwkBus
 
-func net(schema: Schematic, node: Point): NetWire = 
-  assert node in schema.wiredNodes
+func busRange*(name: string): string = 
+  for ch in name:
+    case ch:
+    of '['
+    of ']'
+    of ':'
+
+func buildNetList(schema: Schematic): Table[Point, string] =
+  for p in schema.ports:
+    let t = p.parent.module.tag
+
+    if p.origin.dir == pdInput and t == mtPort:
+      discard
+
+    elif p.origin.dir == pdOutput and t != mtPort:
+      discard
 
 
 proc addBuffer(p: Port, schema: Schematic, bufferModule: Module): Instance =
@@ -340,4 +359,5 @@ proc resolve*(proj: Project) =
         for pid in insPort.ids:
           module.schema.portsTable.add pid, insPort
 
-    module.schema.connections = extractConnections(module.schema)
+    module.schema.netList = buildNetList module.schema
+    module.schema.connections = extractConnections module.schema

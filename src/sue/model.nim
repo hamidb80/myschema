@@ -94,12 +94,6 @@ type
 
   PortID* = distinct string
 
-  NetWire* = object
-    case kind*: NetWireKind
-    of nwkSingle: discard
-    of nwkSelect: index*: string
-    of nwkBus: indexes*: Slice[string]
-
   Schematic* = ref object
     instances*: seq[Instance]
     wiredNodes*: Graph[Point]
@@ -109,6 +103,7 @@ type
     # --- meta data
     portsPlot*: Table[Point, seq[Port]]
     portsTable*: Table[PortID, seq[Port]]
+    netList*: Table[Point, string]
 
   Instance* = ref object
     name*: string
